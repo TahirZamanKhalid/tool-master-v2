@@ -467,7 +467,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full overflow-x-hidden">
       <SEOHead 
         title="Home - 100+ Free Online Tools"
         description="Access 100+ free online tools for developers, designers, and content creators. No signup required. Image tools, text converters, calculators, and more."
@@ -476,23 +476,23 @@ const Index = () => {
       <Header searchQuery={searchQuery} onSearch={handleLiveSearch} />
       
       {/* Top Banner Ad */}
-      <div className="container py-4 flex justify-center">
+      <div className="container py-4 flex justify-center w-full overflow-hidden px-4">
         <AdSpace size="leaderboard" />
       </div>
 
       <Hero searchQuery={searchQuery} onSearch={handleLiveSearch} />
 
       {/* Categories Section */}
-      <section className="py-16 container">
+      <section className="py-16 container w-full overflow-hidden px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Browse by Category</h2>
-          <p className="text-muted-foreground text-lg">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 break-words">Browse by Category</h2>
+          <p className="text-muted-foreground text-base sm:text-lg break-words">
             Explore our comprehensive collection of free online tools
           </p>
         </div>
 
         {/* Desktop Sidebar Layout */}
-        <div className="flex gap-6 justify-center">
+        <div className="flex gap-6 justify-center w-full">
           {/* Left Sidebar Ad - Desktop Only */}
           <div className="hidden xl:block flex-shrink-0 sticky top-24 self-start">
             <AdSpace size="skyscraper" />

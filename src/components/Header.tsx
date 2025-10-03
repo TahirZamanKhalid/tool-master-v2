@@ -65,16 +65,16 @@ export const Header = ({ searchQuery = "", onSearch }: HeaderProps) => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
-      <div className="container flex h-16 items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <div className="gradient-primary h-8 w-8 rounded-lg"></div>
-          <div>
-            <h1 className="text-xl font-bold">ToolMaster Pro</h1>
-            <p className="text-xs text-muted-foreground">100+ Free Tools</p>
+      <div className="container flex h-16 items-center justify-between gap-2 sm:gap-4 px-4">
+        <div className="flex items-center gap-2 min-w-0 flex-shrink">
+          <div className="gradient-primary h-6 w-6 sm:h-8 sm:w-8 rounded-lg flex-shrink-0"></div>
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl font-bold truncate">ToolMaster Pro</h1>
+            <p className="text-xs text-muted-foreground hidden sm:block">100+ Free Tools</p>
           </div>
         </div>
 
-        <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-xl mx-8">
+        <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-xl mx-4 lg:mx-8">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -86,26 +86,26 @@ export const Header = ({ searchQuery = "", onSearch }: HeaderProps) => {
           </div>
         </form>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
           {user ? (
             <Button
               variant="ghost"
               size="sm"
               onClick={handleSignOut}
-              className="gap-2"
+              className="gap-1 sm:gap-2 px-2 sm:px-4"
             >
               <LogOut className="h-4 w-4" />
-              Sign Out
+              <span className="hidden sm:inline">Sign Out</span>
             </Button>
           ) : (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate("/auth")}
-              className="gap-2"
+              className="gap-1 sm:gap-2 px-2 sm:px-4"
             >
               <LogIn className="h-4 w-4" />
-              Sign In
+              <span className="hidden sm:inline">Sign In</span>
             </Button>
           )}
           
@@ -113,7 +113,7 @@ export const Header = ({ searchQuery = "", onSearch }: HeaderProps) => {
             variant="ghost"
             size="icon"
             onClick={() => setIsDark(!isDark)}
-            className="rounded-lg"
+            className="rounded-lg flex-shrink-0"
           >
             {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
