@@ -661,31 +661,39 @@ const Index = () => {
 
       {/* Stats Section */}
       <section className="py-16 bg-muted/30">
-        <div className="container">
-          <div className="grid md:grid-cols-4 gap-8 text-center">
-            <div className="animate-fade-in">
-              <div className="text-4xl md:text-5xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
-                100+
+        <div className="container px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
+            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth">
+              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  100+
+                </span>
               </div>
-              <p className="text-muted-foreground">Free Tools</p>
+              <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Tools</p>
             </div>
-            <div className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
-              <div className="text-4xl md:text-5xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
-                1M+
+            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.1s" }}>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  1M+
+                </span>
               </div>
-              <p className="text-muted-foreground">Monthly Users</p>
+              <p className="text-sm sm:text-base text-muted-foreground font-medium">Monthly Users</p>
             </div>
-            <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
-              <div className="text-4xl md:text-5xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
-                10M+
+            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.2s" }}>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  10M+
+                </span>
               </div>
-              <p className="text-muted-foreground">Files Processed</p>
+              <p className="text-sm sm:text-base text-muted-foreground font-medium">Files Processed</p>
             </div>
-            <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
-              <div className="text-4xl md:text-5xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
-                100%
+            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.3s" }}>
+              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  100%
+                </span>
               </div>
-              <p className="text-muted-foreground">Free Forever</p>
+              <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Forever</p>
             </div>
           </div>
 
