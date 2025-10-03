@@ -70,7 +70,7 @@ const CountdownTimer = () => {
           </div>
           {timeLeft > 0 && (
             <div className="text-center p-12 bg-muted rounded">
-              <p className="text-6xl font-bold gradient-primary bg-clip-text text-transparent">
+              <p className="text-6xl font-bold text-primary">
                 {formatTime(timeLeft)}
               </p>
             </div>

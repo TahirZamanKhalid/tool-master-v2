@@ -35,7 +35,7 @@ const StopwatchTimer = () => {
       <Card>
         <CardContent className="p-6 space-y-4">
           <div className="text-center p-12 bg-muted rounded">
-            <p className="text-6xl font-bold gradient-primary bg-clip-text text-transparent font-mono">
+            <p className="text-6xl font-bold text-primary font-mono">
               {formatTime(time)}
             </p>
           </div>

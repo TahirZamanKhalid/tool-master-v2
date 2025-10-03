@@ -159,7 +159,7 @@ const CurrencyConverter = () => {
             <div className="pt-6 border-t">
               <div className="text-center">
                 <p className="text-sm text-muted-foreground mb-2">Converted Amount</p>
-                <p className="text-4xl font-bold gradient-primary bg-clip-text text-transparent">
+                <p className="text-4xl font-bold text-primary">
                   {toSymbol}{result} {toCurrency}
                 </p>
                 <p className="text-sm text-muted-foreground mt-4">
