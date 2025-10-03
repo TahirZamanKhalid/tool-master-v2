@@ -1,7 +1,10 @@
-import { Moon, Sun, Search } from "lucide-react";
+import { Moon, Sun, Search, LogOut, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface HeaderProps {
   searchQuery?: string;
@@ -9,8 +12,10 @@ interface HeaderProps {
 }
 
 export const Header = ({ searchQuery = "", onSearch }: HeaderProps) => {
+  const navigate = useNavigate();
   const [isDark, setIsDark] = useState(false);
   const [localSearch, setLocalSearch] = useState(searchQuery);
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -25,6 +30,20 @@ export const Header = ({ searchQuery = "", onSearch }: HeaderProps) => {
     setLocalSearch(searchQuery);
   }, [searchQuery]);
 
+  useEffect(() => {
+    // Check current user
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalSearch(value);
@@ -33,6 +52,15 @@ export const Header = ({ searchQuery = "", onSearch }: HeaderProps) => {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+  };
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error("Error signing out");
+    } else {
+      toast.success("Signed out successfully");
+    }
   };
 
   return (
@@ -58,14 +86,38 @@ export const Header = ({ searchQuery = "", onSearch }: HeaderProps) => {
           </div>
         </form>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsDark(!isDark)}
-          className="rounded-lg"
-        >
-          {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-        </Button>
+        <div className="flex items-center gap-2">
+          {user ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleSignOut}
+              className="gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/auth")}
+              className="gap-2"
+            >
+              <LogIn className="h-4 w-4" />
+              Sign In
+            </Button>
+          )}
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsDark(!isDark)}
+            className="rounded-lg"
+          >
+            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </Button>
+        </div>
       </div>
     </header>
   );

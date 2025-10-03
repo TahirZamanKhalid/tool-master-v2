@@ -53,6 +53,7 @@ import DiceRoller from "./pages/tools/DiceRoller";
 import CountdownTimer from "./pages/tools/CountdownTimer";
 import StopwatchTimer from "./pages/tools/StopwatchTimer";
 import AgeCalculator from "./pages/tools/AgeCalculator";
+import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
         <Route path="/tools/background-remover" element={<BackgroundRemover />} />
         <Route path="/tools/qr-code-generator" element={<QRCodeGenerator />} />
         <Route path="/tools/pdf-merger" element={<PDFMerger />} />
