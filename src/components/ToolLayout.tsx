@@ -3,7 +3,11 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AdSpace } from "@/components/AdSpace";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { ToolRating } from "@/components/ToolRating";
+import { SEOHead } from "@/components/SEOHead";
+import { useToolAnalytics } from "@/hooks/useToolAnalytics";
 
 interface ToolLayoutProps {
   title: string;
@@ -23,18 +27,26 @@ export const ToolLayout = ({
   relatedTools,
 }: ToolLayoutProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Track tool view
+  useToolAnalytics(location.pathname);
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead 
+        title={title}
+        description={description}
+        keywords={`${title}, ${category}, free online tool, no signup required`}
+        canonical={`https://yourdomain.com${location.pathname}`}
+      />
       <div className="container py-8">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="mb-6"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Button>
+        <Breadcrumbs 
+          items={[
+            { label: category },
+            { label: title }
+          ]}
+        />
 
         {/* Top Banner Ad */}
         <AdSpace size="banner" className="mb-8" />
@@ -69,6 +81,8 @@ export const ToolLayout = ({
                 </ol>
               </div>
             )}
+
+            <ToolRating toolPath={location.pathname} />
 
             <AdSpace size="leaderboard" />
 

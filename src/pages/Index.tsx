@@ -5,6 +5,8 @@ import { CategoryCard } from "@/components/CategoryCard";
 import { ToolCard } from "@/components/ToolCard";
 import { HowItWorks } from "@/components/HowItWorks";
 import { AdSpace } from "@/components/AdSpace";
+import { SEOHead } from "@/components/SEOHead";
+import { trackSearch } from "@/hooks/useToolAnalytics";
 import { useState, useEffect, useMemo } from "react";
 import {
   Sparkles,
@@ -416,11 +418,21 @@ const Index = () => {
     if (query) params.set("q", query);
     if (selectedCategory) params.set("category", selectedCategory);
     setSearchParams(params);
+    
+    // Track search analytics
+    if (query.length >= 3) {
+      trackSearch(query);
+    }
   };
 
   // Live search handler
   const handleLiveSearch = (query: string) => {
     setSearchQuery(query);
+    
+    // Track search analytics for live searches too
+    if (query.length >= 3) {
+      trackSearch(query);
+    }
   };
 
   const handleCategoryFilter = (category: string) => {
@@ -456,6 +468,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
+      <SEOHead 
+        title="Home - 100+ Free Online Tools"
+        description="Access 100+ free online tools for developers, designers, and content creators. No signup required. Image tools, text converters, calculators, and more."
+        keywords="free online tools, developer tools, image tools, text tools, converters, calculators, no signup"
+      />
       <Header searchQuery={searchQuery} onSearch={handleLiveSearch} />
       
       {/* Top Banner Ad */}
