@@ -3,6 +3,7 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AdSpace } from "@/components/AdSpace";
 
 const DiceRoller = () => {
   const [sides, setSides] = useState("6");
@@ -19,6 +20,7 @@ const DiceRoller = () => {
       description="Roll virtual dice with custom sides"
       category="Utilities"
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <Select value={sides} onValueChange={setSides}>

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { AdSpace } from "@/components/AdSpace";
 
 const GradientGenerator = () => {
   const [color1, setColor1] = useState("#3b82f6");
@@ -24,6 +25,7 @@ const GradientGenerator = () => {
       description="Create beautiful CSS gradients"
       category="Image Tools"
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">

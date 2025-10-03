@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { AdSpace } from "@/components/AdSpace";
 
 const CSVToJSON = () => {
   const [csvInput, setCsvInput] = useState("");
@@ -45,6 +46,7 @@ const CSVToJSON = () => {
       description="Convert CSV data to JSON format"
       category="Developer Tools"
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardContent className="p-6 space-y-4">

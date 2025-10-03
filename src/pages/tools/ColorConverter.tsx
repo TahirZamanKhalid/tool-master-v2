@@ -3,6 +3,7 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { AdSpace } from "@/components/AdSpace";
 
 const ColorConverter = () => {
   const [hex, setHex] = useState("#3b82f6");
@@ -45,6 +46,7 @@ const ColorConverter = () => {
       description="Convert between HEX, RGB, and HSL color formats"
       category="Image Tools"
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>

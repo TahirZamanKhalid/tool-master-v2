@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { AdSpace } from "@/components/AdSpace";
 
 const Base64ImageEncoder = () => {
   const [base64Output, setBase64Output] = useState("");
@@ -32,6 +33,7 @@ const Base64ImageEncoder = () => {
       description="Convert images to Base64 strings"
       category="Developer Tools"
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <Input type="file" accept="image/*" onChange={handleImageUpload} />

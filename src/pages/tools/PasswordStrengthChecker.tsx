@@ -3,6 +3,7 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { AdSpace } from "@/components/AdSpace";
 
 const PasswordStrengthChecker = () => {
   const [password, setPassword] = useState("");
@@ -38,6 +39,7 @@ const PasswordStrengthChecker = () => {
       description="Check how strong your password is"
       category="Security Tools"
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <Input

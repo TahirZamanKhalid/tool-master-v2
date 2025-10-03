@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { AdSpace } from "@/components/AdSpace";
 
 const TextToSlug = () => {
   const [text, setText] = useState("");
@@ -31,6 +32,7 @@ const TextToSlug = () => {
       description="Convert text to URL-friendly slugs"
       category="Text Tools"
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>

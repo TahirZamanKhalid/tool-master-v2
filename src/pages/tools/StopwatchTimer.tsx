@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AdSpace } from "@/components/AdSpace";
 
 const StopwatchTimer = () => {
   const [time, setTime] = useState(0);
@@ -30,6 +31,7 @@ const StopwatchTimer = () => {
       description="Precise stopwatch timer"
       category="Utilities"
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div className="text-center p-12 bg-muted rounded">

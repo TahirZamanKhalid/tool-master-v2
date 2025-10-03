@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { AdSpace } from "@/components/AdSpace";
 
 const ImageCropper = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -27,6 +28,7 @@ const ImageCropper = () => {
       description="Crop images to your desired size"
       category="Image Tools"
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>

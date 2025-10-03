@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { AdSpace } from "@/components/AdSpace";
 
 const CountdownTimer = () => {
   const [minutes, setMinutes] = useState("5");
@@ -44,6 +45,7 @@ const CountdownTimer = () => {
       description="Set a countdown timer"
       category="Utilities"
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">

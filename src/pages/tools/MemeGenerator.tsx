@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { AdSpace } from "@/components/AdSpace";
 
 const MemeGenerator = () => {
   const [topText, setTopText] = useState("");
@@ -34,6 +35,7 @@ const MemeGenerator = () => {
       description="Create funny memes with custom text"
       category="Image Tools"
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>
