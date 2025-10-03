@@ -422,6 +422,10 @@ const Index = () => {
     // Track search analytics
     if (query.length >= 3) {
       trackSearch(query);
+      // Scroll to search results when user searches
+      setTimeout(() => {
+        document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     }
   };
 
@@ -432,6 +436,10 @@ const Index = () => {
     // Track search analytics for live searches too
     if (query.length >= 3) {
       trackSearch(query);
+      // Scroll to search results for live search
+      setTimeout(() => {
+        document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     }
   };
 
