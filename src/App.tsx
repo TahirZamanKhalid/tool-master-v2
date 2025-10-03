@@ -19,6 +19,16 @@ import URLEncoder from "./pages/tools/URLEncoder";
 import HashGenerator from "./pages/tools/HashGenerator";
 import UUIDGenerator from "./pages/tools/UUIDGenerator";
 import CaseConverter from "./pages/tools/CaseConverter";
+import MarkdownPreview from "./pages/tools/MarkdownPreview";
+import HTMLEncoder from "./pages/tools/HTMLEncoder";
+import LoremIpsumGenerator from "./pages/tools/LoremIpsumGenerator";
+import TimestampConverter from "./pages/tools/TimestampConverter";
+import TextDiff from "./pages/tools/TextDiff";
+import RegexTester from "./pages/tools/RegexTester";
+import CodeBeautifier from "./pages/tools/CodeBeautifier";
+import UnitConverter from "./pages/tools/UnitConverter";
+import PercentageCalculator from "./pages/tools/PercentageCalculator";
+import BMICalculator from "./pages/tools/BMICalculator";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +54,16 @@ const App = () => (
         <Route path="/tools/hash-generator" element={<HashGenerator />} />
         <Route path="/tools/uuid-generator" element={<UUIDGenerator />} />
         <Route path="/tools/case-converter" element={<CaseConverter />} />
+        <Route path="/tools/markdown-preview" element={<MarkdownPreview />} />
+        <Route path="/tools/html-encoder" element={<HTMLEncoder />} />
+        <Route path="/tools/lorem-ipsum" element={<LoremIpsumGenerator />} />
+        <Route path="/tools/timestamp-converter" element={<TimestampConverter />} />
+        <Route path="/tools/text-diff" element={<TextDiff />} />
+        <Route path="/tools/regex-tester" element={<RegexTester />} />
+        <Route path="/tools/code-beautifier" element={<CodeBeautifier />} />
+        <Route path="/tools/unit-converter" element={<UnitConverter />} />
+        <Route path="/tools/percentage-calculator" element={<PercentageCalculator />} />
+        <Route path="/tools/bmi-calculator" element={<BMICalculator />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

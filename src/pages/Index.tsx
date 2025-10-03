@@ -26,6 +26,15 @@ import {
   Link2,
   Hash,
   Key,
+  FileCode,
+  AlignLeft,
+  Clock,
+  GitCompare,
+  Regex,
+  Wand2,
+  Scale,
+  Percent,
+  Activity,
 } from "lucide-react";
 
 const categories = [
@@ -192,6 +201,66 @@ const popularTools = [
     description: "Convert text between different cases",
     category: "Text Tools",
   },
+  {
+    icon: FileCode,
+    title: "Markdown Preview",
+    description: "Write and preview markdown in real-time",
+    category: "Text Tools",
+  },
+  {
+    icon: Code,
+    title: "HTML Encoder",
+    description: "Encode or decode HTML entities",
+    category: "Developer Tools",
+  },
+  {
+    icon: AlignLeft,
+    title: "Lorem Ipsum",
+    description: "Generate placeholder text",
+    category: "Text Tools",
+  },
+  {
+    icon: Clock,
+    title: "Timestamp Converter",
+    description: "Convert Unix timestamps",
+    category: "Developer Tools",
+  },
+  {
+    icon: GitCompare,
+    title: "Text Diff",
+    description: "Compare text differences",
+    category: "Text Tools",
+  },
+  {
+    icon: Regex,
+    title: "Regex Tester",
+    description: "Test regular expressions",
+    category: "Developer Tools",
+  },
+  {
+    icon: Wand2,
+    title: "Code Beautifier",
+    description: "Format JSON, HTML, CSS",
+    category: "Developer Tools",
+  },
+  {
+    icon: Scale,
+    title: "Unit Converter",
+    description: "Convert units of measurement",
+    category: "Calculators",
+  },
+  {
+    icon: Percent,
+    title: "Percentage Calculator",
+    description: "Calculate percentages",
+    category: "Calculators",
+  },
+  {
+    icon: Activity,
+    title: "BMI Calculator",
+    description: "Calculate Body Mass Index",
+    category: "Calculators",
+  },
 ];
 
 const Index = () => {
@@ -270,6 +339,16 @@ const Index = () => {
               "Hash Generator": "/tools/hash-generator",
               "UUID Generator": "/tools/uuid-generator",
               "Case Converter": "/tools/case-converter",
+              "Markdown Preview": "/tools/markdown-preview",
+              "HTML Encoder": "/tools/html-encoder",
+              "Lorem Ipsum": "/tools/lorem-ipsum",
+              "Timestamp Converter": "/tools/timestamp-converter",
+              "Text Diff": "/tools/text-diff",
+              "Regex Tester": "/tools/regex-tester",
+              "Code Beautifier": "/tools/code-beautifier",
+              "Unit Converter": "/tools/unit-converter",
+              "Percentage Calculator": "/tools/percentage-calculator",
+              "BMI Calculator": "/tools/bmi-calculator",
             };
             
             return (
