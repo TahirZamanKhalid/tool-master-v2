@@ -16,9 +16,14 @@ export const Hero = ({ searchQuery = "", onSearch }: HeroProps) => {
     setLocalSearch(searchQuery);
   }, [searchQuery]);
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocalSearch(value);
+    onSearch?.(value); // Live search on every keystroke
+  };
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch?.(localSearch);
   };
 
   const handleTrendingClick = (term: string) => {
@@ -43,7 +48,7 @@ export const Hero = ({ searchQuery = "", onSearch }: HeroProps) => {
                 placeholder="Search 100+ tools... Try 'background remover' or 'QR code'"
                 className="h-14 pl-12 text-base shadow-card-hover border-2"
                 value={localSearch}
-                onChange={(e) => setLocalSearch(e.target.value)}
+                onChange={handleSearchChange}
               />
               <Button 
                 type="submit"

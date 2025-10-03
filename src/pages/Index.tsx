@@ -36,6 +36,19 @@ import {
   Scale,
   Percent,
   Activity,
+  Crop,
+  Laugh,
+  FileSpreadsheet,
+  FileJson,
+  Database,
+  Globe,
+  Shield,
+  FileImage,
+  Paintbrush,
+  Link,
+  Dices,
+  Timer,
+  Calendar,
 } from "lucide-react";
 
 const categories = [
@@ -262,6 +275,126 @@ const popularTools = [
     description: "Calculate Body Mass Index",
     category: "Calculators",
   },
+  {
+    icon: Image,
+    title: "Image Resizer",
+    description: "Resize images to custom dimensions",
+    category: "Image Tools",
+  },
+  {
+    icon: Crop,
+    title: "Image Cropper",
+    description: "Crop images to your desired size",
+    category: "Image Tools",
+  },
+  {
+    icon: Laugh,
+    title: "Meme Generator",
+    description: "Create funny memes with custom text",
+    category: "Image Tools",
+  },
+  {
+    icon: Type,
+    title: "ASCII Art Generator",
+    description: "Convert text to ASCII art",
+    category: "Text Tools",
+  },
+  {
+    icon: FileSpreadsheet,
+    title: "CSV to JSON",
+    description: "Convert CSV data to JSON format",
+    category: "Developer Tools",
+  },
+  {
+    icon: FileJson,
+    title: "JSON to CSV",
+    description: "Convert JSON data to CSV format",
+    category: "Developer Tools",
+  },
+  {
+    icon: Code,
+    title: "XML Formatter",
+    description: "Format and beautify XML code",
+    category: "Developer Tools",
+  },
+  {
+    icon: FileCode,
+    title: "YAML Formatter",
+    description: "Format and validate YAML files",
+    category: "Developer Tools",
+  },
+  {
+    icon: Database,
+    title: "SQL Formatter",
+    description: "Format and beautify SQL queries",
+    category: "Developer Tools",
+  },
+  {
+    icon: Globe,
+    title: "IP Lookup",
+    description: "Get location and details of any IP",
+    category: "Developer Tools",
+  },
+  {
+    icon: Shield,
+    title: "Password Strength",
+    description: "Check how strong your password is",
+    category: "Security Tools",
+  },
+  {
+    icon: FileImage,
+    title: "Base64 Image Encoder",
+    description: "Convert images to Base64 strings",
+    category: "Developer Tools",
+  },
+  {
+    icon: Palette,
+    title: "Color Converter",
+    description: "Convert between color formats",
+    category: "Image Tools",
+  },
+  {
+    icon: Paintbrush,
+    title: "Gradient Generator",
+    description: "Create beautiful CSS gradients",
+    category: "Image Tools",
+  },
+  {
+    icon: Link,
+    title: "Text to Slug",
+    description: "Convert text to URL-friendly slugs",
+    category: "Text Tools",
+  },
+  {
+    icon: Dices,
+    title: "Random Number",
+    description: "Generate random numbers",
+    category: "Utilities",
+  },
+  {
+    icon: Dices,
+    title: "Dice Roller",
+    description: "Roll virtual dice",
+    category: "Utilities",
+  },
+  {
+    icon: Timer,
+    title: "Countdown Timer",
+    description: "Set a countdown timer",
+    category: "Utilities",
+  },
+  {
+    icon: Clock,
+    title: "Stopwatch",
+    description: "Precise stopwatch timer",
+    category: "Utilities",
+  },
+  {
+    icon: Calendar,
+    title: "Age Calculator",
+    description: "Calculate your exact age",
+    category: "Calculators",
+  },
 ];
 
 const Index = () => {
@@ -283,6 +416,11 @@ const Index = () => {
     if (query) params.set("q", query);
     if (selectedCategory) params.set("category", selectedCategory);
     setSearchParams(params);
+  };
+
+  // Live search handler
+  const handleLiveSearch = (query: string) => {
+    setSearchQuery(query);
   };
 
   const handleCategoryFilter = (category: string) => {
@@ -318,14 +456,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      <Header searchQuery={searchQuery} onSearch={handleSearch} />
+      <Header searchQuery={searchQuery} onSearch={handleLiveSearch} />
       
       {/* Top Banner Ad */}
       <div className="container py-4">
         <AdSpace size="banner" />
       </div>
 
-      <Hero searchQuery={searchQuery} onSearch={handleSearch} />
+      <Hero searchQuery={searchQuery} onSearch={handleLiveSearch} />
 
       {/* Categories Section */}
       <section className="py-16 container">
@@ -416,6 +554,26 @@ const Index = () => {
                 "Unit Converter": "/tools/unit-converter",
                 "Percentage Calculator": "/tools/percentage-calculator",
                 "BMI Calculator": "/tools/bmi-calculator",
+                "Image Resizer": "/tools/image-resizer",
+                "Image Cropper": "/tools/image-cropper",
+                "Meme Generator": "/tools/meme-generator",
+                "ASCII Art Generator": "/tools/ascii-art",
+                "CSV to JSON": "/tools/csv-to-json",
+                "JSON to CSV": "/tools/json-to-csv",
+                "XML Formatter": "/tools/xml-formatter",
+                "YAML Formatter": "/tools/yaml-formatter",
+                "SQL Formatter": "/tools/sql-formatter",
+                "IP Lookup": "/tools/ip-lookup",
+                "Password Strength": "/tools/password-strength",
+                "Base64 Image Encoder": "/tools/base64-image",
+                "Color Converter": "/tools/color-converter",
+                "Gradient Generator": "/tools/gradient-generator",
+                "Text to Slug": "/tools/text-to-slug",
+                "Random Number": "/tools/random-number",
+                "Dice Roller": "/tools/dice-roller",
+                "Countdown Timer": "/tools/countdown-timer",
+                "Stopwatch": "/tools/stopwatch",
+                "Age Calculator": "/tools/age-calculator",
               };
               
               return (
@@ -452,30 +610,22 @@ const Index = () => {
       {/* Stats Section */}
       <section className="py-16 bg-muted/30">
         <div className="container">
-          <div className="grid md:grid-cols-4 gap-8 text-center">
-            <div className="animate-fade-in">
-              <div className="text-4xl md:text-5xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
-                100+
-              </div>
-              <p className="text-muted-foreground">Free Tools</p>
+          <div className="grid md:grid-cols-4 gap-8">
+            <div className="animate-fade-in text-center">
+              <div className="h-2 gradient-primary rounded-full mb-4"></div>
+              <p className="text-muted-foreground font-medium">Free Tools</p>
             </div>
-            <div className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
-              <div className="text-4xl md:text-5xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
-                1M+
-              </div>
-              <p className="text-muted-foreground">Monthly Users</p>
+            <div className="animate-fade-in text-center" style={{ animationDelay: "0.1s" }}>
+              <div className="h-2 gradient-primary rounded-full mb-4"></div>
+              <p className="text-muted-foreground font-medium">Monthly Users</p>
             </div>
-            <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
-              <div className="text-4xl md:text-5xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
-                10M+
-              </div>
-              <p className="text-muted-foreground">Files Processed</p>
+            <div className="animate-fade-in text-center" style={{ animationDelay: "0.2s" }}>
+              <div className="h-2 gradient-primary rounded-full mb-4"></div>
+              <p className="text-muted-foreground font-medium">Files Processed</p>
             </div>
-            <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
-              <div className="text-4xl md:text-5xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
-                100%
-              </div>
-              <p className="text-muted-foreground">Free Forever</p>
+            <div className="animate-fade-in text-center" style={{ animationDelay: "0.3s" }}>
+              <div className="h-2 gradient-primary rounded-full mb-4"></div>
+              <p className="text-muted-foreground font-medium">Free Forever</p>
             </div>
           </div>
 

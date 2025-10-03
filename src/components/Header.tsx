@@ -26,12 +26,13 @@ export const Header = ({ searchQuery = "", onSearch }: HeaderProps) => {
   }, [searchQuery]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocalSearch(e.target.value);
+    const value = e.target.value;
+    setLocalSearch(value);
+    onSearch?.(value); // Live search on every keystroke
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch?.(localSearch);
   };
 
   return (
