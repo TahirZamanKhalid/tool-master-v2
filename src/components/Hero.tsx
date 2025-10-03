@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { AdSpace } from "./AdSpace";
 
 export const Hero = () => {
   return (
@@ -38,6 +39,11 @@ export const Hero = () => {
                 {term}
               </Button>
             ))}
+          </div>
+
+          {/* Ad in Hero section */}
+          <div className="pt-8">
+            <AdSpace size="leaderboard" />
           </div>
         </div>
       </div>

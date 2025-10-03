@@ -397,12 +397,22 @@ const Index = () => {
               <p className="text-muted-foreground">Free Forever</p>
             </div>
           </div>
+
+          {/* Ad after Stats section */}
+          <div className="mt-12">
+            <AdSpace size="leaderboard" />
+          </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="border-t py-12 bg-card">
         <div className="container">
+          {/* Ad before footer content */}
+          <div className="mb-8">
+            <AdSpace size="leaderboard" />
+          </div>
+
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
