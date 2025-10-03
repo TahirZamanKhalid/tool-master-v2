@@ -714,9 +714,13 @@ const Index = () => {
 
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="gradient-primary h-8 w-8 rounded-lg"></div>
-                <span className="text-lg font-bold">ToolMaster Pro</span>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="gradient-primary h-12 w-12 rounded-xl flex items-center justify-center shadow-card">
+                  <span className="text-white font-black text-xl tracking-tight">TM</span>
+                </div>
+                <span className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  ToolMaster Pro
+                </span>
               </div>
               <p className="text-sm text-muted-foreground">
                 100+ free online tools for everyone. No signup required.
