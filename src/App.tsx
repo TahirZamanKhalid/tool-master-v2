@@ -29,6 +29,10 @@ import CodeBeautifier from "./pages/tools/CodeBeautifier";
 import UnitConverter from "./pages/tools/UnitConverter";
 import PercentageCalculator from "./pages/tools/PercentageCalculator";
 import BMICalculator from "./pages/tools/BMICalculator";
+import Blog from "./pages/Blog";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +68,10 @@ const App = () => (
         <Route path="/tools/unit-converter" element={<UnitConverter />} />
         <Route path="/tools/percentage-calculator" element={<PercentageCalculator />} />
         <Route path="/tools/bmi-calculator" element={<BMICalculator />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/contact" element={<Contact />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

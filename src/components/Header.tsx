@@ -3,8 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 
-export const Header = () => {
+interface HeaderProps {
+  searchQuery?: string;
+  onSearch?: (query: string) => void;
+}
+
+export const Header = ({ searchQuery = "", onSearch }: HeaderProps) => {
   const [isDark, setIsDark] = useState(false);
+  const [localSearch, setLocalSearch] = useState(searchQuery);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -14,6 +20,19 @@ export const Header = () => {
       root.classList.remove("dark");
     }
   }, [isDark]);
+
+  useEffect(() => {
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalSearch(e.target.value);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSearch?.(localSearch);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
@@ -26,15 +45,17 @@ export const Header = () => {
           </div>
         </div>
 
-        <div className="hidden md:flex flex-1 max-w-xl mx-8">
+        <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-xl mx-8">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search for tools..."
               className="w-full pl-10 bg-muted/50"
+              value={localSearch}
+              onChange={handleSearchChange}
             />
           </div>
-        </div>
+        </form>
 
         <Button
           variant="ghost"

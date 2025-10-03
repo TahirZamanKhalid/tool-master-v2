@@ -1,10 +1,11 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { CategoryCard } from "@/components/CategoryCard";
 import { ToolCard } from "@/components/ToolCard";
 import { HowItWorks } from "@/components/HowItWorks";
 import { AdSpace } from "@/components/AdSpace";
+import { useState, useEffect, useMemo } from "react";
 import {
   Sparkles,
   Image,
@@ -265,6 +266,48 @@ const popularTools = [
 
 const Index = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "");
+
+  useEffect(() => {
+    const q = searchParams.get("q") || "";
+    const category = searchParams.get("category") || "";
+    setSearchQuery(q);
+    setSelectedCategory(category);
+  }, [searchParams]);
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    if (selectedCategory) params.set("category", selectedCategory);
+    setSearchParams(params);
+  };
+
+  const handleCategoryFilter = (category: string) => {
+    setSelectedCategory(category === selectedCategory ? "" : category);
+    const params = new URLSearchParams();
+    if (searchQuery) params.set("q", searchQuery);
+    if (category !== selectedCategory) params.set("category", category);
+    setSearchParams(params);
+    
+    // Scroll to tools section
+    document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const filteredTools = useMemo(() => {
+    return popularTools.filter((tool) => {
+      const matchesSearch = !searchQuery || 
+        tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        tool.category.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesCategory = !selectedCategory || tool.category === selectedCategory;
+      
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, selectedCategory]);
 
   const handleToolClick = (path: string, comingSoon?: boolean) => {
     if (comingSoon) {
@@ -275,14 +318,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen">
-      <Header />
+      <Header searchQuery={searchQuery} onSearch={handleSearch} />
       
       {/* Top Banner Ad */}
       <div className="container py-4">
         <AdSpace size="banner" />
       </div>
 
-      <Hero />
+      <Hero searchQuery={searchQuery} onSearch={handleSearch} />
 
       {/* Categories Section */}
       <section className="py-16 container">
@@ -297,72 +340,110 @@ const Index = () => {
           {categories.map((category, index) => (
             <div
               key={index}
-              className="animate-scale-in"
+              className="animate-scale-in cursor-pointer"
               style={{ animationDelay: `${index * 0.05}s` }}
+              onClick={() => handleCategoryFilter(category.title)}
             >
-              <CategoryCard {...category} />
+              <CategoryCard 
+                {...category} 
+                isSelected={selectedCategory === category.title}
+              />
             </div>
           ))}
         </div>
+
+        {selectedCategory && (
+          <div className="text-center mb-8">
+            <p className="text-lg text-muted-foreground">
+              Showing tools in <span className="font-semibold text-foreground">{selectedCategory}</span>
+              <button 
+                onClick={() => handleCategoryFilter("")}
+                className="ml-2 text-primary hover:underline"
+              >
+                Clear filter
+              </button>
+            </p>
+          </div>
+        )}
 
         {/* Mid-content Ad */}
         <AdSpace size="leaderboard" className="my-8" />
       </section>
 
-      <HowItWorks />
+      {!searchQuery && !selectedCategory && <HowItWorks />}
 
       {/* Popular Tools Section */}
-      <section className="py-16 container">
+      <section id="tools-section" className="py-16 container">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Popular Tools</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            {searchQuery || selectedCategory ? "Search Results" : "Popular Tools"}
+          </h2>
           <p className="text-muted-foreground text-lg">
-            Most used tools by our community
+            {searchQuery || selectedCategory 
+              ? `Found ${filteredTools.length} tool${filteredTools.length !== 1 ? 's' : ''}`
+              : "Most used tools by our community"
+            }
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {popularTools.map((tool, index) => {
-            const toolPaths: Record<string, string> = {
-              "AI Chatbot": "/tools/ai-chatbot",
-              "Background Remover": "/tools/background-remover",
-              "QR Code Generator": "/tools/qr-code-generator",
-              "PDF Merger": "/tools/pdf-merger",
-              "Word Counter": "/tools/word-counter",
-              "Image Compressor": "/tools/image-compressor",
-              "Currency Converter": "/tools/currency-converter",
-              "Text to Speech": "/tools/text-to-speech",
-              "JSON Formatter": "/tools/json-formatter",
-              "Caption Generator": "/tools/caption-generator",
-              "Color Picker": "/tools/color-picker",
-              "AI Writing Assistant": "/tools/ai-writing",
-              "URL Encoder": "/tools/url-encoder",
-              "Hash Generator": "/tools/hash-generator",
-              "UUID Generator": "/tools/uuid-generator",
-              "Case Converter": "/tools/case-converter",
-              "Markdown Preview": "/tools/markdown-preview",
-              "HTML Encoder": "/tools/html-encoder",
-              "Lorem Ipsum": "/tools/lorem-ipsum",
-              "Timestamp Converter": "/tools/timestamp-converter",
-              "Text Diff": "/tools/text-diff",
-              "Regex Tester": "/tools/regex-tester",
-              "Code Beautifier": "/tools/code-beautifier",
-              "Unit Converter": "/tools/unit-converter",
-              "Percentage Calculator": "/tools/percentage-calculator",
-              "BMI Calculator": "/tools/bmi-calculator",
-            };
-            
-            return (
-              <div
-                key={index}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.05}s` }}
-                onClick={() => !tool.comingSoon && handleToolClick(toolPaths[tool.title] || "/")}
-              >
-                <ToolCard {...tool} comingSoon={tool.comingSoon} />
-              </div>
-            );
-          })}
-        </div>
+        {filteredTools.length > 0 ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredTools.map((tool, index) => {
+              const toolPaths: Record<string, string> = {
+                "AI Chatbot": "/tools/ai-chatbot",
+                "Background Remover": "/tools/background-remover",
+                "QR Code Generator": "/tools/qr-code-generator",
+                "PDF Merger": "/tools/pdf-merger",
+                "Word Counter": "/tools/word-counter",
+                "Image Compressor": "/tools/image-compressor",
+                "Currency Converter": "/tools/currency-converter",
+                "Text to Speech": "/tools/text-to-speech",
+                "JSON Formatter": "/tools/json-formatter",
+                "Caption Generator": "/tools/caption-generator",
+                "Color Picker": "/tools/color-picker",
+                "AI Writing Assistant": "/tools/ai-writing",
+                "URL Encoder": "/tools/url-encoder",
+                "Hash Generator": "/tools/hash-generator",
+                "UUID Generator": "/tools/uuid-generator",
+                "Case Converter": "/tools/case-converter",
+                "Markdown Preview": "/tools/markdown-preview",
+                "HTML Encoder": "/tools/html-encoder",
+                "Lorem Ipsum": "/tools/lorem-ipsum",
+                "Timestamp Converter": "/tools/timestamp-converter",
+                "Text Diff": "/tools/text-diff",
+                "Regex Tester": "/tools/regex-tester",
+                "Code Beautifier": "/tools/code-beautifier",
+                "Unit Converter": "/tools/unit-converter",
+                "Percentage Calculator": "/tools/percentage-calculator",
+                "BMI Calculator": "/tools/bmi-calculator",
+              };
+              
+              return (
+                <div
+                  key={index}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                  onClick={() => !tool.comingSoon && handleToolClick(toolPaths[tool.title] || "/")}
+                >
+                  <ToolCard {...tool} comingSoon={tool.comingSoon} />
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-xl text-muted-foreground mb-4">No tools found matching your search</p>
+            <button
+              onClick={() => {
+                handleSearch("");
+                handleCategoryFilter("");
+              }}
+              className="text-primary hover:underline"
+            >
+              Clear all filters
+            </button>
+          </div>
+        )}
 
         {/* Bottom Ad */}
         <AdSpace size="leaderboard" className="mt-12" />
@@ -437,7 +518,7 @@ const Index = () => {
             <div>
               <h3 className="font-semibold mb-4">Resources</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="hover:text-foreground cursor-pointer">Blog</li>
+                <li className="hover:text-foreground cursor-pointer" onClick={() => navigate("/blog")}>Blog</li>
                 <li className="hover:text-foreground cursor-pointer">Tutorials</li>
                 <li className="hover:text-foreground cursor-pointer">API Access</li>
                 <li className="hover:text-foreground cursor-pointer">Sitemap</li>
@@ -447,10 +528,10 @@ const Index = () => {
             <div>
               <h3 className="font-semibold mb-4">Legal</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="hover:text-foreground cursor-pointer">Privacy Policy</li>
-                <li className="hover:text-foreground cursor-pointer">Terms of Service</li>
+                <li className="hover:text-foreground cursor-pointer" onClick={() => navigate("/privacy-policy")}>Privacy Policy</li>
+                <li className="hover:text-foreground cursor-pointer" onClick={() => navigate("/terms-of-service")}>Terms of Service</li>
                 <li className="hover:text-foreground cursor-pointer">DMCA</li>
-                <li className="hover:text-foreground cursor-pointer">Contact</li>
+                <li className="hover:text-foreground cursor-pointer" onClick={() => navigate("/contact")}>Contact</li>
               </ul>
             </div>
           </div>
