@@ -50,7 +50,7 @@ const RandomNumberGenerator = () => {
           </Button>
           {result !== null && (
             <div className="text-center p-8 bg-muted rounded">
-              <p className="text-5xl font-bold gradient-primary bg-clip-text text-transparent">
+              <p className="text-5xl font-bold text-primary">
                 {result}
               </p>
             </div>
