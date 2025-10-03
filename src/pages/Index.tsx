@@ -397,6 +397,12 @@ const popularTools = [
     description: "Calculate your exact age",
     category: "Calculators",
   },
+  {
+    icon: TrendingUp,
+    title: "Meta Tag Generator",
+    description: "Generate SEO meta tags for your website",
+    category: "SEO & Marketing",
+  },
 ];
 
 const Index = () => {
@@ -634,6 +640,7 @@ const Index = () => {
                 "Countdown Timer": "/tools/countdown-timer",
                 "Stopwatch": "/tools/stopwatch",
                 "Age Calculator": "/tools/age-calculator",
+                "Meta Tag Generator": "/tools/meta-tag-generator",
               };
               
               return (

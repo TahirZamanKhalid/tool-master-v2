@@ -54,6 +54,7 @@ import DiceRoller from "./pages/tools/DiceRoller";
 import CountdownTimer from "./pages/tools/CountdownTimer";
 import StopwatchTimer from "./pages/tools/StopwatchTimer";
 import AgeCalculator from "./pages/tools/AgeCalculator";
+import MetaTagGenerator from "./pages/tools/MetaTagGenerator";
 import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
@@ -112,6 +113,7 @@ const App = () => (
         <Route path="/tools/countdown-timer" element={<CountdownTimer />} />
         <Route path="/tools/stopwatch" element={<StopwatchTimer />} />
         <Route path="/tools/age-calculator" element={<AgeCalculator />} />
+        <Route path="/tools/meta-tag-generator" element={<MetaTagGenerator />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
