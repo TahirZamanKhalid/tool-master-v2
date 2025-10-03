@@ -436,14 +436,23 @@ const Index = () => {
   };
 
   const handleCategoryFilter = (category: string) => {
-    setSelectedCategory(category === selectedCategory ? "" : category);
+    const newCategory = category === selectedCategory ? "" : category;
+    setSelectedCategory(newCategory);
     const params = new URLSearchParams();
     if (searchQuery) params.set("q", searchQuery);
-    if (category !== selectedCategory) params.set("category", category);
+    if (newCategory) params.set("category", newCategory);
     setSearchParams(params);
     
-    // Scroll to tools section
-    document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth" });
+    // Only scroll if a category is selected (not when clearing)
+    if (newCategory) {
+      // Scroll to top of the page instead of tools section
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  // Count tools per category
+  const getToolCountByCategory = (categoryName: string) => {
+    return popularTools.filter(tool => tool.category === categoryName).length;
   };
 
   const filteredTools = useMemo(() => {
@@ -501,19 +510,26 @@ const Index = () => {
           {/* Main Content */}
           <div className="flex-1 max-w-6xl">
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {categories.map((category, index) => (
+          {categories.map((category, index) => {
+            const toolCount = getToolCountByCategory(category.title);
+            const comingSoon = toolCount === 0;
+            
+            return (
               <div
                 key={index}
                 className="animate-scale-in cursor-pointer"
                 style={{ animationDelay: `${index * 0.05}s` }}
-                onClick={() => handleCategoryFilter(category.title)}
+                onClick={() => !comingSoon && handleCategoryFilter(category.title)}
               >
                 <CategoryCard 
-                  {...category} 
+                  {...category}
+                  toolCount={toolCount}
                   isSelected={selectedCategory === category.title}
+                  comingSoon={comingSoon}
                 />
               </div>
-            ))}
+            );
+          })}
             </div>
 
             {selectedCategory && (
