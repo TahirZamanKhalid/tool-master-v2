@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay";
+import { ImageEditor } from "@/components/ImageEditor";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Upload, Download, Eraser } from "lucide-react";
@@ -17,6 +18,7 @@ const MAX_IMAGE_DIMENSION = 1024;
 const BackgroundRemover = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
+  const [showEditor, setShowEditor] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [showSkip, setShowSkip] = useState(false);
@@ -30,6 +32,7 @@ const BackgroundRemover = () => {
       reader.onload = (e) => {
         setSelectedImage(e.target?.result as string);
         setProcessedImage(null);
+        setShowEditor(false);
       };
       reader.readAsDataURL(file);
     }
@@ -119,10 +122,11 @@ const BackgroundRemover = () => {
       
       const processedUrl = canvas.toDataURL("image/png");
       setProcessedImage(processedUrl);
+      setShowEditor(true);
 
       toast({
         title: "Success!",
-        description: "Background removed successfully",
+        description: "Background removed. Use the editor to refine the result.",
       });
     } catch (error) {
       console.error(error);
@@ -184,6 +188,12 @@ const BackgroundRemover = () => {
                   Supports PNG, JPG, WebP (Max 10MB)
                 </p>
               </div>
+            ) : showEditor && processedImage ? (
+              <ImageEditor
+                originalImage={selectedImage}
+                processedImage={processedImage}
+                onDownload={downloadImage}
+              />
             ) : (
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
@@ -211,37 +221,42 @@ const BackgroundRemover = () => {
             )}
           </div>
 
-          <div className="flex gap-4 justify-center">
-            {selectedImage && !processedImage && (
-              <Button
-                onClick={removeBackground}
-                disabled={isProcessing}
-                size="lg"
-                className="gradient-primary border-0"
-              >
-                <Eraser className="h-4 w-4 mr-2" />
-                Remove Background
-              </Button>
-            )}
-            
-            {selectedImage && (
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                variant="outline"
-                size="lg"
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload New
-              </Button>
-            )}
-            
-            {processedImage && (
-              <Button onClick={downloadImage} size="lg" variant="secondary">
-                <Download className="h-4 w-4 mr-2" />
-                Download PNG
-              </Button>
-            )}
-          </div>
+          {!showEditor && (
+            <div className="flex gap-4 justify-center">
+              {selectedImage && !processedImage && (
+                <Button
+                  onClick={removeBackground}
+                  disabled={isProcessing}
+                  size="lg"
+                  className="gradient-primary border-0"
+                >
+                  <Eraser className="h-4 w-4 mr-2" />
+                  Remove Background
+                </Button>
+              )}
+              
+              {selectedImage && (
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  variant="outline"
+                  size="lg"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload New
+                </Button>
+              )}
+              
+              {processedImage && !showEditor && (
+                <Button 
+                  onClick={() => setShowEditor(true)} 
+                  size="lg" 
+                  variant="secondary"
+                >
+                  Edit Result
+                </Button>
+              )}
+            </div>
+          )}
         </Card>
       </ToolLayout>
 

@@ -1,28 +1,41 @@
+import { useEffect } from "react";
+
 interface AdSpaceProps {
   size: "banner" | "leaderboard" | "rectangle" | "skyscraper";
   className?: string;
 }
 
 const adSizes = {
-  banner: "h-[50px] md:h-[90px]",
-  leaderboard: "h-[90px] md:h-[250px]",
-  rectangle: "h-[250px]",
-  skyscraper: "h-[600px]",
-};
-
-const adLabels = {
-  banner: "728x90 Ad",
-  leaderboard: "970x90 Ad",
-  rectangle: "300x250 Ad",
-  skyscraper: "300x600 Ad",
+  banner: { width: 728, height: 90 },
+  leaderboard: { width: 970, height: 90 },
+  rectangle: { width: 300, height: 250 },
+  skyscraper: { width: 300, height: 600 },
 };
 
 export const AdSpace = ({ size, className = "" }: AdSpaceProps) => {
+  const dimensions = adSizes[size];
+
+  useEffect(() => {
+    try {
+      // @ts-ignore
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (err) {
+      console.error("AdSense error:", err);
+    }
+  }, []);
+
   return (
-    <div
-      className={`bg-muted/30 border-2 border-dashed border-muted-foreground/20 rounded-lg flex items-center justify-center ${adSizes[size]} ${className}`}
-    >
-      <p className="text-sm text-muted-foreground font-medium">{adLabels[size]} Space</p>
+    <div className={`flex items-center justify-center ${className}`}>
+      <ins
+        className="adsbygoogle"
+        style={{
+          display: "inline-block",
+          width: `${dimensions.width}px`,
+          height: `${dimensions.height}px`,
+        }}
+        data-ad-client="ca-pub-7382531001943020"
+        data-ad-slot="auto"
+      />
     </div>
   );
 };
