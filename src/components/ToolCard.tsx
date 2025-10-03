@@ -9,14 +9,20 @@ interface ToolCardProps {
   description: string;
   category: string;
   popular?: boolean;
+  comingSoon?: boolean;
 }
 
-export const ToolCard = ({ icon: Icon, title, description, category, popular }: ToolCardProps) => {
+export const ToolCard = ({ icon: Icon, title, description, category, popular, comingSoon }: ToolCardProps) => {
   return (
-    <Card className="group cursor-pointer shadow-card hover:shadow-card-hover transition-smooth hover:-translate-y-1 relative">
-      {popular && (
+    <Card className={`group shadow-card hover:shadow-card-hover transition-smooth hover:-translate-y-1 relative ${comingSoon ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
+      {popular && !comingSoon && (
         <Badge className="absolute -top-2 -right-2 gradient-primary border-0 shadow-lg">
           Popular
+        </Badge>
+      )}
+      {comingSoon && (
+        <Badge className="absolute -top-2 -right-2 bg-yellow-500/90 text-white border-0 shadow-lg">
+          Coming Soon
         </Badge>
       )}
       <CardHeader className="pb-3">
@@ -32,8 +38,12 @@ export const ToolCard = ({ icon: Icon, title, description, category, popular }: 
       </CardHeader>
       <CardContent>
         <p className="text-sm text-muted-foreground mb-4">{description}</p>
-        <Button variant="outline" className="w-full group-hover:gradient-primary group-hover:text-white group-hover:border-0 transition-smooth">
-          Use Tool
+        <Button 
+          variant="outline" 
+          className="w-full group-hover:gradient-primary group-hover:text-white group-hover:border-0 transition-smooth"
+          disabled={comingSoon}
+        >
+          {comingSoon ? 'Coming Soon' : 'Use Tool'}
         </Button>
       </CardContent>
     </Card>

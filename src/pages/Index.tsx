@@ -91,6 +91,7 @@ const popularTools = [
     description: "Chat with AI assistant powered by advanced language models",
     category: "AI & Content",
     popular: true,
+    comingSoon: true,
   },
   {
     icon: Eraser,
@@ -130,43 +131,52 @@ const popularTools = [
     title: "Currency Converter",
     description: "Convert between 150+ world currencies",
     category: "Calculators",
+    comingSoon: true,
   },
   {
     icon: Zap,
     title: "Text to Speech",
     description: "Convert text to natural-sounding speech",
     category: "Text Tools",
+    comingSoon: true,
   },
   {
     icon: Code,
     title: "JSON Formatter",
     description: "Format and validate JSON data",
     category: "Developer Tools",
+    comingSoon: true,
   },
   {
     icon: Instagram,
     title: "Caption Generator",
     description: "Generate engaging social media captions",
     category: "Social Media",
+    comingSoon: true,
   },
   {
     icon: Palette,
     title: "Color Picker",
     description: "Pick colors and generate palettes",
     category: "Developer Tools",
+    comingSoon: true,
   },
   {
     icon: Brain,
     title: "AI Writing Assistant",
     description: "Improve your writing with AI suggestions",
     category: "AI & Content",
+    comingSoon: true,
   },
 ];
 
 const Index = () => {
   const navigate = useNavigate();
 
-  const handleToolClick = (path: string) => {
+  const handleToolClick = (path: string, comingSoon?: boolean) => {
+    if (comingSoon) {
+      return; // Don't navigate if coming soon
+    }
     navigate(path);
   };
 
@@ -239,9 +249,9 @@ const Index = () => {
                 key={index}
                 className="animate-fade-in"
                 style={{ animationDelay: `${index * 0.05}s` }}
-                onClick={() => handleToolClick(toolPaths[tool.title] || "/")}
+                onClick={() => !tool.comingSoon && handleToolClick(toolPaths[tool.title] || "/")}
               >
-                <ToolCard {...tool} />
+                <ToolCard {...tool} comingSoon={tool.comingSoon} />
               </div>
             );
           })}

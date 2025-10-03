@@ -8,9 +8,11 @@ import { Upload, Download, Eraser } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { pipeline, env } from "@huggingface/transformers";
 
-// Configure transformers
+// Configure transformers for optimal background removal
 env.allowLocalModels = false;
 env.useBrowserCache = true;
+
+const MAX_IMAGE_DIMENSION = 1024;
 
 const BackgroundRemover = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -41,45 +43,78 @@ const BackgroundRemover = () => {
     setShowSkip(false);
 
     try {
-      // Simulate minimum display time for ad
       setTimeout(() => setShowSkip(true), 3000);
 
-      setProgress(20);
-      const segmenter = await pipeline("image-segmentation", "Xenova/segformer-b0-finetuned-ade-512-512");
+      setProgress(10);
       
-      setProgress(40);
-      const result = await segmenter(selectedImage);
-      
-      setProgress(60);
-      // Create canvas and process image
+      // Load image
       const img = new Image();
       img.src = selectedImage;
-      
-      await new Promise((resolve) => {
-        img.onload = resolve;
-      });
+      await new Promise((resolve) => img.onload = resolve);
 
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      
+      // Resize if needed
+      let canvas = document.createElement("canvas");
+      let ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Could not get canvas context");
 
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
+      let width = img.naturalWidth;
+      let height = img.naturalHeight;
 
-      setProgress(80);
-      // Apply mask (simplified - using first mask result)
-      if (result && Array.isArray(result) && result[0]?.mask) {
-        for (let i = 0; i < result[0].mask.data.length; i++) {
-          const alpha = Math.round((1 - result[0].mask.data[i]) * 255);
-          data[i * 4 + 3] = alpha;
+      if (width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION) {
+        if (width > height) {
+          height = Math.round((height * MAX_IMAGE_DIMENSION) / width);
+          width = MAX_IMAGE_DIMENSION;
+        } else {
+          width = Math.round((width * MAX_IMAGE_DIMENSION) / height);
+          height = MAX_IMAGE_DIMENSION;
         }
       }
 
-      ctx.putImageData(imageData, 0, 0);
+      canvas.width = width;
+      canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      setProgress(30);
+      
+      // Use image segmentation model optimized for background removal
+      const segmenter = await pipeline(
+        "image-segmentation", 
+        "Xenova/segformer-b2-finetuned-ade-512-512",
+        { device: "webgpu" }
+      );
+      
+      setProgress(50);
+      const imageData = canvas.toDataURL("image/jpeg", 0.9);
+      const result = await segmenter(imageData);
+      
+      setProgress(70);
+
+      // Find person/object masks (labels like "person", "car", etc.)
+      const foregroundLabels = ["person", "car", "dog", "cat", "chair", "bottle", "cup"];
+      const foregroundMask = new Float32Array(width * height);
+      
+      if (result && Array.isArray(result)) {
+        for (const segment of result) {
+          if (foregroundLabels.some(label => segment.label?.toLowerCase().includes(label))) {
+            for (let i = 0; i < segment.mask.data.length; i++) {
+              foregroundMask[i] = Math.max(foregroundMask[i], segment.mask.data[i]);
+            }
+          }
+        }
+      }
+
+      setProgress(85);
+
+      // Apply mask with edge smoothing
+      const outputImageData = ctx.getImageData(0, 0, width, height);
+      const data = outputImageData.data;
+
+      for (let i = 0; i < foregroundMask.length; i++) {
+        const alpha = Math.round(foregroundMask[i] * 255);
+        data[i * 4 + 3] = alpha;
+      }
+
+      ctx.putImageData(outputImageData, 0, 0);
       setProgress(100);
       
       const processedUrl = canvas.toDataURL("image/png");
