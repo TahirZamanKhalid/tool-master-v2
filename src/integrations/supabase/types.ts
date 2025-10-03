@@ -88,6 +88,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_popular_searches: {
+        Args: { limit_count?: number }
+        Returns: {
+          search_count: number
+          search_query: string
+        }[]
+      }
       get_tool_rating_stats: {
         Args: { tool_path_param: string }
         Returns: {
