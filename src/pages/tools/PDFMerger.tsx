@@ -1,0 +1,202 @@
+import { useState, useRef } from "react";
+import { Header } from "@/components/Header";
+import { ToolLayout } from "@/components/ToolLayout";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Upload, Download, FileDown, X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { PDFDocument } from "pdf-lib";
+
+const PDFMerger = () => {
+  const [files, setFiles] = useState<File[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [showSkip, setShowSkip] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    const pdfFiles = selectedFiles.filter((file) => file.type === "application/pdf");
+    
+    if (pdfFiles.length !== selectedFiles.length) {
+      toast({
+        title: "Warning",
+        description: "Only PDF files are allowed",
+        variant: "destructive",
+      });
+    }
+    
+    setFiles((prev) => [...prev, ...pdfFiles]);
+  };
+
+  const removeFile = (index: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const mergePDFs = async () => {
+    if (files.length < 2) {
+      toast({
+        title: "Error",
+        description: "Please select at least 2 PDF files",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    setProgress(0);
+    setShowSkip(false);
+
+    try {
+      setTimeout(() => setShowSkip(true), 3000);
+
+      const mergedPdf = await PDFDocument.create();
+      
+      for (let i = 0; i < files.length; i++) {
+        setProgress(Math.round(((i + 1) / files.length) * 80));
+        
+        const arrayBuffer = await files[i].arrayBuffer();
+        const pdf = await PDFDocument.load(arrayBuffer);
+        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+        copiedPages.forEach((page) => mergedPdf.addPage(page));
+      }
+
+      setProgress(90);
+      const mergedPdfBytes = await mergedPdf.save();
+      setProgress(100);
+
+      const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "merged-document.pdf";
+      link.click();
+
+      toast({
+        title: "Success!",
+        description: "PDFs merged successfully",
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to merge PDFs",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+      setProgress(0);
+    }
+  };
+
+  return (
+    <>
+      <Header />
+      <ToolLayout
+        title="PDF Merger"
+        description="Combine multiple PDF files into a single document"
+        category="PDF Tools"
+        instructions={[
+          "Upload 2 or more PDF files",
+          "Arrange files in desired order",
+          "Click 'Merge PDFs' to combine them",
+          "Download the merged PDF file",
+        ]}
+        relatedTools={[
+          { name: "PDF Splitter", path: "/tools/pdf-splitter" },
+          { name: "PDF Compressor", path: "/tools/pdf-compressor" },
+        ]}
+      >
+        <Card className="p-6 space-y-6">
+          <div className="space-y-4">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="border-2 border-dashed rounded-lg p-12 text-center cursor-pointer hover:border-primary transition-smooth"
+            >
+              <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-lg font-medium mb-2">Click to upload PDF files</p>
+              <p className="text-sm text-muted-foreground">
+                Select multiple PDF files to merge
+              </p>
+            </div>
+
+            {files.length > 0 && (
+              <div className="space-y-2">
+                <p className="font-medium">{files.length} files selected:</p>
+                {files.map((file, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-muted rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <FileDown className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="font-medium text-sm">{file.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeFile(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-4 justify-center">
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              variant="outline"
+              size="lg"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Add More Files
+            </Button>
+            
+            {files.length >= 2 && (
+              <Button
+                onClick={mergePDFs}
+                disabled={isProcessing}
+                size="lg"
+                className="gradient-primary border-0"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Merge PDFs
+              </Button>
+            )}
+          </div>
+        </Card>
+      </ToolLayout>
+
+      {isProcessing && (
+        <ProcessingOverlay
+          message="Merging your PDF files..."
+          progress={progress}
+          showSkip={showSkip}
+          onSkip={() => setIsProcessing(false)}
+        />
+      )}
+    </>
+  );
+};
+
+export default PDFMerger;

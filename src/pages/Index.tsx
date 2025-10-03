@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { CategoryCard } from "@/components/CategoryCard";
@@ -163,6 +164,12 @@ const popularTools = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  const handleToolClick = (path: string) => {
+    navigate(path);
+  };
+
   return (
     <div className="min-h-screen">
       <Header />
@@ -211,15 +218,33 @@ const Index = () => {
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {popularTools.map((tool, index) => (
-            <div
-              key={index}
-              className="animate-fade-in"
-              style={{ animationDelay: `${index * 0.05}s` }}
-            >
-              <ToolCard {...tool} />
-            </div>
-          ))}
+          {popularTools.map((tool, index) => {
+            const toolPaths: Record<string, string> = {
+              "AI Chatbot": "/tools/ai-chatbot",
+              "Background Remover": "/tools/background-remover",
+              "QR Code Generator": "/tools/qr-code-generator",
+              "PDF Merger": "/tools/pdf-merger",
+              "Word Counter": "/tools/word-counter",
+              "Image Compressor": "/tools/image-compressor",
+              "Currency Converter": "/tools/currency-converter",
+              "Text to Speech": "/tools/text-to-speech",
+              "JSON Formatter": "/tools/json-formatter",
+              "Caption Generator": "/tools/caption-generator",
+              "Color Picker": "/tools/color-picker",
+              "AI Writing Assistant": "/tools/ai-writing",
+            };
+            
+            return (
+              <div
+                key={index}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 0.05}s` }}
+                onClick={() => handleToolClick(toolPaths[tool.title] || "/")}
+              >
+                <ToolCard {...tool} />
+              </div>
+            );
+          })}
         </div>
 
         {/* Bottom Ad */}
