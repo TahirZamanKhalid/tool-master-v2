@@ -610,22 +610,30 @@ const Index = () => {
       {/* Stats Section */}
       <section className="py-16 bg-muted/30">
         <div className="container">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="animate-fade-in text-center">
-              <div className="h-2 gradient-primary rounded-full mb-4"></div>
-              <p className="text-muted-foreground font-medium">Free Tools</p>
+          <div className="grid md:grid-cols-4 gap-8 text-center">
+            <div className="animate-fade-in">
+              <div className="text-4xl md:text-5xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
+                100+
+              </div>
+              <p className="text-muted-foreground">Free Tools</p>
             </div>
-            <div className="animate-fade-in text-center" style={{ animationDelay: "0.1s" }}>
-              <div className="h-2 gradient-primary rounded-full mb-4"></div>
-              <p className="text-muted-foreground font-medium">Monthly Users</p>
+            <div className="animate-fade-in" style={{ animationDelay: "0.1s" }}>
+              <div className="text-4xl md:text-5xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
+                1M+
+              </div>
+              <p className="text-muted-foreground">Monthly Users</p>
             </div>
-            <div className="animate-fade-in text-center" style={{ animationDelay: "0.2s" }}>
-              <div className="h-2 gradient-primary rounded-full mb-4"></div>
-              <p className="text-muted-foreground font-medium">Files Processed</p>
+            <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
+              <div className="text-4xl md:text-5xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
+                10M+
+              </div>
+              <p className="text-muted-foreground">Files Processed</p>
             </div>
-            <div className="animate-fade-in text-center" style={{ animationDelay: "0.3s" }}>
-              <div className="h-2 gradient-primary rounded-full mb-4"></div>
-              <p className="text-muted-foreground font-medium">Free Forever</p>
+            <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
+              <div className="text-4xl md:text-5xl font-bold gradient-primary bg-clip-text text-transparent mb-2">
+                100%
+              </div>
+              <p className="text-muted-foreground">Free Forever</p>
             </div>
           </div>
 
