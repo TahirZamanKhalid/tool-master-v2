@@ -23,6 +23,9 @@ import {
   Brain,
   Zap,
   Instagram,
+  Link2,
+  Hash,
+  Key,
 } from "lucide-react";
 
 const categories = [
@@ -165,6 +168,30 @@ const popularTools = [
     category: "AI & Content",
     comingSoon: true,
   },
+  {
+    icon: Link2,
+    title: "URL Encoder",
+    description: "Encode and decode URLs safely",
+    category: "Developer Tools",
+  },
+  {
+    icon: Hash,
+    title: "Hash Generator",
+    description: "Generate cryptographic hashes",
+    category: "Developer Tools",
+  },
+  {
+    icon: Key,
+    title: "UUID Generator",
+    description: "Generate unique identifiers",
+    category: "Developer Tools",
+  },
+  {
+    icon: Type,
+    title: "Case Converter",
+    description: "Convert text between different cases",
+    category: "Text Tools",
+  },
 ];
 
 const Index = () => {
@@ -239,6 +266,10 @@ const Index = () => {
               "Caption Generator": "/tools/caption-generator",
               "Color Picker": "/tools/color-picker",
               "AI Writing Assistant": "/tools/ai-writing",
+              "URL Encoder": "/tools/url-encoder",
+              "Hash Generator": "/tools/hash-generator",
+              "UUID Generator": "/tools/uuid-generator",
+              "Case Converter": "/tools/case-converter",
             };
             
             return (

@@ -15,6 +15,10 @@ import JSONFormatter from "./pages/tools/JSONFormatter";
 import ColorPicker from "./pages/tools/ColorPicker";
 import CurrencyConverter from "./pages/tools/CurrencyConverter";
 import Base64Encoder from "./pages/tools/Base64Encoder";
+import URLEncoder from "./pages/tools/URLEncoder";
+import HashGenerator from "./pages/tools/HashGenerator";
+import UUIDGenerator from "./pages/tools/UUIDGenerator";
+import CaseConverter from "./pages/tools/CaseConverter";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +40,10 @@ const App = () => (
         <Route path="/tools/color-picker" element={<ColorPicker />} />
         <Route path="/tools/currency-converter" element={<CurrencyConverter />} />
         <Route path="/tools/base64-encoder" element={<Base64Encoder />} />
+        <Route path="/tools/url-encoder" element={<URLEncoder />} />
+        <Route path="/tools/hash-generator" element={<HashGenerator />} />
+        <Route path="/tools/uuid-generator" element={<UUIDGenerator />} />
+        <Route path="/tools/case-converter" element={<CaseConverter />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
