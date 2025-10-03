@@ -1,16 +1,20 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Download } from "lucide-react";
 import { toast } from "sonner";
-import { AdSpace } from "@/components/AdSpace";
 
 const MemeGenerator = () => {
   const [topText, setTopText] = useState("");
   const [bottomText, setBottomText] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showAdOverlay, setShowAdOverlay] = useState(false);
+  const [canDownload, setCanDownload] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -26,7 +30,23 @@ const MemeGenerator = () => {
       toast.error("Please upload an image first");
       return;
     }
-    toast.success("Meme created!");
+    setShowAdOverlay(true);
+    setCanDownload(false);
+  };
+
+  const handleAdComplete = () => {
+    setCanDownload(true);
+    toast.success("Meme created! You can now download it.");
+  };
+
+  const downloadMeme = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const link = document.createElement("a");
+    link.download = "meme.png";
+    link.href = canvas.toDataURL();
+    link.click();
   };
 
   return (
@@ -35,7 +55,6 @@ const MemeGenerator = () => {
       description="Create funny memes with custom text"
       category="Image Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>
@@ -62,22 +81,41 @@ const MemeGenerator = () => {
             Generate Meme
           </Button>
           {selectedImage && (
-            <div className="relative">
-              <img src={selectedImage} alt="Meme" className="w-full" />
-              {topText && (
-                <div className="absolute top-4 left-0 right-0 text-center text-white text-3xl font-bold uppercase" style={{ textShadow: "2px 2px 4px black" }}>
-                  {topText}
-                </div>
-              )}
-              {bottomText && (
-                <div className="absolute bottom-4 left-0 right-0 text-center text-white text-3xl font-bold uppercase" style={{ textShadow: "2px 2px 4px black" }}>
-                  {bottomText}
-                </div>
+            <div className="space-y-4">
+              <canvas ref={canvasRef} className="hidden" />
+              <div className="relative">
+                <img src={selectedImage} alt="Meme" className="w-full" />
+                {topText && (
+                  <div className="absolute top-4 left-0 right-0 text-center text-white text-3xl font-bold uppercase" style={{ textShadow: "2px 2px 4px black" }}>
+                    {topText}
+                  </div>
+                )}
+                {bottomText && (
+                  <div className="absolute bottom-4 left-0 right-0 text-center text-white text-3xl font-bold uppercase" style={{ textShadow: "2px 2px 4px black" }}>
+                    {bottomText}
+                  </div>
+                )}
+              </div>
+              {canDownload && (
+                <Button onClick={downloadMeme} className="w-full">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Meme
+                </Button>
               )}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {showAdOverlay && (
+        <ProcessingOverlay
+          message="Meme ready! Please view the ad to enable download."
+          adViewTime={8}
+          onAdComplete={handleAdComplete}
+          showSkip={canDownload}
+          onSkip={() => setShowAdOverlay(false)}
+        />
+      )}
     </ToolLayout>
   );
 };

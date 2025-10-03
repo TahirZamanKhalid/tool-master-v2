@@ -22,6 +22,8 @@ const BackgroundRemover = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [showSkip, setShowSkip] = useState(false);
+  const [canDownload, setCanDownload] = useState(false);
+  const [showAdOverlay, setShowAdOverlay] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -122,12 +124,9 @@ const BackgroundRemover = () => {
       
       const processedUrl = canvas.toDataURL("image/png");
       setProcessedImage(processedUrl);
-      setShowEditor(true);
-
-      toast({
-        title: "Success!",
-        description: "Background removed. Use the editor to refine the result.",
-      });
+      setIsProcessing(false);
+      setShowAdOverlay(true);
+      setCanDownload(false);
     } catch (error) {
       console.error(error);
       toast({
@@ -135,10 +134,17 @@ const BackgroundRemover = () => {
         description: "Failed to remove background. Please try again.",
         variant: "destructive",
       });
-    } finally {
       setIsProcessing(false);
-      setProgress(0);
     }
+  };
+
+  const handleAdComplete = () => {
+    setCanDownload(true);
+    setShowEditor(true);
+    toast({
+      title: "Success!",
+      description: "Background removed. You can now download or edit the result.",
+    });
   };
 
   const downloadImage = () => {
@@ -266,6 +272,16 @@ const BackgroundRemover = () => {
           progress={progress}
           showSkip={showSkip}
           onSkip={() => setIsProcessing(false)}
+        />
+      )}
+
+      {showAdOverlay && (
+        <ProcessingOverlay
+          message="Processing complete! Please view the ad to enable download."
+          adViewTime={10}
+          onAdComplete={handleAdComplete}
+          showSkip={canDownload}
+          onSkip={() => setShowAdOverlay(false)}
         />
       )}
     </>

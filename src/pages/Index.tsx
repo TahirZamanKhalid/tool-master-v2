@@ -476,8 +476,8 @@ const Index = () => {
       <Header searchQuery={searchQuery} onSearch={handleLiveSearch} />
       
       {/* Top Banner Ad */}
-      <div className="container py-4">
-        <AdSpace size="banner" />
+      <div className="container py-4 flex justify-center">
+        <AdSpace size="leaderboard" />
       </div>
 
       <Hero searchQuery={searchQuery} onSearch={handleLiveSearch} />
@@ -491,38 +491,56 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {categories.map((category, index) => (
-            <div
-              key={index}
-              className="animate-scale-in cursor-pointer"
-              style={{ animationDelay: `${index * 0.05}s` }}
-              onClick={() => handleCategoryFilter(category.title)}
-            >
-              <CategoryCard 
-                {...category} 
-                isSelected={selectedCategory === category.title}
-              />
-            </div>
-          ))}
-        </div>
-
-        {selectedCategory && (
-          <div className="text-center mb-8">
-            <p className="text-lg text-muted-foreground">
-              Showing tools in <span className="font-semibold text-foreground">{selectedCategory}</span>
-              <button 
-                onClick={() => handleCategoryFilter("")}
-                className="ml-2 text-primary hover:underline"
-              >
-                Clear filter
-              </button>
-            </p>
+        {/* Desktop Sidebar Layout */}
+        <div className="flex gap-6 justify-center">
+          {/* Left Sidebar Ad - Desktop Only */}
+          <div className="hidden xl:block flex-shrink-0 sticky top-24 self-start">
+            <AdSpace size="skyscraper" />
           </div>
-        )}
 
-        {/* Mid-content Ad */}
-        <AdSpace size="leaderboard" className="my-8" />
+          {/* Main Content */}
+          <div className="flex-1 max-w-6xl">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {categories.map((category, index) => (
+              <div
+                key={index}
+                className="animate-scale-in cursor-pointer"
+                style={{ animationDelay: `${index * 0.05}s` }}
+                onClick={() => handleCategoryFilter(category.title)}
+              >
+                <CategoryCard 
+                  {...category} 
+                  isSelected={selectedCategory === category.title}
+                />
+              </div>
+            ))}
+            </div>
+
+            {selectedCategory && (
+              <div className="text-center mb-8">
+                <p className="text-lg text-muted-foreground">
+                  Showing tools in <span className="font-semibold text-foreground">{selectedCategory}</span>
+                  <button 
+                    onClick={() => handleCategoryFilter("")}
+                    className="ml-2 text-primary hover:underline"
+                  >
+                    Clear filter
+                  </button>
+                </p>
+              </div>
+            )}
+
+            {/* Mid-content Ad */}
+            <div className="flex justify-center my-8">
+              <AdSpace size="banner" />
+            </div>
+          </div>
+
+          {/* Right Sidebar Ad - Desktop Only */}
+          <div className="hidden xl:block flex-shrink-0 sticky top-24 self-start">
+            <AdSpace size="skyscraper" />
+          </div>
+        </div>
       </section>
 
       {!searchQuery && !selectedCategory && <HowItWorks />}

@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { AdSpace } from "@/components/AdSpace";
 
 const ImageCropper = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showAdOverlay, setShowAdOverlay] = useState(false);
+  const [canDownload, setCanDownload] = useState(false);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -16,10 +18,16 @@ const ImageCropper = () => {
       const reader = new FileReader();
       reader.onload = () => {
         setSelectedImage(reader.result as string);
-        toast.success("Image uploaded! Crop functionality coming soon.");
+        setShowAdOverlay(true);
+        setCanDownload(false);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleAdComplete = () => {
+    setCanDownload(true);
+    toast.success("Image loaded! Advanced cropping interface coming soon.");
   };
 
   return (
@@ -28,7 +36,6 @@ const ImageCropper = () => {
       description="Crop images to your desired size"
       category="Image Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>
@@ -45,6 +52,16 @@ const ImageCropper = () => {
           )}
         </CardContent>
       </Card>
+
+      {showAdOverlay && (
+        <ProcessingOverlay
+          message="Image uploaded! Please view the ad to continue."
+          adViewTime={8}
+          onAdComplete={handleAdComplete}
+          showSkip={canDownload}
+          onSkip={() => setShowAdOverlay(false)}
+        />
+      )}
     </ToolLayout>
   );
 };

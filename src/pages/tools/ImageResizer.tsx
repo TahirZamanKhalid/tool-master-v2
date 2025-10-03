@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { AdSpace } from "@/components/AdSpace";
 
 const ImageResizer = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
   const [resizedImage, setResizedImage] = useState<string | null>(null);
+  const [showAdOverlay, setShowAdOverlay] = useState(false);
+  const [canDownload, setCanDownload] = useState(false);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -36,9 +38,15 @@ const ImageResizer = () => {
       const ctx = canvas.getContext("2d");
       ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
       setResizedImage(canvas.toDataURL());
-      toast.success("Image resized successfully!");
+      setShowAdOverlay(true);
+      setCanDownload(false);
     };
     img.src = selectedImage;
+  };
+
+  const handleAdComplete = () => {
+    setCanDownload(true);
+    toast.success("Image resized! You can now download it.");
   };
 
   return (
@@ -47,7 +55,6 @@ const ImageResizer = () => {
       description="Resize images to custom dimensions"
       category="Image Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>
@@ -87,13 +94,25 @@ const ImageResizer = () => {
             <div>
               <p className="text-sm text-muted-foreground mb-2">Resized:</p>
               <img src={resizedImage} alt="Resized" className="max-w-full h-auto" />
-              <a href={resizedImage} download="resized-image.png">
-                <Button className="mt-2 w-full">Download</Button>
-              </a>
+              {canDownload && (
+                <a href={resizedImage} download="resized-image.png">
+                  <Button className="mt-2 w-full">Download</Button>
+                </a>
+              )}
             </div>
           )}
         </CardContent>
       </Card>
+
+      {showAdOverlay && (
+        <ProcessingOverlay
+          message="Resize complete! Please view the ad to enable download."
+          adViewTime={8}
+          onAdComplete={handleAdComplete}
+          showSkip={canDownload}
+          onSkip={() => setShowAdOverlay(false)}
+        />
+      )}
     </ToolLayout>
   );
 };

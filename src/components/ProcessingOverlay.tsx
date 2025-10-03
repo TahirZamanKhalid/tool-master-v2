@@ -1,11 +1,14 @@
 import { Loader2 } from "lucide-react";
 import { AdSpace } from "./AdSpace";
+import { useEffect, useState } from "react";
 
 interface ProcessingOverlayProps {
   message?: string;
   progress?: number;
   onSkip?: () => void;
   showSkip?: boolean;
+  adViewTime?: number; // Time in seconds user must view ad
+  onAdComplete?: () => void;
 }
 
 export const ProcessingOverlay = ({
@@ -13,7 +16,29 @@ export const ProcessingOverlay = ({
   progress,
   onSkip,
   showSkip = false,
+  adViewTime = 10,
+  onAdComplete,
 }: ProcessingOverlayProps) => {
+  const [adTimer, setAdTimer] = useState(adViewTime);
+  const [adViewed, setAdViewed] = useState(false);
+
+  useEffect(() => {
+    if (adViewTime > 0 && !adViewed) {
+      const interval = setInterval(() => {
+        setAdTimer((prev) => {
+          if (prev <= 1) {
+            setAdViewed(true);
+            onAdComplete?.();
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(interval);
+    }
+  }, [adViewTime, adViewed, onAdComplete]);
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
       <div className="bg-card border shadow-card-hover rounded-lg p-8 max-w-md w-full mx-4 space-y-6">
@@ -34,14 +59,21 @@ export const ProcessingOverlay = ({
         </div>
 
         {/* Ad Display Area */}
-        <AdSpace size="rectangle" />
+        <div className="space-y-3">
+          <AdSpace size="rectangle" />
+          {adViewTime > 0 && !adViewed && (
+            <p className="text-center text-sm text-muted-foreground">
+              Please wait {adTimer}s to continue...
+            </p>
+          )}
+        </div>
 
-        {showSkip && onSkip && (
+        {showSkip && onSkip && adViewed && (
           <button
             onClick={onSkip}
             className="text-sm text-muted-foreground hover:text-foreground underline w-full text-center"
           >
-            Skip ad
+            Close
           </button>
         )}
       </div>

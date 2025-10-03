@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -14,6 +15,8 @@ const ImageCompressor = () => {
   const [quality, setQuality] = useState([80]);
   const [originalSize, setOriginalSize] = useState(0);
   const [compressedSize, setCompressedSize] = useState(0);
+  const [showAdOverlay, setShowAdOverlay] = useState(false);
+  const [canDownload, setCanDownload] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -60,17 +63,22 @@ const ImageCompressor = () => {
             setCompressedSize(blob.size);
             const url = URL.createObjectURL(blob);
             setCompressedImage(url);
-            
-            toast({
-              title: "Success!",
-              description: `Image compressed to ${formatFileSize(blob.size)}`,
-            });
+            setShowAdOverlay(true);
+            setCanDownload(false);
           }
         },
         "image/jpeg",
         quality[0] / 100
       );
     };
+  };
+
+  const handleAdComplete = () => {
+    setCanDownload(true);
+    toast({
+      title: "Success!",
+      description: `Image compressed to ${formatFileSize(compressedSize)}. You can now download it.`,
+    });
   };
 
   const downloadImage = () => {
@@ -180,7 +188,7 @@ const ImageCompressor = () => {
               </Button>
             )}
             
-            {compressedImage && (
+            {compressedImage && canDownload && (
               <Button onClick={downloadImage} size="lg" variant="secondary">
                 <Download className="h-4 w-4 mr-2" />
                 Download
@@ -189,6 +197,16 @@ const ImageCompressor = () => {
           </div>
         </Card>
       </ToolLayout>
+
+      {showAdOverlay && (
+        <ProcessingOverlay
+          message="Compression complete! Please view the ad to enable download."
+          adViewTime={8}
+          onAdComplete={handleAdComplete}
+          showSkip={canDownload}
+          onSkip={() => setShowAdOverlay(false)}
+        />
+      )}
     </>
   );
 };
