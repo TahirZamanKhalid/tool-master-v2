@@ -102,6 +102,13 @@ export type Database = {
           total_ratings: number
         }[]
       }
+      get_tool_view_stats: {
+        Args: { tool_path_param?: string }
+        Returns: {
+          tool_path: string
+          view_count: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
