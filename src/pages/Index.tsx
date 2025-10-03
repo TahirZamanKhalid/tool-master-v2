@@ -443,10 +443,11 @@ const Index = () => {
     if (newCategory) params.set("category", newCategory);
     setSearchParams(params);
     
-    // Only scroll if a category is selected (not when clearing)
+    // Scroll to search results section
     if (newCategory) {
-      // Scroll to top of the page instead of tools section
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => {
+        document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     }
   };
 
