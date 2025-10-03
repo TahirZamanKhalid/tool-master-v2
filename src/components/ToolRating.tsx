@@ -48,15 +48,13 @@ export const ToolRating = ({ toolPath }: ToolRatingProps) => {
   };
 
   const fetchRatings = async () => {
-    const { data, count } = await supabase
-      .from("tool_ratings")
-      .select("rating", { count: "exact" })
-      .eq("tool_path", toolPath);
+    // Use the secure function to get aggregate stats without exposing individual data
+    const { data, error } = await supabase
+      .rpc('get_tool_rating_stats', { tool_path_param: toolPath });
 
-    if (data && data.length > 0) {
-      const avg = data.reduce((sum, r) => sum + r.rating, 0) / data.length;
-      setAvgRating(avg);
-      setTotalRatings(count || 0);
+    if (data && data.length > 0 && data[0].total_ratings > 0) {
+      setAvgRating(parseFloat(data[0].avg_rating.toString()) || 0);
+      setTotalRatings(Number(data[0].total_ratings) || 0);
     }
   };
 

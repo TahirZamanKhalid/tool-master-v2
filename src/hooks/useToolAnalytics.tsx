@@ -6,10 +6,13 @@ export const useToolAnalytics = (toolPath: string) => {
     const trackView = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       
-      await supabase.from("tool_views").insert({
-        tool_path: toolPath,
-        user_id: user?.id || null,
-      });
+      // Only track if user is authenticated (required by RLS policy)
+      if (user) {
+        await supabase.from("tool_views").insert({
+          tool_path: toolPath,
+          user_id: user.id,
+        });
+      }
     };
 
     trackView();
@@ -21,8 +24,11 @@ export const trackSearch = async (query: string) => {
   
   const { data: { user } } = await supabase.auth.getUser();
   
-  await supabase.from("search_analytics").insert({
-    search_query: query.toLowerCase().trim(),
-    user_id: user?.id || null,
-  });
+  // Only track if user is authenticated (required by RLS policy)
+  if (user) {
+    await supabase.from("search_analytics").insert({
+      search_query: query.toLowerCase().trim(),
+      user_id: user.id,
+    });
+  }
 };

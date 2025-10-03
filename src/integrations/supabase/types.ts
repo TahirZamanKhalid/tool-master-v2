@@ -88,7 +88,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_tool_rating_stats: {
+        Args: { tool_path_param: string }
+        Returns: {
+          avg_rating: number
+          total_ratings: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
