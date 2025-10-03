@@ -25,13 +25,14 @@ export const AdSpace = ({ size, className = "" }: AdSpaceProps) => {
   }, []);
 
   return (
-    <div className={`flex items-center justify-center ${className}`}>
+    <div className={`flex items-center justify-center overflow-hidden ${className}`}>
       <ins
         className="adsbygoogle"
         style={{
           display: "inline-block",
           width: `${dimensions.width}px`,
           height: `${dimensions.height}px`,
+          maxWidth: "100%",
         }}
         data-ad-client="ca-pub-7382531001943020"
         data-ad-slot="auto"
