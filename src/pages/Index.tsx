@@ -129,9 +129,8 @@ const popularTools = [
   {
     icon: DollarSign,
     title: "Currency Converter",
-    description: "Convert between 150+ world currencies",
+    description: "Convert between 20+ world currencies",
     category: "Calculators",
-    comingSoon: true,
   },
   {
     icon: Zap,
@@ -145,7 +144,6 @@ const popularTools = [
     title: "JSON Formatter",
     description: "Format and validate JSON data",
     category: "Developer Tools",
-    comingSoon: true,
   },
   {
     icon: Instagram,
@@ -159,7 +157,6 @@ const popularTools = [
     title: "Color Picker",
     description: "Pick colors and generate palettes",
     category: "Developer Tools",
-    comingSoon: true,
   },
   {
     icon: Brain,

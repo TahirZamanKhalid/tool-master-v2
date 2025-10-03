@@ -11,6 +11,10 @@ import PDFMerger from "./pages/tools/PDFMerger";
 import ImageCompressor from "./pages/tools/ImageCompressor";
 import WordCounter from "./pages/tools/WordCounter";
 import PasswordGenerator from "./pages/tools/PasswordGenerator";
+import JSONFormatter from "./pages/tools/JSONFormatter";
+import ColorPicker from "./pages/tools/ColorPicker";
+import CurrencyConverter from "./pages/tools/CurrencyConverter";
+import Base64Encoder from "./pages/tools/Base64Encoder";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +32,10 @@ const App = () => (
         <Route path="/tools/image-compressor" element={<ImageCompressor />} />
         <Route path="/tools/word-counter" element={<WordCounter />} />
         <Route path="/tools/password-generator" element={<PasswordGenerator />} />
+        <Route path="/tools/json-formatter" element={<JSONFormatter />} />
+        <Route path="/tools/color-picker" element={<ColorPicker />} />
+        <Route path="/tools/currency-converter" element={<CurrencyConverter />} />
+        <Route path="/tools/base64-encoder" element={<Base64Encoder />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
