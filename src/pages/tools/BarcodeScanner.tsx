@@ -13,12 +13,18 @@ const BarcodeScanner = () => {
   const [format, setFormat] = useState("");
   const [productInfo, setProductInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const [manualBarcode, setManualBarcode] = useState("");
   const videoRef = useRef<HTMLDivElement>(null);
+  const lastScanRef = useRef<string>("");
+  const scanTimeoutRef = useRef<any>(null);
 
   useEffect(() => {
     return () => {
       if (scanning) {
         Quagga.stop();
+      }
+      if (scanTimeoutRef.current) {
+        clearTimeout(scanTimeoutRef.current);
       }
     };
   }, [scanning]);
@@ -89,6 +95,7 @@ const BarcodeScanner = () => {
 
   const startCamera = async () => {
     try {
+      lastScanRef.current = "";
       await Quagga.init({
         inputStream: {
           name: "Live",
@@ -96,6 +103,8 @@ const BarcodeScanner = () => {
           target: videoRef.current!,
           constraints: {
             facingMode: "environment",
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
           },
         },
         decoder: {
@@ -110,8 +119,15 @@ const BarcodeScanner = () => {
             "upc_e_reader",
             "i2of5_reader",
           ],
+          multiple: false,
         },
         locate: true,
+        locator: {
+          patchSize: "medium",
+          halfSample: true,
+        },
+        numOfWorkers: 4,
+        frequency: 10,
       }, (err) => {
         if (err) {
           console.error(err);
@@ -120,16 +136,26 @@ const BarcodeScanner = () => {
         }
         Quagga.start();
         setScanning(true);
-        toast.success("Camera started - point at barcode");
+        toast.success("Camera started - hold barcode steady");
       });
 
       Quagga.onDetected((data) => {
-        if (data.codeResult.code) {
+        if (data.codeResult.code && data.codeResult.code !== lastScanRef.current) {
+          // Prevent duplicate scans
+          if (scanTimeoutRef.current) {
+            clearTimeout(scanTimeoutRef.current);
+          }
+          
+          lastScanRef.current = data.codeResult.code;
           setResult(data.codeResult.code);
           setFormat(data.codeResult.format || "Unknown");
           fetchProductInfo(data.codeResult.code);
-          stopCamera();
-          toast.success("Barcode scanned successfully!");
+          
+          // Stop camera after successful scan
+          scanTimeoutRef.current = setTimeout(() => {
+            stopCamera();
+            toast.success("Barcode scanned successfully!");
+          }, 100);
         }
       });
     } catch (error) {
@@ -144,6 +170,26 @@ const BarcodeScanner = () => {
       setScanning(false);
       toast.info("Camera stopped");
     }
+  };
+
+  const handleManualLookup = () => {
+    const trimmed = manualBarcode.trim();
+    if (!trimmed) {
+      toast.error("Please enter a barcode number");
+      return;
+    }
+    if (!/^\d+$/.test(trimmed)) {
+      toast.error("Barcode must contain only numbers");
+      return;
+    }
+    if (trimmed.length < 8 || trimmed.length > 14) {
+      toast.error("Barcode must be between 8 and 14 digits");
+      return;
+    }
+    setResult(trimmed);
+    setFormat("Manual Entry");
+    fetchProductInfo(trimmed);
+    toast.success("Looking up barcode...");
   };
 
   const scanFile = async () => {
@@ -210,9 +256,10 @@ const BarcodeScanner = () => {
       category="QR & Barcodes"
       instructions={[
         "Click 'Start Camera' to scan barcodes in real-time",
+        "Hold the barcode steady and centered for best results",
+        "Or manually enter the barcode number below",
         "Or upload an image containing a barcode",
         "Supports UPC, EAN, Code128, Code39, and more",
-        "The decoded content will appear below",
       ]}
       relatedTools={[
         { name: "QR Code Scanner", path: "/tools/qr-scanner" },
@@ -223,6 +270,34 @@ const BarcodeScanner = () => {
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
+            <div>
+              <Label>Manual Barcode Entry</Label>
+              <div className="flex gap-2 mt-2">
+                <input
+                  type="text"
+                  placeholder="Enter barcode number (e.g., 012345678912)"
+                  value={manualBarcode}
+                  onChange={(e) => setManualBarcode(e.target.value.replace(/\D/g, ''))}
+                  onKeyDown={(e) => e.key === 'Enter' && handleManualLookup()}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  maxLength={14}
+                />
+                <Button onClick={handleManualLookup} size="lg">
+                  Lookup
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Enter 8-14 digit barcode number</p>
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or scan</span>
+              </div>
+            </div>
+
             <div>
               <Label>Scan Method</Label>
               <div className="grid grid-cols-2 gap-3 mt-2">
@@ -245,14 +320,20 @@ const BarcodeScanner = () => {
               </div>
             </div>
 
-            <div className="border rounded-lg overflow-hidden bg-black/5 relative">
-              <div ref={videoRef} id="barcode-reader" className="w-full min-h-[300px]"></div>
+            <div className="border rounded-lg overflow-hidden bg-black relative">
+              <div ref={videoRef} id="barcode-reader" className="w-full min-h-[400px]"></div>
               {!scanning && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/5">
-                  <div className="text-center text-muted-foreground">
-                    <Barcode className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+                  <div className="text-center text-white">
+                    <Barcode className="h-16 w-16 mx-auto mb-4 opacity-70" />
                     <p>Camera preview will appear here</p>
+                    <p className="text-xs mt-2 opacity-70">Position barcode in center of screen</p>
                   </div>
+                </div>
+              )}
+              {scanning && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="border-4 border-primary w-64 h-40 rounded-lg"></div>
                 </div>
               )}
             </div>
