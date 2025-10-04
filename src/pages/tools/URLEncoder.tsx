@@ -6,10 +6,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Copy, Link } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AdWatchModal } from "@/components/AdWatchModal";
 
 const URLEncoder = () => {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
+  const [showAdModal, setShowAdModal] = useState(false);
   const { toast } = useToast();
 
   const handleEncode = () => {
@@ -44,6 +46,15 @@ const URLEncoder = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleCopyClick = () => {
+    setShowAdModal(true);
+  };
+
+  const handleAdWatched = () => {
+    setShowAdModal(false);
+    copyToClipboard();
   };
 
   const copyToClipboard = () => {
@@ -110,10 +121,10 @@ const URLEncoder = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={copyToClipboard}
+                  onClick={handleCopyClick}
                 >
                   <Copy className="h-4 w-4 mr-2" />
-                  Copy
+                  Watch Ad to Copy
                 </Button>
               )}
             </div>
@@ -122,11 +133,19 @@ const URLEncoder = () => {
               value={output}
               readOnly
               placeholder="Result will appear here..."
-              className="min-h-[300px] font-mono text-sm bg-muted/50"
+              className="min-h-[300px] font-mono text-sm bg-muted/50 select-none cursor-default"
             />
           </CardContent>
         </Card>
       </div>
+
+      <AdWatchModal
+        open={showAdModal}
+        onOpenChange={setShowAdModal}
+        onAdWatched={handleAdWatched}
+        title="Watch Ad to Continue"
+        description="Watch this short ad to copy the result"
+      />
     </ToolLayout>
   );
 };

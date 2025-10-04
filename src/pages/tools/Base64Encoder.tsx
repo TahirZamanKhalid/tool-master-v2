@@ -7,12 +7,15 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, ArrowDown, ArrowUp } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AdWatchModal } from "@/components/AdWatchModal";
 
 const Base64Encoder = () => {
   const [textInput, setTextInput] = useState("");
   const [encodedOutput, setEncodedOutput] = useState("");
   const [decodedOutput, setDecodedOutput] = useState("");
   const [encodeError, setEncodeError] = useState("");
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [pendingCopy, setPendingCopy] = useState("");
   const { toast } = useToast();
 
   const encodeToBase64 = () => {
@@ -41,6 +44,19 @@ const Base64Encoder = () => {
     } catch (e) {
       setEncodeError("Invalid Base64 string. Please check your input.");
       setDecodedOutput("");
+    }
+  };
+
+  const handleCopyClick = (text: string) => {
+    setPendingCopy(text);
+    setShowAdModal(true);
+  };
+
+  const handleAdWatched = () => {
+    setShowAdModal(false);
+    if (pendingCopy) {
+      copyToClipboard(pendingCopy);
+      setPendingCopy("");
     }
   };
 
@@ -103,16 +119,16 @@ const Base64Encoder = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => copyToClipboard(encodedOutput)}
+                    onClick={() => handleCopyClick(encodedOutput)}
                   >
                     <Copy className="h-4 w-4 mr-2" />
-                    Copy
+                    Watch Ad to Copy
                   </Button>
                 </div>
                 <Textarea
                   value={encodedOutput}
                   readOnly
-                  className="min-h-[200px] font-mono"
+                  className="min-h-[200px] font-mono select-none cursor-default"
                 />
               </Card>
             )}
@@ -147,21 +163,32 @@ const Base64Encoder = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => copyToClipboard(decodedOutput)}
+                    onClick={() => handleCopyClick(decodedOutput)}
                   >
                     <Copy className="h-4 w-4 mr-2" />
-                    Copy
+                    Watch Ad to Copy
                   </Button>
                 </div>
                 <Textarea
                   value={decodedOutput}
                   readOnly
-                  className="min-h-[200px] font-mono"
+                  className="min-h-[200px] font-mono select-none cursor-default"
                 />
               </Card>
             )}
           </TabsContent>
         </Tabs>
+
+        <AdWatchModal
+          open={showAdModal}
+          onOpenChange={(open) => {
+            setShowAdModal(open);
+            if (!open) setPendingCopy("");
+          }}
+          onAdWatched={handleAdWatched}
+          title="Watch Ad to Continue"
+          description="Watch this short ad to copy the text"
+        />
       </ToolLayout>
     </>
   );

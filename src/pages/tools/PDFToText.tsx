@@ -183,7 +183,7 @@ const PDFToText = () => {
               value={extractedText}
               readOnly
               placeholder="Extracted text will appear here..."
-              className="min-h-[300px] font-mono text-sm"
+              className="min-h-[300px] font-mono text-sm select-none cursor-default"
             />
             
             {extractedText && (
