@@ -17,6 +17,8 @@ const ImageCompressor = () => {
   const [compressedSize, setCompressedSize] = useState(0);
   const [showAdOverlay, setShowAdOverlay] = useState(false);
   const [canDownload, setCanDownload] = useState(false);
+  const [imageFormat, setImageFormat] = useState<string>("image/jpeg");
+  const [originalFormat, setOriginalFormat] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -32,10 +34,14 @@ const ImageCompressor = () => {
     const file = e.target.files?.[0];
     if (file) {
       setOriginalSize(file.size);
+      setOriginalFormat(file.type);
+      // Default to JPEG for compression, unless it's PNG with transparency
+      setImageFormat("image/jpeg");
       const reader = new FileReader();
       reader.onload = (e) => {
         setSelectedImage(e.target?.result as string);
         setCompressedImage(null);
+        setCompressedSize(0);
       };
       reader.readAsDataURL(file);
     }
@@ -49,14 +55,22 @@ const ImageCompressor = () => {
     
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
+      
+      // Calculate new dimensions (reduce by quality factor for better compression)
+      const scaleFactor = Math.max(0.5, quality[0] / 100);
+      canvas.width = Math.floor(img.width * scaleFactor);
+      canvas.height = Math.floor(img.height * scaleFactor);
+      
       const ctx = canvas.getContext("2d");
       
       if (!ctx) return;
 
-      ctx.drawImage(img, 0, 0);
+      // Use better image smoothing for quality
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = quality[0] > 70 ? 'high' : quality[0] > 40 ? 'medium' : 'low';
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       
+      // Use JPEG format with quality parameter
       canvas.toBlob(
         (blob) => {
           if (blob) {
@@ -65,6 +79,14 @@ const ImageCompressor = () => {
             setCompressedImage(url);
             setShowAdOverlay(true);
             setCanDownload(false);
+            
+            if (blob.size >= originalSize) {
+              toast({
+                title: "Note",
+                description: "Compressed size is similar to original. Try lower quality for better compression.",
+                variant: "default",
+              });
+            }
           }
         },
         "image/jpeg",
