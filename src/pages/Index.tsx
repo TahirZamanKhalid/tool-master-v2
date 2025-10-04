@@ -55,6 +55,7 @@ import {
   ScanLine,
   Wifi,
   Camera,
+  Captions,
 } from "lucide-react";
 
 const categories = [
@@ -178,11 +179,10 @@ const popularTools = [
     category: "Text Tools",
   },
   {
-    icon: Instagram,
+    icon: Captions,
     title: "Caption Generator",
-    description: "Generate engaging social media captions",
+    description: "Generate engaging social media captions with AI",
     category: "AI & Content",
-    comingSoon: true,
   },
   {
     icon: Palette,
