@@ -6,12 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import * as pdfjsLib from "pdfjs-dist";
+import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
+import PdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?worker";
 import { FileText, Upload, Copy, Download } from "lucide-react";
 import { AdSpace } from "@/components/AdSpace";
 
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Configure PDF.js worker (Vite)
+GlobalWorkerOptions.workerPort = new PdfWorker();
 
 const PDFToText = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -39,7 +40,7 @@ const PDFToText = () => {
 
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      const loadingTask = getDocument({ data: arrayBuffer });
       const pdf = await loadingTask.promise;
       
       let fullText = "";
