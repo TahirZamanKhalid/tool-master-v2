@@ -1,65 +1,81 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Barcode, Camera, Upload, Copy } from "lucide-react";
 import { toast } from "sonner";
-import { Html5Qrcode } from "html5-qrcode";
+import Quagga from "@ericblade/quagga2";
 
 const BarcodeScanner = () => {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState("");
   const [format, setFormat] = useState("");
-  const [html5QrCode, setHtml5QrCode] = useState<Html5Qrcode | null>(null);
+  const videoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     return () => {
-      if (html5QrCode?.isScanning) {
-        html5QrCode.stop().catch(console.error);
+      if (scanning) {
+        Quagga.stop();
       }
     };
-  }, [html5QrCode]);
+  }, [scanning]);
 
   const startCamera = async () => {
     try {
-      const barcodeScanner = new Html5Qrcode("barcode-reader");
-      setHtml5QrCode(barcodeScanner);
-
-      await barcodeScanner.start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
+      await Quagga.init({
+        inputStream: {
+          name: "Live",
+          type: "LiveStream",
+          target: videoRef.current!,
+          constraints: {
+            facingMode: "environment",
+          },
         },
-        (decodedText, decodedResult) => {
-          setResult(decodedText);
-          setFormat(decodedResult.result.format?.formatName || "Unknown");
+        decoder: {
+          readers: [
+            "ean_reader",
+            "ean_8_reader",
+            "code_128_reader",
+            "code_39_reader",
+            "code_39_vin_reader",
+            "codabar_reader",
+            "upc_reader",
+            "upc_e_reader",
+            "i2of5_reader",
+          ],
+        },
+        locate: true,
+      }, (err) => {
+        if (err) {
+          console.error(err);
+          toast.error("Failed to access camera. Please grant camera permissions.");
+          return;
+        }
+        Quagga.start();
+        setScanning(true);
+        toast.success("Camera started - point at barcode");
+      });
+
+      Quagga.onDetected((data) => {
+        if (data.codeResult.code) {
+          setResult(data.codeResult.code);
+          setFormat(data.codeResult.format || "Unknown");
           stopCamera();
           toast.success("Barcode scanned successfully!");
-        },
-        (errorMessage) => {
-          // Ignore errors during scanning
         }
-      );
-
-      setScanning(true);
-      toast.success("Camera started");
+      });
     } catch (error) {
       console.error(error);
-      toast.error("Failed to access camera. Please grant camera permissions.");
+      toast.error("Failed to start camera");
     }
   };
 
-  const stopCamera = async () => {
-    if (html5QrCode?.isScanning) {
-      try {
-        await html5QrCode.stop();
-        setScanning(false);
-        toast.info("Camera stopped");
-      } catch (error) {
-        console.error(error);
-      }
+  const stopCamera = () => {
+    if (scanning) {
+      Quagga.stop();
+      setScanning(false);
+      toast.info("Camera stopped");
     }
   };
 
@@ -72,16 +88,43 @@ const BarcodeScanner = () => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
-      try {
-        const barcodeScanner = new Html5Qrcode("barcode-reader");
-        const decodedText = await barcodeScanner.scanFile(file, true);
-        setResult(decodedText);
-        setFormat("Detected from image");
-        toast.success("Barcode decoded successfully!");
-      } catch (error) {
-        console.error(error);
-        toast.error("Failed to decode barcode from image");
-      }
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const imageSrc = event.target?.result as string;
+        
+        try {
+          await Quagga.decodeSingle({
+            src: imageSrc,
+            numOfWorkers: 0,
+            decoder: {
+              readers: [
+                "ean_reader",
+                "ean_8_reader",
+                "code_128_reader",
+                "code_39_reader",
+                "code_39_vin_reader",
+                "codabar_reader",
+                "upc_reader",
+                "upc_e_reader",
+                "i2of5_reader",
+              ],
+            },
+            locate: true,
+          }, (data) => {
+            if (data && data.codeResult && data.codeResult.code) {
+              setResult(data.codeResult.code);
+              setFormat(data.codeResult.format || "Detected from image");
+              toast.success("Barcode decoded successfully!");
+            } else {
+              toast.error("No barcode found in image. Try a clearer photo.");
+            }
+          });
+        } catch (error) {
+          console.error(error);
+          toast.error("Failed to decode barcode from image");
+        }
+      };
+      reader.readAsDataURL(file);
     };
 
     input.click();
@@ -134,10 +177,10 @@ const BarcodeScanner = () => {
               </div>
             </div>
 
-            <div className="border rounded-lg overflow-hidden bg-black/5">
-              <div id="barcode-reader" className="w-full min-h-[300px]"></div>
+            <div className="border rounded-lg overflow-hidden bg-black/5 relative">
+              <div ref={videoRef} id="barcode-reader" className="w-full min-h-[300px]"></div>
               {!scanning && (
-                <div className="flex items-center justify-center h-[300px]">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/5">
                   <div className="text-center text-muted-foreground">
                     <Barcode className="h-16 w-16 mx-auto mb-4 opacity-50" />
                     <p>Camera preview will appear here</p>
