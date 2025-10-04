@@ -3,9 +3,10 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Barcode, Camera, Upload, Copy } from "lucide-react";
+import { Barcode, Camera, Upload, Copy, X } from "lucide-react";
 import { toast } from "sonner";
 import Quagga from "@ericblade/quagga2";
+import { supabase } from "@/integrations/supabase/client";
 
 const BarcodeScanner = () => {
   const [scanning, setScanning] = useState(false);
@@ -34,59 +35,20 @@ const BarcodeScanner = () => {
     setProductInfo(null);
     
     try {
-      // Try Open Food Facts API first (works for food products)
-      const foodResponse = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
-      const foodData = await foodResponse.json();
-      
-      if (foodData.status === 1 && foodData.product) {
-        setProductInfo({
-          source: "Open Food Facts",
-          name: foodData.product.product_name || "Unknown",
-          brand: foodData.product.brands || "Unknown",
-          categories: foodData.product.categories || "Unknown",
-          image: foodData.product.image_url,
-          ingredients: foodData.product.ingredients_text,
-          nutrition: {
-            energy: foodData.product.nutriments?.energy_value,
-            fat: foodData.product.nutriments?.fat,
-            carbohydrates: foodData.product.nutriments?.carbohydrates,
-            proteins: foodData.product.nutriments?.proteins,
-          },
-          labels: foodData.product.labels,
-          packaging: foodData.product.packaging,
-        });
-        setLoading(false);
-        return;
-      }
+      const { data, error } = await supabase.functions.invoke('lookup-barcode', {
+        body: { barcode }
+      });
 
-      // Try UPCItemDB API for general products
-      const upcResponse = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
-      const upcData = await upcResponse.json();
-      
-      if (upcData.items && upcData.items.length > 0) {
-        const item = upcData.items[0];
-        setProductInfo({
-          source: "UPC Database",
-          name: item.title || "Unknown",
-          brand: item.brand || "Unknown",
-          description: item.description,
-          category: item.category,
-          image: item.images?.[0],
-          price: item.offers?.[0]?.price,
-          currency: item.offers?.[0]?.currency,
-          merchant: item.offers?.[0]?.merchant,
-        });
-      } else {
-        setProductInfo({
-          source: "Not Found",
-          message: "Product information not available for this barcode",
-        });
+      if (error) throw error;
+
+      if (data) {
+        setProductInfo(data);
       }
     } catch (error) {
       console.error("Error fetching product info:", error);
       setProductInfo({
         source: "Error",
-        message: "Failed to fetch product information",
+        message: "Failed to fetch product information. Please try again.",
       });
     }
     
@@ -103,8 +65,8 @@ const BarcodeScanner = () => {
           target: videoRef.current!,
           constraints: {
             facingMode: "environment",
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
           },
         },
         decoder: {
@@ -123,11 +85,10 @@ const BarcodeScanner = () => {
         },
         locate: true,
         locator: {
-          patchSize: "medium",
-          halfSample: true,
+          patchSize: "large",
+          halfSample: false,
         },
-        numOfWorkers: 4,
-        frequency: 10,
+        numOfWorkers: 0,
       }, (err) => {
         if (err) {
           console.error(err);
@@ -136,32 +97,45 @@ const BarcodeScanner = () => {
         }
         Quagga.start();
         setScanning(true);
-        toast.success("Camera started - hold barcode steady");
-      });
-
-      Quagga.onDetected((data) => {
-        if (data.codeResult.code && data.codeResult.code !== lastScanRef.current) {
-          // Prevent duplicate scans
-          if (scanTimeoutRef.current) {
-            clearTimeout(scanTimeoutRef.current);
-          }
-          
-          lastScanRef.current = data.codeResult.code;
-          setResult(data.codeResult.code);
-          setFormat(data.codeResult.format || "Unknown");
-          fetchProductInfo(data.codeResult.code);
-          
-          // Stop camera after successful scan
-          scanTimeoutRef.current = setTimeout(() => {
-            stopCamera();
-            toast.success("Barcode scanned successfully!");
-          }, 100);
-        }
+        toast.success("Camera ready - position barcode and click Capture");
       });
     } catch (error) {
       console.error(error);
       toast.error("Failed to start camera");
     }
+  };
+
+  const captureBarcode = () => {
+    if (!scanning) return;
+
+    // Take a single frame and decode it
+    Quagga.onProcessed((result) => {
+      if (result && result.codeResult && result.codeResult.code) {
+        const code = result.codeResult.code;
+        
+        // Check if this is a different code than the last one
+        if (code !== lastScanRef.current) {
+          lastScanRef.current = code;
+          setResult(code);
+          setFormat(result.codeResult.format || "Unknown");
+          fetchProductInfo(code);
+          stopCamera();
+          toast.success("Barcode captured successfully!");
+        }
+      }
+    });
+
+    // Also try onDetected for immediate capture
+    Quagga.onDetected((data) => {
+      if (data.codeResult.code && data.codeResult.code !== lastScanRef.current) {
+        lastScanRef.current = data.codeResult.code;
+        setResult(data.codeResult.code);
+        setFormat(data.codeResult.format || "Unknown");
+        fetchProductInfo(data.codeResult.code);
+        stopCamera();
+        toast.success("Barcode captured successfully!");
+      }
+    });
   };
 
   const stopCamera = () => {
@@ -255,11 +229,11 @@ const BarcodeScanner = () => {
       description="Scan various types of barcodes using your camera or upload an image"
       category="QR & Barcodes"
       instructions={[
-        "Click 'Start Camera' to scan barcodes in real-time",
-        "Hold the barcode steady and centered for best results",
+        "Click 'Start Camera' to activate your camera",
+        "Position the barcode in the center frame",
+        "Click 'Capture' button to scan the barcode",
         "Or manually enter the barcode number below",
         "Or upload an image containing a barcode",
-        "Supports UPC, EAN, Code128, Code39, and more",
       ]}
       relatedTools={[
         { name: "QR Code Scanner", path: "/tools/qr-scanner" },
@@ -313,9 +287,16 @@ const BarcodeScanner = () => {
                     </Button>
                   </>
                 ) : (
-                  <Button onClick={stopCamera} size="lg" variant="destructive" className="col-span-2">
-                    Stop Camera
-                  </Button>
+                  <>
+                    <Button onClick={captureBarcode} size="lg" className="w-full">
+                      <Barcode className="h-4 w-4 mr-2" />
+                      Capture
+                    </Button>
+                    <Button onClick={stopCamera} size="lg" variant="destructive" className="w-full">
+                      <X className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
@@ -326,14 +307,17 @@ const BarcodeScanner = () => {
                 <div className="absolute inset-0 flex items-center justify-center bg-black/70">
                   <div className="text-center text-white">
                     <Barcode className="h-16 w-16 mx-auto mb-4 opacity-70" />
-                    <p>Camera preview will appear here</p>
-                    <p className="text-xs mt-2 opacity-70">Position barcode in center of screen</p>
+                    <p className="font-semibold">Camera Not Active</p>
+                    <p className="text-sm mt-2 opacity-70">Click "Start Camera" above</p>
                   </div>
                 </div>
               )}
               {scanning && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="border-4 border-primary w-64 h-40 rounded-lg"></div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                  <div className="border-4 border-primary w-80 h-48 rounded-lg shadow-lg"></div>
+                  <p className="text-white bg-black/70 px-4 py-2 rounded-lg mt-4 text-sm font-semibold">
+                    Position barcode in frame and click Capture
+                  </p>
                 </div>
               )}
             </div>
