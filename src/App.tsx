@@ -55,6 +55,10 @@ import CountdownTimer from "./pages/tools/CountdownTimer";
 import StopwatchTimer from "./pages/tools/StopwatchTimer";
 import AgeCalculator from "./pages/tools/AgeCalculator";
 import MetaTagGenerator from "./pages/tools/MetaTagGenerator";
+import BarcodeGenerator from "./pages/tools/BarcodeGenerator";
+import QRScanner from "./pages/tools/QRScanner";
+import BarcodeScanner from "./pages/tools/BarcodeScanner";
+import WiFiQRGenerator from "./pages/tools/WiFiQRGenerator";
 import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
@@ -114,6 +118,10 @@ const App = () => (
         <Route path="/tools/stopwatch" element={<StopwatchTimer />} />
         <Route path="/tools/age-calculator" element={<AgeCalculator />} />
         <Route path="/tools/meta-tag-generator" element={<MetaTagGenerator />} />
+        <Route path="/tools/barcode-generator" element={<BarcodeGenerator />} />
+        <Route path="/tools/qr-scanner" element={<QRScanner />} />
+        <Route path="/tools/barcode-scanner" element={<BarcodeScanner />} />
+        <Route path="/tools/wifi-qr" element={<WiFiQRGenerator />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />

@@ -51,6 +51,10 @@ import {
   Dices,
   Timer,
   Calendar,
+  Barcode,
+  ScanLine,
+  Wifi,
+  Camera,
 } from "lucide-react";
 
 const categories = [
@@ -403,6 +407,30 @@ const popularTools = [
     description: "Generate SEO meta tags for your website",
     category: "SEO & Marketing",
   },
+  {
+    icon: Barcode,
+    title: "Barcode Generator",
+    description: "Generate various types of barcodes",
+    category: "QR & Barcodes",
+  },
+  {
+    icon: ScanLine,
+    title: "QR Scanner",
+    description: "Scan QR codes with your camera",
+    category: "QR & Barcodes",
+  },
+  {
+    icon: Camera,
+    title: "Barcode Scanner",
+    description: "Scan barcodes with your camera",
+    category: "QR & Barcodes",
+  },
+  {
+    icon: Wifi,
+    title: "WiFi QR Generator",
+    description: "Generate QR codes to share WiFi",
+    category: "QR & Barcodes",
+  },
 ];
 
 const Index = () => {
@@ -641,6 +669,10 @@ const Index = () => {
                 "Stopwatch": "/tools/stopwatch",
                 "Age Calculator": "/tools/age-calculator",
                 "Meta Tag Generator": "/tools/meta-tag-generator",
+                "Barcode Generator": "/tools/barcode-generator",
+                "QR Scanner": "/tools/qr-scanner",
+                "Barcode Scanner": "/tools/barcode-scanner",
+                "WiFi QR Generator": "/tools/wifi-qr",
               };
               
               return (
