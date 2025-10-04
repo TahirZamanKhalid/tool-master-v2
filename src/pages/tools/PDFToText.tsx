@@ -6,9 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { PDFDocument } from "pdf-lib";
+import * as pdfjsLib from "pdfjs-dist";
 import { FileText, Upload, Copy, Download } from "lucide-react";
 import { AdSpace } from "@/components/AdSpace";
+
+// Configure PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 const PDFToText = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -36,29 +39,30 @@ const PDFToText = () => {
 
     try {
       const arrayBuffer = await file.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      const pages = pdfDoc.getPages();
-
-      // Note: pdf-lib doesn't support text extraction natively
-      // This is a placeholder - in production, you'd use pdf.js or similar
-      toast.info("Basic text extraction - complex PDFs may need OCR");
+      const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+      const pdf = await loadingTask.promise;
       
-      // For demonstration, we'll show metadata
-      const text = `PDF Information:
-      
-Title: ${pdfDoc.getTitle() || "N/A"}
-Author: ${pdfDoc.getAuthor() || "N/A"}
-Subject: ${pdfDoc.getSubject() || "N/A"}
-Pages: ${pages.length}
+      let fullText = "";
+      const numPages = pdf.numPages;
 
-Note: Advanced text extraction requires additional libraries.
-For accurate text extraction from complex PDFs, consider using:
-- Adobe Acrobat
-- Online OCR services
-- Specialized PDF processing tools`;
+      // Extract text from each page
+      for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(" ");
+        
+        fullText += `\n--- Page ${pageNum} ---\n${pageText}\n`;
+      }
 
-      setExtractedText(text);
-      toast.success("PDF information extracted");
+      if (!fullText.trim()) {
+        toast.info("No text found. PDF may contain only images or scanned content.");
+        setExtractedText("No text content found in this PDF. The document may contain only images or be a scanned document.");
+      } else {
+        setExtractedText(fullText.trim());
+        toast.success(`Text extracted from ${numPages} page(s)!`);
+      }
     } catch (error) {
       console.error("Error extracting text:", error);
       toast.error("Failed to extract text from PDF");
