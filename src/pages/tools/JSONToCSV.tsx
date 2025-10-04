@@ -18,21 +18,47 @@ const JSONToCSV = () => {
 
     try {
       const data = JSON.parse(jsonInput);
-      if (!Array.isArray(data) || data.length === 0) {
-        toast.error("JSON must be an array of objects");
+      
+      // Handle single object - convert to array
+      const arrayData = Array.isArray(data) ? data : [data];
+      
+      if (arrayData.length === 0) {
+        toast.error("JSON data is empty");
         return;
       }
 
-      const headers = Object.keys(data[0]);
+      // Ensure all items are objects
+      if (!arrayData.every(item => typeof item === 'object' && item !== null && !Array.isArray(item))) {
+        toast.error("JSON must contain objects with key-value pairs");
+        return;
+      }
+
+      // Collect all unique headers from all objects
+      const allHeaders = new Set<string>();
+      arrayData.forEach(obj => {
+        Object.keys(obj).forEach(key => allHeaders.add(key));
+      });
+      const headers = Array.from(allHeaders);
+
+      // Escape CSV values properly
+      const escapeCSV = (value: any): string => {
+        if (value === null || value === undefined) return "";
+        const str = String(value);
+        if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      };
+
       const csv = [
-        headers.join(","),
-        ...data.map(row => headers.map(h => row[h] || "").join(","))
+        headers.map(escapeCSV).join(","),
+        ...arrayData.map(row => headers.map(h => escapeCSV(row[h])).join(","))
       ].join("\n");
 
       setCsvOutput(csv);
       toast.success("Converted to CSV successfully!");
     } catch (error) {
-      toast.error("Invalid JSON format");
+      toast.error("Invalid JSON format. Please check your syntax.");
     }
   };
 

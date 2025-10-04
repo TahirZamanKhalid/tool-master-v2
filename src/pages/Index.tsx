@@ -452,8 +452,8 @@ const Index = () => {
   const handleCategoryFilter = (category: string) => {
     const newCategory = category === selectedCategory ? "" : category;
     setSelectedCategory(newCategory);
+    setSearchQuery(""); // Clear search when selecting category
     const params = new URLSearchParams();
-    if (searchQuery) params.set("q", searchQuery);
     if (newCategory) params.set("category", newCategory);
     setSearchParams(params);
     
