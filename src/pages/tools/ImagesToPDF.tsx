@@ -8,10 +8,13 @@ import { toast } from "sonner";
 import { PDFDocument } from "pdf-lib";
 import { Upload, FileDown, X, ArrowUp, ArrowDown } from "lucide-react";
 import { AdSpace } from "@/components/AdSpace";
+import { AdWatchModal } from "@/components/AdWatchModal";
 
 const ImagesToPDF = () => {
   const [images, setImages] = useState<File[]>([]);
   const [processing, setProcessing] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [pdfData, setPdfData] = useState<Uint8Array | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -73,21 +76,34 @@ const ImagesToPDF = () => {
       }
 
       const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `images_${Date.now()}.pdf`;
-      link.click();
-
-      toast.success(`PDF created with ${images.length} image(s)!`);
+      setPdfData(pdfBytes);
+      setShowAdModal(true);
     } catch (error) {
       console.error("Error creating PDF:", error);
       toast.error("Failed to create PDF");
     } finally {
       setProcessing(false);
     }
+  };
+
+  const handleAdWatched = () => {
+    setShowAdModal(false);
+    if (pdfData) {
+      downloadPDF(pdfData);
+    }
+  };
+
+  const downloadPDF = (pdfBytes: Uint8Array) => {
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `images_${Date.now()}.pdf`;
+    link.click();
+
+    toast.success(`PDF created with ${images.length} image(s)!`);
+    setPdfData(null);
   };
 
   return (
@@ -146,7 +162,7 @@ const ImagesToPDF = () => {
               ) : (
                 <>
                   <FileDown className="h-4 w-4 mr-2" />
-                  Create PDF ({images.length} images)
+                  Watch Ad to Create PDF ({images.length} images)
                 </>
               )}
             </Button>
@@ -212,6 +228,17 @@ const ImagesToPDF = () => {
       </div>
       
       <AdSpace size="leaderboard" className="mt-6" />
+
+      <AdWatchModal
+        open={showAdModal}
+        onOpenChange={(open) => {
+          setShowAdModal(open);
+          if (!open) setPdfData(null);
+        }}
+        onAdWatched={handleAdWatched}
+        title="Watch Ad to Continue"
+        description="Watch this short ad to download your PDF"
+      />
     </ToolLayout>
   );
 };

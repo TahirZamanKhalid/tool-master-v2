@@ -7,12 +7,16 @@ import { Card } from "@/components/ui/card";
 import { Upload, Download, FileDown, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PDFDocument } from "pdf-lib";
+import { AdWatchModal } from "@/components/AdWatchModal";
+import { AdSpace } from "@/components/AdSpace";
 
 const PDFMerger = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [showSkip, setShowSkip] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [mergedPdfData, setMergedPdfData] = useState<Uint8Array | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -67,18 +71,8 @@ const PDFMerger = () => {
       const mergedPdfBytes = await mergedPdf.save();
       setProgress(100);
 
-      const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "merged-document.pdf";
-      link.click();
-
-      toast({
-        title: "Success!",
-        description: "PDFs merged successfully",
-      });
+      setMergedPdfData(mergedPdfBytes);
+      setShowAdModal(true);
     } catch (error) {
       console.error(error);
       toast({
@@ -90,6 +84,29 @@ const PDFMerger = () => {
       setIsProcessing(false);
       setProgress(0);
     }
+  };
+
+  const handleAdWatched = () => {
+    setShowAdModal(false);
+    if (mergedPdfData) {
+      downloadPDF(mergedPdfData);
+    }
+  };
+
+  const downloadPDF = (pdfBytes: Uint8Array) => {
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "merged-document.pdf";
+    link.click();
+
+    toast({
+      title: "Success!",
+      description: "PDFs merged successfully",
+    });
+    setMergedPdfData(null);
   };
 
   return (
@@ -107,9 +124,11 @@ const PDFMerger = () => {
         ]}
         relatedTools={[
           { name: "PDF Splitter", path: "/tools/pdf-splitter" },
-          { name: "PDF Compressor", path: "/tools/pdf-compressor" },
+         { name: "PDF Compressor", path: "/tools/pdf-compressor" },
         ]}
       >
+        <AdSpace size="leaderboard" className="mb-6" />
+        
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
             <input
@@ -180,11 +199,13 @@ const PDFMerger = () => {
                 className="gradient-primary border-0"
               >
                 <Download className="h-4 w-4 mr-2" />
-                Merge PDFs
+                Watch Ad to Merge PDFs
               </Button>
             )}
           </div>
         </Card>
+
+        <AdSpace size="leaderboard" className="mt-6" />
       </ToolLayout>
 
       {isProcessing && (
@@ -195,6 +216,17 @@ const PDFMerger = () => {
           onSkip={() => setIsProcessing(false)}
         />
       )}
+
+      <AdWatchModal
+        open={showAdModal}
+        onOpenChange={(open) => {
+          setShowAdModal(open);
+          if (!open) setMergedPdfData(null);
+        }}
+        onAdWatched={handleAdWatched}
+        title="Watch Ad to Continue"
+        description="Watch this short ad to download your merged PDF"
+      />
     </>
   );
 };

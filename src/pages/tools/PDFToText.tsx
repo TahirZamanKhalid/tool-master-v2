@@ -10,6 +10,7 @@ import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import PdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?worker";
 import { FileText, Upload, Copy, Download } from "lucide-react";
 import { AdSpace } from "@/components/AdSpace";
+import { AdWatchModal } from "@/components/AdWatchModal";
 
 // Configure PDF.js worker (Vite)
 GlobalWorkerOptions.workerPort = new PdfWorker();
@@ -18,6 +19,8 @@ const PDFToText = () => {
   const [file, setFile] = useState<File | null>(null);
   const [extractedText, setExtractedText] = useState("");
   const [processing, setProcessing] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'copy' | 'download' | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -70,6 +73,26 @@ const PDFToText = () => {
     } finally {
       setProcessing(false);
     }
+  };
+
+  const handleCopyClick = () => {
+    setPendingAction('copy');
+    setShowAdModal(true);
+  };
+
+  const handleDownloadClick = () => {
+    setPendingAction('download');
+    setShowAdModal(true);
+  };
+
+  const handleAdWatched = () => {
+    setShowAdModal(false);
+    if (pendingAction === 'copy') {
+      copyText();
+    } else if (pendingAction === 'download') {
+      downloadText();
+    }
+    setPendingAction(null);
   };
 
   const copyText = () => {
@@ -165,13 +188,13 @@ const PDFToText = () => {
             
             {extractedText && (
               <div className="grid grid-cols-2 gap-3">
-                <Button onClick={copyText} variant="secondary">
+                <Button onClick={handleCopyClick} variant="secondary">
                   <Copy className="h-4 w-4 mr-2" />
-                  Copy Text
+                  Watch Ad to Copy
                 </Button>
-                <Button onClick={downloadText} variant="secondary">
+                <Button onClick={handleDownloadClick} variant="secondary">
                   <Download className="h-4 w-4 mr-2" />
-                  Download
+                  Watch Ad to Download
                 </Button>
               </div>
             )}
@@ -180,6 +203,17 @@ const PDFToText = () => {
       </div>
       
       <AdSpace size="leaderboard" className="mt-6" />
+
+      <AdWatchModal
+        open={showAdModal}
+        onOpenChange={(open) => {
+          setShowAdModal(open);
+          if (!open) setPendingAction(null);
+        }}
+        onAdWatched={handleAdWatched}
+        title="Watch Ad to Continue"
+        description={`Watch this short ad to ${pendingAction === 'copy' ? 'copy' : 'download'} the extracted text`}
+      />
     </ToolLayout>
   );
 };

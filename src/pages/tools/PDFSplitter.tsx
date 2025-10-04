@@ -8,12 +8,15 @@ import { toast } from "sonner";
 import { PDFDocument } from "pdf-lib";
 import { FileText, Download, Upload, Scissors } from "lucide-react";
 import { AdSpace } from "@/components/AdSpace";
+import { AdWatchModal } from "@/components/AdWatchModal";
 
 const PDFSplitter = () => {
   const [file, setFile] = useState<File | null>(null);
   const [pageRanges, setPageRanges] = useState("");
   const [processing, setProcessing] = useState(false);
   const [pageCount, setPageCount] = useState(0);
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [splitPdfData, setSplitPdfData] = useState<Uint8Array | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -83,21 +86,35 @@ const PDFSplitter = () => {
       copiedPages.forEach(page => newPdf.addPage(page));
 
       const pdfBytes = await newPdf.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `split_${file.name}`;
-      link.click();
-
-      toast.success(`PDF split successfully! ${pages.length} pages extracted.`);
+      setSplitPdfData(pdfBytes);
+      setShowAdModal(true);
     } catch (error) {
       console.error("Error splitting PDF:", error);
       toast.error("Failed to split PDF");
     } finally {
       setProcessing(false);
     }
+  };
+
+  const handleAdWatched = () => {
+    setShowAdModal(false);
+    if (splitPdfData && file) {
+      downloadPDF(splitPdfData);
+    }
+  };
+
+  const downloadPDF = (pdfBytes: Uint8Array) => {
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `split_${file?.name}`;
+    link.click();
+
+    const pages = parsePageRanges(pageRanges, pageCount);
+    toast.success(`PDF split successfully! ${pages.length} pages extracted.`);
+    setSplitPdfData(null);
   };
 
   return (
@@ -182,7 +199,7 @@ const PDFSplitter = () => {
             ) : (
               <>
                 <Scissors className="h-4 w-4 mr-2" />
-                Split PDF
+                Watch Ad to Split PDF
               </>
             )}
           </Button>
@@ -199,6 +216,17 @@ const PDFSplitter = () => {
       </Card>
 
       <AdSpace size="leaderboard" className="mt-6" />
+
+      <AdWatchModal
+        open={showAdModal}
+        onOpenChange={(open) => {
+          setShowAdModal(open);
+          if (!open) setSplitPdfData(null);
+        }}
+        onAdWatched={handleAdWatched}
+        title="Watch Ad to Continue"
+        description="Watch this short ad to download your split PDF"
+      />
     </ToolLayout>
   );
 };
