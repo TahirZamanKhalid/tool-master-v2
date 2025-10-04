@@ -11,6 +11,8 @@ const BarcodeScanner = () => {
   const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState("");
   const [format, setFormat] = useState("");
+  const [productInfo, setProductInfo] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
   const videoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -20,6 +22,70 @@ const BarcodeScanner = () => {
       }
     };
   }, [scanning]);
+
+  const fetchProductInfo = async (barcode: string) => {
+    setLoading(true);
+    setProductInfo(null);
+    
+    try {
+      // Try Open Food Facts API first (works for food products)
+      const foodResponse = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+      const foodData = await foodResponse.json();
+      
+      if (foodData.status === 1 && foodData.product) {
+        setProductInfo({
+          source: "Open Food Facts",
+          name: foodData.product.product_name || "Unknown",
+          brand: foodData.product.brands || "Unknown",
+          categories: foodData.product.categories || "Unknown",
+          image: foodData.product.image_url,
+          ingredients: foodData.product.ingredients_text,
+          nutrition: {
+            energy: foodData.product.nutriments?.energy_value,
+            fat: foodData.product.nutriments?.fat,
+            carbohydrates: foodData.product.nutriments?.carbohydrates,
+            proteins: foodData.product.nutriments?.proteins,
+          },
+          labels: foodData.product.labels,
+          packaging: foodData.product.packaging,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Try UPCItemDB API for general products
+      const upcResponse = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
+      const upcData = await upcResponse.json();
+      
+      if (upcData.items && upcData.items.length > 0) {
+        const item = upcData.items[0];
+        setProductInfo({
+          source: "UPC Database",
+          name: item.title || "Unknown",
+          brand: item.brand || "Unknown",
+          description: item.description,
+          category: item.category,
+          image: item.images?.[0],
+          price: item.offers?.[0]?.price,
+          currency: item.offers?.[0]?.currency,
+          merchant: item.offers?.[0]?.merchant,
+        });
+      } else {
+        setProductInfo({
+          source: "Not Found",
+          message: "Product information not available for this barcode",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching product info:", error);
+      setProductInfo({
+        source: "Error",
+        message: "Failed to fetch product information",
+      });
+    }
+    
+    setLoading(false);
+  };
 
   const startCamera = async () => {
     try {
@@ -61,6 +127,7 @@ const BarcodeScanner = () => {
         if (data.codeResult.code) {
           setResult(data.codeResult.code);
           setFormat(data.codeResult.format || "Unknown");
+          fetchProductInfo(data.codeResult.code);
           stopCamera();
           toast.success("Barcode scanned successfully!");
         }
@@ -114,6 +181,7 @@ const BarcodeScanner = () => {
             if (data && data.codeResult && data.codeResult.code) {
               setResult(data.codeResult.code);
               setFormat(data.codeResult.format || "Detected from image");
+              fetchProductInfo(data.codeResult.code);
               toast.success("Barcode decoded successfully!");
             } else {
               toast.error("No barcode found in image. Try a clearer photo.");
@@ -210,10 +278,116 @@ const BarcodeScanner = () => {
             </div>
           </div>
 
+          {loading && (
+            <div className="p-4 bg-muted/50 rounded-lg text-center">
+              <p className="text-sm text-muted-foreground">Loading product information...</p>
+            </div>
+          )}
+
+          {productInfo && !loading && (
+            <div className="p-4 bg-muted/50 rounded-lg space-y-3">
+              <h4 className="font-semibold text-sm">Product Information:</h4>
+              
+              {productInfo.image && (
+                <img 
+                  src={productInfo.image} 
+                  alt="Product" 
+                  className="w-full max-w-[200px] mx-auto rounded-lg"
+                />
+              )}
+
+              {productInfo.source !== "Not Found" && productInfo.source !== "Error" ? (
+                <>
+                  {productInfo.name && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Name:</p>
+                      <p className="text-sm font-medium">{productInfo.name}</p>
+                    </div>
+                  )}
+                  
+                  {productInfo.brand && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Brand:</p>
+                      <p className="text-sm">{productInfo.brand}</p>
+                    </div>
+                  )}
+
+                  {productInfo.price && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Price:</p>
+                      <p className="text-sm">{productInfo.currency} {productInfo.price}</p>
+                      {productInfo.merchant && (
+                        <p className="text-xs text-muted-foreground">at {productInfo.merchant}</p>
+                      )}
+                    </div>
+                  )}
+
+                  {productInfo.category && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Category:</p>
+                      <p className="text-sm">{productInfo.category}</p>
+                    </div>
+                  )}
+
+                  {productInfo.categories && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Categories:</p>
+                      <p className="text-sm">{productInfo.categories}</p>
+                    </div>
+                  )}
+
+                  {productInfo.description && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Description:</p>
+                      <p className="text-sm">{productInfo.description}</p>
+                    </div>
+                  )}
+
+                  {productInfo.ingredients && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Ingredients:</p>
+                      <p className="text-sm">{productInfo.ingredients}</p>
+                    </div>
+                  )}
+
+                  {productInfo.nutrition && Object.values(productInfo.nutrition).some(v => v) && (
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Nutrition (per 100g):</p>
+                      <div className="text-sm space-y-1">
+                        {productInfo.nutrition.energy && <p>Energy: {productInfo.nutrition.energy} kcal</p>}
+                        {productInfo.nutrition.fat && <p>Fat: {productInfo.nutrition.fat}g</p>}
+                        {productInfo.nutrition.carbohydrates && <p>Carbs: {productInfo.nutrition.carbohydrates}g</p>}
+                        {productInfo.nutrition.proteins && <p>Protein: {productInfo.nutrition.proteins}g</p>}
+                      </div>
+                    </div>
+                  )}
+
+                  {productInfo.labels && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Labels:</p>
+                      <p className="text-sm">{productInfo.labels}</p>
+                    </div>
+                  )}
+
+                  {productInfo.packaging && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Packaging:</p>
+                      <p className="text-sm">{productInfo.packaging}</p>
+                    </div>
+                  )}
+
+                  <p className="text-xs text-muted-foreground mt-2">Source: {productInfo.source}</p>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">{productInfo.message}</p>
+              )}
+            </div>
+          )}
+
           {result && (
             <Button onClick={copyResult} size="lg" className="w-full" variant="secondary">
               <Copy className="h-4 w-4 mr-2" />
-              Copy Result
+              Copy Barcode
             </Button>
           )}
 
