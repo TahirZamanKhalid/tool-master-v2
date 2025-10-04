@@ -18,6 +18,7 @@ const BarcodeScanner = () => {
   const videoRef = useRef<HTMLDivElement>(null);
   const lastScanRef = useRef<string>("");
   const scanTimeoutRef = useRef<any>(null);
+  const detectedHandlerRef = useRef<((data: any) => void) | null>(null);
 
   useEffect(() => {
     return () => {
@@ -68,6 +69,7 @@ const BarcodeScanner = () => {
             width: { ideal: 1920 },
             height: { ideal: 1080 },
           },
+          area: { top: "20%", right: "15%", left: "15%", bottom: "20%" },
         },
         decoder: {
           readers: [
@@ -105,41 +107,102 @@ const BarcodeScanner = () => {
     }
   };
 
-  const captureBarcode = () => {
+  const captureBarcode = async () => {
     if (!scanning) return;
 
-    // Take a single frame and decode it
-    Quagga.onProcessed((result) => {
-      if (result && result.codeResult && result.codeResult.code) {
-        const code = result.codeResult.code;
-        
-        // Check if this is a different code than the last one
-        if (code !== lastScanRef.current) {
-          lastScanRef.current = code;
-          setResult(code);
-          setFormat(result.codeResult.format || "Unknown");
-          fetchProductInfo(code);
-          stopCamera();
-          toast.success("Barcode captured successfully!");
-        }
-      }
-    });
+    // Clean previous listeners
+    if (detectedHandlerRef.current) {
+      // @ts-ignore - quagga types don't include offDetected
+      Quagga.offDetected && Quagga.offDetected(detectedHandlerRef.current);
+      detectedHandlerRef.current = null;
+    }
+    if (scanTimeoutRef.current) clearTimeout(scanTimeoutRef.current);
 
-    // Also try onDetected for immediate capture
-    Quagga.onDetected((data) => {
-      if (data.codeResult.code && data.codeResult.code !== lastScanRef.current) {
-        lastScanRef.current = data.codeResult.code;
-        setResult(data.codeResult.code);
-        setFormat(data.codeResult.format || "Unknown");
-        fetchProductInfo(data.codeResult.code);
+    const handleDetected = (code: string, fmt: string | undefined) => {
+      if (code && code !== lastScanRef.current) {
+        lastScanRef.current = code;
+        setResult(code);
+        setFormat(fmt || "Unknown");
+        fetchProductInfo(code);
         stopCamera();
         toast.success("Barcode captured successfully!");
       }
-    });
+    };
+
+    // 1) Try an immediate snapshot-based decode
+    try {
+      const videoEl = videoRef.current?.querySelector('video') as HTMLVideoElement | null;
+      if (videoEl && videoEl.videoWidth > 0) {
+        const canvas = document.createElement('canvas');
+        canvas.width = videoEl.videoWidth;
+        canvas.height = videoEl.videoHeight;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+          const dataUrl = canvas.toDataURL('image/png');
+          await new Promise<void>((resolve) => {
+            Quagga.decodeSingle({
+              src: dataUrl,
+              numOfWorkers: 0,
+              decoder: {
+                readers: [
+                  "ean_reader",
+                  "ean_8_reader",
+                  "code_128_reader",
+                  "code_39_reader",
+                  "code_39_vin_reader",
+                  "codabar_reader",
+                  "upc_reader",
+                  "upc_e_reader",
+                  "i2of5_reader",
+                ],
+              },
+              locate: true,
+            }, (data) => {
+              if (data && data.codeResult && data.codeResult.code) {
+                handleDetected(data.codeResult.code, data.codeResult.format);
+              }
+              resolve();
+            });
+          });
+        }
+      }
+    } catch (e) {
+      console.warn('Snapshot decode failed, falling back to live detection');
+    }
+
+    if (!result) {
+      // 2) Fallback: enable a one-time live detection listener for 2s
+      const handler = (data: any) => {
+        if (data && data.codeResult && data.codeResult.code) {
+          // @ts-ignore
+          Quagga.offDetected && Quagga.offDetected(handler);
+          detectedHandlerRef.current = null;
+          handleDetected(data.codeResult.code, data.codeResult.format);
+        }
+      };
+      detectedHandlerRef.current = handler;
+      Quagga.onDetected(handler);
+
+      scanTimeoutRef.current = setTimeout(() => {
+        if (detectedHandlerRef.current) {
+          // @ts-ignore
+          Quagga.offDetected && Quagga.offDetected(detectedHandlerRef.current);
+          detectedHandlerRef.current = null;
+          toast.error("No barcode detected. Adjust position/lighting and try again.");
+        }
+      }, 2000);
+    }
   };
 
   const stopCamera = () => {
     if (scanning) {
+      if (detectedHandlerRef.current) {
+        // @ts-ignore
+        Quagga.offDetected && Quagga.offDetected(detectedHandlerRef.current);
+        detectedHandlerRef.current = null;
+      }
+      if (scanTimeoutRef.current) clearTimeout(scanTimeoutRef.current);
       Quagga.stop();
       setScanning(false);
       toast.info("Camera stopped");
