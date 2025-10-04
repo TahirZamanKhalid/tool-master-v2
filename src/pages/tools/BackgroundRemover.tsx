@@ -7,13 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Upload, Download, Eraser } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { pipeline, env } from "@huggingface/transformers";
+import { pipeline, env, RawImage } from "@huggingface/transformers";
 
 // Configure transformers for optimal background removal
 env.allowLocalModels = false;
 env.useBrowserCache = true;
 
-const MAX_IMAGE_DIMENSION = 1024;
+const MAX_IMAGE_DIMENSION = 2048;
 
 const BackgroundRemover = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -48,16 +48,22 @@ const BackgroundRemover = () => {
     setShowSkip(false);
 
     try {
-      setTimeout(() => setShowSkip(true), 3000);
+      setTimeout(() => setShowSkip(true), 5000);
 
       setProgress(10);
+      toast({
+        title: "Loading AI Model",
+        description: "Initializing state-of-the-art background removal...",
+      });
       
       // Load image
       const img = new Image();
       img.src = selectedImage;
       await new Promise((resolve) => img.onload = resolve);
 
-      // Resize if needed
+      setProgress(20);
+
+      // Resize if needed while maintaining aspect ratio
       let canvas = document.createElement("canvas");
       let ctx = canvas.getContext("2d");
       if (!ctx) throw new Error("Could not get canvas context");
@@ -79,59 +85,68 @@ const BackgroundRemover = () => {
       canvas.height = height;
       ctx.drawImage(img, 0, 0, width, height);
 
-      setProgress(30);
+      setProgress(35);
+      toast({
+        title: "Processing Image",
+        description: "AI is analyzing and removing background...",
+      });
       
-      // Use image segmentation model optimized for background removal
+      // Use RMBG-1.4 - State-of-the-art background removal model
+      // This model is specifically trained for background removal with superior quality
       const segmenter = await pipeline(
         "image-segmentation", 
-        "Xenova/segformer-b2-finetuned-ade-512-512",
-        { device: "webgpu" }
+        "briaai/RMBG-1.4",
+        { 
+          device: "webgpu",
+        }
       );
       
-      setProgress(50);
-      const imageData = canvas.toDataURL("image/jpeg", 0.9);
+      setProgress(55);
+      
+      // Convert canvas to image data
+      const imageData = canvas.toDataURL("image/png");
       const result = await segmenter(imageData);
       
-      setProgress(70);
+      setProgress(75);
 
-      // Find person/object masks (labels like "person", "car", etc.)
-      const foregroundLabels = ["person", "car", "dog", "cat", "chair", "bottle", "cup"];
-      const foregroundMask = new Float32Array(width * height);
-      
-      if (result && Array.isArray(result)) {
-        for (const segment of result) {
-          if (foregroundLabels.some(label => segment.label?.toLowerCase().includes(label))) {
-            for (let i = 0; i < segment.mask.data.length; i++) {
-              foregroundMask[i] = Math.max(foregroundMask[i], segment.mask.data[i]);
-            }
-          }
-        }
+      if (!result || !Array.isArray(result) || result.length === 0) {
+        throw new Error("No segmentation result received");
       }
 
+      // The RMBG model returns a binary mask - use it directly
+      const mask = result[0].mask;
+      
       setProgress(85);
 
-      // Apply mask with edge smoothing
+      // Apply mask with high precision
       const outputImageData = ctx.getImageData(0, 0, width, height);
       const data = outputImageData.data;
 
-      for (let i = 0; i < foregroundMask.length; i++) {
-        const alpha = Math.round(foregroundMask[i] * 255);
+      // Apply the mask to create transparency
+      for (let i = 0; i < mask.data.length; i++) {
+        // The mask value is already optimized by RMBG model
+        const alpha = Math.round(mask.data[i] * 255);
         data[i * 4 + 3] = alpha;
       }
 
       ctx.putImageData(outputImageData, 0, 0);
       setProgress(100);
       
+      toast({
+        title: "Complete!",
+        description: "Background removed with AI precision",
+      });
+
       const processedUrl = canvas.toDataURL("image/png");
       setProcessedImage(processedUrl);
       setIsProcessing(false);
       setShowAdOverlay(true);
       setCanDownload(false);
     } catch (error) {
-      console.error(error);
+      console.error("Background removal error:", error);
       toast({
         title: "Error",
-        description: "Failed to remove background. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to remove background. Please try again.",
         variant: "destructive",
       });
       setIsProcessing(false);
@@ -160,13 +175,14 @@ const BackgroundRemover = () => {
     <>
       <Header />
       <ToolLayout
-        title="Background Remover"
-        description="Remove image backgrounds instantly with AI-powered technology"
+        title="AI Background Remover"
+        description="Remove image backgrounds instantly with state-of-the-art AI technology - no manual editing needed!"
         category="Image Tools"
         instructions={[
-          "Click 'Upload Image' or drag and drop your image",
-          "Wait for the AI to process your image",
-          "Download your image with transparent background",
+          "Upload any image (portrait, product, object, etc.)",
+          "AI automatically detects and removes background with precision",
+          "Download transparent PNG or use brush tools for fine-tuning",
+          "Optional: Use erase/keep brushes if you want to refine the result",
         ]}
         relatedTools={[
           { name: "Image Compressor", path: "/tools/image-compressor" },
@@ -268,7 +284,7 @@ const BackgroundRemover = () => {
 
       {isProcessing && (
         <ProcessingOverlay
-          message="Removing background with AI..."
+          message="AI is intelligently removing background... This may take 10-30 seconds for best quality"
           progress={progress}
           showSkip={showSkip}
           onSkip={() => setIsProcessing(false)}
