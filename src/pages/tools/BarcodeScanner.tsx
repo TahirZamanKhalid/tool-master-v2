@@ -301,10 +301,9 @@ const BarcodeScanner = () => {
               </div>
             </div>
 
-            <div className="border rounded-lg overflow-hidden bg-black relative">
-              <div ref={videoRef} id="barcode-reader" className="w-full min-h-[400px]"></div>
+            <div className="border rounded-lg overflow-hidden bg-black relative h-[500px]">
               {!scanning && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/70">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/90">
                   <div className="text-center text-white">
                     <Barcode className="h-16 w-16 mx-auto mb-4 opacity-70" />
                     <p className="font-semibold">Camera Not Active</p>
@@ -312,10 +311,15 @@ const BarcodeScanner = () => {
                   </div>
                 </div>
               )}
+              <div 
+                ref={videoRef} 
+                id="barcode-reader" 
+                className={`w-full h-full ${!scanning ? 'hidden' : ''}`}
+              ></div>
               {scanning && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="border-4 border-primary w-80 h-48 rounded-lg shadow-lg"></div>
-                  <p className="text-white bg-black/70 px-4 py-2 rounded-lg mt-4 text-sm font-semibold">
+                  <div className="border-4 border-primary w-80 h-48 rounded-lg shadow-lg bg-transparent"></div>
+                  <p className="text-white bg-black/80 px-6 py-3 rounded-lg mt-4 text-sm font-semibold shadow-lg">
                     Position barcode in frame and click Capture
                   </p>
                 </div>
