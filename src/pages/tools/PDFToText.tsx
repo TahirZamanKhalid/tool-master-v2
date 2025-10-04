@@ -179,12 +179,15 @@ const PDFToText = () => {
         <Card>
           <CardContent className="p-6 space-y-4">
             <Label>Extracted Text</Label>
-            <Textarea
-              value={extractedText}
-              readOnly
-              placeholder="Extracted text will appear here..."
-              className="min-h-[300px] font-mono text-sm select-none cursor-default"
-            />
+            <pre
+              aria-label="Extracted text (copy disabled)"
+              className="min-h-[300px] font-mono text-sm whitespace-pre-wrap break-words select-none cursor-not-allowed bg-muted/50 p-3 rounded"
+              onCopy={(e) => { e.preventDefault(); toast.info("Use \"Watch Ad to Copy\" to copy text"); }}
+              onContextMenu={(e) => { e.preventDefault(); toast.info("Copying is disabled. Use the copy button"); }}
+              
+            >
+              {extractedText || "Extracted text will appear here..."}
+            </pre>
             
             {extractedText && (
               <div className="grid grid-cols-2 gap-3">

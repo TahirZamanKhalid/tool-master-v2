@@ -128,13 +128,15 @@ const URLEncoder = () => {
                 </Button>
               )}
             </div>
-            <Textarea
+            <pre
+              aria-label="URL output (copy disabled)"
               id="output"
-              value={output}
-              readOnly
-              placeholder="Result will appear here..."
-              className="min-h-[300px] font-mono text-sm bg-muted/50 select-none cursor-default"
-            />
+              className="min-h-[300px] font-mono text-sm bg-muted/50 p-3 rounded whitespace-pre-wrap break-words select-none cursor-not-allowed"
+              onCopy={(e) => { e.preventDefault(); toast({ title: "Copy disabled", description: "Use \"Watch Ad to Copy\"" }); }}
+              onContextMenu={(e) => { e.preventDefault(); toast({ title: "Copy disabled", description: "Use the copy button" }); }}
+            >
+              {output}
+            </pre>
           </CardContent>
         </Card>
       </div>

@@ -136,7 +136,11 @@ const HashGenerator = () => {
                       Watch Ad to Copy
                     </Button>
                   </div>
-                  <div className="p-3 bg-muted rounded-lg font-mono text-xs break-all select-none cursor-default">
+                  <div
+                    className="p-3 bg-muted rounded-lg font-mono text-xs break-all select-none cursor-not-allowed"
+                    onCopy={(e) => { e.preventDefault(); toast({ title: "Copy disabled", description: "Use \"Watch Ad to Copy\"" }); }}
+                    onContextMenu={(e) => { e.preventDefault(); toast({ title: "Copy disabled", description: "Use the copy button" }); }}
+                  >
                     {hash}
                   </div>
                 </CardContent>

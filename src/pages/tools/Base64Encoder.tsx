@@ -125,11 +125,14 @@ const Base64Encoder = () => {
                     Watch Ad to Copy
                   </Button>
                 </div>
-                <Textarea
-                  value={encodedOutput}
-                  readOnly
-                  className="min-h-[200px] font-mono select-none cursor-default"
-                />
+                <pre
+                  aria-label="Base64 output (copy disabled)"
+                  className="min-h-[200px] font-mono whitespace-pre-wrap break-words select-none cursor-not-allowed bg-muted/50 p-3 rounded"
+                  onCopy={(e) => { e.preventDefault(); toast({ title: "Copy disabled", description: "Use \"Watch Ad to Copy\"" }); }}
+                  onContextMenu={(e) => { e.preventDefault(); toast({ title: "Copy disabled", description: "Use the copy button" }); }}
+                >
+                  {encodedOutput}
+                </pre>
               </Card>
             )}
           </TabsContent>
@@ -169,11 +172,14 @@ const Base64Encoder = () => {
                     Watch Ad to Copy
                   </Button>
                 </div>
-                <Textarea
-                  value={decodedOutput}
-                  readOnly
-                  className="min-h-[200px] font-mono select-none cursor-default"
-                />
+                <pre
+                  aria-label="Decoded output (copy disabled)"
+                  className="min-h-[200px] font-mono whitespace-pre-wrap break-words select-none cursor-not-allowed bg-muted/50 p-3 rounded"
+                  onCopy={(e) => { e.preventDefault(); toast({ title: "Copy disabled", description: "Use \"Watch Ad to Copy\"" }); }}
+                  onContextMenu={(e) => { e.preventDefault(); toast({ title: "Copy disabled", description: "Use the copy button" }); }}
+                >
+                  {decodedOutput}
+                </pre>
               </Card>
             )}
           </TabsContent>
