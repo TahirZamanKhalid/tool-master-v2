@@ -48,7 +48,13 @@ const CaptionGenerator = () => {
 
       if (data?.captions && Array.isArray(data.captions)) {
         setCaptions(data.captions);
-        toast.success("Captions generated successfully!");
+        
+        // Show different message if cached
+        if (data.cached) {
+          toast.success("Loaded cached captions (no credits used!) 🎉");
+        } else {
+          toast.success("Captions generated successfully!");
+        }
       } else {
         throw new Error("Invalid response format");
       }

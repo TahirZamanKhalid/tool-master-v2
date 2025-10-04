@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      caption_cache: {
+        Row: {
+          cache_key: string
+          captions: Json
+          created_at: string | null
+          hit_count: number | null
+          id: string
+          style: string
+        }
+        Insert: {
+          cache_key: string
+          captions: Json
+          created_at?: string | null
+          hit_count?: number | null
+          id?: string
+          style: string
+        }
+        Update: {
+          cache_key?: string
+          captions?: Json
+          created_at?: string | null
+          hit_count?: number | null
+          id?: string
+          style?: string
+        }
+        Relationships: []
+      }
       search_analytics: {
         Row: {
           id: string
@@ -88,6 +115,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_old_caption_cache: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_popular_searches: {
         Args: { limit_count?: number }
         Returns: {
