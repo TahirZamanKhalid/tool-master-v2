@@ -1,35 +1,19 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Barcode, Camera, Upload, Copy, X } from "lucide-react";
+import { Barcode, Upload, Copy } from "lucide-react";
 import { toast } from "sonner";
 import Quagga from "@ericblade/quagga2";
 import { supabase } from "@/integrations/supabase/client";
 
 const BarcodeScanner = () => {
-  const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState("");
   const [format, setFormat] = useState("");
   const [productInfo, setProductInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [manualBarcode, setManualBarcode] = useState("");
-  const videoRef = useRef<HTMLDivElement>(null);
-  const lastScanRef = useRef<string>("");
-  const scanTimeoutRef = useRef<any>(null);
-  const detectedHandlerRef = useRef<((data: any) => void) | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (scanning) {
-        Quagga.stop();
-      }
-      if (scanTimeoutRef.current) {
-        clearTimeout(scanTimeoutRef.current);
-      }
-    };
-  }, [scanning]);
 
   const fetchProductInfo = async (barcode: string) => {
     setLoading(true);
@@ -56,158 +40,6 @@ const BarcodeScanner = () => {
     setLoading(false);
   };
 
-  const startCamera = async () => {
-    try {
-      lastScanRef.current = "";
-      await Quagga.init({
-        inputStream: {
-          name: "Live",
-          type: "LiveStream",
-          target: videoRef.current!,
-          constraints: {
-            facingMode: "environment",
-            width: { ideal: 1920 },
-            height: { ideal: 1080 },
-          },
-          area: { top: "20%", right: "15%", left: "15%", bottom: "20%" },
-        },
-        decoder: {
-          readers: [
-            "ean_reader",
-            "ean_8_reader",
-            "code_128_reader",
-            "code_39_reader",
-            "code_39_vin_reader",
-            "codabar_reader",
-            "upc_reader",
-            "upc_e_reader",
-            "i2of5_reader",
-          ],
-          multiple: false,
-        },
-        locate: true,
-        locator: {
-          patchSize: "large",
-          halfSample: false,
-        },
-        numOfWorkers: 0,
-      }, (err) => {
-        if (err) {
-          console.error(err);
-          toast.error("Failed to access camera. Please grant camera permissions.");
-          return;
-        }
-        Quagga.start();
-        setScanning(true);
-        toast.success("Camera ready - position barcode and click Capture");
-      });
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to start camera");
-    }
-  };
-
-  const captureBarcode = async () => {
-    if (!scanning) return;
-
-    // Clean previous listeners
-    if (detectedHandlerRef.current) {
-      // @ts-ignore - quagga types don't include offDetected
-      Quagga.offDetected && Quagga.offDetected(detectedHandlerRef.current);
-      detectedHandlerRef.current = null;
-    }
-    if (scanTimeoutRef.current) clearTimeout(scanTimeoutRef.current);
-
-    const handleDetected = (code: string, fmt: string | undefined) => {
-      if (code && code !== lastScanRef.current) {
-        lastScanRef.current = code;
-        setResult(code);
-        setFormat(fmt || "Unknown");
-        fetchProductInfo(code);
-        stopCamera();
-        toast.success("Barcode captured successfully!");
-      }
-    };
-
-    // 1) Try an immediate snapshot-based decode
-    try {
-      const videoEl = videoRef.current?.querySelector('video') as HTMLVideoElement | null;
-      if (videoEl && videoEl.videoWidth > 0) {
-        const canvas = document.createElement('canvas');
-        canvas.width = videoEl.videoWidth;
-        canvas.height = videoEl.videoHeight;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-          const dataUrl = canvas.toDataURL('image/png');
-          await new Promise<void>((resolve) => {
-            Quagga.decodeSingle({
-              src: dataUrl,
-              numOfWorkers: 0,
-              decoder: {
-                readers: [
-                  "ean_reader",
-                  "ean_8_reader",
-                  "code_128_reader",
-                  "code_39_reader",
-                  "code_39_vin_reader",
-                  "codabar_reader",
-                  "upc_reader",
-                  "upc_e_reader",
-                  "i2of5_reader",
-                ],
-              },
-              locate: true,
-            }, (data) => {
-              if (data && data.codeResult && data.codeResult.code) {
-                handleDetected(data.codeResult.code, data.codeResult.format);
-              }
-              resolve();
-            });
-          });
-        }
-      }
-    } catch (e) {
-      console.warn('Snapshot decode failed, falling back to live detection');
-    }
-
-    if (!result) {
-      // 2) Fallback: enable a one-time live detection listener for 2s
-      const handler = (data: any) => {
-        if (data && data.codeResult && data.codeResult.code) {
-          // @ts-ignore
-          Quagga.offDetected && Quagga.offDetected(handler);
-          detectedHandlerRef.current = null;
-          handleDetected(data.codeResult.code, data.codeResult.format);
-        }
-      };
-      detectedHandlerRef.current = handler;
-      Quagga.onDetected(handler);
-
-      scanTimeoutRef.current = setTimeout(() => {
-        if (detectedHandlerRef.current) {
-          // @ts-ignore
-          Quagga.offDetected && Quagga.offDetected(detectedHandlerRef.current);
-          detectedHandlerRef.current = null;
-          toast.error("No barcode detected. Adjust position/lighting and try again.");
-        }
-      }, 2000);
-    }
-  };
-
-  const stopCamera = () => {
-    if (scanning) {
-      if (detectedHandlerRef.current) {
-        // @ts-ignore
-        Quagga.offDetected && Quagga.offDetected(detectedHandlerRef.current);
-        detectedHandlerRef.current = null;
-      }
-      if (scanTimeoutRef.current) clearTimeout(scanTimeoutRef.current);
-      Quagga.stop();
-      setScanning(false);
-      toast.info("Camera stopped");
-    }
-  };
 
   const handleManualLookup = () => {
     const trimmed = manualBarcode.trim();
@@ -288,15 +120,13 @@ const BarcodeScanner = () => {
 
   return (
     <ToolLayout
-      title="Barcode Scanner"
-      description="Scan various types of barcodes using your camera or upload an image"
+      title="Barcode Lookup"
+      description="Look up product information by entering a barcode number or uploading an image"
       category="QR & Barcodes"
       instructions={[
-        "Click 'Start Camera' to activate your camera",
-        "Position the barcode in the center frame",
-        "Click 'Capture' button to scan the barcode",
-        "Or manually enter the barcode number below",
+        "Enter a barcode number (8-14 digits) and click Lookup",
         "Or upload an image containing a barcode",
+        "View detailed product information from various databases",
       ]}
       relatedTools={[
         { name: "QR Code Scanner", path: "/tools/qr-scanner" },
@@ -331,62 +161,17 @@ const BarcodeScanner = () => {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or scan</span>
+                <span className="bg-background px-2 text-muted-foreground">Or scan from image</span>
               </div>
             </div>
 
             <div>
-              <Label>Scan Method</Label>
-              <div className="grid grid-cols-2 gap-3 mt-2">
-                {!scanning ? (
-                  <>
-                    <Button onClick={startCamera} size="lg" className="w-full">
-                      <Camera className="h-4 w-4 mr-2" />
-                      Start Camera
-                    </Button>
-                    <Button onClick={scanFile} size="lg" variant="secondary" className="w-full">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Image
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button onClick={captureBarcode} size="lg" className="w-full">
-                      <Barcode className="h-4 w-4 mr-2" />
-                      Capture
-                    </Button>
-                    <Button onClick={stopCamera} size="lg" variant="destructive" className="w-full">
-                      <X className="h-4 w-4 mr-2" />
-                      Cancel
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="border rounded-lg overflow-hidden bg-black relative h-[500px]">
-              {!scanning && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/90">
-                  <div className="text-center text-white">
-                    <Barcode className="h-16 w-16 mx-auto mb-4 opacity-70" />
-                    <p className="font-semibold">Camera Not Active</p>
-                    <p className="text-sm mt-2 opacity-70">Click "Start Camera" above</p>
-                  </div>
-                </div>
-              )}
-              <div 
-                ref={videoRef} 
-                id="barcode-reader" 
-                className={`w-full h-full ${!scanning ? 'hidden' : ''}`}
-              ></div>
-              {scanning && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <div className="border-4 border-primary w-80 h-48 rounded-lg shadow-lg bg-transparent"></div>
-                  <p className="text-white bg-black/80 px-6 py-3 rounded-lg mt-4 text-sm font-semibold shadow-lg">
-                    Position barcode in frame and click Capture
-                  </p>
-                </div>
-              )}
+              <Label>Upload Barcode Image</Label>
+              <Button onClick={scanFile} size="lg" variant="secondary" className="w-full mt-2">
+                <Upload className="h-4 w-4 mr-2" />
+                Upload Image
+              </Button>
+              <p className="text-xs text-muted-foreground mt-1">Upload an image containing a barcode</p>
             </div>
           </div>
         </Card>
