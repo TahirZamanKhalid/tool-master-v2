@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Download, Barcode } from "lucide-react";
 import { toast } from "sonner";
 import JsBarcode from "jsbarcode";
+import { AdSpace } from "@/components/AdSpace";
 
 const BarcodeGenerator = () => {
   const [text, setText] = useState("");
@@ -87,6 +88,7 @@ const BarcodeGenerator = () => {
         { name: "Barcode Scanner", path: "/tools/barcode-scanner" },
       ]}
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
@@ -187,6 +189,8 @@ const BarcodeGenerator = () => {
           )}
         </Card>
       </div>
+      
+      <AdSpace size="leaderboard" className="mt-6" />
     </ToolLayout>
   );
 };

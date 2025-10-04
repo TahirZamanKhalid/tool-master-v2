@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Download, Wifi, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import QRCodeLib from "qrcode";
+import { AdSpace } from "@/components/AdSpace";
 
 const WiFiQRGenerator = () => {
   const [ssid, setSsid] = useState("");
@@ -88,6 +89,7 @@ const WiFiQRGenerator = () => {
         { name: "Barcode Generator", path: "/tools/barcode-generator" },
       ]}
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
@@ -182,6 +184,8 @@ const WiFiQRGenerator = () => {
           )}
         </Card>
       </div>
+      
+      <AdSpace size="leaderboard" className="mt-6" />
     </ToolLayout>
   );
 };

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { PDFDocument } from "pdf-lib";
 import { FileText, Upload, Copy, Download } from "lucide-react";
+import { AdSpace } from "@/components/AdSpace";
 
 const PDFToText = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -98,6 +99,8 @@ For accurate text extraction from complex PDFs, consider using:
         { name: "Word Counter", path: "/tools/word-counter" },
       ]}
     >
+      <AdSpace size="leaderboard" className="mb-6" />
+      
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardContent className="p-6 space-y-6">
@@ -170,6 +173,8 @@ For accurate text extraction from complex PDFs, consider using:
           </CardContent>
         </Card>
       </div>
+      
+      <AdSpace size="leaderboard" className="mt-6" />
     </ToolLayout>
   );
 };

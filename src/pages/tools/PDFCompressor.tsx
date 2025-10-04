@@ -7,14 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { PDFDocument } from "pdf-lib";
-import { FileText, Download, Upload, Minimize2 } from "lucide-react";
+import { FileText, Download, Upload, Minimize2, Play } from "lucide-react";
+import { AdSpace } from "@/components/AdSpace";
+import { AdWatchModal } from "@/components/AdWatchModal";
 
 const PDFCompressor = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [quality, setQuality] = useState("medium");
+  const [quality, setQuality] = useState("low");
   const [processing, setProcessing] = useState(false);
   const [originalSize, setOriginalSize] = useState(0);
   const [compressedSize, setCompressedSize] = useState(0);
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [adWatchedForQuality, setAdWatchedForQuality] = useState(false);
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -41,6 +45,18 @@ const PDFCompressor = () => {
       toast.error("Please select a PDF file");
       return;
     }
+
+    // Check if ad is required for selected quality
+    if ((quality === "medium" || quality === "high") && !adWatchedForQuality) {
+      setShowAdModal(true);
+      return;
+    }
+
+    performCompression();
+  };
+
+  const performCompression = async () => {
+    if (!file) return;
 
     setProcessing(true);
 
@@ -74,6 +90,22 @@ const PDFCompressor = () => {
     }
   };
 
+  const handleAdWatched = () => {
+    setAdWatchedForQuality(true);
+    toast.success("Ad watched! You can now use premium quality settings.");
+    performCompression();
+  };
+
+  const handleQualityChange = (newQuality: string) => {
+    setQuality(newQuality);
+    // Reset ad watched status when changing quality
+    if (newQuality === "low") {
+      setAdWatchedForQuality(true); // Low quality is always available
+    } else if (quality === "low" && (newQuality === "medium" || newQuality === "high")) {
+      setAdWatchedForQuality(false); // Require ad for premium qualities
+    }
+  };
+
   return (
     <ToolLayout
       title="PDF Compressor"
@@ -91,6 +123,15 @@ const PDFCompressor = () => {
         { name: "Image Compressor", path: "/tools/image-compressor" },
       ]}
     >
+      <AdSpace size="leaderboard" className="mb-6" />
+      
+      <AdWatchModal
+        open={showAdModal}
+        onOpenChange={setShowAdModal}
+        onAdWatched={handleAdWatched}
+        title="Watch Ad for Premium Quality"
+        description="Medium and High quality compression require watching a short ad"
+      />
       <Card>
         <CardContent className="p-6 space-y-6">
           <div className="space-y-4">
@@ -131,14 +172,20 @@ const PDFCompressor = () => {
             {file && (
               <div>
                 <Label htmlFor="quality">Compression Quality</Label>
-                <Select value={quality} onValueChange={setQuality}>
+                <Select value={quality} onValueChange={handleQualityChange}>
                   <SelectTrigger id="quality" className="mt-2">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Low (Maximum compression)</SelectItem>
-                    <SelectItem value="medium">Medium (Balanced)</SelectItem>
-                    <SelectItem value="high">High (Minimal compression)</SelectItem>
+                    <SelectItem value="low">
+                      Low (Maximum compression) - Free
+                    </SelectItem>
+                    <SelectItem value="medium">
+                      Medium (Balanced) - {adWatchedForQuality && (quality === "medium" || quality === "high") ? "Unlocked ✓" : "Watch Ad 📺"}
+                    </SelectItem>
+                    <SelectItem value="high">
+                      High (Minimal compression) - {adWatchedForQuality && (quality === "medium" || quality === "high") ? "Unlocked ✓" : "Watch Ad 📺"}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -174,6 +221,11 @@ const PDFCompressor = () => {
           >
             {processing ? (
               <>Processing...</>
+            ) : (quality === "medium" || quality === "high") && !adWatchedForQuality ? (
+              <>
+                <Play className="h-4 w-4 mr-2" />
+                Watch Ad to Compress
+              </>
             ) : (
               <>
                 <Minimize2 className="h-4 w-4 mr-2" />

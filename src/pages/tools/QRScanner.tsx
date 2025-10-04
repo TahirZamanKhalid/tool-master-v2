@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { ScanLine, Camera, Upload, Copy, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Html5Qrcode } from "html5-qrcode";
+import { AdSpace } from "@/components/AdSpace";
 
 const QRScanner = () => {
   const [scanning, setScanning] = useState(false);
@@ -116,6 +117,7 @@ const QRScanner = () => {
         { name: "Barcode Generator", path: "/tools/barcode-generator" },
       ]}
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
@@ -185,6 +187,8 @@ const QRScanner = () => {
           )}
         </Card>
       </div>
+      
+      <AdSpace size="leaderboard" className="mt-6" />
     </ToolLayout>
   );
 };

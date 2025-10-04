@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { PDFDocument } from "pdf-lib";
 import { Upload, FileDown, X, ArrowUp, ArrowDown } from "lucide-react";
+import { AdSpace } from "@/components/AdSpace";
 
 const ImagesToPDF = () => {
   const [images, setImages] = useState<File[]>([]);
@@ -106,6 +107,7 @@ const ImagesToPDF = () => {
         { name: "PDF Splitter", path: "/tools/pdf-splitter" },
       ]}
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardContent className="p-6 space-y-6">
@@ -208,6 +210,8 @@ const ImagesToPDF = () => {
           </CardContent>
         </Card>
       </div>
+      
+      <AdSpace size="leaderboard" className="mt-6" />
     </ToolLayout>
   );
 };

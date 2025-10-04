@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { PDFDocument } from "pdf-lib";
 import { FileText, Download, Upload, Scissors } from "lucide-react";
+import { AdSpace } from "@/components/AdSpace";
 
 const PDFSplitter = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -113,9 +114,11 @@ const PDFSplitter = () => {
       relatedTools={[
         { name: "PDF Merger", path: "/tools/pdf-merger" },
         { name: "PDF Compressor", path: "/tools/pdf-compressor" },
-        { name: "PDF to Images", path: "/tools/pdf-to-images" },
+        { name: "PDF to Text", path: "/tools/pdf-to-text" },
       ]}
     >
+      <AdSpace size="leaderboard" className="mb-6" />
+      
       <Card>
         <CardContent className="p-6 space-y-6">
           <div className="space-y-4">
@@ -194,6 +197,8 @@ const PDFSplitter = () => {
           </div>
         </CardContent>
       </Card>
+
+      <AdSpace size="leaderboard" className="mt-6" />
     </ToolLayout>
   );
 };
