@@ -56,6 +56,10 @@ import {
   Wifi,
   Camera,
   Captions,
+  Scissors,
+  Minimize2,
+  FileType,
+  Images,
 } from "lucide-react";
 
 const categories = [
@@ -431,6 +435,30 @@ const popularTools = [
     description: "Generate QR codes to share WiFi",
     category: "QR & Barcodes",
   },
+  {
+    icon: Scissors,
+    title: "PDF Splitter",
+    description: "Extract specific pages from PDFs",
+    category: "PDF Tools",
+  },
+  {
+    icon: Minimize2,
+    title: "PDF Compressor",
+    description: "Reduce PDF file size",
+    category: "PDF Tools",
+  },
+  {
+    icon: FileType,
+    title: "PDF to Text",
+    description: "Extract text from PDF documents",
+    category: "PDF Tools",
+  },
+  {
+    icon: Images,
+    title: "Images to PDF",
+    description: "Convert multiple images to PDF",
+    category: "PDF Tools",
+  },
 ];
 
 const Index = () => {
@@ -673,6 +701,10 @@ const Index = () => {
                 "QR Scanner": "/tools/qr-scanner",
                 "Barcode Scanner": "/tools/barcode-scanner",
                 "WiFi QR Generator": "/tools/wifi-qr",
+                "PDF Splitter": "/tools/pdf-splitter",
+                "PDF Compressor": "/tools/pdf-compressor",
+                "PDF to Text": "/tools/pdf-to-text",
+                "Images to PDF": "/tools/images-to-pdf",
               };
               
               return (

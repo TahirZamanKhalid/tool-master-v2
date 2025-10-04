@@ -60,6 +60,10 @@ import QRScanner from "./pages/tools/QRScanner";
 import BarcodeScanner from "./pages/tools/BarcodeScanner";
 import WiFiQRGenerator from "./pages/tools/WiFiQRGenerator";
 import CaptionGenerator from "./pages/tools/CaptionGenerator";
+import PDFSplitter from "./pages/tools/PDFSplitter";
+import PDFCompressor from "./pages/tools/PDFCompressor";
+import PDFToText from "./pages/tools/PDFToText";
+import ImagesToPDF from "./pages/tools/ImagesToPDF";
 import Auth from "./pages/Auth";
 
 const queryClient = new QueryClient();
@@ -124,6 +128,10 @@ const App = () => (
         <Route path="/tools/barcode-scanner" element={<BarcodeScanner />} />
         <Route path="/tools/wifi-qr" element={<WiFiQRGenerator />} />
         <Route path="/tools/caption-generator" element={<CaptionGenerator />} />
+        <Route path="/tools/pdf-splitter" element={<PDFSplitter />} />
+        <Route path="/tools/pdf-compressor" element={<PDFCompressor />} />
+        <Route path="/tools/pdf-to-text" element={<PDFToText />} />
+        <Route path="/tools/images-to-pdf" element={<ImagesToPDF />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
