@@ -3,9 +3,8 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Barcode, Upload, Copy } from "lucide-react";
+import { Copy } from "lucide-react";
 import { toast } from "sonner";
-import Quagga from "@ericblade/quagga2";
 import { supabase } from "@/integrations/supabase/client";
 
 const BarcodeScanner = () => {
@@ -61,58 +60,6 @@ const BarcodeScanner = () => {
     toast.success("Looking up barcode...");
   };
 
-  const scanFile = async () => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const imageSrc = event.target?.result as string;
-        
-        try {
-          await Quagga.decodeSingle({
-            src: imageSrc,
-            numOfWorkers: 0,
-            decoder: {
-              readers: [
-                "ean_reader",
-                "ean_8_reader",
-                "code_128_reader",
-                "code_39_reader",
-                "code_39_vin_reader",
-                "codabar_reader",
-                "upc_reader",
-                "upc_e_reader",
-                "i2of5_reader",
-              ],
-            },
-            locate: true,
-          }, (data) => {
-            if (data && data.codeResult && data.codeResult.code) {
-              setResult(data.codeResult.code);
-              setFormat(data.codeResult.format || "Detected from image");
-              fetchProductInfo(data.codeResult.code);
-              toast.success("Barcode decoded successfully!");
-            } else {
-              toast.error("No barcode found in image. Try a clearer photo.");
-            }
-          });
-        } catch (error) {
-          console.error(error);
-          toast.error("Failed to decode barcode from image");
-        }
-      };
-      reader.readAsDataURL(file);
-    };
-
-    input.click();
-  };
-
   const copyResult = () => {
     navigator.clipboard.writeText(result);
     toast.success("Copied to clipboard!");
@@ -121,12 +68,12 @@ const BarcodeScanner = () => {
   return (
     <ToolLayout
       title="Barcode Lookup"
-      description="Look up product information by entering a barcode number or uploading an image"
+      description="Look up product information by entering a barcode number"
       category="QR & Barcodes"
       instructions={[
-        "Enter a barcode number (8-14 digits) and click Lookup",
-        "Or upload an image containing a barcode",
-        "View detailed product information from various databases",
+        "Enter a barcode number (8-14 digits)",
+        "Click Lookup to search product databases",
+        "View detailed product information",
       ]}
       relatedTools={[
         { name: "QR Code Scanner", path: "/tools/qr-scanner" },
@@ -154,24 +101,6 @@ const BarcodeScanner = () => {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-1">Enter 8-14 digit barcode number</p>
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or scan from image</span>
-              </div>
-            </div>
-
-            <div>
-              <Label>Upload Barcode Image</Label>
-              <Button onClick={scanFile} size="lg" variant="secondary" className="w-full mt-2">
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Image
-              </Button>
-              <p className="text-xs text-muted-foreground mt-1">Upload an image containing a barcode</p>
             </div>
           </div>
         </Card>
