@@ -74,7 +74,7 @@ const Contact = () => {
             <div className="bg-card border rounded-lg p-6 text-center">
               <Mail className="h-8 w-8 mx-auto mb-3 text-primary" />
               <h3 className="font-semibold mb-2">Email Us</h3>
-              <p className="text-sm text-muted-foreground">support@toolmasterpro.com</p>
+              <p className="text-sm text-muted-foreground">tzaman208@gmail.com</p>
             </div>
             <div className="bg-card border rounded-lg p-6 text-center">
               <MessageSquare className="h-8 w-8 mx-auto mb-3 text-primary" />
