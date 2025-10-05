@@ -65,6 +65,10 @@ import PDFCompressor from "./pages/tools/PDFCompressor";
 import PDFToText from "./pages/tools/PDFToText";
 import ImagesToPDF from "./pages/tools/ImagesToPDF";
 import Auth from "./pages/Auth";
+import About from "./pages/About";
+import CookiePolicy from "./pages/CookiePolicy";
+import Disclaimer from "./pages/Disclaimer";
+import DMCA from "./pages/DMCA";
 
 const queryClient = new QueryClient();
 
@@ -133,8 +137,12 @@ const App = () => (
         <Route path="/tools/pdf-to-text" element={<PDFToText />} />
         <Route path="/tools/images-to-pdf" element={<ImagesToPDF />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/about" element={<About />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
+        <Route path="/cookie-policy" element={<CookiePolicy />} />
+        <Route path="/disclaimer" element={<Disclaimer />} />
+        <Route path="/dmca" element={<DMCA />} />
         <Route path="/contact" element={<Contact />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

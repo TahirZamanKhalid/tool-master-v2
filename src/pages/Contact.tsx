@@ -1,4 +1,5 @@
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { ArrowLeft, Mail, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
+import { SEOHead } from "@/components/SEOHead";
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -23,9 +25,16 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
+      <SEOHead
+        title="Contact Us - ToolMaster Pro"
+        description="Get in touch with ToolMaster Pro. We'd love to hear your feedback, questions, or suggestions about our free online tools."
+        keywords="contact, support, feedback, help, customer service"
+        canonical={`${window.location.origin}/contact`}
+      />
       <Header />
-      <div className="container py-12">
+      <main className="flex-1">
+        <div className="container py-12 px-4">
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
@@ -117,6 +126,8 @@ const Contact = () => {
           </form>
         </div>
       </div>
+      </main>
+      <Footer />
     </div>
   );
 };

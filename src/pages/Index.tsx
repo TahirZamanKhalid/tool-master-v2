@@ -1,5 +1,6 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { CategoryCard } from "@/components/CategoryCard";
 import { ToolCard } from "@/components/ToolCard";
@@ -837,11 +838,9 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="border-t pt-8 text-center text-sm text-muted-foreground">
-            <p>© 2025 ToolMaster Pro. All rights reserved. Built with ❤️ for everyone.</p>
-          </div>
         </div>
-      </footer>
+      </section>
+      <Footer />
     </div>
   );
 };
