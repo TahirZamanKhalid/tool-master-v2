@@ -784,62 +784,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t py-12 bg-card">
-        <div className="container">
-          {/* Ad before footer content */}
-          <div className="mb-8">
-            <AdSpace size="leaderboard" />
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="gradient-primary h-12 w-12 rounded-xl flex items-center justify-center shadow-card">
-                  <span className="text-white font-black text-xl tracking-tight">TM</span>
-                </div>
-                <span className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  ToolMaster Pro
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                100+ free online tools for everyone. No signup required.
-              </p>
-            </div>
-            
-            <div>
-              <h3 className="font-semibold mb-4">Popular Categories</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="hover:text-foreground cursor-pointer">AI Tools</li>
-                <li className="hover:text-foreground cursor-pointer">Image Tools</li>
-                <li className="hover:text-foreground cursor-pointer">PDF Tools</li>
-                <li className="hover:text-foreground cursor-pointer">Text Tools</li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Resources</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="hover:text-foreground cursor-pointer" onClick={() => navigate("/blog")}>Blog</li>
-                <li className="hover:text-foreground cursor-pointer">Tutorials</li>
-                <li className="hover:text-foreground cursor-pointer">API Access</li>
-                <li className="hover:text-foreground cursor-pointer">Sitemap</li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Legal</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="hover:text-foreground cursor-pointer" onClick={() => navigate("/privacy-policy")}>Privacy Policy</li>
-                <li className="hover:text-foreground cursor-pointer" onClick={() => navigate("/terms-of-service")}>Terms of Service</li>
-                <li className="hover:text-foreground cursor-pointer">DMCA</li>
-                <li className="hover:text-foreground cursor-pointer" onClick={() => navigate("/contact")}>Contact</li>
-              </ul>
-            </div>
-          </div>
-
-        </div>
-      </section>
       <Footer />
     </div>
   );
