@@ -9,6 +9,14 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { SEOHead } from "@/components/SEOHead";
+import { z } from "zod";
+
+const contactSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
+  subject: z.string().trim().min(1, "Subject is required").max(200, "Subject must be less than 200 characters"),
+  message: z.string().trim().min(1, "Message is required").max(2000, "Message must be less than 2000 characters"),
+});
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -26,8 +34,11 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
+      // Validate form data
+      const validatedData = contactSchema.parse(formData);
+
       const { error } = await supabase.functions.invoke("send-contact-email", {
-        body: formData,
+        body: validatedData,
       });
 
       if (error) throw error;
@@ -35,8 +46,12 @@ const Contact = () => {
       toast.success("Message sent! We'll get back to you soon.");
       setFormData({ name: "", email: "", subject: "", message: "" });
     } catch (error) {
-      console.error("Error sending message:", error);
-      toast.error("Failed to send message. Please try again.");
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        console.error("Error sending message:", error);
+        toast.error("Failed to send message. Please try again.");
+      }
     } finally {
       setIsSubmitting(false);
     }
