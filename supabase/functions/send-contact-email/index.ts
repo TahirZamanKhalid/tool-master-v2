@@ -35,7 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: "ToolMaster Pro <onboarding@resend.dev>",
-        to: ["support@toolmasterpro.com"], // Replace with your actual support email
+        to: ["tzaman208@gmail.com"],
         subject: `Contact Form: ${subject}`,
         html: `
           <h2>New Contact Form Submission</h2>
