@@ -69,6 +69,7 @@ import About from "./pages/About";
 import CookiePolicy from "./pages/CookiePolicy";
 import Disclaimer from "./pages/Disclaimer";
 import DMCA from "./pages/DMCA";
+import APITester from "./pages/tools/APITester";
 
 const queryClient = new QueryClient();
 
@@ -136,6 +137,7 @@ const App = () => (
         <Route path="/tools/pdf-compressor" element={<PDFCompressor />} />
         <Route path="/tools/pdf-to-text" element={<PDFToText />} />
         <Route path="/tools/images-to-pdf" element={<ImagesToPDF />} />
+        <Route path="/tools/api-tester" element={<APITester />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
