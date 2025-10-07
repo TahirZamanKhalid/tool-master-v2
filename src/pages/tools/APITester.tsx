@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -69,7 +70,6 @@ const APITester = () => {
     }
 
     setLoading(true);
-    const startTime = Date.now();
 
     try {
       const requestHeaders: Record<string, string> = {};
@@ -89,45 +89,30 @@ const APITester = () => {
         requestHeaders[auth.apiKeyHeader] = auth.apiKey;
       }
 
-      const options: RequestInit = {
-        method,
-        headers: requestHeaders,
-      };
-
+      // Set Content-Type for body requests
       if (["POST", "PUT", "PATCH"].includes(method) && body) {
-        options.body = body;
         if (!requestHeaders["Content-Type"]) {
           requestHeaders["Content-Type"] = "application/json";
         }
       }
 
-      const res = await fetch(url, options);
-      const endTime = Date.now();
-
-      const responseHeaders: Record<string, string> = {};
-      res.headers.forEach((value, key) => {
-        responseHeaders[key] = value;
+      // Use the proxy edge function to avoid CORS issues
+      const { data, error } = await supabase.functions.invoke('api-proxy', {
+        body: {
+          url,
+          method,
+          headers: requestHeaders,
+          body: ["POST", "PUT", "PATCH"].includes(method) ? body : undefined,
+        }
       });
 
-      let data;
-      const contentType = res.headers.get("content-type");
-      if (contentType?.includes("application/json")) {
-        data = await res.json();
-      } else {
-        data = await res.text();
-      }
+      if (error) throw error;
 
-      setResponse({
-        status: res.status,
-        statusText: res.statusText,
-        headers: responseHeaders,
-        data,
-        time: endTime - startTime,
-      });
+      setResponse(data);
 
       toast({
         title: "Success",
-        description: `Request completed in ${endTime - startTime}ms`,
+        description: `Request completed in ${data.time}ms`,
       });
     } catch (error) {
       toast({
