@@ -16,6 +16,15 @@ interface Header {
   value: string;
 }
 
+interface AuthConfig {
+  type: "none" | "basic" | "bearer" | "apikey";
+  username?: string;
+  password?: string;
+  token?: string;
+  apiKey?: string;
+  apiKeyHeader?: string;
+}
+
 interface ResponseData {
   status: number;
   statusText: string;
@@ -29,6 +38,7 @@ const APITester = () => {
   const [url, setUrl] = useState("");
   const [headers, setHeaders] = useState<Header[]>([{ key: "", value: "" }]);
   const [body, setBody] = useState("");
+  const [auth, setAuth] = useState<AuthConfig>({ type: "none" });
   const [response, setResponse] = useState<ResponseData | null>(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -68,6 +78,16 @@ const APITester = () => {
           requestHeaders[key] = value;
         }
       });
+
+      // Apply authentication
+      if (auth.type === "basic" && auth.username && auth.password) {
+        const credentials = btoa(`${auth.username}:${auth.password}`);
+        requestHeaders["Authorization"] = `Basic ${credentials}`;
+      } else if (auth.type === "bearer" && auth.token) {
+        requestHeaders["Authorization"] = `Bearer ${auth.token}`;
+      } else if (auth.type === "apikey" && auth.apiKey && auth.apiKeyHeader) {
+        requestHeaders[auth.apiKeyHeader] = auth.apiKey;
+      }
 
       const options: RequestInit = {
         method,
@@ -209,8 +229,9 @@ const APITester = () => {
             </div>
 
             <Tabs defaultValue="headers" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="headers">Headers</TabsTrigger>
+                <TabsTrigger value="auth">Auth</TabsTrigger>
                 <TabsTrigger value="body">Body</TabsTrigger>
               </TabsList>
 
@@ -244,6 +265,79 @@ const APITester = () => {
                     </Button>
                   </div>
                 ))}
+              </TabsContent>
+
+              <TabsContent value="auth" className="space-y-4">
+                <div className="space-y-4">
+                  <div>
+                    <Label>Authentication Type</Label>
+                    <Select value={auth.type} onValueChange={(value: any) => setAuth({ type: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No Auth</SelectItem>
+                        <SelectItem value="basic">Basic Auth</SelectItem>
+                        <SelectItem value="bearer">Bearer Token</SelectItem>
+                        <SelectItem value="apikey">API Key</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {auth.type === "basic" && (
+                    <>
+                      <div>
+                        <Label>Username</Label>
+                        <Input
+                          placeholder="Enter username"
+                          value={auth.username || ""}
+                          onChange={(e) => setAuth({ ...auth, username: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label>Password</Label>
+                        <Input
+                          type="password"
+                          placeholder="Enter password"
+                          value={auth.password || ""}
+                          onChange={(e) => setAuth({ ...auth, password: e.target.value })}
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {auth.type === "bearer" && (
+                    <div>
+                      <Label>Bearer Token</Label>
+                      <Input
+                        placeholder="Enter token"
+                        value={auth.token || ""}
+                        onChange={(e) => setAuth({ ...auth, token: e.target.value })}
+                      />
+                    </div>
+                  )}
+
+                  {auth.type === "apikey" && (
+                    <>
+                      <div>
+                        <Label>Header Name</Label>
+                        <Input
+                          placeholder="e.g., X-API-Key"
+                          value={auth.apiKeyHeader || ""}
+                          onChange={(e) => setAuth({ ...auth, apiKeyHeader: e.target.value })}
+                        />
+                      </div>
+                      <div>
+                        <Label>API Key</Label>
+                        <Input
+                          placeholder="Enter API key"
+                          value={auth.apiKey || ""}
+                          onChange={(e) => setAuth({ ...auth, apiKey: e.target.value })}
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
               </TabsContent>
 
               <TabsContent value="body" className="space-y-2">
