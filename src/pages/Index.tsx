@@ -80,6 +80,13 @@ const categories = [
     color: "from-pink-500 to-rose-600",
   },
   {
+    icon: Code,
+    title: "Developer Tools",
+    description: "API testing, formatters, and development utilities",
+    toolCount: 10,
+    color: "from-green-500 to-emerald-600",
+  },
+  {
     icon: QrCode,
     title: "QR & Barcodes",
     description: "Generate and customize QR codes and barcodes",
