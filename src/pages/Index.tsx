@@ -61,6 +61,7 @@ import {
   Minimize2,
   FileType,
   Images,
+  Send,
 } from "lucide-react";
 
 const categories = [
@@ -344,6 +345,12 @@ const popularTools = [
     icon: Globe,
     title: "IP Lookup",
     description: "Get location and details of any IP",
+    category: "Developer Tools",
+  },
+  {
+    icon: Send,
+    title: "API Tester",
+    description: "Test REST APIs with custom headers and methods",
     category: "Developer Tools",
   },
   {
@@ -687,6 +694,7 @@ const Index = () => {
                 "YAML Formatter": "/tools/yaml-formatter",
                 "SQL Formatter": "/tools/sql-formatter",
                 "IP Lookup": "/tools/ip-lookup",
+                "API Tester": "/tools/api-tester",
                 "Password Strength": "/tools/password-strength",
                 "Base64 Image Encoder": "/tools/base64-image",
                 "Color Converter": "/tools/color-converter",
