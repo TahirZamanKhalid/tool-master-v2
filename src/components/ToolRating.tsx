@@ -59,11 +59,6 @@ export const ToolRating = ({ toolPath }: ToolRatingProps) => {
   };
 
   const submitRating = async () => {
-    if (!user) {
-      toast.error("Please sign in to rate this tool");
-      return;
-    }
-
     if (rating === 0) {
       toast.error("Please select a rating");
       return;
@@ -71,9 +66,9 @@ export const ToolRating = ({ toolPath }: ToolRatingProps) => {
 
     const { error } = await supabase
       .from("tool_ratings")
-      .upsert({
+      .insert({
         tool_path: toolPath,
-        user_id: user.id,
+        user_id: user?.id || null,
         rating,
         comment: comment.trim() || null,
       });
@@ -82,8 +77,12 @@ export const ToolRating = ({ toolPath }: ToolRatingProps) => {
       toast.error("Failed to submit rating");
     } else {
       toast.success("Rating submitted successfully!");
+      setRating(0);
+      setComment("");
       fetchRatings();
-      fetchUserRating(user.id);
+      if (user) {
+        fetchUserRating(user.id);
+      }
     }
   };
 
@@ -116,25 +115,15 @@ export const ToolRating = ({ toolPath }: ToolRatingProps) => {
           </div>
         </div>
 
-        {user && (
-          <>
-            <Textarea
-              placeholder="Share your experience (optional)"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="min-h-[80px]"
-            />
-            <Button onClick={submitRating} className="w-full">
-              {userRating ? "Update Rating" : "Submit Rating"}
-            </Button>
-          </>
-        )}
-
-        {!user && (
-          <p className="text-sm text-muted-foreground text-center">
-            Sign in to rate this tool
-          </p>
-        )}
+        <Textarea
+          placeholder="Share your experience (optional)"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="min-h-[80px]"
+        />
+        <Button onClick={submitRating} className="w-full">
+          Submit Rating
+        </Button>
       </CardContent>
     </Card>
   );

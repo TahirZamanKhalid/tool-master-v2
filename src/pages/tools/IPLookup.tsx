@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { AdSpace } from "@/components/AdSpace";
 import { Loader2 } from "lucide-react";
+import { ToolRating } from "@/components/ToolRating";
 
 const IPLookup = () => {
   const [ipAddress, setIpAddress] = useState("");
@@ -142,6 +143,7 @@ const IPLookup = () => {
           )}
         </CardContent>
       </Card>
+      <ToolRating toolPath="/tools/ip-lookup" />
     </ToolLayout>
   );
 };
