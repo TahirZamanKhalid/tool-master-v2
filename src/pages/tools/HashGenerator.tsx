@@ -6,13 +6,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Copy, Hash } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { AdWatchModal } from "@/components/AdWatchModal";
+
 
 const HashGenerator = () => {
   const [input, setInput] = useState("");
   const [hashes, setHashes] = useState<Record<string, string>>({});
-  const [showAdModal, setShowAdModal] = useState(false);
-  const [pendingCopy, setPendingCopy] = useState("");
   const { toast } = useToast();
 
   const generateHash = async (algorithm: string, text: string): Promise<string> => {
@@ -58,19 +56,6 @@ const HashGenerator = () => {
         description: "Failed to generate hashes",
         variant: "destructive",
       });
-    }
-  };
-
-  const handleCopyClick = (hash: string) => {
-    setPendingCopy(hash);
-    setShowAdModal(true);
-  };
-
-  const handleAdWatched = () => {
-    setShowAdModal(false);
-    if (pendingCopy) {
-      copyHash(pendingCopy);
-      setPendingCopy("");
     }
   };
 
@@ -130,17 +115,13 @@ const HashGenerator = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleCopyClick(hash)}
+                      onClick={() => copyHash(hash)}
                     >
                       <Copy className="h-4 w-4 mr-2" />
-                      Watch Ad to Copy
+                      Copy
                     </Button>
                   </div>
-                  <div
-                    className="p-3 bg-muted rounded-lg font-mono text-xs break-all select-none cursor-not-allowed"
-                    onCopy={(e) => { e.preventDefault(); toast({ title: "Copy disabled", description: "Use \"Watch Ad to Copy\"" }); }}
-                    onContextMenu={(e) => { e.preventDefault(); toast({ title: "Copy disabled", description: "Use the copy button" }); }}
-                  >
+                  <div className="p-3 bg-muted rounded-lg font-mono text-xs break-all">
                     {hash}
                   </div>
                 </CardContent>
@@ -150,16 +131,6 @@ const HashGenerator = () => {
         )}
       </div>
 
-      <AdWatchModal
-        open={showAdModal}
-        onOpenChange={(open) => {
-          setShowAdModal(open);
-          if (!open) setPendingCopy("");
-        }}
-        onAdWatched={handleAdWatched}
-        title="Watch Ad to Continue"
-        description="Watch this short ad to copy the hash"
-      />
     </ToolLayout>
   );
 };
