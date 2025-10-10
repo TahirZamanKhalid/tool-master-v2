@@ -4,6 +4,9 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
+import { BlogPostCard } from "@/components/BlogPostCard";
+import { blogPosts } from "@/data/blogPosts";
+import { StructuredData } from "@/components/StructuredData";
 
 const Blog = () => {
   const navigate = useNavigate();
@@ -34,11 +37,10 @@ const Blog = () => {
             Tips, tutorials, and insights about our tools
           </p>
 
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-semibold mb-4">Coming Soon</h2>
-            <p className="text-muted-foreground">
-              We're working on creating helpful content for you. Check back soon!
-            </p>
+          <div className="grid md:grid-cols-2 gap-6">
+            {blogPosts.map((post) => (
+              <BlogPostCard key={post.slug} {...post} />
+            ))}
           </div>
         </div>
         </div>
