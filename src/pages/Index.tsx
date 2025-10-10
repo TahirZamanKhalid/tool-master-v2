@@ -9,9 +9,6 @@ import { AdSpace } from "@/components/AdSpace";
 import { SEOHead } from "@/components/SEOHead";
 import { trackSearch } from "@/hooks/useToolAnalytics";
 import { useState, useEffect, useMemo } from "react";
-import { FAQ } from "@/components/FAQ";
-import { homepageFAQs } from "@/data/faqData";
-import { StructuredData } from "@/components/StructuredData";
 import {
   Sparkles,
   Image,
