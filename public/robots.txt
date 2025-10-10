@@ -1,5 +1,6 @@
 User-agent: Googlebot
 Allow: /
+Allow: /ads.txt
 
 User-agent: Bingbot
 Allow: /
@@ -12,3 +13,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://toolmasterpro.com/sitemap.xml
