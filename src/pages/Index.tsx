@@ -565,9 +565,10 @@ const Index = () => {
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
       <SEOHead 
-        title="Home - 100+ Free Online Tools"
+        title="ToolMaster Pro"
         description="Access 100+ free online tools for developers, designers, and content creators. No signup required. Image tools, text converters, calculators, and more."
         keywords="free online tools, developer tools, image tools, text tools, converters, calculators, no signup"
+        canonical={window.location.origin}
       />
       <Header searchQuery={searchQuery} onSearch={handleLiveSearch} />
       
