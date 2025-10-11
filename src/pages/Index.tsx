@@ -5,6 +5,7 @@ import { Hero } from "@/components/Hero";
 import { CategoryCard } from "@/components/CategoryCard";
 import { ToolCard } from "@/components/ToolCard";
 import { HowItWorks } from "@/components/HowItWorks";
+import { FAQ } from "@/components/FAQ";
 import { AdSpace } from "@/components/AdSpace";
 import { SEOHead } from "@/components/SEOHead";
 import { trackSearch } from "@/hooks/useToolAnalytics";
@@ -798,6 +799,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <FAQ />
 
       <Footer />
     </div>
