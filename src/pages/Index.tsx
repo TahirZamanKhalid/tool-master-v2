@@ -1,12 +1,12 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Hero } from "@/components/Hero";
+import { OptimizedHero } from "@/components/OptimizedHero";
 import { CategoryCard } from "@/components/CategoryCard";
 import { ToolCard } from "@/components/ToolCard";
 import { HowItWorks } from "@/components/HowItWorks";
 import { FAQ } from "@/components/FAQ";
-import { AdSpace } from "@/components/AdSpace";
+import { LazyAdSpace } from "@/components/LazyAdSpace";
 import { SEOHead } from "@/components/SEOHead";
 import { trackSearch } from "@/hooks/useToolAnalytics";
 import { useState, useEffect, useMemo } from "react";
@@ -571,12 +571,8 @@ const Index = () => {
       />
       <Header searchQuery={searchQuery} onSearch={handleLiveSearch} />
       
-      {/* Top Banner Ad */}
-      <div className="container py-4 flex justify-center w-full overflow-hidden px-4">
-        <AdSpace size="leaderboard" />
-      </div>
-
-      <Hero searchQuery={searchQuery} onSearch={handleLiveSearch} />
+      
+      <OptimizedHero searchQuery={searchQuery} onSearch={handleLiveSearch} />
 
       {/* Categories Section */}
       <section className="py-16 container w-full overflow-hidden px-4">
@@ -589,11 +585,6 @@ const Index = () => {
 
         {/* Desktop Sidebar Layout */}
         <div className="flex gap-6 justify-center w-full">
-          {/* Left Sidebar Ad - Desktop Only */}
-          <div className="hidden xl:block flex-shrink-0 sticky top-24 self-start">
-            <AdSpace size="skyscraper" />
-          </div>
-
           {/* Main Content */}
           <div className="flex-1 max-w-6xl">
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -632,17 +623,9 @@ const Index = () => {
                 </p>
               </div>
             )}
-
-            {/* Mid-content Ad */}
-            <div className="flex justify-center my-8">
-              <AdSpace size="banner" />
-            </div>
           </div>
 
-          {/* Right Sidebar Ad - Desktop Only */}
-          <div className="hidden xl:block flex-shrink-0 sticky top-24 self-start">
-            <AdSpace size="skyscraper" />
-          </div>
+          {/* Right Sidebar Ad - Desktop Only (Removed for better performance) */}
         </div>
       </section>
 
@@ -751,8 +734,10 @@ const Index = () => {
           </div>
         )}
 
-        {/* Bottom Ad */}
-        <AdSpace size="leaderboard" className="mt-12" />
+        {/* Bottom Ad - Lazy loaded */}
+        <div className="mt-12">
+          <LazyAdSpace size="leaderboard" />
+        </div>
       </section>
 
       {/* Stats Section */}
@@ -793,9 +778,9 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Ad after Stats section */}
+          {/* Ad after Stats section - Lazy loaded */}
           <div className="mt-12">
-            <AdSpace size="leaderboard" />
+            <LazyAdSpace size="leaderboard" />
           </div>
         </div>
       </section>

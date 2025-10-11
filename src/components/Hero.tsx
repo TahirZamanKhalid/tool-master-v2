@@ -1,7 +1,6 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { AdSpace } from "./AdSpace";
 import { useState, useEffect } from "react";
 
 interface HeroProps {
@@ -75,11 +74,6 @@ export const Hero = ({ searchQuery = "", onSearch }: HeroProps) => {
                 {term}
               </Button>
             ))}
-          </div>
-
-          {/* Ad in Hero section */}
-          <div className="pt-8 w-full overflow-hidden">
-            <AdSpace size="leaderboard" />
           </div>
         </div>
       </div>
