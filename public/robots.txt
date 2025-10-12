@@ -1,9 +1,12 @@
+# ToolMaster Pro - Optimized for Search Engine Crawling
 User-agent: Googlebot
 Allow: /
 Allow: /ads.txt
+Crawl-delay: 0.2
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 0.3
 
 User-agent: Twitterbot
 Allow: /
@@ -13,5 +16,11 @@ Allow: /
 
 User-agent: *
 Allow: /
+Allow: /tools/
+Allow: /blog/
 
-Sitemap: https://toolmasterpro.com/sitemap.xml
+# Sitemap location
+Sitemap: https://toolmaster.cloud/sitemap.xml
+
+# Optimal crawl settings for better indexing
+Host: https://toolmaster.cloud
