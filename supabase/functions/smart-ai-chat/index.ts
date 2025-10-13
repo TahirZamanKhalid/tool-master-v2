@@ -114,17 +114,17 @@ async function callLovableAI(messages: any[]): Promise<Response> {
       'Authorization': `Bearer ${LOVABLE_API_KEY}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      model: 'google/gemini-2.5-flash',
-      messages: [
-        { 
-          role: 'system', 
-          content: 'You are a helpful AI assistant for ToolMaster Pro. Provide clear, concise, and accurate responses.' 
-        },
-        ...messages
-      ],
-      stream: true,
-    }),
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-pro',
+        messages: [
+          { 
+            role: 'system', 
+            content: 'You are a helpful, knowledgeable, and friendly AI assistant. Provide clear, accurate, and engaging responses. Be creative when appropriate and always aim to be helpful.' 
+          },
+          ...messages
+        ],
+        stream: true,
+      }),
   });
 
   if (!response.ok) {

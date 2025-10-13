@@ -75,6 +75,8 @@ import CSSMinifier from "./pages/tools/CSSMinifier";
 import JavaScriptMinifier from "./pages/tools/JavaScriptMinifier";
 import UserAgentParser from "./pages/tools/UserAgentParser";
 import NumberBaseConverter from "./pages/tools/NumberBaseConverter";
+import AIChat from "./pages/tools/AIChat";
+
 
 const queryClient = new QueryClient();
 
@@ -148,6 +150,8 @@ const App = () => (
         <Route path="/tools/javascript-minifier" element={<JavaScriptMinifier />} />
         <Route path="/tools/user-agent-parser" element={<UserAgentParser />} />
         <Route path="/tools/number-base-converter" element={<NumberBaseConverter />} />
+        <Route path="/tools/ai-chat" element={<AIChat />} />
+
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
