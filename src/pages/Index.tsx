@@ -134,11 +134,10 @@ const categories = [
 const popularTools = [
   {
     icon: MessageSquare,
-    title: "AI Chatbot",
-    description: "Chat with AI assistant powered by advanced language models",
+    title: "AI Chat",
+    description: "Chat with AI powered by Google Gemini 2.5 Pro",
     category: "AI & Content",
     popular: true,
-    comingSoon: true,
   },
   {
     icon: Eraser,
@@ -475,6 +474,48 @@ const popularTools = [
     description: "Convert multiple images to PDF",
     category: "PDF Tools",
   },
+  {
+    icon: Key,
+    title: "Password Generator",
+    description: "Generate strong secure passwords",
+    category: "Security Tools",
+  },
+  {
+    icon: Link2,
+    title: "Base64 Encoder",
+    description: "Encode and decode Base64 strings",
+    category: "Developer Tools",
+  },
+  {
+    icon: Code,
+    title: "JSON to YAML",
+    description: "Convert JSON data to YAML format",
+    category: "Developer Tools",
+  },
+  {
+    icon: Code,
+    title: "CSS Minifier",
+    description: "Minify and compress CSS code",
+    category: "Developer Tools",
+  },
+  {
+    icon: Code,
+    title: "JavaScript Minifier",
+    description: "Minify and compress JavaScript code",
+    category: "Developer Tools",
+  },
+  {
+    icon: Globe,
+    title: "User Agent Parser",
+    description: "Parse and analyze user agent strings",
+    category: "Developer Tools",
+  },
+  {
+    icon: Hash,
+    title: "Number Base Converter",
+    description: "Convert between binary, decimal, hex, and octal",
+    category: "Developer Tools",
+  },
 ];
 
 const Index = () => {
@@ -650,7 +691,7 @@ const Index = () => {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredTools.map((tool, index) => {
               const toolPaths: Record<string, string> = {
-                "AI Chatbot": "/tools/ai-chatbot",
+                "AI Chat": "/tools/ai-chat",
                 "Background Remover": "/tools/background-remover",
                 "QR Code Generator": "/tools/qr-code-generator",
                 "PDF Merger": "/tools/pdf-merger",
@@ -706,6 +747,13 @@ const Index = () => {
                 "PDF Compressor": "/tools/pdf-compressor",
                 "PDF to Text": "/tools/pdf-to-text",
                 "Images to PDF": "/tools/images-to-pdf",
+                "Password Generator": "/tools/password-generator",
+                "Base64 Encoder": "/tools/base64-encoder",
+                "JSON to YAML": "/tools/json-to-yaml",
+                "CSS Minifier": "/tools/css-minifier",
+                "JavaScript Minifier": "/tools/javascript-minifier",
+                "User Agent Parser": "/tools/user-agent-parser",
+                "Number Base Converter": "/tools/number-base-converter",
               };
               
               return (
