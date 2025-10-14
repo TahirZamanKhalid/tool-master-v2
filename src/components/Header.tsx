@@ -1,6 +1,5 @@
-import { Moon, Sun, Search, LogOut, LogIn } from "lucide-react";
+import { Moon, Sun, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -37,22 +36,14 @@ export const Header = ({ searchQuery = "", onSearch }: HeaderProps) => {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
 
     return () => subscription.unsubscribe();
   }, []);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setLocalSearch(value);
-    onSearch?.(value); // Live search on every keystroke
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-  };
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -78,47 +69,15 @@ export const Header = ({ searchQuery = "", onSearch }: HeaderProps) => {
           </div>
         </div>
 
-        <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-xl mx-4 lg:mx-8">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search for tools..."
-              className="w-full pl-10 bg-muted/50"
-              value={localSearch}
-              onChange={handleSearchChange}
-            />
-          </div>
-        </form>
-
         <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
           {user ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleSignOut}
-              className="gap-1 sm:gap-2 px-2 sm:px-4"
-            >
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-1 sm:gap-2 px-2 sm:px-4">
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:inline">Sign Out</span>
             </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/auth")}
-              className="gap-1 sm:gap-2 px-2 sm:px-4"
-            >
-              <LogIn className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign In</span>
-            </Button>
-          )}
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsDark(!isDark)}
-            className="rounded-lg flex-shrink-0"
-          >
+          ) : null}
+
+          <Button variant="ghost" size="icon" onClick={() => setIsDark(!isDark)} className="rounded-lg flex-shrink-0">
             {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
         </div>
