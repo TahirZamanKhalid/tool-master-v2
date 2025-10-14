@@ -68,118 +68,95 @@ const Contact = () => {
       <Header />
       <main className="flex-1">
         <div className="container py-12 px-4">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="mb-6"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Button>
+          <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
 
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
-            <p className="text-xl text-muted-foreground">
-              Have questions or feedback? We'd love to hear from you!
-            </p>
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-12">
+              <h1 className="text-4xl md:text-5xl font-bold mb-4">Contact Us</h1>
+              <p className="text-xl text-muted-foreground">Have questions or feedback? We'd love to hear from you!</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              <div className="bg-card border rounded-lg p-6 text-center">
+                <Mail className="h-8 w-8 mx-auto mb-3 text-primary" />
+                <h3 className="font-semibold mb-2">Email Us</h3>
+                <p className="text-sm text-muted-foreground">tzaman208@gmail.com</p>
+              </div>
+              <div className="bg-card border rounded-lg p-6 text-center">
+                <MessageSquare className="h-8 w-8 mx-auto mb-3 text-primary" />
+                <h3 className="font-semibold mb-2">Live Chat</h3>
+                <p className="text-sm text-muted-foreground">Coming soon</p>
+              </div>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6 bg-card border rounded-lg p-8">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium mb-2">
+                  Name
+                </label>
+                <Input
+                  id="name"
+                  placeholder="Your name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium mb-2">
+                  Subject
+                </label>
+                <Input
+                  id="subject"
+                  placeholder="What is this about?"
+                  value={formData.subject}
+                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium mb-2">
+                  Message
+                </label>
+                <Textarea
+                  id="message"
+                  placeholder="Your message..."
+                  rows={6}
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  required
+                />
+              </div>
+
+              <Button type="submit" size="lg" className="w-full gradient-primary" disabled={isSubmitting}>
+                {isSubmitting ? "Sending..." : "Send Message"}
+              </Button>
+            </form>
           </div>
-
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-card border rounded-lg p-6 text-center">
-              <Mail className="h-8 w-8 mx-auto mb-3 text-primary" />
-              <h3 className="font-semibold mb-2">Email Us</h3>
-              <p className="text-sm text-muted-foreground">tzaman208@gmail.com</p>
-            </div>
-            <div className="bg-card border rounded-lg p-6 text-center">
-              <MessageSquare className="h-8 w-8 mx-auto mb-3 text-primary" />
-              <h3 className="font-semibold mb-2">Live Chat</h3>
-              <p className="text-sm text-muted-foreground">Coming soon</p>
-            </div>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6 bg-card border rounded-lg p-8">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-2">
-                Name
-              </label>
-              <Input
-                id="name"
-                placeholder="Your name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="your@email.com"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="subject" className="block text-sm font-medium mb-2">
-                Subject
-              </label>
-              <Input
-                id="subject"
-                placeholder="What is this about?"
-                value={formData.subject}
-                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="message" className="block text-sm font-medium mb-2">
-                Message
-              </label>
-              <Textarea
-                id="message"
-                placeholder="Your message..."
-                rows={6}
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                required
-              />
-            </div>
-
-            <Button 
-              type="submit" 
-              size="lg" 
-              className="w-full gradient-primary"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Sending..." : "Send Message"}
-            </Button>
-          </form>
         </div>
-      </div>
       </main>
       <Footer />
     </div>
   );
 };
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7382531001943020"
-     crossorigin="anonymous"></script>
-<!-- Side bar Ads1 -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-7382531001943020"
-     data-ad-slot="5628599414"
-     data-ad-format="auto"
-     data-full-width-responsive="true"></ins>
-<script>
-     (adsbygoogle = window.adsbygoogle || []).push({});
-</script>
 
 export default Contact;
