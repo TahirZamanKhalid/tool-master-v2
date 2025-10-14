@@ -1,865 +1,358 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { OptimizedHero } from "@/components/OptimizedHero";
-import { CategoryCard } from "@/components/CategoryCard";
-import { ToolCard } from "@/components/ToolCard";
-import { HowItWorks } from "@/components/HowItWorks";
-import { FAQ } from "@/components/FAQ";
-import { LazyAdSpace } from "@/components/LazyAdSpace";
-import { SEOHead } from "@/components/SEOHead";
-import { trackSearch } from "@/hooks/useToolAnalytics";
-import { useState, useEffect, useMemo } from "react";
-import {
-  Sparkles,
-  Image,
-  FileText,
-  Calculator,
-  QrCode,
-  Video,
-  TrendingUp,
-  Code,
-  MessageSquare,
-  Eraser,
-  FileDown,
-  Type,
-  DollarSign,
-  Palette,
-  Brain,
-  Zap,
-  Instagram,
-  Link2,
-  Hash,
-  Key,
-  FileCode,
-  AlignLeft,
-  Clock,
-  GitCompare,
-  Regex,
-  Wand2,
-  Scale,
-  Percent,
-  Activity,
-  Crop,
-  Laugh,
-  FileSpreadsheet,
-  FileJson,
-  Database,
-  Globe,
-  Shield,
-  FileImage,
-  Paintbrush,
-  Link,
-  Dices,
-  Timer,
-  Calendar,
-  Barcode,
-  ScanLine,
-  Wifi,
-  Camera,
-  Captions,
-  Scissors,
-  Minimize2,
-  FileType,
-  Images,
-  Send,
-} from "lucide-react";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { Loader2, MapPin, Globe, Shield, Wifi, Copy, Check } from "lucide-react";
 
-const categories = [
-  {
-    icon: Sparkles,
-    title: "AI & Content",
-    description: "AI-powered writing, chatbots, and content generation",
-    toolCount: 18,
-    color: "from-blue-500 to-purple-600",
-  },
-  {
-    icon: Image,
-    title: "Image Tools",
-    description: "Edit, compress, convert, and enhance images",
-    toolCount: 25,
-    color: "from-pink-500 to-rose-600",
-  },
-  {
-    icon: Code,
-    title: "Developer Tools",
-    description: "API testing, formatters, and development utilities",
-    toolCount: 10,
-    color: "from-green-500 to-emerald-600",
-  },
-  {
-    icon: QrCode,
-    title: "QR & Barcodes",
-    description: "Generate and customize QR codes and barcodes",
-    toolCount: 8,
-    color: "from-emerald-500 to-teal-600",
-  },
-  {
-    icon: FileText,
-    title: "PDF Tools",
-    description: "Merge, split, compress, and convert PDFs",
-    toolCount: 15,
-    color: "from-orange-500 to-red-600",
-  },
-  {
-    icon: Type,
-    title: "Text Tools",
-    description: "Word counter, case converter, and more",
-    toolCount: 20,
-    color: "from-indigo-500 to-blue-600",
-  },
-  {
-    icon: TrendingUp,
-    title: "SEO & Marketing",
-    description: "Meta tags, sitemaps, and SEO optimization",
-    toolCount: 12,
-    color: "from-violet-500 to-purple-600",
-  },
-  {
-    icon: Calculator,
-    title: "Calculators",
-    description: "Percentage, BMI, loan, and more calculators",
-    toolCount: 15,
-    color: "from-cyan-500 to-blue-600",
-  },
-  {
-    icon: Video,
-    title: "Video & Audio",
-    description: "Compress, convert, and edit media files",
-    toolCount: 10,
-    color: "from-fuchsia-500 to-pink-600",
-  },
-];
+const IPLookup = () => {
+  const [ipAddress, setIpAddress] = useState("");
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
-const popularTools = [
-  {
-    icon: MessageSquare,
-    title: "AI Chat",
-    description: "Chat with AI powered by Google Gemini 2.5 Pro",
-    category: "AI & Content",
-    popular: true,
-  },
-  {
-    icon: Eraser,
-    title: "Background Remover",
-    description: "Remove image backgrounds instantly with AI",
-    category: "Image Tools",
-    popular: true,
-  },
-  {
-    icon: QrCode,
-    title: "QR Code Generator",
-    description: "Create custom QR codes with logos and colors",
-    category: "QR & Barcodes",
-    popular: true,
-  },
-  {
-    icon: FileDown,
-    title: "PDF Merger",
-    description: "Combine multiple PDFs into a single document",
-    category: "PDF Tools",
-    popular: true,
-  },
-  {
-    icon: Type,
-    title: "Word Counter",
-    description: "Count words, characters, and analyze text",
-    category: "Text Tools",
-  },
-  {
-    icon: Image,
-    title: "Image Compressor",
-    description: "Reduce image file size without losing quality",
-    category: "Image Tools",
-  },
-  {
-    icon: DollarSign,
-    title: "Currency Converter",
-    description: "Convert between 20+ world currencies",
-    category: "Calculators",
-  },
-  {
-    icon: Zap,
-    title: "Text to Speech",
-    description: "Convert text to natural-sounding speech",
-    category: "Text Tools",
-    comingSoon: true,
-  },
-  {
-    icon: Code,
-    title: "JSON Formatter",
-    description: "Format and validate JSON data",
-    category: "Text Tools",
-  },
-  {
-    icon: Captions,
-    title: "Caption Generator",
-    description: "Generate engaging social media captions with AI",
-    category: "AI & Content",
-  },
-  {
-    icon: Palette,
-    title: "Color Picker",
-    description: "Pick colors and generate palettes",
-    category: "Image Tools",
-  },
-  {
-    icon: Brain,
-    title: "AI Writing Assistant",
-    description: "Improve your writing with AI suggestions",
-    category: "AI & Content",
-    comingSoon: true,
-  },
-  {
-    icon: Link2,
-    title: "URL Encoder",
-    description: "Encode and decode URLs safely",
-    category: "Text Tools",
-  },
-  {
-    icon: Hash,
-    title: "Hash Generator",
-    description: "Generate cryptographic hashes",
-    category: "Text Tools",
-  },
-  {
-    icon: Key,
-    title: "UUID Generator",
-    description: "Generate unique identifiers",
-    category: "Text Tools",
-  },
-  {
-    icon: Type,
-    title: "Case Converter",
-    description: "Convert text between different cases",
-    category: "Text Tools",
-  },
-  {
-    icon: FileCode,
-    title: "Markdown Preview",
-    description: "Write and preview markdown in real-time",
-    category: "Text Tools",
-  },
-  {
-    icon: Code,
-    title: "HTML Encoder",
-    description: "Encode or decode HTML entities",
-    category: "Text Tools",
-  },
-  {
-    icon: AlignLeft,
-    title: "Lorem Ipsum",
-    description: "Generate placeholder text",
-    category: "Text Tools",
-  },
-  {
-    icon: Clock,
-    title: "Timestamp Converter",
-    description: "Convert Unix timestamps",
-    category: "Text Tools",
-  },
-  {
-    icon: GitCompare,
-    title: "Text Diff",
-    description: "Compare text differences",
-    category: "Text Tools",
-  },
-  {
-    icon: Regex,
-    title: "Regex Tester",
-    description: "Test regular expressions",
-    category: "Text Tools",
-  },
-  {
-    icon: Wand2,
-    title: "Code Beautifier",
-    description: "Format JSON, HTML, CSS",
-    category: "Text Tools",
-  },
-  {
-    icon: Scale,
-    title: "Unit Converter",
-    description: "Convert units of measurement",
-    category: "Calculators",
-  },
-  {
-    icon: Percent,
-    title: "Percentage Calculator",
-    description: "Calculate percentages",
-    category: "Calculators",
-  },
-  {
-    icon: Activity,
-    title: "BMI Calculator",
-    description: "Calculate Body Mass Index",
-    category: "Calculators",
-  },
-  {
-    icon: Image,
-    title: "Image Resizer",
-    description: "Resize images to custom dimensions",
-    category: "Image Tools",
-  },
-  {
-    icon: Crop,
-    title: "Image Cropper",
-    description: "Crop images to your desired size",
-    category: "Image Tools",
-  },
-  {
-    icon: Laugh,
-    title: "Meme Generator",
-    description: "Create funny memes with custom text",
-    category: "Image Tools",
-  },
-  {
-    icon: Type,
-    title: "ASCII Art Generator",
-    description: "Convert text to ASCII art",
-    category: "Text Tools",
-  },
-  {
-    icon: FileSpreadsheet,
-    title: "CSV to JSON",
-    description: "Convert CSV data to JSON format",
-    category: "Developer Tools",
-  },
-  {
-    icon: FileJson,
-    title: "JSON to CSV",
-    description: "Convert JSON data to CSV format",
-    category: "Developer Tools",
-  },
-  {
-    icon: Code,
-    title: "XML Formatter",
-    description: "Format and beautify XML code",
-    category: "Developer Tools",
-  },
-  {
-    icon: FileCode,
-    title: "YAML Formatter",
-    description: "Format and validate YAML files",
-    category: "Developer Tools",
-  },
-  {
-    icon: Database,
-    title: "SQL Formatter",
-    description: "Format and beautify SQL queries",
-    category: "Developer Tools",
-  },
-  {
-    icon: Globe,
-    title: "IP Lookup",
-    description: "Get location and details of any IP",
-    category: "Developer Tools",
-  },
-  {
-    icon: Send,
-    title: "API Tester",
-    description: "Test REST APIs with custom headers and methods",
-    category: "Developer Tools",
-  },
-  {
-    icon: Shield,
-    title: "Password Strength",
-    description: "Check how strong your password is",
-    category: "Security Tools",
-  },
-  {
-    icon: FileImage,
-    title: "Base64 Image Encoder",
-    description: "Convert images to Base64 strings",
-    category: "Developer Tools",
-  },
-  {
-    icon: Palette,
-    title: "Color Converter",
-    description: "Convert between color formats",
-    category: "Image Tools",
-  },
-  {
-    icon: Paintbrush,
-    title: "Gradient Generator",
-    description: "Create beautiful CSS gradients",
-    category: "Image Tools",
-  },
-  {
-    icon: Link,
-    title: "Text to Slug",
-    description: "Convert text to URL-friendly slugs",
-    category: "Text Tools",
-  },
-  {
-    icon: Dices,
-    title: "Random Number",
-    description: "Generate random numbers",
-    category: "Utilities",
-  },
-  {
-    icon: Dices,
-    title: "Dice Roller",
-    description: "Roll virtual dice",
-    category: "Utilities",
-  },
-  {
-    icon: Timer,
-    title: "Countdown Timer",
-    description: "Set a countdown timer",
-    category: "Utilities",
-  },
-  {
-    icon: Clock,
-    title: "Stopwatch",
-    description: "Precise stopwatch timer",
-    category: "Utilities",
-  },
-  {
-    icon: Calendar,
-    title: "Age Calculator",
-    description: "Calculate your exact age",
-    category: "Calculators",
-  },
-  {
-    icon: TrendingUp,
-    title: "Meta Tag Generator",
-    description: "Generate SEO meta tags for your website",
-    category: "SEO & Marketing",
-  },
-  {
-    icon: Barcode,
-    title: "Barcode Generator",
-    description: "Generate various types of barcodes",
-    category: "QR & Barcodes",
-  },
-  {
-    icon: ScanLine,
-    title: "QR Scanner",
-    description: "Scan QR codes with your camera",
-    category: "QR & Barcodes",
-  },
-  {
-    icon: Camera,
-    title: "Barcode Scanner",
-    description: "Scan barcodes with your camera",
-    category: "QR & Barcodes",
-  },
-  {
-    icon: Wifi,
-    title: "WiFi QR Generator",
-    description: "Generate QR codes to share WiFi",
-    category: "QR & Barcodes",
-  },
-  {
-    icon: Scissors,
-    title: "PDF Splitter",
-    description: "Extract specific pages from PDFs",
-    category: "PDF Tools",
-  },
-  {
-    icon: Minimize2,
-    title: "PDF Compressor",
-    description: "Reduce PDF file size",
-    category: "PDF Tools",
-  },
-  {
-    icon: FileType,
-    title: "PDF to Text",
-    description: "Extract text from PDF documents",
-    category: "PDF Tools",
-  },
-  {
-    icon: Images,
-    title: "Images to PDF",
-    description: "Convert multiple images to PDF",
-    category: "PDF Tools",
-  },
-  {
-    icon: Key,
-    title: "Password Generator",
-    description: "Generate strong secure passwords",
-    category: "Security Tools",
-  },
-  {
-    icon: Link2,
-    title: "Base64 Encoder",
-    description: "Encode and decode Base64 strings",
-    category: "Developer Tools",
-  },
-  {
-    icon: Code,
-    title: "JSON to YAML",
-    description: "Convert JSON data to YAML format",
-    category: "Developer Tools",
-  },
-  {
-    icon: Code,
-    title: "CSS Minifier",
-    description: "Minify and compress CSS code",
-    category: "Developer Tools",
-  },
-  {
-    icon: Code,
-    title: "JavaScript Minifier",
-    description: "Minify and compress JavaScript code",
-    category: "Developer Tools",
-  },
-  {
-    icon: Globe,
-    title: "User Agent Parser",
-    description: "Parse and analyze user agent strings",
-    category: "Developer Tools",
-  },
-  {
-    icon: Hash,
-    title: "Number Base Converter",
-    description: "Convert between binary, decimal, hex, and octal",
-    category: "Developer Tools",
-  },
-];
+  const isValidIP = (ip) => {
+    const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+    const ipv6Regex = /^([0-9a-fA-F]{0,4}:){2,7}[0-9a-fA-F]{0,4}$/;
 
-const Index = () => {
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "");
+    if (!ipv4Regex.test(ip) && !ipv6Regex.test(ip)) {
+      return false;
+    }
 
-  useEffect(() => {
-    const q = searchParams.get("q") || "";
-    const category = searchParams.get("category") || "";
-    setSearchQuery(q);
-    setSelectedCategory(category);
-  }, [searchParams]);
+    if (ipv4Regex.test(ip)) {
+      const parts = ip.split(".");
+      return parts.every((part) => {
+        const num = parseInt(part);
+        return !isNaN(num) && num >= 0 && num <= 255;
+      });
+    }
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    const params = new URLSearchParams();
-    if (query) params.set("q", query);
-    if (selectedCategory) params.set("category", selectedCategory);
-    setSearchParams(params);
+    return true;
+  };
 
-    // Track search analytics ONLY when search is submitted
-    if (query.length >= 3) {
-      trackSearch(query);
-      // Scroll to search results when user searches
-      setTimeout(() => {
-        document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
+  const lookupIP = async () => {
+    setError("");
+
+    if (!ipAddress.trim()) {
+      setError("Please enter an IP address");
+      return;
+    }
+
+    if (!isValidIP(ipAddress)) {
+      setError("Invalid IP address format. Use IPv4 (e.g., 8.8.8.8) or IPv6");
+      return;
+    }
+
+    setLoading(true);
+    setResult(null);
+
+    try {
+      // Primary API: ip-api.com
+      let data = null;
+
+      try {
+        const response = await fetch(`https://ip-api.com/json/${ipAddress}?fields=66846719`, {
+          method: "GET",
+          headers: { Accept: "application/json" },
+          mode: "cors",
+        });
+
+        if (response.ok) {
+          data = await response.json();
+          if (data.status === "success") {
+            setResult(data);
+            toast.success("✅ IP lookup successful!");
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (e) {
+        console.log("Primary API failed, trying backup...");
+      }
+
+      // Backup API: ipapi.co
+      try {
+        const backupResponse = await fetch(`https://ipapi.co/${ipAddress}/json/`, { mode: "cors" });
+
+        if (backupResponse.ok) {
+          const backupData = await backupResponse.json();
+
+          if (!backupData.error) {
+            setResult({
+              query: backupData.ip,
+              country: backupData.country_name || "N/A",
+              countryCode: backupData.country_code || "N/A",
+              region: backupData.region || "N/A",
+              regionName: backupData.region || "N/A",
+              city: backupData.city || "N/A",
+              zip: backupData.postal || "N/A",
+              timezone: backupData.timezone || "N/A",
+              lat: backupData.latitude || "N/A",
+              lon: backupData.longitude || "N/A",
+              isp: backupData.org || "N/A",
+              org: backupData.org || "N/A",
+              as: backupData.asn || "N/A",
+              proxy: false,
+              hosting: false,
+              mobile: false,
+            });
+            toast.success("✅ IP lookup successful (backup API)!");
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (e) {
+        console.log("Backup API failed too");
+      }
+
+      // Fallback: ip-api.com without fields parameter
+      try {
+        const fallbackResponse = await fetch(`https://ip-api.com/json/${ipAddress}`, { mode: "cors" });
+
+        if (fallbackResponse.ok) {
+          const fallbackData = await fallbackResponse.json();
+          if (fallbackData.status === "success") {
+            setResult(fallbackData);
+            toast.success("✅ IP lookup successful (limited data)!");
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (e) {
+        console.log("Fallback failed");
+      }
+
+      throw new Error("All IP lookup services unavailable");
+    } catch (error) {
+      console.error("IP lookup error:", error);
+      setError(`Error: ${error.message}`);
+      toast.error(`❌ Failed: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // REMOVED: Live search handler - no more live search
-  // const handleLiveSearch = (query: string) => {
-  //   // This function is completely removed to prevent live search
-  // };
-
-  const handleCategoryFilter = (category: string) => {
-    const newCategory = category === selectedCategory ? "" : category;
-    setSelectedCategory(newCategory);
-    setSearchQuery(""); // Clear search when selecting category
-    const params = new URLSearchParams();
-    if (newCategory) params.set("category", newCategory);
-    setSearchParams(params);
-
-    // Scroll to search results section
-    if (newCategory) {
-      setTimeout(() => {
-        document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
-    }
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast.success("Copied to clipboard!");
   };
 
-  // Count tools per category
-  const getToolCountByCategory = (categoryName: string) => {
-    return popularTools.filter((tool) => tool.category === categoryName).length;
-  };
-
-  const filteredTools = useMemo(() => {
-    return popularTools.filter((tool) => {
-      const matchesSearch =
-        !searchQuery ||
-        tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        tool.category.toLowerCase().includes(searchQuery.toLowerCase());
-
-      const matchesCategory = !selectedCategory || tool.category === selectedCategory;
-
-      return matchesSearch && matchesCategory;
-    });
-  }, [searchQuery, selectedCategory]);
-
-  const handleToolClick = (path: string, comingSoon?: boolean) => {
-    if (comingSoon) {
-      return; // Don't navigate if coming soon
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter" && !loading) {
+      lookupIP();
     }
-    navigate(path);
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden">
-      <SEOHead
-        title="ToolMaster Pro"
-        description="Access 100+ free online tools for developers, designers, and content creators. No signup required. Image tools, text converters, calculators, and more."
-        keywords="free online tools, developer tools, image tools, text tools, converters, calculators, no signup"
-        canonical={window.location.origin}
-      />
-
-      {/* Pass empty function to Header to prevent any search */}
-      <Header searchQuery={searchQuery} onSearch={() => {}} />
-
-      {/* Only pass handleSearch to OptimizedHero - it will only trigger on form submit */}
-      <OptimizedHero searchQuery={searchQuery} onSearch={handleSearch} />
-
-      {/* Ad after Hero - High visibility */}
-      <div className="container px-4 py-6">
-        <LazyAdSpace size="leaderboard" />
-      </div>
-
-      {/* Categories Section */}
-      <section className="py-16 container w-full overflow-hidden px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 break-words">Browse by Category</h2>
-          <p className="text-muted-foreground text-base sm:text-lg break-words">
-            Explore our comprehensive collection of free online tools
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 md:p-6">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="p-3 bg-blue-500/20 rounded-lg">
+              <Globe className="w-8 h-8 text-blue-400" />
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white">IP Lookup Tool</h1>
+          </div>
+          <p className="text-blue-200 text-sm md:text-base">Get detailed geolocation and network information</p>
         </div>
 
-        {/* Desktop Sidebar Layout */}
-        <div className="flex gap-6 justify-center w-full">
-          {/* Main Content */}
-          <div className="flex-1 max-w-6xl">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {categories.map((category, index) => {
-                const toolCount = getToolCountByCategory(category.title);
-                const comingSoon = toolCount === 0;
-
-                return (
-                  <div
-                    key={index}
-                    className="animate-scale-in cursor-pointer"
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                    onClick={() => !comingSoon && handleCategoryFilter(category.title)}
-                  >
-                    <CategoryCard
-                      {...category}
-                      toolCount={toolCount}
-                      isSelected={selectedCategory === category.title}
-                      comingSoon={comingSoon}
-                    />
-                  </div>
-                );
-              })}
+        {/* Search Card */}
+        <Card className="mb-6 shadow-2xl border-blue-500/30 bg-slate-800/50 backdrop-blur">
+          <CardContent className="p-4 md:p-6">
+            <div className="flex gap-2 flex-col md:flex-row">
+              <Input
+                value={ipAddress}
+                onChange={(e) => setIpAddress(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Enter IP address (e.g., 8.8.8.8)"
+                className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 text-base md:text-lg flex-1"
+                disabled={loading}
+              />
+              <Button
+                onClick={lookupIP}
+                disabled={loading}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 md:px-8 w-full md:w-auto"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <span className="hidden sm:inline">Searching</span>
+                  </>
+                ) : (
+                  <>
+                    <Globe className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Lookup</span>
+                    <span className="sm:hidden">Go</span>
+                  </>
+                )}
+              </Button>
             </div>
-
-            {selectedCategory && (
-              <div className="text-center mb-8">
-                <p className="text-lg text-muted-foreground">
-                  Showing tools in <span className="font-semibold text-foreground">{selectedCategory}</span>
-                  <button onClick={() => handleCategoryFilter("")} className="ml-2 text-primary hover:underline">
-                    Clear filter
-                  </button>
-                </p>
+            {error && (
+              <div className="text-red-400 text-sm mt-3 p-3 bg-red-500/10 rounded border border-red-500/30 flex items-center gap-2">
+                <span>⚠️</span> {error}
               </div>
             )}
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Right Sidebar Ad - Desktop Only (Removed for better performance) */}
-        </div>
-
-        {/* Ad after Categories section */}
-        <div className="mt-12">
-          <LazyAdSpace size="leaderboard" />
-        </div>
-      </section>
-
-      {!searchQuery && !selectedCategory && <HowItWorks />}
-
-      {/* Popular Tools Section */}
-      <section id="tools-section" className="py-16 container">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            {searchQuery || selectedCategory ? "Search Results" : "Popular Tools"}
-          </h2>
-          <p className="text-muted-foreground text-lg">
-            {searchQuery || selectedCategory
-              ? `Found ${filteredTools.length} tool${filteredTools.length !== 1 ? "s" : ""}`
-              : "Most used tools by our community"}
-          </p>
-        </div>
-
-        {filteredTools.length > 0 ? (
-          <>
-            {/* Ad before tools grid */}
-            <div className="mb-8">
-              <LazyAdSpace size="leaderboard" />
-            </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredTools.map((tool, index) => {
-                // Insert ad after every 8 tools
-                const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
-
-                const toolPaths: Record<string, string> = {
-                  "AI Chat": "/tools/ai-chat",
-                  "Background Remover": "/tools/background-remover",
-                  "QR Code Generator": "/tools/qr-code-generator",
-                  "PDF Merger": "/tools/pdf-merger",
-                  "Word Counter": "/tools/word-counter",
-                  "Image Compressor": "/tools/image-compressor",
-                  "Currency Converter": "/tools/currency-converter",
-                  "Text to Speech": "/tools/text-to-speech",
-                  "JSON Formatter": "/tools/json-formatter",
-                  "Caption Generator": "/tools/caption-generator",
-                  "Color Picker": "/tools/color-picker",
-                  "AI Writing Assistant": "/tools/ai-writing",
-                  "URL Encoder": "/tools/url-encoder",
-                  "Hash Generator": "/tools/hash-generator",
-                  "UUID Generator": "/tools/uuid-generator",
-                  "Case Converter": "/tools/case-converter",
-                  "Markdown Preview": "/tools/markdown-preview",
-                  "HTML Encoder": "/tools/html-encoder",
-                  "Lorem Ipsum": "/tools/lorem-ipsum",
-                  "Timestamp Converter": "/tools/timestamp-converter",
-                  "Text Diff": "/tools/text-diff",
-                  "Regex Tester": "/tools/regex-tester",
-                  "Code Beautifier": "/tools/code-beautifier",
-                  "Unit Converter": "/tools/unit-converter",
-                  "Percentage Calculator": "/tools/percentage-calculator",
-                  "BMI Calculator": "/tools/bmi-calculator",
-                  "Image Resizer": "/tools/image-resizer",
-                  "Image Cropper": "/tools/image-cropper",
-                  "Meme Generator": "/tools/meme-generator",
-                  "ASCII Art Generator": "/tools/ascii-art",
-                  "CSV to JSON": "/tools/csv-to-json",
-                  "JSON to CSV": "/tools/json-to-csv",
-                  "XML Formatter": "/tools/xml-formatter",
-                  "YAML Formatter": "/tools/yaml-formatter",
-                  "SQL Formatter": "/tools/sql-formatter",
-                  "IP Lookup": "/tools/ip-lookup",
-                  "API Tester": "/tools/api-tester",
-                  "Password Strength": "/tools/password-strength",
-                  "Base64 Image Encoder": "/tools/base64-image",
-                  "Color Converter": "/tools/color-converter",
-                  "Gradient Generator": "/tools/gradient-generator",
-                  "Text to Slug": "/tools/text-to-slug",
-                  "Random Number": "/tools/random-number",
-                  "Dice Roller": "/tools/dice-roller",
-                  "Countdown Timer": "/tools/countdown-timer",
-                  Stopwatch: "/tools/stopwatch",
-                  "Age Calculator": "/tools/age-calculator",
-                  "Meta Tag Generator": "/tools/meta-tag-generator",
-                  "Barcode Generator": "/tools/barcode-generator",
-                  "QR Scanner": "/tools/qr-scanner",
-                  "Barcode Scanner": "/tools/barcode-scanner",
-                  "WiFi QR Generator": "/tools/wifi-qr",
-                  "PDF Splitter": "/tools/pdf-splitter",
-                  "PDF Compressor": "/tools/pdf-compressor",
-                  "PDF to Text": "/tools/pdf-to-text",
-                  "Images to PDF": "/tools/images-to-pdf",
-                  "Password Generator": "/tools/password-generator",
-                  "Base64 Encoder": "/tools/base64-encoder",
-                  "JSON to YAML": "/tools/json-to-yaml",
-                  "CSS Minifier": "/tools/css-minifier",
-                  "JavaScript Minifier": "/tools/javascript-minifier",
-                  "User Agent Parser": "/tools/user-agent-parser",
-                  "Number Base Converter": "/tools/number-base-converter",
-                };
-
-                return (
-                  <>
+        {/* Results */}
+        {result && (
+          <div className="space-y-4 md:space-y-6 animate-in fade-in duration-300">
+            {/* Location Info */}
+            <Card className="shadow-2xl border-blue-500/30 bg-slate-800/50 backdrop-blur overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white p-4 md:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                  <MapPin className="w-5 h-5" />
+                  Location Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 md:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                  {[
+                    { label: "IP Address", value: result.query, copy: true },
+                    { label: "Country", value: `${result.country} (${result.countryCode})` },
+                    { label: "Region", value: result.regionName || result.region || "N/A" },
+                    { label: "City", value: result.city || "N/A" },
+                    { label: "ZIP Code", value: result.zip || "N/A" },
+                    { label: "Timezone", value: result.timezone || "N/A" },
+                  ].map((item, idx) => (
                     <div
-                      key={index}
-                      className="animate-fade-in"
-                      style={{ animationDelay: `${index * 0.05}s` }}
-                      onClick={() => !tool.comingSoon && handleToolClick(toolPaths[tool.title] || "/")}
+                      key={idx}
+                      className="p-3 md:p-4 bg-blue-500/10 rounded-lg border border-blue-500/20 hover:border-blue-500/40 transition-colors"
                     >
-                      <ToolCard {...tool} comingSoon={tool.comingSoon} />
-                    </div>
-
-                    {/* Insert rectangle ad after every 8 tools */}
-                    {showAdAfter && (
-                      <div className="col-span-full my-4">
-                        <LazyAdSpace size="rectangle" className="mx-auto" />
+                      <p className="text-xs md:text-sm text-blue-300 font-semibold uppercase tracking-wide">
+                        {item.label}
+                      </p>
+                      <div className="flex items-center justify-between gap-2 mt-2">
+                        <p className="text-sm md:text-base font-bold text-white break-all">{item.value}</p>
+                        {item.copy && (
+                          <button
+                            onClick={() => copyToClipboard(item.value)}
+                            className="p-1 hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
+                            title="Copy to clipboard"
+                          >
+                            {copied ? (
+                              <Check className="w-4 h-4 text-green-400" />
+                            ) : (
+                              <Copy className="w-4 h-4 text-blue-400" />
+                            )}
+                          </button>
+                        )}
                       </div>
-                    )}
-                  </>
-                );
-              })}
-            </div>
-          </>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-xl text-muted-foreground mb-4">No tools found matching your search</p>
-            <button
-              onClick={() => {
-                handleSearch("");
-                handleCategoryFilter("");
-              }}
-              className="text-primary hover:underline"
-            >
-              Clear all filters
-            </button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Coordinates */}
+            <Card className="shadow-2xl border-green-500/30 bg-slate-800/50 backdrop-blur overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-4 md:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                  <Globe className="w-5 h-5" />
+                  Geographic Coordinates
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 md:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div className="p-4 md:p-6 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <p className="text-xs md:text-sm text-green-300 font-semibold uppercase tracking-wide">Latitude</p>
+                    <p className="text-lg md:text-2xl font-mono font-bold text-white mt-2">{result.lat}</p>
+                  </div>
+                  <div className="p-4 md:p-6 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <p className="text-xs md:text-sm text-green-300 font-semibold uppercase tracking-wide">Longitude</p>
+                    <p className="text-lg md:text-2xl font-mono font-bold text-white mt-2">{result.lon}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Network Info */}
+            <Card className="shadow-2xl border-purple-500/30 bg-slate-800/50 backdrop-blur overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 md:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                  <Wifi className="w-5 h-5" />
+                  Network Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 md:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                  {[
+                    { label: "ISP", value: result.isp || "N/A" },
+                    { label: "Organization", value: result.org || "N/A" },
+                    { label: "AS Number", value: result.as || "N/A" },
+                  ].map((item, idx) => (
+                    <div key={idx} className="p-3 md:p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                      <p className="text-xs md:text-sm text-purple-300 font-semibold uppercase tracking-wide">
+                        {item.label}
+                      </p>
+                      <p className="text-sm md:text-base font-mono font-bold text-white mt-2 break-all">{item.value}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Security Info */}
+            <Card className="shadow-2xl border-orange-500/30 bg-slate-800/50 backdrop-blur overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-orange-600 to-red-600 text-white p-4 md:p-6">
+                <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                  <Shield className="w-5 h-5" />
+                  Security & Connection Type
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 md:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                  {[
+                    {
+                      label: "Proxy/VPN",
+                      value: result.proxy ? "⚠️ Detected" : "✓ Not Detected",
+                      is_warning: result.proxy,
+                    },
+                    { label: "Mobile Network", value: result.mobile ? "📱 Yes" : "✓ No", is_warning: result.mobile },
+                    { label: "Data Center", value: result.hosting ? "🖥️ Yes" : "✓ No", is_warning: result.hosting },
+                  ].map((item, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-3 md:p-4 rounded-lg border-2 transition-colors ${
+                        item.is_warning ? "bg-red-500/10 border-red-500/40" : "bg-green-500/10 border-green-500/40"
+                      }`}
+                    >
+                      <p className="text-xs md:text-sm text-gray-300 font-semibold uppercase tracking-wide">
+                        {item.label}
+                      </p>
+                      <p
+                        className={`text-sm md:text-base font-bold mt-2 ${item.is_warning ? "text-red-400" : "text-green-400"}`}
+                      >
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 
-        {/* Bottom Ad - Lazy loaded */}
-        <div className="mt-12">
-          <LazyAdSpace size="leaderboard" />
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
-            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth">
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">100+</span>
+        {/* Empty State */}
+        {!result && !loading && !error && (
+          <Card className="shadow-2xl border-blue-500/20 bg-slate-800/50 backdrop-blur border-dashed">
+            <CardContent className="p-8 md:p-12 text-center">
+              <div className="p-4 bg-blue-500/10 rounded-full w-fit mx-auto mb-4">
+                <Globe className="w-12 h-12 md:w-16 md:h-16 text-blue-400" />
               </div>
-              <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Tools</p>
-            </div>
-            <div
-              className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth"
-              style={{ animationDelay: "0.1s" }}
-            >
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">1M+</span>
-              </div>
-              <p className="text-sm sm:text-base text-muted-foreground font-medium">Monthly Users</p>
-            </div>
-            <div
-              className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth"
-              style={{ animationDelay: "0.2s" }}
-            >
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">10M+</span>
-              </div>
-              <p className="text-sm sm:text-base text-muted-foreground font-medium">Files Processed</p>
-            </div>
-            <div
-              className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth"
-              style={{ animationDelay: "0.3s" }}
-            >
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">100%</span>
-              </div>
-              <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Forever</p>
-            </div>
-          </div>
-
-          {/* Ad after Stats section - Lazy loaded */}
-          <div className="mt-12">
-            <LazyAdSpace size="leaderboard" />
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <FAQ />
-
-      <Footer />
+              <p className="text-gray-300 text-base md:text-lg font-medium">Enter an IP address to begin</p>
+              <p className="text-gray-500 text-xs md:text-sm mt-2">Try: 8.8.8.8, 1.1.1.1, or 208.67.222.222</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };
 
-export default Index;
+export default IPLookup;
