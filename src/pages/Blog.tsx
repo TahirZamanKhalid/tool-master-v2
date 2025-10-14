@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
 import { BlogPostCard } from "@/components/BlogPostCard";
 import { blogPosts } from "@/data/blogPosts";
+import { LazyAdSpace } from "@/components/LazyAdSpace";
 
 const Blog = () => {
   const navigate = useNavigate();
@@ -35,12 +36,16 @@ const Blog = () => {
           <p className="text-xl text-muted-foreground mb-12">
             Tips, tutorials, and insights about our tools
           </p>
+          
+          <LazyAdSpace size="leaderboard" className="mb-8" />
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {blogPosts.map((post) => (
               <BlogPostCard key={post.id} post={post} />
             ))}
           </div>
+          
+          <LazyAdSpace size="leaderboard" className="mt-8" />
         </div>
         </div>
       </main>

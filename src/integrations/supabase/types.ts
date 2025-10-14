@@ -41,24 +41,48 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_rate_limit: {
+        Row: {
+          created_at: string
+          id: string
+          identifier: string
+          last_submission: string
+          submission_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          identifier: string
+          last_submission?: string
+          submission_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          identifier?: string
+          last_submission?: string
+          submission_count?: number
+        }
+        Relationships: []
+      }
       search_analytics: {
         Row: {
           id: string
           search_query: string
           searched_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           id?: string
           search_query: string
           searched_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           id?: string
           search_query?: string
           searched_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -69,7 +93,7 @@ export type Database = {
           id: string
           rating: number
           tool_path: string
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           comment?: string | null
@@ -77,7 +101,7 @@ export type Database = {
           id?: string
           rating: number
           tool_path: string
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           comment?: string | null
@@ -85,7 +109,7 @@ export type Database = {
           id?: string
           rating?: number
           tool_path?: string
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -93,19 +117,19 @@ export type Database = {
         Row: {
           id: string
           tool_path: string
-          user_id: string | null
+          user_id: string
           viewed_at: string | null
         }
         Insert: {
           id?: string
           tool_path: string
-          user_id?: string | null
+          user_id: string
           viewed_at?: string | null
         }
         Update: {
           id?: string
           tool_path?: string
-          user_id?: string | null
+          user_id?: string
           viewed_at?: string | null
         }
         Relationships: []
@@ -116,6 +140,10 @@ export type Database = {
     }
     Functions: {
       cleanup_old_caption_cache: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_rate_limits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }

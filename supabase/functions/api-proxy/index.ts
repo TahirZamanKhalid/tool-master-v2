@@ -6,6 +6,64 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS',
 };
 
+// SECURITY: URL allowlist for approved domains only
+const ALLOWED_DOMAINS = [
+  'api.exchangerate-api.com',
+  'api.openexchangerates.org',
+  'api.currencyapi.com',
+  'ipapi.co',
+  'ipinfo.io',
+  'api.ipify.org',
+  'api.frankfurter.app',
+];
+
+// SECURITY: Validate URL to prevent SSRF attacks
+const validateUrl = (urlString: string): { valid: boolean; error?: string } => {
+  try {
+    const parsedUrl = new URL(urlString);
+    
+    // Block non-HTTP protocols
+    if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+      return { valid: false, error: 'Only HTTP/HTTPS protocols allowed' };
+    }
+    
+    // Check against allowlist
+    const hostname = parsedUrl.hostname.toLowerCase();
+    const isAllowed = ALLOWED_DOMAINS.some(domain => 
+      hostname === domain || hostname.endsWith('.' + domain)
+    );
+    
+    if (!isAllowed) {
+      return { valid: false, error: 'Domain not in allowlist' };
+    }
+    
+    // Block private IP ranges (RFC 1918)
+    const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+    if (ipPattern.test(hostname)) {
+      const parts = hostname.split('.').map(Number);
+      // Block 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 127.0.0.0/8, 169.254.0.0/16
+      if (
+        parts[0] === 10 ||
+        parts[0] === 127 ||
+        (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) ||
+        (parts[0] === 192 && parts[1] === 168) ||
+        (parts[0] === 169 && parts[1] === 254)
+      ) {
+        return { valid: false, error: 'Private IP addresses blocked' };
+      }
+    }
+    
+    // Block localhost
+    if (hostname === 'localhost' || hostname === '0.0.0.0') {
+      return { valid: false, error: 'Localhost blocked' };
+    }
+    
+    return { valid: true };
+  } catch (e) {
+    return { valid: false, error: 'Invalid URL format' };
+  }
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -22,6 +80,16 @@ serve(async (req) => {
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
+      );
+    }
+    
+    // Validate URL for security
+    const urlValidation = validateUrl(url);
+    if (!urlValidation.valid) {
+      console.error('URL validation failed:', urlValidation.error, 'URL:', url);
+      return new Response(
+        JSON.stringify({ error: urlValidation.error }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
@@ -52,6 +53,47 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const { name, email, subject, message }: ContactEmailRequest = await req.json();
+    
+    // Rate limiting check
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Use email as identifier for rate limiting
+    const identifier = email.toLowerCase().trim();
+    
+    // Check rate limit (max 3 submissions per hour per email)
+    const { data: existingLimit } = await supabase
+      .from('contact_rate_limit')
+      .select('*')
+      .eq('identifier', identifier)
+      .gte('last_submission', new Date(Date.now() - 60 * 60 * 1000).toISOString())
+      .single();
+    
+    if (existingLimit && existingLimit.submission_count >= 3) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
+        {
+          status: 429,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+    
+    // Update or insert rate limit record
+    if (existingLimit) {
+      await supabase
+        .from('contact_rate_limit')
+        .update({ 
+          submission_count: existingLimit.submission_count + 1,
+          last_submission: new Date().toISOString()
+        })
+        .eq('id', existingLimit.id);
+    } else {
+      await supabase
+        .from('contact_rate_limit')
+        .insert({ identifier, submission_count: 1 });
+    }
 
     // Validate inputs
     const validation = validateInput({ name, email, subject, message });
