@@ -130,11 +130,7 @@ const categories = [
     color: "from-fuchsia-500 to-pink-600",
   },
 ];
-<script
-  async
-  src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7382531001943020"
-  crossorigin="anonymous"
-></script>;
+
 const popularTools = [
   {
     icon: MessageSquare,
@@ -542,7 +538,7 @@ const Index = () => {
     if (selectedCategory) params.set("category", selectedCategory);
     setSearchParams(params);
 
-    // Track search analytics
+    // Track search analytics only when search is submitted
     if (query.length >= 3) {
       trackSearch(query);
       // Scroll to search results when user searches
@@ -552,19 +548,10 @@ const Index = () => {
     }
   };
 
-  // Live search handler
-  const handleLiveSearch = (query: string) => {
-    setSearchQuery(query);
-
-    // Track search analytics for live searches too
-    if (query.length >= 3) {
-      trackSearch(query);
-      // Scroll to search results for live search
-      setTimeout(() => {
-        document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
-    }
-  };
+  // Remove the live search handler completely since we only want search on button press
+  // const handleLiveSearch = (query: string) => {
+  //   // This function is removed to prevent live search
+  // };
 
   const handleCategoryFilter = (category: string) => {
     const newCategory = category === selectedCategory ? "" : category;
@@ -616,9 +603,11 @@ const Index = () => {
         keywords="free online tools, developer tools, image tools, text tools, converters, calculators, no signup"
         canonical={window.location.origin}
       />
-      <Header searchQuery={searchQuery} onSearch={handleLiveSearch} />
+      {/* Pass empty function to prevent live search in Header */}
+      <Header searchQuery={searchQuery} onSearch={() => {}} />
 
-      <OptimizedHero searchQuery={searchQuery} onSearch={handleLiveSearch} />
+      {/* Pass handleSearch (not live search) to OptimizedHero */}
+      <OptimizedHero searchQuery={searchQuery} onSearch={handleSearch} />
 
       {/* Ad after Hero - High visibility */}
       <div className="container px-4 py-6">
