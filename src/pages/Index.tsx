@@ -615,6 +615,11 @@ const Index = () => {
       
       
       <OptimizedHero searchQuery={searchQuery} onSearch={handleLiveSearch} />
+      
+      {/* Ad after Hero - High visibility */}
+      <div className="container px-4 py-6">
+        <LazyAdSpace size="leaderboard" />
+      </div>
 
       {/* Categories Section */}
       <section className="py-16 container w-full overflow-hidden px-4">
@@ -669,6 +674,11 @@ const Index = () => {
 
           {/* Right Sidebar Ad - Desktop Only (Removed for better performance) */}
         </div>
+        
+        {/* Ad after Categories section */}
+        <div className="mt-12">
+          <LazyAdSpace size="leaderboard" />
+        </div>
       </section>
 
       {!searchQuery && !selectedCategory && <HowItWorks />}
@@ -688,8 +698,17 @@ const Index = () => {
         </div>
 
         {filteredTools.length > 0 ? (
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <>
+            {/* Ad before tools grid */}
+            <div className="mb-8">
+              <LazyAdSpace size="leaderboard" />
+            </div>
+            
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredTools.map((tool, index) => {
+              // Insert ad after every 8 tools
+              const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
+              
               const toolPaths: Record<string, string> = {
                 "AI Chat": "/tools/ai-chat",
                 "Background Remover": "/tools/background-remover",
@@ -757,17 +776,27 @@ const Index = () => {
               };
               
               return (
-                <div
-                  key={index}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                  onClick={() => !tool.comingSoon && handleToolClick(toolPaths[tool.title] || "/")}
-                >
-                  <ToolCard {...tool} comingSoon={tool.comingSoon} />
-                </div>
+                <>
+                  <div
+                    key={index}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                    onClick={() => !tool.comingSoon && handleToolClick(toolPaths[tool.title] || "/")}
+                  >
+                    <ToolCard {...tool} comingSoon={tool.comingSoon} />
+                  </div>
+                  
+                  {/* Insert rectangle ad after every 8 tools */}
+                  {showAdAfter && (
+                    <div className="col-span-full my-4">
+                      <LazyAdSpace size="rectangle" className="mx-auto" />
+                    </div>
+                  )}
+                </>
               );
             })}
           </div>
+          </>
         ) : (
           <div className="text-center py-12">
             <p className="text-xl text-muted-foreground mb-4">No tools found matching your search</p>

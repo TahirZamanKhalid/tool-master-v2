@@ -7,9 +7,24 @@ interface LazyAdSpaceProps {
   className?: string;
 }
 
+const adHeights = {
+  banner: '90px',
+  leaderboard: '90px',
+  rectangle: '250px',
+  skyscraper: '600px',
+};
+
 export const LazyAdSpace = ({ size, className }: LazyAdSpaceProps) => {
   return (
-    <Suspense fallback={<div className={`bg-muted/20 animate-pulse ${className}`} style={{ minHeight: size === 'skyscraper' ? '600px' : '90px' }} />}>
+    <Suspense 
+      fallback={
+        <div 
+          className={`bg-muted/10 animate-pulse rounded ${className}`} 
+          style={{ minHeight: adHeights[size] }}
+          aria-label="Loading advertisement"
+        />
+      }
+    >
       <AdSpace size={size} className={className} />
     </Suspense>
   );
