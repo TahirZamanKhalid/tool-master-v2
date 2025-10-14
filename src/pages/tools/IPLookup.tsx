@@ -19,85 +19,29 @@ const IPLookup = () => {
       return;
     }
 
-    // Basic IP validation
-    const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-    if (!ipRegex.test(ipAddress)) {
-      toast.error("Please enter a valid IP address");
-      return;
-    }
-
     setLoading(true);
     setResult(null);
 
     try {
-      // Option 1: Direct fetch (simpler approach)
-      const response = await fetch(`https://ipapi.co/${ipAddress}/json/`);
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.error) {
-        toast.error(data.reason || "Invalid IP address");
-        return;
-      }
-
-      setResult(data);
-      toast.success("IP lookup complete!");
-    } catch (error) {
-      console.error("IP lookup error:", error);
-
-      // Fallback API
-      try {
-        const fallbackResponse = await fetch(`http://ip-api.com/json/${ipAddress}`);
-        const fallbackData = await fallbackResponse.json();
-
-        if (fallbackData.status === "success") {
-          setResult(fallbackData);
-          toast.success("IP lookup complete!");
-        } else {
-          toast.error("Failed to lookup IP address");
-        }
-      } catch (fallbackError) {
-        console.error("Fallback IP lookup error:", fallbackError);
-        toast.error("Failed to lookup IP address");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Alternative using Supabase Edge Function (if you want to keep it)
-  const lookupIPWithSupabase = async () => {
-    if (!ipAddress) {
-      toast.error("Please enter an IP address");
-      return;
-    }
-
-    setLoading(true);
-    setResult(null);
-
-    try {
-      const { data, error } = await supabase.functions.invoke("api-proxy", {
+      // Use ip-api.com for comprehensive IP lookup (free, no API key needed)
+      const { data, error } = await supabase.functions.invoke('api-proxy', {
         body: {
-          url: `https://ipapi.co/${ipAddress}/json/`,
-          method: "GET",
-        },
+          url: `http://ip-api.com/json/${ipAddress}?fields=66846719`,
+          method: 'GET',
+        }
       });
 
       if (error) throw error;
 
-      if (data.error) {
-        toast.error(data.reason || "Invalid IP address");
+      if (data.data.status === 'fail') {
+        toast.error(data.data.message || "Invalid IP address");
         return;
       }
 
-      setResult(data);
+      setResult(data.data);
       toast.success("IP lookup complete!");
     } catch (error) {
-      console.error("IP lookup error:", error);
+      console.error('IP lookup error:', error);
       toast.error("Failed to lookup IP address");
     } finally {
       setLoading(false);
@@ -118,8 +62,7 @@ const IPLookup = () => {
               value={ipAddress}
               onChange={(e) => setIpAddress(e.target.value)}
               placeholder="Enter IP address (e.g., 8.8.8.8)"
-              onKeyDown={(e) => e.key === "Enter" && lookupIP()}
-              className="flex-1"
+              onKeyDown={(e) => e.key === 'Enter' && lookupIP()}
             />
             <Button onClick={lookupIP} disabled={loading}>
               {loading ? (
@@ -128,30 +71,25 @@ const IPLookup = () => {
                   Looking up...
                 </>
               ) : (
-                "Lookup"
+                'Lookup'
               )}
             </Button>
           </div>
-
           {result && (
             <div className="space-y-3 p-6 bg-muted/50 rounded-lg border">
               <h3 className="text-lg font-semibold mb-4">IP Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">IP Address</p>
-                  <p className="font-medium">{result.ip || result.query}</p>
+                  <p className="font-medium">{result.query}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Country</p>
-                  <p className="font-medium">
-                    {result.country_name || result.country} ({result.country_code || result.countryCode})
-                  </p>
+                  <p className="font-medium">{result.country} ({result.countryCode})</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Region</p>
-                  <p className="font-medium">
-                    {result.region || result.regionName} ({result.region_code || result.region})
-                  </p>
+                  <p className="font-medium">{result.regionName} ({result.region})</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">City</p>
@@ -159,7 +97,7 @@ const IPLookup = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">ZIP Code</p>
-                  <p className="font-medium">{result.postal || result.zip || "N/A"}</p>
+                  <p className="font-medium">{result.zip || 'N/A'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Timezone</p>
@@ -167,22 +105,36 @@ const IPLookup = () => {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Coordinates</p>
-                  <p className="font-medium">
-                    {result.latitude || result.lat}, {result.longitude || result.lon}
-                  </p>
+                  <p className="font-medium">{result.lat}, {result.lon}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">ISP</p>
-                  <p className="font-medium">{result.org || result.isp}</p>
+                  <p className="font-medium">{result.isp}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Organization</p>
+                  <p className="font-medium">{result.org}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">AS Number</p>
-                  <p className="font-medium">{result.asn || result.as || "N/A"}</p>
+                  <p className="font-medium">{result.as}</p>
                 </div>
-                {result.version && (
+                {result.mobile !== undefined && (
                   <div>
-                    <p className="text-sm text-muted-foreground">IP Version</p>
-                    <p className="font-medium">IPv{result.version}</p>
+                    <p className="text-sm text-muted-foreground">Mobile Connection</p>
+                    <p className="font-medium">{result.mobile ? 'Yes' : 'No'}</p>
+                  </div>
+                )}
+                {result.proxy !== undefined && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Proxy/VPN Detected</p>
+                    <p className="font-medium">{result.proxy ? 'Yes' : 'No'}</p>
+                  </div>
+                )}
+                {result.hosting !== undefined && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Hosting/Data Center</p>
+                    <p className="font-medium">{result.hosting ? 'Yes' : 'No'}</p>
                   </div>
                 )}
               </div>

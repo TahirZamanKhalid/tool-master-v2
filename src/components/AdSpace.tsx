@@ -1,35 +1,42 @@
-// components/AdSpace.tsx
 import { useEffect } from "react";
 
 interface AdSpaceProps {
-  adSlot: string;
+  size: "banner" | "leaderboard" | "rectangle" | "skyscraper";
   className?: string;
-  format?: "auto" | "horizontal" | "vertical" | "rectangle";
 }
 
-export const AdSpace = ({ adSlot, className = "", format = "auto" }: AdSpaceProps) => {
-  useEffect(() => {
-    // Wait for component to render then push ad
-    const timer = setTimeout(() => {
-      try {
-        // @ts-ignore
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (err) {
-        console.log("AdSense loading");
-      }
-    }, 100);
+const adSizes = {
+  banner: { width: 728, height: 90 },
+  leaderboard: { width: 970, height: 90 },
+  rectangle: { width: 300, height: 250 },
+  skyscraper: { width: 300, height: 600 },
+};
 
-    return () => clearTimeout(timer);
-  }, [adSlot]);
+export const AdSpace = ({ size, className = "" }: AdSpaceProps) => {
+  const dimensions = adSizes[size];
+
+  useEffect(() => {
+    try {
+      // @ts-ignore
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (err) {
+      console.error("AdSense error:", err);
+    }
+  }, []);
 
   return (
-    <div className={`flex justify-center ${className}`}>
+    <div className={`flex items-center justify-center overflow-hidden w-full ${className}`}>
       <ins
         className="adsbygoogle"
-        style={{ display: "block" }}
+        style={{
+          display: "block",
+          maxWidth: "100%",
+          width: "100%",
+          height: "auto",
+        }}
         data-ad-client="ca-pub-7382531001943020"
-        data-ad-slot={adSlot}
-        data-ad-format={format}
+        data-ad-slot="auto"
+        data-ad-format="auto"
         data-full-width-responsive="true"
       />
     </div>

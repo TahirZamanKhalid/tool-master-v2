@@ -537,8 +537,8 @@ const Index = () => {
     if (query) params.set("q", query);
     if (selectedCategory) params.set("category", selectedCategory);
     setSearchParams(params);
-
-    // Track search analytics only when search is submitted
+    
+    // Track search analytics
     if (query.length >= 3) {
       trackSearch(query);
       // Scroll to search results when user searches
@@ -548,10 +548,19 @@ const Index = () => {
     }
   };
 
-  // Remove the live search handler completely since we only want search on button press
-  // const handleLiveSearch = (query: string) => {
-  //   // This function is removed to prevent live search
-  // };
+  // Live search handler
+  const handleLiveSearch = (query: string) => {
+    setSearchQuery(query);
+    
+    // Track search analytics for live searches too
+    if (query.length >= 3) {
+      trackSearch(query);
+      // Scroll to search results for live search
+      setTimeout(() => {
+        document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  };
 
   const handleCategoryFilter = (category: string) => {
     const newCategory = category === selectedCategory ? "" : category;
@@ -560,7 +569,7 @@ const Index = () => {
     const params = new URLSearchParams();
     if (newCategory) params.set("category", newCategory);
     setSearchParams(params);
-
+    
     // Scroll to search results section
     if (newCategory) {
       setTimeout(() => {
@@ -571,19 +580,18 @@ const Index = () => {
 
   // Count tools per category
   const getToolCountByCategory = (categoryName: string) => {
-    return popularTools.filter((tool) => tool.category === categoryName).length;
+    return popularTools.filter(tool => tool.category === categoryName).length;
   };
 
   const filteredTools = useMemo(() => {
     return popularTools.filter((tool) => {
-      const matchesSearch =
-        !searchQuery ||
+      const matchesSearch = !searchQuery || 
         tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         tool.category.toLowerCase().includes(searchQuery.toLowerCase());
-
+      
       const matchesCategory = !selectedCategory || tool.category === selectedCategory;
-
+      
       return matchesSearch && matchesCategory;
     });
   }, [searchQuery, selectedCategory]);
@@ -597,18 +605,17 @@ const Index = () => {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
-      <SEOHead
+      <SEOHead 
         title="ToolMaster Pro"
         description="Access 100+ free online tools for developers, designers, and content creators. No signup required. Image tools, text converters, calculators, and more."
         keywords="free online tools, developer tools, image tools, text tools, converters, calculators, no signup"
         canonical={window.location.origin}
       />
-      {/* Pass empty function to prevent live search in Header */}
-      <Header searchQuery={searchQuery} onSearch={() => {}} />
-
-      {/* Pass handleSearch (not live search) to OptimizedHero */}
-      <OptimizedHero searchQuery={searchQuery} onSearch={handleSearch} />
-
+      <Header searchQuery={searchQuery} onSearch={handleLiveSearch} />
+      
+      
+      <OptimizedHero searchQuery={searchQuery} onSearch={handleLiveSearch} />
+      
       {/* Ad after Hero - High visibility */}
       <div className="container px-4 py-6">
         <LazyAdSpace size="leaderboard" />
@@ -628,33 +635,36 @@ const Index = () => {
           {/* Main Content */}
           <div className="flex-1 max-w-6xl">
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {categories.map((category, index) => {
-                const toolCount = getToolCountByCategory(category.title);
-                const comingSoon = toolCount === 0;
-
-                return (
-                  <div
-                    key={index}
-                    className="animate-scale-in cursor-pointer"
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                    onClick={() => !comingSoon && handleCategoryFilter(category.title)}
-                  >
-                    <CategoryCard
-                      {...category}
-                      toolCount={toolCount}
-                      isSelected={selectedCategory === category.title}
-                      comingSoon={comingSoon}
-                    />
-                  </div>
-                );
-              })}
+          {categories.map((category, index) => {
+            const toolCount = getToolCountByCategory(category.title);
+            const comingSoon = toolCount === 0;
+            
+            return (
+              <div
+                key={index}
+                className="animate-scale-in cursor-pointer"
+                style={{ animationDelay: `${index * 0.05}s` }}
+                onClick={() => !comingSoon && handleCategoryFilter(category.title)}
+              >
+                <CategoryCard 
+                  {...category}
+                  toolCount={toolCount}
+                  isSelected={selectedCategory === category.title}
+                  comingSoon={comingSoon}
+                />
+              </div>
+            );
+          })}
             </div>
 
             {selectedCategory && (
               <div className="text-center mb-8">
                 <p className="text-lg text-muted-foreground">
                   Showing tools in <span className="font-semibold text-foreground">{selectedCategory}</span>
-                  <button onClick={() => handleCategoryFilter("")} className="ml-2 text-primary hover:underline">
+                  <button 
+                    onClick={() => handleCategoryFilter("")}
+                    className="ml-2 text-primary hover:underline"
+                  >
                     Clear filter
                   </button>
                 </p>
@@ -664,7 +674,7 @@ const Index = () => {
 
           {/* Right Sidebar Ad - Desktop Only (Removed for better performance) */}
         </div>
-
+        
         {/* Ad after Categories section */}
         <div className="mt-12">
           <LazyAdSpace size="leaderboard" />
@@ -680,9 +690,10 @@ const Index = () => {
             {searchQuery || selectedCategory ? "Search Results" : "Popular Tools"}
           </h2>
           <p className="text-muted-foreground text-lg">
-            {searchQuery || selectedCategory
-              ? `Found ${filteredTools.length} tool${filteredTools.length !== 1 ? "s" : ""}`
-              : "Most used tools by our community"}
+            {searchQuery || selectedCategory 
+              ? `Found ${filteredTools.length} tool${filteredTools.length !== 1 ? 's' : ''}`
+              : "Most used tools by our community"
+            }
           </p>
         </div>
 
@@ -692,99 +703,99 @@ const Index = () => {
             <div className="mb-8">
               <LazyAdSpace size="leaderboard" />
             </div>
-
+            
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredTools.map((tool, index) => {
-                // Insert ad after every 8 tools
-                const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
-
-                const toolPaths: Record<string, string> = {
-                  "AI Chat": "/tools/ai-chat",
-                  "Background Remover": "/tools/background-remover",
-                  "QR Code Generator": "/tools/qr-code-generator",
-                  "PDF Merger": "/tools/pdf-merger",
-                  "Word Counter": "/tools/word-counter",
-                  "Image Compressor": "/tools/image-compressor",
-                  "Currency Converter": "/tools/currency-converter",
-                  "Text to Speech": "/tools/text-to-speech",
-                  "JSON Formatter": "/tools/json-formatter",
-                  "Caption Generator": "/tools/caption-generator",
-                  "Color Picker": "/tools/color-picker",
-                  "AI Writing Assistant": "/tools/ai-writing",
-                  "URL Encoder": "/tools/url-encoder",
-                  "Hash Generator": "/tools/hash-generator",
-                  "UUID Generator": "/tools/uuid-generator",
-                  "Case Converter": "/tools/case-converter",
-                  "Markdown Preview": "/tools/markdown-preview",
-                  "HTML Encoder": "/tools/html-encoder",
-                  "Lorem Ipsum": "/tools/lorem-ipsum",
-                  "Timestamp Converter": "/tools/timestamp-converter",
-                  "Text Diff": "/tools/text-diff",
-                  "Regex Tester": "/tools/regex-tester",
-                  "Code Beautifier": "/tools/code-beautifier",
-                  "Unit Converter": "/tools/unit-converter",
-                  "Percentage Calculator": "/tools/percentage-calculator",
-                  "BMI Calculator": "/tools/bmi-calculator",
-                  "Image Resizer": "/tools/image-resizer",
-                  "Image Cropper": "/tools/image-cropper",
-                  "Meme Generator": "/tools/meme-generator",
-                  "ASCII Art Generator": "/tools/ascii-art",
-                  "CSV to JSON": "/tools/csv-to-json",
-                  "JSON to CSV": "/tools/json-to-csv",
-                  "XML Formatter": "/tools/xml-formatter",
-                  "YAML Formatter": "/tools/yaml-formatter",
-                  "SQL Formatter": "/tools/sql-formatter",
-                  "IP Lookup": "/tools/ip-lookup",
-                  "API Tester": "/tools/api-tester",
-                  "Password Strength": "/tools/password-strength",
-                  "Base64 Image Encoder": "/tools/base64-image",
-                  "Color Converter": "/tools/color-converter",
-                  "Gradient Generator": "/tools/gradient-generator",
-                  "Text to Slug": "/tools/text-to-slug",
-                  "Random Number": "/tools/random-number",
-                  "Dice Roller": "/tools/dice-roller",
-                  "Countdown Timer": "/tools/countdown-timer",
-                  Stopwatch: "/tools/stopwatch",
-                  "Age Calculator": "/tools/age-calculator",
-                  "Meta Tag Generator": "/tools/meta-tag-generator",
-                  "Barcode Generator": "/tools/barcode-generator",
-                  "QR Scanner": "/tools/qr-scanner",
-                  "Barcode Scanner": "/tools/barcode-scanner",
-                  "WiFi QR Generator": "/tools/wifi-qr",
-                  "PDF Splitter": "/tools/pdf-splitter",
-                  "PDF Compressor": "/tools/pdf-compressor",
-                  "PDF to Text": "/tools/pdf-to-text",
-                  "Images to PDF": "/tools/images-to-pdf",
-                  "Password Generator": "/tools/password-generator",
-                  "Base64 Encoder": "/tools/base64-encoder",
-                  "JSON to YAML": "/tools/json-to-yaml",
-                  "CSS Minifier": "/tools/css-minifier",
-                  "JavaScript Minifier": "/tools/javascript-minifier",
-                  "User Agent Parser": "/tools/user-agent-parser",
-                  "Number Base Converter": "/tools/number-base-converter",
-                };
-
-                return (
-                  <>
-                    <div
-                      key={index}
-                      className="animate-fade-in"
-                      style={{ animationDelay: `${index * 0.05}s` }}
-                      onClick={() => !tool.comingSoon && handleToolClick(toolPaths[tool.title] || "/")}
-                    >
-                      <ToolCard {...tool} comingSoon={tool.comingSoon} />
+            {filteredTools.map((tool, index) => {
+              // Insert ad after every 8 tools
+              const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
+              
+              const toolPaths: Record<string, string> = {
+                "AI Chat": "/tools/ai-chat",
+                "Background Remover": "/tools/background-remover",
+                "QR Code Generator": "/tools/qr-code-generator",
+                "PDF Merger": "/tools/pdf-merger",
+                "Word Counter": "/tools/word-counter",
+                "Image Compressor": "/tools/image-compressor",
+                "Currency Converter": "/tools/currency-converter",
+                "Text to Speech": "/tools/text-to-speech",
+                "JSON Formatter": "/tools/json-formatter",
+                "Caption Generator": "/tools/caption-generator",
+                "Color Picker": "/tools/color-picker",
+                "AI Writing Assistant": "/tools/ai-writing",
+                "URL Encoder": "/tools/url-encoder",
+                "Hash Generator": "/tools/hash-generator",
+                "UUID Generator": "/tools/uuid-generator",
+                "Case Converter": "/tools/case-converter",
+                "Markdown Preview": "/tools/markdown-preview",
+                "HTML Encoder": "/tools/html-encoder",
+                "Lorem Ipsum": "/tools/lorem-ipsum",
+                "Timestamp Converter": "/tools/timestamp-converter",
+                "Text Diff": "/tools/text-diff",
+                "Regex Tester": "/tools/regex-tester",
+                "Code Beautifier": "/tools/code-beautifier",
+                "Unit Converter": "/tools/unit-converter",
+                "Percentage Calculator": "/tools/percentage-calculator",
+                "BMI Calculator": "/tools/bmi-calculator",
+                "Image Resizer": "/tools/image-resizer",
+                "Image Cropper": "/tools/image-cropper",
+                "Meme Generator": "/tools/meme-generator",
+                "ASCII Art Generator": "/tools/ascii-art",
+                "CSV to JSON": "/tools/csv-to-json",
+                "JSON to CSV": "/tools/json-to-csv",
+                "XML Formatter": "/tools/xml-formatter",
+                "YAML Formatter": "/tools/yaml-formatter",
+                "SQL Formatter": "/tools/sql-formatter",
+                "IP Lookup": "/tools/ip-lookup",
+                "API Tester": "/tools/api-tester",
+                "Password Strength": "/tools/password-strength",
+                "Base64 Image Encoder": "/tools/base64-image",
+                "Color Converter": "/tools/color-converter",
+                "Gradient Generator": "/tools/gradient-generator",
+                "Text to Slug": "/tools/text-to-slug",
+                "Random Number": "/tools/random-number",
+                "Dice Roller": "/tools/dice-roller",
+                "Countdown Timer": "/tools/countdown-timer",
+                "Stopwatch": "/tools/stopwatch",
+                "Age Calculator": "/tools/age-calculator",
+                "Meta Tag Generator": "/tools/meta-tag-generator",
+                "Barcode Generator": "/tools/barcode-generator",
+                "QR Scanner": "/tools/qr-scanner",
+                "Barcode Scanner": "/tools/barcode-scanner",
+                "WiFi QR Generator": "/tools/wifi-qr",
+                "PDF Splitter": "/tools/pdf-splitter",
+                "PDF Compressor": "/tools/pdf-compressor",
+                "PDF to Text": "/tools/pdf-to-text",
+                "Images to PDF": "/tools/images-to-pdf",
+                "Password Generator": "/tools/password-generator",
+                "Base64 Encoder": "/tools/base64-encoder",
+                "JSON to YAML": "/tools/json-to-yaml",
+                "CSS Minifier": "/tools/css-minifier",
+                "JavaScript Minifier": "/tools/javascript-minifier",
+                "User Agent Parser": "/tools/user-agent-parser",
+                "Number Base Converter": "/tools/number-base-converter",
+              };
+              
+              return (
+                <>
+                  <div
+                    key={index}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                    onClick={() => !tool.comingSoon && handleToolClick(toolPaths[tool.title] || "/")}
+                  >
+                    <ToolCard {...tool} comingSoon={tool.comingSoon} />
+                  </div>
+                  
+                  {/* Insert rectangle ad after every 8 tools */}
+                  {showAdAfter && (
+                    <div className="col-span-full my-4">
+                      <LazyAdSpace size="rectangle" className="mx-auto" />
                     </div>
-
-                    {/* Insert rectangle ad after every 8 tools */}
-                    {showAdAfter && (
-                      <div className="col-span-full my-4">
-                        <LazyAdSpace size="rectangle" className="mx-auto" />
-                      </div>
-                    )}
-                  </>
-                );
-              })}
-            </div>
+                  )}
+                </>
+              );
+            })}
+          </div>
           </>
         ) : (
           <div className="text-center py-12">
@@ -813,34 +824,33 @@ const Index = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
             <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth">
               <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">100+</span>
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  100+
+                </span>
               </div>
               <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Tools</p>
             </div>
-            <div
-              className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth"
-              style={{ animationDelay: "0.1s" }}
-            >
+            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.1s" }}>
               <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">1M+</span>
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  1M+
+                </span>
               </div>
               <p className="text-sm sm:text-base text-muted-foreground font-medium">Monthly Users</p>
             </div>
-            <div
-              className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth"
-              style={{ animationDelay: "0.2s" }}
-            >
+            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.2s" }}>
               <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">10M+</span>
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  10M+
+                </span>
               </div>
               <p className="text-sm sm:text-base text-muted-foreground font-medium">Files Processed</p>
             </div>
-            <div
-              className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth"
-              style={{ animationDelay: "0.3s" }}
-            >
+            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.3s" }}>
               <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">100%</span>
+                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  100%
+                </span>
               </div>
               <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Forever</p>
             </div>

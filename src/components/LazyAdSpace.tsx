@@ -1,46 +1,31 @@
 import { lazy, Suspense } from "react";
 
-const AdSpace = lazy(() => import("./AdSpace").then((module) => ({ default: module.AdSpace })));
+const AdSpace = lazy(() => import("./AdSpace").then(module => ({ default: module.AdSpace })));
 
 interface LazyAdSpaceProps {
-  adSlot: string;
+  size: "banner" | "leaderboard" | "rectangle" | "skyscraper";
   className?: string;
-  format?: "auto" | "horizontal" | "vertical" | "rectangle";
 }
 
 const adHeights = {
-  banner: "90px",
-  leaderboard: "90px",
-  rectangle: "250px",
-  skyscraper: "600px",
+  banner: '90px',
+  leaderboard: '90px',
+  rectangle: '250px',
+  skyscraper: '600px',
 };
 
-// Helper to determine ad height based on format
-const getAdHeight = (format: string) => {
-  switch (format) {
-    case "horizontal":
-      return "90px";
-    case "vertical":
-      return "600px";
-    case "rectangle":
-      return "250px";
-    default:
-      return "90px"; // auto
-  }
-};
-
-export const LazyAdSpace = ({ adSlot, className, format = "auto" }: LazyAdSpaceProps) => {
+export const LazyAdSpace = ({ size, className }: LazyAdSpaceProps) => {
   return (
-    <Suspense
+    <Suspense 
       fallback={
-        <div
-          className={`bg-muted/10 animate-pulse rounded ${className}`}
-          style={{ minHeight: getAdHeight(format) }}
+        <div 
+          className={`bg-muted/10 animate-pulse rounded ${className}`} 
+          style={{ minHeight: adHeights[size] }}
           aria-label="Loading advertisement"
         />
       }
     >
-      <AdSpace adSlot={adSlot} className={className} format={format} />
+      <AdSpace size={size} className={className} />
     </Suspense>
   );
 };
