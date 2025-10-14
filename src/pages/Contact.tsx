@@ -169,5 +169,17 @@ const Contact = () => {
     </div>
   );
 };
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7382531001943020"
+     crossorigin="anonymous"></script>
+<!-- Side bar Ads1 -->
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-7382531001943020"
+     data-ad-slot="5628599414"
+     data-ad-format="auto"
+     data-full-width-responsive="true"></ins>
+<script>
+     (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
 
 export default Contact;
