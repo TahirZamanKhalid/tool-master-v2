@@ -66,6 +66,8 @@ export const ToolRating = ({ toolPath }: ToolRatingProps) => {
 
     // Create anonymous session ID if no user
     let userIdentifier = user?.id;
+    const anonymousUserId = '00000000-0000-0000-0000-000000000000';
+    
     if (!userIdentifier) {
       // Use localStorage to create a persistent anonymous ID
       let anonId = localStorage.getItem('toolmaster_anon_id');
@@ -102,9 +104,10 @@ export const ToolRating = ({ toolPath }: ToolRatingProps) => {
         .insert({
           tool_path: toolPath,
           user_identifier: userIdentifier,
+          user_id: user?.id || anonymousUserId,
           rating,
           comment: comment.trim() || null,
-        } as any);
+        });
       error = result.error;
     }
 
