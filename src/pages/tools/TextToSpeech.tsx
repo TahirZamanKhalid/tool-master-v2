@@ -49,19 +49,31 @@ const TextToSpeech = () => {
     const loadFFmpeg = async () => {
       const ffmpeg = ffmpegRef.current;
       try {
-        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+        console.log('Loading FFmpeg...');
+        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.15/dist/esm';
+        
         await ffmpeg.load({
           coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
           wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
         });
+        
         setFfmpegLoaded(true);
-        console.log('FFmpeg loaded successfully');
+        console.log('FFmpeg loaded successfully!');
+        toast.success('Audio converter ready!');
       } catch (error) {
-        console.error('Error loading FFmpeg:', error);
-        toast.error('Audio converter failed to load. MP3 download may not work.');
+        console.error('FFmpeg load error:', error);
+        // FFmpeg failed to load, but we can still offer WebM/OGG downloads
+        setFfmpegLoaded(false);
+        toast.info('MP3/WAV converter unavailable. You can still download as OGG format.');
       }
     };
-    loadFFmpeg();
+    
+    // Add a small delay before loading
+    const timer = setTimeout(() => {
+      loadFFmpeg();
+    }, 1000);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const speak = () => {
@@ -197,13 +209,24 @@ const TextToSpeech = () => {
     setIsConverting(true);
 
     try {
-      if (downloadFormat === 'mp3' || downloadFormat === 'wav') {
-        if (!ffmpegLoaded) {
-          toast.error("Audio converter not ready. Try OGG format or wait a moment.");
-          setIsConverting(false);
-          return;
-        }
+      // If MP3/WAV requested but FFmpeg not available, fallback to OGG
+      if ((downloadFormat === 'mp3' || downloadFormat === 'wav') && !ffmpegLoaded) {
+        toast.warning(`FFmpeg unavailable. Downloading as OGG instead of ${downloadFormat.toUpperCase()}.`);
+        
+        const url = URL.createObjectURL(audioBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `text-to-speech.ogg`;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        toast.success("Audio downloaded as OGG!");
+        setIsConverting(false);
+        setShowAdOverlay(false);
+        return;
+      }
 
+      if (downloadFormat === 'mp3' || downloadFormat === 'wav') {
         // Convert using FFmpeg
         const ffmpeg = ffmpegRef.current;
         
@@ -243,7 +266,15 @@ const TextToSpeech = () => {
       }
     } catch (error) {
       console.error("Conversion error:", error);
-      toast.error("Failed to convert audio. Try OGG format.");
+      toast.error("Conversion failed. Downloading as OGG instead.");
+      
+      // Fallback to direct download
+      const url = URL.createObjectURL(audioBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `text-to-speech.ogg`;
+      link.click();
+      URL.revokeObjectURL(url);
     } finally {
       setIsConverting(false);
       setShowAdOverlay(false);
@@ -380,14 +411,20 @@ const TextToSpeech = () => {
 
               <Button 
                 onClick={generateAudioForDownload}
-                disabled={!text.trim() || !ffmpegLoaded}
+                disabled={!text.trim()}
                 variant="secondary"
                 size="lg"
                 className="w-full"
               >
                 <Download className="h-4 w-4 mr-2" />
-                {ffmpegLoaded ? 'Download Audio (Watch Ad)' : 'Loading converter...'}
+                {!ffmpegLoaded ? 'Download Audio (OGG only)' : 'Download Audio (Watch Ad)'}
               </Button>
+              
+              {!ffmpegLoaded && (
+                <p className="text-xs text-muted-foreground text-center">
+                  MP3/WAV converter unavailable. Downloads will be in OGG format.
+                </p>
+              )}
             </div>
 
             <div className="text-xs text-muted-foreground p-3 bg-muted rounded-lg space-y-1">
