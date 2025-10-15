@@ -241,7 +241,7 @@ const BackgroundRemover = () => {
       {showAdOverlay && (
         <ProcessingOverlay
           message="Processing complete! Please view the ad to enable download."
-          adViewTime={10}
+          minAdViewTime={5}
           onAdComplete={handleAdComplete}
           showSkip={canDownload}
           onSkip={() => setShowAdOverlay(false)}

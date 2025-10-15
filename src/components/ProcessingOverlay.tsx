@@ -1,13 +1,13 @@
 import { Loader2 } from "lucide-react";
 import { AdSpace } from "./AdSpace";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface ProcessingOverlayProps {
   message?: string;
   progress?: number;
   onSkip?: () => void;
   showSkip?: boolean;
-  adViewTime?: number; // Time in seconds user must view ad
+  minAdViewTime?: number; // Minimum time in seconds
   onAdComplete?: () => void;
 }
 
@@ -16,14 +16,44 @@ export const ProcessingOverlay = ({
   progress,
   onSkip,
   showSkip = false,
-  adViewTime = 10,
+  minAdViewTime = 5, // Minimum 5 seconds to ensure ad loads
   onAdComplete,
 }: ProcessingOverlayProps) => {
-  const [adTimer, setAdTimer] = useState(adViewTime);
+  const [adTimer, setAdTimer] = useState(minAdViewTime);
   const [adViewed, setAdViewed] = useState(false);
+  const [adLoaded, setAdLoaded] = useState(false);
+  const adCheckInterval = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    if (adViewTime > 0 && !adViewed) {
+    // Check if AdSense ad has loaded
+    const checkAdLoaded = () => {
+      const adElements = document.querySelectorAll('.adsbygoogle');
+      for (const ad of adElements) {
+        const iframe = ad.querySelector('iframe');
+        if (iframe && iframe.getAttribute('data-ad-status') === 'filled') {
+          setAdLoaded(true);
+          return true;
+        }
+      }
+      return false;
+    };
+
+    // Start checking for ad load
+    adCheckInterval.current = setInterval(() => {
+      if (checkAdLoaded()) {
+        clearInterval(adCheckInterval.current);
+      }
+    }, 500);
+
+    return () => {
+      if (adCheckInterval.current) {
+        clearInterval(adCheckInterval.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (minAdViewTime > 0 && !adViewed) {
       const interval = setInterval(() => {
         setAdTimer((prev) => {
           if (prev <= 1) {
@@ -38,7 +68,7 @@ export const ProcessingOverlay = ({
 
       return () => clearInterval(interval);
     }
-  }, [adViewTime, adViewed, onAdComplete]);
+  }, [minAdViewTime, adViewed, onAdComplete]);
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
       <div className="bg-card border shadow-card-hover rounded-lg p-8 max-w-md w-full mx-4 space-y-6">
@@ -60,11 +90,20 @@ export const ProcessingOverlay = ({
 
         {/* Ad Display Area */}
         <div className="space-y-3">
-          <AdSpace size="rectangle" />
-          {adViewTime > 0 && !adViewed && (
-            <p className="text-center text-sm text-muted-foreground">
-              Please wait {adTimer}s to continue...
-            </p>
+          <div className="min-h-[250px] flex items-center justify-center">
+            <AdSpace size="rectangle" />
+          </div>
+          {minAdViewTime > 0 && !adViewed && (
+            <div className="text-center space-y-1">
+              <p className="text-sm text-muted-foreground">
+                Please wait {adTimer}s to continue...
+              </p>
+              {!adLoaded && (
+                <p className="text-xs text-muted-foreground/70">
+                  Loading advertisement...
+                </p>
+              )}
+            </div>
           )}
         </div>
 

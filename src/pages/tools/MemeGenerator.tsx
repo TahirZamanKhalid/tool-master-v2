@@ -110,7 +110,7 @@ const MemeGenerator = () => {
       {showAdOverlay && (
         <ProcessingOverlay
           message="Meme ready! Please view the ad to enable download."
-          adViewTime={8}
+          minAdViewTime={5}
           onAdComplete={handleAdComplete}
           showSkip={canDownload}
           onSkip={() => setShowAdOverlay(false)}

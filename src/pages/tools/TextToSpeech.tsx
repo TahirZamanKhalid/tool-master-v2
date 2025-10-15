@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { Volume2, Pause, StopCircle } from "lucide-react";
+import { Volume2, Pause, StopCircle, Download } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 
 const TextToSpeech = () => {
   const [text, setText] = useState("");
@@ -16,6 +17,9 @@ const TextToSpeech = () => {
   const [rate, setRate] = useState([1]);
   const [pitch, setPitch] = useState([1]);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [showAdOverlay, setShowAdOverlay] = useState(false);
+  const [canDownload, setCanDownload] = useState(false);
 
   useEffect(() => {
     const loadVoices = () => {
@@ -68,6 +72,76 @@ const TextToSpeech = () => {
   const stop = () => {
     speechSynthesis.cancel();
     setIsSpeaking(false);
+  };
+
+  const generateAudioForDownload = async () => {
+    if (!text.trim()) {
+      toast.error("Please enter some text");
+      return;
+    }
+
+    // Show ad overlay first
+    setShowAdOverlay(true);
+    setCanDownload(false);
+
+    // Generate audio in background while user watches ad
+    try {
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voice = voices.find(v => v.name === selectedVoice);
+      
+      if (voice) utterance.voice = voice;
+      utterance.rate = rate[0];
+      utterance.pitch = pitch[0];
+
+      // Create audio context to capture the speech
+      const audioContext = new AudioContext();
+      const destination = audioContext.createMediaStreamDestination();
+      const mediaRecorder = new MediaRecorder(destination.stream);
+      const chunks: BlobPart[] = [];
+
+      mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        setAudioBlob(blob);
+      };
+
+      mediaRecorder.start();
+      
+      utterance.onend = () => {
+        setTimeout(() => {
+          mediaRecorder.stop();
+          audioContext.close();
+        }, 500);
+      };
+
+      speechSynthesis.speak(utterance);
+    } catch (error) {
+      console.error("Audio generation error:", error);
+      toast.error("Failed to generate audio");
+      setShowAdOverlay(false);
+    }
+  };
+
+  const handleAdComplete = () => {
+    setCanDownload(true);
+    toast.success("You can now download your audio!");
+  };
+
+  const downloadAudio = () => {
+    if (!audioBlob) {
+      toast.error("No audio available");
+      return;
+    }
+
+    const url = URL.createObjectURL(audioBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "text-to-speech.webm";
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    toast.success("Audio downloaded!");
+    setShowAdOverlay(false);
   };
 
   return (
@@ -175,6 +249,17 @@ const TextToSpeech = () => {
               </Button>
             </div>
 
+            <Button 
+              onClick={generateAudioForDownload}
+              disabled={!text.trim()}
+              variant="secondary"
+              size="lg"
+              className="w-full"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download Audio (Watch Ad)
+            </Button>
+
             <div className="text-xs text-muted-foreground p-3 bg-muted rounded-lg">
               <strong>100% Free:</strong> This tool uses your browser's built-in speech synthesis.
               No API keys required, works offline, and completely free to use!
@@ -182,6 +267,16 @@ const TextToSpeech = () => {
           </CardContent>
         </Card>
       </ToolLayout>
+
+      {showAdOverlay && (
+        <ProcessingOverlay
+          message="Generating your audio... Please view the ad to enable download."
+          minAdViewTime={5}
+          onAdComplete={handleAdComplete}
+          showSkip={canDownload}
+          onSkip={canDownload ? downloadAudio : undefined}
+        />
+      )}
     </>
   );
 };
