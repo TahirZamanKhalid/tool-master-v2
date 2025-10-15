@@ -96,7 +96,7 @@ export type Database = {
           id: string
           rating: number
           tool_path: string
-          user_id: string
+          user_id: string | null
           user_identifier: string
         }
         Insert: {
@@ -105,7 +105,7 @@ export type Database = {
           id?: string
           rating: number
           tool_path: string
-          user_id: string
+          user_id?: string | null
           user_identifier: string
         }
         Update: {
@@ -114,7 +114,7 @@ export type Database = {
           id?: string
           rating?: number
           tool_path?: string
-          user_id?: string
+          user_id?: string | null
           user_identifier?: string
         }
         Relationships: []
