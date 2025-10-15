@@ -117,80 +117,62 @@ const TextToSpeech = () => {
       toast.error("Please enter some text");
       return;
     }
-    
-    // Show ad overlay first
+
+    // Show ad overlay first (audio will generate in background)
     setShowAdOverlay(true);
     setCanDownload(false);
 
-    // Generate audio using MediaRecorder
     try {
+      // 1) Capture TAB audio (requires choosing "This Tab" and checking "Share tab audio")
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: true,
+        audio: true,
+      });
+
+      if (!stream.getAudioTracks().length) {
+        toast.error("No tab audio detected. In the share dialog, select 'This Tab' and enable 'Share tab audio'.");
+        setShowAdOverlay(false);
+        stream.getTracks().forEach(t => t.stop());
+        return;
+      }
+
+      const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+        ? 'audio/webm;codecs=opus'
+        : 'audio/webm';
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
+      const chunks: BlobPart[] = [];
+
+      mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        setAudioBlob(blob);
+        // Stop tracks
+        stream.getTracks().forEach(t => t.stop());
+      };
+
+      mediaRecorder.start();
+
+      // 2) Speak the text with selected voice (will play through tab audio)
       const utterance = new SpeechSynthesisUtterance(text);
       const voice = voices.find(v => v.name === selectedVoice);
-      
       if (voice) utterance.voice = voice;
       utterance.rate = rate[0];
       utterance.pitch = pitch[0];
 
-      // Create audio context and destination
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const dest = audioContext.createMediaStreamDestination();
-      
-      // Create oscillator to generate a silent tone (keeps the stream active)
-      const oscillator = audioContext.createOscillator();
-      oscillator.frequency.value = 0;
-      oscillator.connect(dest);
-      oscillator.start();
-
-      let mediaRecorder: MediaRecorder;
-      const chunks: BlobPart[] = [];
-      
-      try {
-        mediaRecorder = new MediaRecorder(dest.stream, { 
-          mimeType: 'audio/webm;codecs=opus' 
-        });
-      } catch {
-        toast.error("Your browser doesn't support audio recording.");
-        setShowAdOverlay(false);
-        audioContext.close();
-        return;
-      }
-
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
-      };
-      
-      mediaRecorder.onstop = async () => {
-        oscillator.stop();
-        await audioContext.close();
-        
-        if (chunks.length > 0) {
-          const webmBlob = new Blob(chunks, { type: 'audio/webm' });
-          setAudioBlob(webmBlob);
-          toast.success("Audio captured! Converting to your selected format...");
-        } else {
-          toast.error("No audio captured.");
-          setShowAdOverlay(false);
-        }
-      };
-
-      mediaRecorder.start();
-      
       utterance.onend = () => {
-        setTimeout(() => {
-          mediaRecorder.stop();
-        }, 500);
+        // Small delay to make sure recorder flushes last chunk
+        setTimeout(() => mediaRecorder.stop(), 200);
       };
-
       utterance.onerror = () => {
-        mediaRecorder.stop();
+        try { mediaRecorder.stop(); } catch {}
         toast.error("Speech synthesis failed");
         setShowAdOverlay(false);
       };
 
       speechSynthesis.speak(utterance);
     } catch (error) {
-      console.error("Audio generation error:", error);
-      toast.error("Failed to generate audio");
+      console.error("Audio capture error:", error);
+      toast.error("Please select 'This Tab' and enable 'Share tab audio' in the picker.");
       setShowAdOverlay(false);
     }
   };
@@ -430,6 +412,7 @@ const TextToSpeech = () => {
             <div className="text-xs text-muted-foreground p-3 bg-muted rounded-lg space-y-1">
               <p><strong>✅ Free MP3/WAV/OGG Downloads:</strong> Powered by FFmpeg in your browser</p>
               <p><strong>🎙️ Voice Cloning:</strong> Record your voice → Custom TTS (requires ElevenLabs API)</p>
+              <p>Tip: When prompted, choose <strong>This Tab</strong> and enable <strong>Share tab audio</strong> to capture the voice.</p>
               <p className="text-primary">Current: Browser voices only. Want YOUR voice? Get ElevenLabs!</p>
             </div>
           </CardContent>
@@ -438,11 +421,11 @@ const TextToSpeech = () => {
 
       {showAdOverlay && (
         <ProcessingOverlay
-          message={isConverting ? `Converting to ${downloadFormat.toUpperCase()}...` : "Generating your audio... Please view the ad to enable download."}
+          message={isConverting ? `Converting to ${downloadFormat.toUpperCase()}...` : (audioBlob ? "Ready to download. Please close when the ad finishes." : "Capturing tab audio... Please view the ad to enable download.")}
           minAdViewTime={5}
           onAdComplete={handleAdComplete}
-          showSkip={canDownload && !isConverting}
-          onSkip={canDownload && !isConverting ? downloadAudio : undefined}
+          showSkip={canDownload && !!audioBlob && !isConverting}
+          onSkip={canDownload && !!audioBlob && !isConverting ? downloadAudio : undefined}
         />
       )}
     </>
