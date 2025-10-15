@@ -81,6 +81,8 @@ import MarkdownToHTML from "./pages/tools/MarkdownToHTML";
 import ImageToBase64 from "./pages/tools/ImageToBase64";
 import TextToSpeech from "./pages/tools/TextToSpeech";
 import MorseCodeTranslator from "./pages/tools/MorseCodeTranslator";
+import VideoTrimmer from "./pages/tools/VideoTrimmer";
+import VideoToGIF from "./pages/tools/VideoToGIF";
 import CreditCardValidator from "./pages/tools/CreditCardValidator";
 import RomanNumeralConverter from "./pages/tools/RomanNumeralConverter";
 import LoremIpsumAdvanced from "./pages/tools/LoremIpsumAdvanced";
@@ -171,6 +173,8 @@ const App = () => (
         <Route path="/tools/lorem-ipsum-pro" element={<LoremIpsumAdvanced />} />
         <Route path="/tools/json-minifier" element={<JSONMinifier />} />
         <Route path="/tools/html-minifier" element={<HTMLMinifier />} />
+        <Route path="/tools/video-trimmer" element={<VideoTrimmer />} />
+        <Route path="/tools/video-to-gif" element={<VideoToGIF />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />

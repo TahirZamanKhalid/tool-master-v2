@@ -1,28 +1,60 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { Volume2, Square } from "lucide-react";
+import { Volume2, Pause, StopCircle } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
 
 const TextToSpeech = () => {
   const [text, setText] = useState("");
-  const [voice, setVoice] = useState("default");
-  const [rate, setRate] = useState("1");
+  const [selectedVoice, setSelectedVoice] = useState("");
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [rate, setRate] = useState([1]);
+  const [pitch, setPitch] = useState([1]);
   const [isSpeaking, setIsSpeaking] = useState(false);
 
+  useEffect(() => {
+    const loadVoices = () => {
+      const availableVoices = speechSynthesis.getVoices();
+      setVoices(availableVoices);
+      if (availableVoices.length > 0 && !selectedVoice) {
+        setSelectedVoice(availableVoices[0].name);
+      }
+    };
+
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+
+    return () => {
+      speechSynthesis.cancel();
+    };
+  }, []);
+
   const speak = () => {
-    if (!text) {
+    if (!text.trim()) {
       toast.error("Please enter some text");
       return;
     }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = parseFloat(rate);
+    if (isSpeaking) {
+      speechSynthesis.pause();
+      setIsSpeaking(false);
+      return;
+    }
+
+    speechSynthesis.cancel();
     
+    const utterance = new SpeechSynthesisUtterance(text);
+    const voice = voices.find(v => v.name === selectedVoice);
+    
+    if (voice) utterance.voice = voice;
+    utterance.rate = rate[0];
+    utterance.pitch = pitch[0];
+
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => {
@@ -30,73 +62,122 @@ const TextToSpeech = () => {
       toast.error("Speech synthesis failed");
     };
 
-    window.speechSynthesis.speak(utterance);
-    toast.success("Speaking...");
+    speechSynthesis.speak(utterance);
   };
 
   const stop = () => {
-    window.speechSynthesis.cancel();
+    speechSynthesis.cancel();
     setIsSpeaking(false);
   };
 
   return (
     <>
       <SEOHead
-        title="Text to Speech Converter"
-        description="Convert text to natural speech with adjustable voice and speed settings"
-        keywords="text to speech, TTS, speech synthesis, read aloud"
+        title="Free Text to Speech - Natural Voice Generator"
+        description="Convert text to speech for free using browser's built-in voices. Adjust speed, pitch, and choose from multiple voices."
+        keywords="text to speech, TTS, speech synthesis, voice generator, free TTS"
         canonical="https://toolmaster.cloud/tools/text-to-speech"
       />
       <ToolLayout
-        title="Text to Speech"
-        description="Convert text to natural-sounding speech"
+        title="Free Text to Speech"
+        description="Convert text to natural speech with customizable voices - completely free"
         category="Text Tools"
         instructions={[
           "Enter or paste your text",
-          "Select voice and speed preferences",
-          "Click 'Speak' to hear the text",
-          "Use 'Stop' to cancel playback"
+          "Select a voice from available options",
+          "Adjust speed and pitch to your preference",
+          "Click Play to hear your text spoken aloud"
         ]}
         relatedTools={[
-          { name: "Word Counter", path: "/tools/word-counter" },
-          { name: "Lorem Ipsum", path: "/tools/lorem-ipsum" }
+          { name: "Morse Code Translator", path: "/tools/morse-code-translator" },
+          { name: "Word Counter", path: "/tools/word-counter" }
         ]}
       >
         <Card>
-          <CardContent className="p-6 space-y-4">
-            <Textarea
-              placeholder="Enter text to speak..."
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="min-h-[200px]"
-            />
+          <CardContent className="p-6 space-y-6">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Enter Text</label>
+              <Textarea
+                placeholder="Enter text to convert to speech..."
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                className="min-h-[200px]"
+              />
+            </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Speed</label>
-                <Select value={rate} onValueChange={setRate}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0.5">Slow (0.5x)</SelectItem>
-                    <SelectItem value="1">Normal (1x)</SelectItem>
-                    <SelectItem value="1.5">Fast (1.5x)</SelectItem>
-                    <SelectItem value="2">Very Fast (2x)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Select Voice</label>
+              <Select value={selectedVoice} onValueChange={setSelectedVoice}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a voice" />
+                </SelectTrigger>
+                <SelectContent>
+                  {voices.map((v, i) => (
+                    <SelectItem key={i} value={v.name}>
+                      {v.name} ({v.lang})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Speed: {rate[0].toFixed(1)}</label>
+              <Slider
+                value={rate}
+                onValueChange={setRate}
+                min={0.5}
+                max={2}
+                step={0.1}
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Pitch: {pitch[0].toFixed(1)}</label>
+              <Slider
+                value={pitch}
+                onValueChange={setPitch}
+                min={0.5}
+                max={2}
+                step={0.1}
+                className="w-full"
+              />
             </div>
 
             <div className="flex gap-2">
-              <Button onClick={speak} disabled={isSpeaking} className="flex-1">
-                <Volume2 className="h-4 w-4 mr-2" />
-                Speak
+              <Button 
+                onClick={speak} 
+                disabled={!text.trim()}
+                className="flex-1"
+                size="lg"
+              >
+                {isSpeaking ? (
+                  <>
+                    <Pause className="h-4 w-4 mr-2" />
+                    Pause
+                  </>
+                ) : (
+                  <>
+                    <Volume2 className="h-4 w-4 mr-2" />
+                    Play
+                  </>
+                )}
               </Button>
-              <Button onClick={stop} variant="destructive" disabled={!isSpeaking}>
-                <Square className="h-4 w-4 mr-2" />
+              <Button 
+                onClick={stop}
+                disabled={!isSpeaking}
+                variant="outline"
+                size="lg"
+              >
+                <StopCircle className="h-4 w-4 mr-2" />
                 Stop
               </Button>
+            </div>
+
+            <div className="text-xs text-muted-foreground p-3 bg-muted rounded-lg">
+              <strong>100% Free:</strong> This tool uses your browser's built-in speech synthesis.
+              No API keys required, works offline, and completely free to use!
             </div>
           </CardContent>
         </Card>

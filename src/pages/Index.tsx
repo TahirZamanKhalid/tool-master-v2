@@ -78,7 +78,7 @@ const categories = [
     icon: Image,
     title: "Image Tools",
     description: "Edit, compress, convert, and enhance images",
-    toolCount: 10,
+    toolCount: 11,
     color: "from-pink-500 to-rose-600",
   },
   {
@@ -106,8 +106,15 @@ const categories = [
     icon: Type,
     title: "Text Tools",
     description: "Word counter, case converter, and more",
-    toolCount: 25,
+    toolCount: 18,
     color: "from-indigo-500 to-blue-600",
+  },
+  {
+    icon: Video,
+    title: "Video Tools",
+    description: "Video editing and conversion",
+    toolCount: 2,
+    color: "from-purple-500 to-indigo-600",
   },
   {
     icon: TrendingUp,
@@ -569,6 +576,18 @@ const popularTools = [
     title: "HTML Minifier",
     description: "Minify and compress HTML code",
     category: "Developer Tools",
+  },
+  {
+    icon: Video,
+    title: "Video Trimmer",
+    description: "Trim and cut videos with precision",
+    category: "Video Tools",
+  },
+  {
+    icon: Video,
+    title: "Video to GIF",
+    description: "Convert video clips to animated GIFs",
+    category: "Video Tools",
   },
   {
     icon: TrendingUp,
