@@ -15,6 +15,7 @@ const ALLOWED_DOMAINS = [
   'ipinfo.io',
   'api.ipify.org',
   'api.frankfurter.app',
+  'ip-api.com',  // For IP lookup
 ];
 
 // SECURITY: Validate URL to prevent SSRF attacks

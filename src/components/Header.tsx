@@ -5,14 +5,22 @@ import { useNavigate } from "react-router-dom";
 
 export const Header = () => {
   const navigate = useNavigate();
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(() => {
+    // Check localStorage for saved preference
+    const saved = localStorage.getItem('theme');
+    if (saved) return saved === 'dark';
+    // Default to light mode
+    return false;
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
     if (isDark) {
       root.classList.add("dark");
+      localStorage.setItem('theme', 'dark');
     } else {
       root.classList.remove("dark");
+      localStorage.setItem('theme', 'light');
     }
   }, [isDark]);
 

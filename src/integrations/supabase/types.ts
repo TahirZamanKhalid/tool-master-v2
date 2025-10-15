@@ -94,6 +94,7 @@ export type Database = {
           rating: number
           tool_path: string
           user_id: string
+          user_identifier: string
         }
         Insert: {
           comment?: string | null
@@ -102,6 +103,7 @@ export type Database = {
           rating: number
           tool_path: string
           user_id: string
+          user_identifier: string
         }
         Update: {
           comment?: string | null
@@ -110,6 +112,7 @@ export type Database = {
           rating?: number
           tool_path?: string
           user_id?: string
+          user_identifier?: string
         }
         Relationships: []
       }

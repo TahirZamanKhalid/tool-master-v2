@@ -14,7 +14,7 @@ interface ToolCardProps {
 
 export const ToolCard = ({ icon: Icon, title, description, category, popular, comingSoon }: ToolCardProps) => {
   return (
-    <Card className={`group shadow-card hover:shadow-card-hover transition-smooth hover:-translate-y-1 relative ${comingSoon ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
+    <Card className={`group shadow-card hover:shadow-card-hover transition-smooth hover:-translate-y-1 relative flex flex-col h-full ${comingSoon ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
       {popular && !comingSoon && (
         <Badge className="absolute -top-2 -right-2 gradient-primary border-0 shadow-lg">
           Popular
@@ -34,10 +34,10 @@ export const ToolCard = ({ icon: Icon, title, description, category, popular, co
             {category}
           </Badge>
         </div>
-        <CardTitle className="text-lg mt-3">{title}</CardTitle>
+        <CardTitle className="text-lg mt-3 line-clamp-2">{title}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground mb-4">{description}</p>
+      <CardContent className="flex-1 flex flex-col">
+        <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-3">{description}</p>
         <Button 
           variant="outline" 
           className="w-full group-hover:gradient-primary group-hover:text-white group-hover:border-0 transition-smooth"
