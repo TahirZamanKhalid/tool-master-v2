@@ -31,11 +31,13 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalSearch(value);
-    onSearch?.(value);
+    // Don't trigger search on input - only on button click
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Trigger search only when button is clicked
+    onSearch?.(localSearch);
   };
 
   const handleTrendingClick = (term: string) => {

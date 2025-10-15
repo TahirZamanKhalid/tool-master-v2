@@ -628,14 +628,21 @@ const Index = () => {
     }
   };
 
-  // Live search handler
-  const handleLiveSearch = (query: string) => {
+  // Button-triggered search handler
+  const handleButtonSearch = (query: string) => {
     setSearchQuery(query);
+    const params = new URLSearchParams();
+    if (query) params.set("q", query);
+    if (selectedCategory) params.set("category", selectedCategory);
+    setSearchParams(params);
     
-    // Track search analytics for live searches too
+    // Track search analytics
     if (query.length >= 3) {
       trackSearch(query);
-      // Scroll to search results for live search
+    }
+    
+    // Scroll to search results when user searches
+    if (query) {
       setTimeout(() => {
         document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
@@ -694,7 +701,7 @@ const Index = () => {
       <Header />
 
 
-      <OptimizedHero searchQuery={searchQuery} onSearch={handleLiveSearch} />
+      <OptimizedHero searchQuery={searchQuery} onSearch={handleButtonSearch} />
       
       {/* Ad after Hero - High visibility */}
       <div className="container px-4 py-6">
