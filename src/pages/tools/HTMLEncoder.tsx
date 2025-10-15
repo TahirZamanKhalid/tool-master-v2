@@ -20,9 +20,9 @@ const HTMLEncoder = () => {
   };
 
   const decodeHTML = (str: string) => {
-    const textarea = document.createElement("textarea");
-    textarea.innerHTML = str;
-    return textarea.value;
+    // Use DOMParser for safer HTML decoding (prevents XSS)
+    const doc = new DOMParser().parseFromString(str, 'text/html');
+    return doc.documentElement.textContent || '';
   };
 
   const handleConvert = () => {

@@ -17,7 +17,7 @@ const Blog = () => {
         title="Blog - ToolMaster Pro"
         description="Read articles, tutorials, and tips about using ToolMaster Pro's free online tools effectively. Stay updated with latest features and best practices."
         keywords="blog, tutorials, tips, guides, online tools"
-        canonical={`${window.location.origin}/blog`}
+        canonical="https://toolmaster.cloud/blog"
       />
       <Header />
       <main className="flex-1">

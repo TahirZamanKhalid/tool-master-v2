@@ -14,7 +14,7 @@ const TermsOfService = () => {
         title="Terms of Service - ToolMaster Pro"
         description="Read ToolMaster Pro's terms of service to understand the rules and regulations for using our free online tools and services."
         keywords="terms of service, user agreement, terms and conditions, legal terms"
-        canonical={`${window.location.origin}/terms-of-service`}
+        canonical="https://toolmaster.cloud/terms-of-service"
       />
       <Header />
       <main className="flex-1">

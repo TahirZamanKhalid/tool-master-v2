@@ -16,7 +16,7 @@ const About = () => {
         title="About Us - ToolMaster Pro"
         description="Learn about ToolMaster Pro, your trusted source for 100+ free online tools. Our mission is to make everyday tasks easier and more efficient for everyone."
         keywords="about toolmaster pro, free online tools, web tools, productivity tools"
-        canonical={`${window.location.origin}/about`}
+        canonical="https://toolmaster.cloud/about"
       />
       <Header />
       <main className="flex-1">

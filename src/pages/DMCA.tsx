@@ -14,7 +14,7 @@ const DMCA = () => {
         title="DMCA Copyright Policy - ToolMaster Pro"
         description="ToolMaster Pro's Digital Millennium Copyright Act (DMCA) policy and procedures for reporting copyright infringement."
         keywords="dmca, copyright, infringement, takedown notice"
-        canonical={`${window.location.origin}/dmca`}
+        canonical="https://toolmaster.cloud/dmca"
       />
       <Header />
       <main className="flex-1">

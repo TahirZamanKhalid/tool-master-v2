@@ -14,7 +14,7 @@ const PrivacyPolicy = () => {
         title="Privacy Policy - ToolMaster Pro"
         description="Read ToolMaster Pro's privacy policy to understand how we collect, use, and protect your personal information when you use our free online tools."
         keywords="privacy policy, data protection, user privacy, data security"
-        canonical={`${window.location.origin}/privacy-policy`}
+        canonical="https://toolmaster.cloud/privacy-policy"
       />
       <Header />
       <main className="flex-1">

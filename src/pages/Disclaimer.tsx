@@ -14,7 +14,7 @@ const Disclaimer = () => {
         title="Disclaimer - ToolMaster Pro"
         description="Important disclaimer and terms regarding the use of ToolMaster Pro's free online tools and services."
         keywords="disclaimer, terms, liability, use of service"
-        canonical={`${window.location.origin}/disclaimer`}
+        canonical="https://toolmaster.cloud/disclaimer"
       />
       <Header />
       <main className="flex-1">

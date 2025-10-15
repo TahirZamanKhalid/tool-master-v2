@@ -14,7 +14,7 @@ const CookiePolicy = () => {
         title="Cookie Policy - ToolMaster Pro"
         description="Learn about how ToolMaster Pro uses cookies and similar technologies to improve your browsing experience and analyze site usage."
         keywords="cookie policy, cookies, privacy, data collection"
-        canonical={`${window.location.origin}/cookie-policy`}
+        canonical="https://toolmaster.cloud/cookie-policy"
       />
       <Header />
       <main className="flex-1">

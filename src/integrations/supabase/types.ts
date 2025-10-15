@@ -70,19 +70,22 @@ export type Database = {
           id: string
           search_query: string
           searched_at: string | null
-          user_id: string
+          session_id: string | null
+          user_id: string | null
         }
         Insert: {
           id?: string
           search_query: string
           searched_at?: string | null
-          user_id: string
+          session_id?: string | null
+          user_id?: string | null
         }
         Update: {
           id?: string
           search_query?: string
           searched_at?: string | null
-          user_id?: string
+          session_id?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -119,20 +122,23 @@ export type Database = {
       tool_views: {
         Row: {
           id: string
+          session_id: string | null
           tool_path: string
-          user_id: string
+          user_id: string | null
           viewed_at: string | null
         }
         Insert: {
           id?: string
+          session_id?: string | null
           tool_path: string
-          user_id: string
+          user_id?: string | null
           viewed_at?: string | null
         }
         Update: {
           id?: string
+          session_id?: string | null
           tool_path?: string
-          user_id?: string
+          user_id?: string | null
           viewed_at?: string | null
         }
         Relationships: []
