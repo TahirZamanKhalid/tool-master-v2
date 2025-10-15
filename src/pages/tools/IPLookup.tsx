@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { AdSpace } from "@/components/AdSpace";
+
 import { Loader2 } from "lucide-react";
 
 const IPLookup = () => {
@@ -54,7 +54,6 @@ const IPLookup = () => {
       description="Get location and details of any IP address"
       category="Developer Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div className="flex gap-2">
