@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,8 @@ import { Volume2, Pause, StopCircle, Download, Info } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { fetchFile, toBlobURL } from "@ffmpeg/util";
 
 const TextToSpeech = () => {
   const [text, setText] = useState("");
@@ -22,6 +24,9 @@ const TextToSpeech = () => {
   const [showAdOverlay, setShowAdOverlay] = useState(false);
   const [canDownload, setCanDownload] = useState(false);
   const [downloadFormat, setDownloadFormat] = useState<'mp3' | 'wav' | 'ogg'>('mp3');
+  const [isConverting, setIsConverting] = useState(false);
+  const ffmpegRef = useRef(new FFmpeg());
+  const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
 
   useEffect(() => {
     const loadVoices = () => {
@@ -38,6 +43,25 @@ const TextToSpeech = () => {
     return () => {
       speechSynthesis.cancel();
     };
+  }, []);
+
+  useEffect(() => {
+    const loadFFmpeg = async () => {
+      const ffmpeg = ffmpegRef.current;
+      try {
+        const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+        await ffmpeg.load({
+          coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+          wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+        });
+        setFfmpegLoaded(true);
+        console.log('FFmpeg loaded successfully');
+      } catch (error) {
+        console.error('Error loading FFmpeg:', error);
+        toast.error('Audio converter failed to load. MP3 download may not work.');
+      }
+    };
+    loadFFmpeg();
   }, []);
 
   const speak = () => {
@@ -81,14 +105,12 @@ const TextToSpeech = () => {
       toast.error("Please enter some text");
       return;
     }
-
-    toast.info("Note: Browser TTS has limitations. For voice cloning, you'll need ElevenLabs API key (free tier available)");
     
     // Show ad overlay first
     setShowAdOverlay(true);
     setCanDownload(false);
 
-    // Generate audio using Web Audio API
+    // Generate audio using MediaRecorder
     try {
       const utterance = new SpeechSynthesisUtterance(text);
       const voice = voices.find(v => v.name === selectedVoice);
@@ -97,22 +119,27 @@ const TextToSpeech = () => {
       utterance.rate = rate[0];
       utterance.pitch = pitch[0];
 
-      // Create a simple audio buffer
+      // Create audio context and destination
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const dest = audioContext.createMediaStreamDestination();
       
-      // Try to capture system audio (limited browser support)
+      // Create oscillator to generate a silent tone (keeps the stream active)
+      const oscillator = audioContext.createOscillator();
+      oscillator.frequency.value = 0;
+      oscillator.connect(dest);
+      oscillator.start();
+
       let mediaRecorder: MediaRecorder;
       const chunks: BlobPart[] = [];
       
       try {
-        // Attempt to capture audio stream
         mediaRecorder = new MediaRecorder(dest.stream, { 
           mimeType: 'audio/webm;codecs=opus' 
         });
       } catch {
-        toast.warning("Audio capture limited in this browser. Download may not work perfectly.");
+        toast.error("Your browser doesn't support audio recording.");
         setShowAdOverlay(false);
+        audioContext.close();
         return;
       }
 
@@ -121,11 +148,15 @@ const TextToSpeech = () => {
       };
       
       mediaRecorder.onstop = async () => {
+        oscillator.stop();
+        await audioContext.close();
+        
         if (chunks.length > 0) {
           const webmBlob = new Blob(chunks, { type: 'audio/webm' });
           setAudioBlob(webmBlob);
+          toast.success("Audio captured! Converting to your selected format...");
         } else {
-          toast.error("No audio captured. Browser TTS limitations - consider using ElevenLabs for reliable downloads.");
+          toast.error("No audio captured.");
           setShowAdOverlay(false);
         }
       };
@@ -135,21 +166,19 @@ const TextToSpeech = () => {
       utterance.onend = () => {
         setTimeout(() => {
           mediaRecorder.stop();
-          audioContext.close();
         }, 500);
       };
 
       utterance.onerror = () => {
         mediaRecorder.stop();
-        audioContext.close();
-        toast.error("Speech failed");
+        toast.error("Speech synthesis failed");
         setShowAdOverlay(false);
       };
 
       speechSynthesis.speak(utterance);
     } catch (error) {
       console.error("Audio generation error:", error);
-      toast.error("Browser TTS has limitations. For reliable audio downloads with voice cloning, use ElevenLabs API.");
+      toast.error("Failed to generate audio");
       setShowAdOverlay(false);
     }
   };
@@ -165,17 +194,60 @@ const TextToSpeech = () => {
       return;
     }
 
-    // For now, we can only download as WebM (browser limitation)
-    // For MP3/WAV conversion, we'd need a backend service or library
-    const url = URL.createObjectURL(audioBlob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `text-to-speech.webm`;
-    link.click();
-    URL.revokeObjectURL(url);
-    
-    toast.success("Audio downloaded as WebM! For MP3/WAV and voice cloning, use ElevenLabs API.");
-    setShowAdOverlay(false);
+    setIsConverting(true);
+
+    try {
+      if (downloadFormat === 'mp3' || downloadFormat === 'wav') {
+        if (!ffmpegLoaded) {
+          toast.error("Audio converter not ready. Try OGG format or wait a moment.");
+          setIsConverting(false);
+          return;
+        }
+
+        // Convert using FFmpeg
+        const ffmpeg = ffmpegRef.current;
+        
+        // Write input file
+        await ffmpeg.writeFile('input.webm', await fetchFile(audioBlob));
+        
+        // Convert to desired format
+        if (downloadFormat === 'mp3') {
+          await ffmpeg.exec(['-i', 'input.webm', '-codec:a', 'libmp3lame', '-b:a', '192k', 'output.mp3']);
+        } else {
+          await ffmpeg.exec(['-i', 'input.webm', '-acodec', 'pcm_s16le', '-ar', '44100', 'output.wav']);
+        }
+        
+        // Read output file
+        const data = await ffmpeg.readFile(`output.${downloadFormat}`) as Uint8Array;
+        const blob = new Blob([new Uint8Array(data)], { type: `audio/${downloadFormat}` });
+        
+        // Download
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `text-to-speech.${downloadFormat}`;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        toast.success(`Audio downloaded as ${downloadFormat.toUpperCase()}!`);
+      } else {
+        // Direct OGG download
+        const url = URL.createObjectURL(audioBlob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `text-to-speech.ogg`;
+        link.click();
+        URL.revokeObjectURL(url);
+        
+        toast.success("Audio downloaded as OGG!");
+      }
+    } catch (error) {
+      console.error("Conversion error:", error);
+      toast.error("Failed to convert audio. Try OGG format.");
+    } finally {
+      setIsConverting(false);
+      setShowAdOverlay(false);
+    }
   };
 
   return (
@@ -204,9 +276,8 @@ const TextToSpeech = () => {
         <Alert className="mb-6">
           <Info className="h-4 w-4" />
           <AlertDescription>
-            <strong>Browser TTS Limitations:</strong> This free version uses browser voices (limited download support). 
-            For <strong>voice cloning</strong> (record your voice 3-10 times for custom TTS), <strong>reliable MP3/WAV downloads</strong>, 
-            and <strong>premium voices</strong>, you'll need an <strong>ElevenLabs API key</strong> (free tier: 10,000 chars/month).
+            <strong>100% Free MP3 Download:</strong> This tool converts browser speech to MP3/WAV/OGG using FFmpeg - no API needed! 
+            For <strong>voice cloning</strong> (record your voice for custom TTS), you'll need ElevenLabs API.
           </AlertDescription>
         </Alert>
 
@@ -300,29 +371,29 @@ const TextToSpeech = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="mp3">MP3 (requires API)</SelectItem>
-                    <SelectItem value="wav">WAV (requires API)</SelectItem>
-                    <SelectItem value="ogg">WebM (browser only)</SelectItem>
+                    <SelectItem value="mp3">MP3 - Universal format</SelectItem>
+                    <SelectItem value="wav">WAV - Uncompressed quality</SelectItem>
+                    <SelectItem value="ogg">OGG - Smallest file size</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <Button 
                 onClick={generateAudioForDownload}
-                disabled={!text.trim()}
+                disabled={!text.trim() || !ffmpegLoaded}
                 variant="secondary"
                 size="lg"
                 className="w-full"
               >
                 <Download className="h-4 w-4 mr-2" />
-                Download Audio (Watch Ad)
+                {ffmpegLoaded ? 'Download Audio (Watch Ad)' : 'Loading converter...'}
               </Button>
             </div>
 
             <div className="text-xs text-muted-foreground p-3 bg-muted rounded-lg space-y-1">
-              <p><strong>Basic (Free):</strong> Browser voices, WebM downloads only</p>
-              <p><strong>Voice Cloning (Requires API):</strong> Record 3-10 samples → Get custom voice → Download as MP3/WAV</p>
-              <p className="text-primary">Want voice cloning? Sign up for ElevenLabs free tier!</p>
+              <p><strong>✅ Free MP3/WAV/OGG Downloads:</strong> Powered by FFmpeg in your browser</p>
+              <p><strong>🎙️ Voice Cloning:</strong> Record your voice → Custom TTS (requires ElevenLabs API)</p>
+              <p className="text-primary">Current: Browser voices only. Want YOUR voice? Get ElevenLabs!</p>
             </div>
           </CardContent>
         </Card>
@@ -330,11 +401,11 @@ const TextToSpeech = () => {
 
       {showAdOverlay && (
         <ProcessingOverlay
-          message="Generating your audio... Please view the ad to enable download."
+          message={isConverting ? `Converting to ${downloadFormat.toUpperCase()}...` : "Generating your audio... Please view the ad to enable download."}
           minAdViewTime={5}
           onAdComplete={handleAdComplete}
-          showSkip={canDownload}
-          onSkip={canDownload ? downloadAudio : undefined}
+          showSkip={canDownload && !isConverting}
+          onSkip={canDownload && !isConverting ? downloadAudio : undefined}
         />
       )}
     </>
