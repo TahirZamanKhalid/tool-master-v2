@@ -7,13 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Upload, Download, Eraser } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { pipeline, env, RawImage } from "@huggingface/transformers";
-
-// Configure transformers for optimal background removal
-env.allowLocalModels = false;
-env.useBrowserCache = true;
-
-const MAX_IMAGE_DIMENSION = 2048;
+import { supabase } from "@/integrations/supabase/client";
+import { SEOHead } from "@/components/SEOHead";
 
 const BackgroundRemover = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -48,97 +43,43 @@ const BackgroundRemover = () => {
     setShowSkip(false);
 
     try {
-      setTimeout(() => setShowSkip(true), 5000);
-
       setProgress(10);
       toast({
-        title: "Loading AI Model",
-        description: "Initializing state-of-the-art background removal...",
+        title: "Processing",
+        description: "AI is removing background...",
       });
-      
-      // Load image
-      const img = new Image();
-      img.src = selectedImage;
-      await new Promise((resolve) => img.onload = resolve);
 
-      setProgress(20);
+      setProgress(30);
 
-      // Resize if needed while maintaining aspect ratio
-      let canvas = document.createElement("canvas");
-      let ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("Could not get canvas context");
-
-      let width = img.naturalWidth;
-      let height = img.naturalHeight;
-
-      if (width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION) {
-        if (width > height) {
-          height = Math.round((height * MAX_IMAGE_DIMENSION) / width);
-          width = MAX_IMAGE_DIMENSION;
-        } else {
-          width = Math.round((width * MAX_IMAGE_DIMENSION) / height);
-          height = MAX_IMAGE_DIMENSION;
-        }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-      ctx.drawImage(img, 0, 0, width, height);
-
-      setProgress(35);
-      toast({
-        title: "Processing Image",
-        description: "AI is analyzing and removing background...",
+      // Call the Lovable AI-powered edge function for faster processing
+      const { data, error } = await supabase.functions.invoke('remove-background', {
+        body: { imageUrl: selectedImage }
       });
-      
-      // Use RMBG-1.4 - State-of-the-art background removal model
-      // This model is specifically trained for background removal with superior quality
-      const segmenter = await pipeline(
-        "image-segmentation", 
-        "briaai/RMBG-1.4",
-        { 
-          device: "webgpu",
+
+      if (error) {
+        if (error.message?.includes('429')) {
+          throw new Error('Rate limit exceeded. Please wait a moment and try again.');
         }
-      );
-      
-      setProgress(55);
-      
-      // Convert canvas to image data
-      const imageData = canvas.toDataURL("image/png");
-      const result = await segmenter(imageData);
-      
-      setProgress(75);
-
-      if (!result || !Array.isArray(result) || result.length === 0) {
-        throw new Error("No segmentation result received");
+        if (error.message?.includes('402')) {
+          throw new Error('AI credits exhausted. Please contact support.');
+        }
+        throw error;
       }
 
-      // The RMBG model returns a binary mask - use it directly
-      const mask = result[0].mask;
-      
-      setProgress(85);
+      setProgress(70);
 
-      // Apply mask with high precision
-      const outputImageData = ctx.getImageData(0, 0, width, height);
-      const data = outputImageData.data;
-
-      // Apply the mask to create transparency
-      for (let i = 0; i < mask.data.length; i++) {
-        // The mask value is already optimized by RMBG model
-        const alpha = Math.round(mask.data[i] * 255);
-        data[i * 4 + 3] = alpha;
+      if (!data?.processedImage) {
+        throw new Error('No processed image received');
       }
 
-      ctx.putImageData(outputImageData, 0, 0);
       setProgress(100);
       
       toast({
         title: "Complete!",
-        description: "Background removed with AI precision",
+        description: "Background removed with AI precision in seconds!",
       });
 
-      const processedUrl = canvas.toDataURL("image/png");
-      setProcessedImage(processedUrl);
+      setProcessedImage(data.processedImage);
       setIsProcessing(false);
       setShowAdOverlay(true);
       setCanDownload(false);
@@ -173,6 +114,12 @@ const BackgroundRemover = () => {
 
   return (
     <>
+      <SEOHead
+        title="AI Background Remover"
+        description="Remove image backgrounds instantly with state-of-the-art AI technology - no manual editing needed!"
+        keywords="background remover, remove background, AI background removal, transparent background"
+        canonical="https://toolmaster.cloud/tools/background-remover"
+      />
       <Header />
       <ToolLayout
         title="AI Background Remover"
@@ -284,9 +231,9 @@ const BackgroundRemover = () => {
 
       {isProcessing && (
         <ProcessingOverlay
-          message="AI is intelligently removing background... This may take 10-30 seconds for best quality"
+          message="AI is removing background... Much faster with cloud AI!"
           progress={progress}
-          showSkip={showSkip}
+          showSkip={false}
           onSkip={() => setIsProcessing(false)}
         />
       )}
