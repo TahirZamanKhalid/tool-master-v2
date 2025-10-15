@@ -16,12 +16,20 @@ export const AdSpace = ({ size, className = "" }: AdSpaceProps) => {
   const dimensions = adSizes[size];
 
   useEffect(() => {
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (err) {
-      console.error("AdSense error:", err);
-    }
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      try {
+        // @ts-ignore
+        if (window.adsbygoogle && typeof window.adsbygoogle.push === 'function') {
+          // @ts-ignore
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        }
+      } catch (err) {
+        console.error("AdSense error:", err);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
