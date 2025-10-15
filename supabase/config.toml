@@ -8,3 +8,7 @@ verify_jwt = false
 
 [functions.smart-ai-chat]
 verify_jwt = false
+
+[functions.remove-background]
+verify_jwt = false
+

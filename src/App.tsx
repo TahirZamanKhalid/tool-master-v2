@@ -76,6 +76,16 @@ import JavaScriptMinifier from "./pages/tools/JavaScriptMinifier";
 import UserAgentParser from "./pages/tools/UserAgentParser";
 import NumberBaseConverter from "./pages/tools/NumberBaseConverter";
 import AIChat from "./pages/tools/AIChat";
+import EmailValidator from "./pages/tools/EmailValidator";
+import MarkdownToHTML from "./pages/tools/MarkdownToHTML";
+import ImageToBase64 from "./pages/tools/ImageToBase64";
+import TextToSpeech from "./pages/tools/TextToSpeech";
+import MorseCodeTranslator from "./pages/tools/MorseCodeTranslator";
+import CreditCardValidator from "./pages/tools/CreditCardValidator";
+import RomanNumeralConverter from "./pages/tools/RomanNumeralConverter";
+import LoremIpsumAdvanced from "./pages/tools/LoremIpsumAdvanced";
+import JSONMinifier from "./pages/tools/JSONMinifier";
+import HTMLMinifier from "./pages/tools/HTMLMinifier";
 
 
 const queryClient = new QueryClient();
@@ -151,6 +161,16 @@ const App = () => (
         <Route path="/tools/user-agent-parser" element={<UserAgentParser />} />
         <Route path="/tools/number-base-converter" element={<NumberBaseConverter />} />
         <Route path="/tools/ai-chat" element={<AIChat />} />
+        <Route path="/tools/email-validator" element={<EmailValidator />} />
+        <Route path="/tools/markdown-to-html" element={<MarkdownToHTML />} />
+        <Route path="/tools/image-to-base64" element={<ImageToBase64 />} />
+        <Route path="/tools/text-to-speech" element={<TextToSpeech />} />
+        <Route path="/tools/morse-code" element={<MorseCodeTranslator />} />
+        <Route path="/tools/credit-card-validator" element={<CreditCardValidator />} />
+        <Route path="/tools/roman-numeral-converter" element={<RomanNumeralConverter />} />
+        <Route path="/tools/lorem-ipsum-pro" element={<LoremIpsumAdvanced />} />
+        <Route path="/tools/json-minifier" element={<JSONMinifier />} />
+        <Route path="/tools/html-minifier" element={<HTMLMinifier />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
