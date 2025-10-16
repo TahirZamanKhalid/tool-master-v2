@@ -37,10 +37,10 @@ export const removeBackground = async (
   onProgress?: (progress: number) => void
 ): Promise<Blob> => {
   try {
-    console.log('Starting background removal process...');
+    console.log('Starting background removal with RMBG-1.4...');
     onProgress?.(10);
     
-    const segmenter = await pipeline('image-segmentation', 'Xenova/modnet', {
+    const segmenter = await pipeline('image-segmentation', 'briaai/RMBG-1.4', {
       device: 'webgpu',
     });
     
