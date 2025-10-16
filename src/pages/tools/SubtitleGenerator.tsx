@@ -31,27 +31,34 @@ const SubtitleGenerator = () => {
   const [progress, setProgress] = useState(0);
   const [remainingGenerations, setRemainingGenerations] = useState<number | null>(null);
   const [showAdOverlay, setShowAdOverlay] = useState(false);
+  const [isToolDisabled, setIsToolDisabled] = useState(false);
 
   useEffect(() => {
+    checkToolAvailability();
     checkRateLimit();
   }, []);
 
+  const checkToolAvailability = () => {
+    // Check if tool is manually disabled due to credit usage
+    const disabled = localStorage.getItem('subtitle_tool_disabled') === 'true';
+    setIsToolDisabled(disabled);
+  };
+
   const checkRateLimit = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
     const sessionId = getSessionId();
 
     const { data, error } = await supabase
       .from('subtitle_rate_limits')
       .select('*')
-      .or(`user_id.eq.${user?.id || 'null'},session_id.eq.${sessionId}`)
-      .single();
+      .eq('session_id', sessionId)
+      .maybeSingle();
 
     if (error && error.code !== 'PGRST116') {
       console.error('Error checking rate limit:', error);
       return;
     }
 
-    const limit = user ? 10 : 3; // 10 per day for authenticated, 3 for anonymous
+    const limit = 3; // 3 per day for all users
     const count = data?.generations_count || 0;
     const hoursSinceLastGen = data ? (Date.now() - new Date(data.last_generation).getTime()) / (1000 * 60 * 60) : 25;
     
@@ -81,6 +88,15 @@ const SubtitleGenerator = () => {
   };
 
   const generateSubtitles = async () => {
+    if (isToolDisabled) {
+      toast({
+        title: "Service Temporarily Unavailable",
+        description: "This tool is currently disabled due to high usage. Please check back later.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!file) {
       toast({
         title: "No file selected",
@@ -90,24 +106,23 @@ const SubtitleGenerator = () => {
       return;
     }
 
-    // Check rate limit
-    const { data: { user } } = await supabase.auth.getUser();
+    // Check rate limit for anonymous users only
     const sessionId = getSessionId();
-    const limit = user ? 10 : 3;
+    const limit = 3; // 3 per day
 
     const { data: limitData, error: limitError } = await supabase
       .from('subtitle_rate_limits')
       .select('*')
-      .or(`user_id.eq.${user?.id || 'null'},session_id.eq.${sessionId}`)
-      .single();
+      .eq('session_id', sessionId)
+      .maybeSingle();
 
     if (!limitError && limitData) {
       const hoursSinceLastGen = (Date.now() - new Date(limitData.last_generation).getTime()) / (1000 * 60 * 60);
       
       if (limitData.generations_count >= limit && hoursSinceLastGen < 24) {
         toast({
-          title: "Rate limit exceeded",
-          description: `You can generate ${limit} subtitles per day. ${user ? 'Try again tomorrow.' : 'Sign in for more generations or try again tomorrow.'}`,
+          title: "Daily Limit Reached",
+          description: `You can generate ${limit} subtitles per day. Please try again tomorrow.`,
           variant: "destructive",
         });
         return;
@@ -162,7 +177,8 @@ const SubtitleGenerator = () => {
       setSubtitles(srtContent);
       setProgress(100);
 
-      // Update rate limit
+      // Update rate limit for anonymous users
+      const sessionId = getSessionId();
       if (limitData) {
         await supabase
           .from('subtitle_rate_limits')
@@ -175,8 +191,8 @@ const SubtitleGenerator = () => {
         await supabase
           .from('subtitle_rate_limits')
           .insert({
-            user_id: user?.id || null,
-            session_id: user ? null : sessionId,
+            user_id: null,
+            session_id: sessionId,
             generations_count: 1,
             last_generation: new Date().toISOString()
           });
@@ -315,13 +331,21 @@ const SubtitleGenerator = () => {
       <div className="grid gap-6">
         <LazyAdSpace size="leaderboard" className="mb-4" />
         
-        {remainingGenerations !== null && (
+        {isToolDisabled ? (
+          <Card className="border-destructive bg-destructive/10">
+            <CardContent className="pt-6">
+              <p className="text-sm font-medium text-destructive">
+                ⚠️ This tool is currently unavailable due to high credit usage. Please check back later.
+              </p>
+            </CardContent>
+          </Card>
+        ) : remainingGenerations !== null && (
           <Card className="border-primary/20 bg-primary/5">
             <CardContent className="pt-6">
               <p className="text-sm font-medium">
                 {remainingGenerations > 0 
-                  ? `✨ ${remainingGenerations} generation${remainingGenerations !== 1 ? 's' : ''} remaining today` 
-                  : "⚠️ Daily limit reached. Please try again tomorrow or sign in for more generations."}
+                  ? `✨ ${remainingGenerations} free generation${remainingGenerations !== 1 ? 's' : ''} remaining today` 
+                  : "⚠️ Daily limit reached. Please try again in 24 hours."}
               </p>
             </CardContent>
           </Card>
@@ -362,7 +386,7 @@ const SubtitleGenerator = () => {
 
             <Button
               onClick={generateSubtitles}
-              disabled={!file || isProcessing}
+              disabled={!file || isProcessing || isToolDisabled}
               className="w-full"
             >
               {isProcessing ? (
