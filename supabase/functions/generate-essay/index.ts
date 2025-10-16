@@ -59,6 +59,7 @@ Write the complete essay now:`;
             content: prompt
           }
         ],
+        stream: true,
       }),
     });
 
@@ -80,13 +81,9 @@ Write the complete essay now:`;
       throw new Error('Failed to generate essay');
     }
 
-    const data = await response.json();
-    const essay = data.choices[0].message.content;
-
-    return new Response(
-      JSON.stringify({ essay }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(response.body, {
+      headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
+    });
   } catch (error) {
     console.error('Error in generate-essay function:', error);
     const errorMessage = error instanceof Error ? error.message : 'An error occurred while generating essay';

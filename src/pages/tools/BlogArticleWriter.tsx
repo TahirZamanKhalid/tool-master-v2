@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,16 +7,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Download, Copy } from "lucide-react";
 import { LazyAdSpace } from "@/components/LazyAdSpace";
 import { ContentAdBreak } from "@/components/ContentAdBreak";
 import { SEOHead } from "@/components/SEOHead";
+import { GeneratingAdModal } from "@/components/GeneratingAdModal";
 
 const BlogArticleWriter = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [blog, setBlog] = useState("");
+  const [showAdModal, setShowAdModal] = useState(false);
+  const wordCountRef = useRef(0);
+  const lastAdWordCount = useRef(0);
   
   const [formData, setFormData] = useState({
     topic: "",
@@ -41,24 +44,82 @@ const BlogArticleWriter = () => {
 
     setLoading(true);
     setBlog("");
+    wordCountRef.current = 0;
+    lastAdWordCount.current = 0;
 
     try {
-      const { data, error } = await supabase.functions.invoke('generate-blog', {
-        body: formData
+      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-blog`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify(formData),
       });
 
-      if (error) throw error;
-
-      if (data.error) {
-        toast({
-          title: "Error",
-          description: data.error,
-          variant: "destructive",
-        });
-        return;
+      if (!response.ok || !response.body) {
+        throw new Error('Failed to start stream');
       }
 
-      setBlog(data.blog);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
+      let streamDone = false;
+      let currentContent = "";
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") {
+            streamDone = true;
+            break;
+          }
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
+            if (content) {
+              currentContent += content;
+              setBlog(currentContent);
+
+              const words = currentContent.trim().split(/\s+/);
+              wordCountRef.current = words.length;
+
+              if (wordCountRef.current - lastAdWordCount.current >= 1000) {
+                lastAdWordCount.current = wordCountRef.current;
+                setShowAdModal(true);
+                setLoading(false);
+                await new Promise(resolve => {
+                  const checkAdClosed = setInterval(() => {
+                    if (!showAdModal) {
+                      clearInterval(checkAdClosed);
+                      resolve(null);
+                    }
+                  }, 100);
+                });
+                setLoading(true);
+              }
+            }
+          } catch {
+            textBuffer = line + "\n" + textBuffer;
+            break;
+          }
+        }
+      }
+
       toast({
         title: "Success",
         description: "Blog article generated successfully!",
@@ -307,6 +368,11 @@ const BlogArticleWriter = () => {
           </div>
         </div>
       </ToolLayout>
+      
+      <GeneratingAdModal 
+        open={showAdModal} 
+        onComplete={() => setShowAdModal(false)} 
+      />
     </>
   );
 };

@@ -61,6 +61,7 @@ Write the complete ${chapterType} now:`;
             content: prompt
           }
         ],
+        stream: true,
       }),
     });
 
@@ -82,13 +83,9 @@ Write the complete ${chapterType} now:`;
       throw new Error('Failed to generate thesis content');
     }
 
-    const data = await response.json();
-    const thesis = data.choices[0].message.content;
-
-    return new Response(
-      JSON.stringify({ thesis }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return new Response(response.body, {
+      headers: { ...corsHeaders, 'Content-Type': 'text/event-stream' },
+    });
   } catch (error) {
     console.error('Error in generate-thesis function:', error);
     const errorMessage = error instanceof Error ? error.message : 'An error occurred while generating thesis';
