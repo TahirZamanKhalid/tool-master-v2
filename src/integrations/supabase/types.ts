@@ -89,6 +89,33 @@ export type Database = {
         }
         Relationships: []
       }
+      subtitle_rate_limits: {
+        Row: {
+          created_at: string | null
+          generations_count: number | null
+          id: string
+          last_generation: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          generations_count?: number | null
+          id?: string
+          last_generation?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          generations_count?: number | null
+          id?: string
+          last_generation?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       tool_ratings: {
         Row: {
           comment: string | null
@@ -153,6 +180,10 @@ export type Database = {
         Returns: undefined
       }
       cleanup_old_rate_limits: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_subtitle_limits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }

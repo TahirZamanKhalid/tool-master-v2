@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,18 @@ import { Upload, Download, FileVideo, Loader2, CheckCircle2 } from "lucide-react
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { SEOSchema } from "@/components/SEOSchema";
+import { LazyAdSpace } from "@/components/LazyAdSpace";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay";
+
+// Generate or retrieve persistent session ID
+const getSessionId = (): string => {
+  let sessionId = localStorage.getItem('subtitle_session');
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem('subtitle_session', sessionId);
+  }
+  return sessionId;
+};
 
 const SubtitleGenerator = () => {
   const { toast } = useToast();
@@ -17,6 +29,38 @@ const SubtitleGenerator = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [subtitles, setSubtitles] = useState("");
   const [progress, setProgress] = useState(0);
+  const [remainingGenerations, setRemainingGenerations] = useState<number | null>(null);
+  const [showAdOverlay, setShowAdOverlay] = useState(false);
+
+  useEffect(() => {
+    checkRateLimit();
+  }, []);
+
+  const checkRateLimit = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const sessionId = getSessionId();
+
+    const { data, error } = await supabase
+      .from('subtitle_rate_limits')
+      .select('*')
+      .or(`user_id.eq.${user?.id || 'null'},session_id.eq.${sessionId}`)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error checking rate limit:', error);
+      return;
+    }
+
+    const limit = user ? 10 : 3; // 10 per day for authenticated, 3 for anonymous
+    const count = data?.generations_count || 0;
+    const hoursSinceLastGen = data ? (Date.now() - new Date(data.last_generation).getTime()) / (1000 * 60 * 60) : 25;
+    
+    if (hoursSinceLastGen >= 24) {
+      setRemainingGenerations(limit);
+    } else {
+      setRemainingGenerations(Math.max(0, limit - count));
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -46,6 +90,38 @@ const SubtitleGenerator = () => {
       return;
     }
 
+    // Check rate limit
+    const { data: { user } } = await supabase.auth.getUser();
+    const sessionId = getSessionId();
+    const limit = user ? 10 : 3;
+
+    const { data: limitData, error: limitError } = await supabase
+      .from('subtitle_rate_limits')
+      .select('*')
+      .or(`user_id.eq.${user?.id || 'null'},session_id.eq.${sessionId}`)
+      .single();
+
+    if (!limitError && limitData) {
+      const hoursSinceLastGen = (Date.now() - new Date(limitData.last_generation).getTime()) / (1000 * 60 * 60);
+      
+      if (limitData.generations_count >= limit && hoursSinceLastGen < 24) {
+        toast({
+          title: "Rate limit exceeded",
+          description: `You can generate ${limit} subtitles per day. ${user ? 'Try again tomorrow.' : 'Sign in for more generations or try again tomorrow.'}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (hoursSinceLastGen >= 24) {
+        await supabase
+          .from('subtitle_rate_limits')
+          .update({ generations_count: 0, last_generation: new Date().toISOString() })
+          .eq('id', limitData.id);
+      }
+    }
+
+    setShowAdOverlay(true);
     setIsProcessing(true);
     setProgress(10);
 
@@ -86,6 +162,28 @@ const SubtitleGenerator = () => {
       setSubtitles(srtContent);
       setProgress(100);
 
+      // Update rate limit
+      if (limitData) {
+        await supabase
+          .from('subtitle_rate_limits')
+          .update({ 
+            generations_count: limitData.generations_count + 1,
+            last_generation: new Date().toISOString()
+          })
+          .eq('id', limitData.id);
+      } else {
+        await supabase
+          .from('subtitle_rate_limits')
+          .insert({
+            user_id: user?.id || null,
+            session_id: user ? null : sessionId,
+            generations_count: 1,
+            last_generation: new Date().toISOString()
+          });
+      }
+
+      await checkRateLimit();
+
       toast({
         title: "Success!",
         description: "Subtitles generated successfully",
@@ -100,6 +198,7 @@ const SubtitleGenerator = () => {
       setProgress(0);
     } finally {
       setIsProcessing(false);
+      setShowAdOverlay(false);
     }
   };
 
@@ -204,7 +303,29 @@ const SubtitleGenerator = () => {
         url="https://toolmaster.cloud/tools/subtitle-generator"
       />
 
+      {showAdOverlay && (
+        <ProcessingOverlay
+          message="Generating subtitles with AI..."
+          progress={progress}
+          minAdViewTime={5000}
+          onAdComplete={() => {}}
+        />
+      )}
+
       <div className="grid gap-6">
+        <LazyAdSpace size="leaderboard" className="mb-4" />
+        
+        {remainingGenerations !== null && (
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="pt-6">
+              <p className="text-sm font-medium">
+                {remainingGenerations > 0 
+                  ? `✨ ${remainingGenerations} generation${remainingGenerations !== 1 ? 's' : ''} remaining today` 
+                  : "⚠️ Daily limit reached. Please try again tomorrow or sign in for more generations."}
+              </p>
+            </CardContent>
+          </Card>
+        )}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -267,6 +388,8 @@ const SubtitleGenerator = () => {
             )}
           </CardContent>
         </Card>
+
+        <LazyAdSpace size="rectangle" className="my-4" />
 
         {subtitles && (
           <Card>
