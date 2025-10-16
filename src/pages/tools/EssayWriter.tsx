@@ -96,8 +96,8 @@ const EssayWriter = () => {
               const words = currentContent.trim().split(/\s+/);
               wordCountRef.current = words.length;
 
-              // Show ad every 1000 words
-              if (wordCountRef.current - lastAdWordCount.current >= 1000) {
+              // Show ad every 3000 words
+              if (wordCountRef.current - lastAdWordCount.current >= 3000) {
                 lastAdWordCount.current = wordCountRef.current;
                 setShowAdModal(true);
                 setLoading(false);
@@ -159,6 +159,7 @@ const EssayWriter = () => {
     let currentChunk: string[] = [];
     let wordCount = 0;
     let adIndex = 0;
+    const maxAds = 3;
 
     words.forEach((word, index) => {
       currentChunk.push(word);
@@ -168,7 +169,7 @@ const EssayWriter = () => {
         chunks.push(
           <div key={`chunk-${index}`}>
             <p className="whitespace-pre-wrap mb-4">{currentChunk.join(' ')}</p>
-            {wordCount >= 500 && index !== words.length - 1 && (
+            {wordCount >= 500 && index !== words.length - 1 && adIndex < maxAds && (
               <ContentAdBreak key={`ad-${adIndex++}`} index={adIndex} />
             )}
           </div>
@@ -198,7 +199,8 @@ const EssayWriter = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Sidebar Ad */}
           <div className="hidden lg:block lg:col-span-2">
-            <div className="sticky top-4">
+            <div className="sticky top-4 space-y-4">
+              <LazyAdSpace size="skyscraper" />
               <LazyAdSpace size="skyscraper" />
             </div>
           </div>
@@ -343,7 +345,8 @@ const EssayWriter = () => {
 
           {/* Right Sidebar Ad */}
           <div className="hidden lg:block lg:col-span-2">
-            <div className="sticky top-4">
+            <div className="sticky top-4 space-y-4">
+              <LazyAdSpace size="skyscraper" />
               <LazyAdSpace size="skyscraper" />
             </div>
           </div>
