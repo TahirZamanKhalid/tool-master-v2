@@ -94,7 +94,27 @@ import BacklinkChecker from "./pages/tools/BacklinkChecker";
 import DomainAgeChecker from "./pages/tools/DomainAgeChecker";
 import WebsiteSpeedTest from "./pages/tools/WebsiteSpeedTest";
 import XMLSitemapGenerator from "./pages/tools/XMLSitemapGenerator";
-import SubtitleGenerator from "./pages/tools/SubtitleGenerator";
+import TextAnalyzer from "./pages/tools/TextAnalyzer";
+import ColorPaletteGenerator from "./pages/tools/ColorPaletteGenerator";
+import HTMLPreview from "./pages/tools/HTMLPreview";
+import PomodoroTimer from "./pages/tools/PomodoroTimer";
+import StringReverser from "./pages/tools/StringReverser";
+import DuplicateRemover from "./pages/tools/DuplicateRemover";
+import CharacterFrequency from "./pages/tools/CharacterFrequency";
+import BinaryTranslator from "./pages/tools/BinaryTranslator";
+import CaesarCipher from "./pages/tools/CaesarCipher";
+import WhitespaceRemover from "./pages/tools/WhitespaceRemover";
+import TextSorter from "./pages/tools/TextSorter";
+import RandomStringGenerator from "./pages/tools/RandomStringGenerator";
+import FindReplace from "./pages/tools/FindReplace";
+import TextStatistics from "./pages/tools/TextStatistics";
+import HTMLEntityEncoder from "./pages/tools/HTMLEntityEncoder";
+import LineNumberAdder from "./pages/tools/LineNumberAdder";
+import BracketMatcher from "./pages/tools/BracketMatcher";
+import TextCompare from "./pages/tools/TextCompare";
+import HexConverter from "./pages/tools/HexConverter";
+import TemperatureConverter from "./pages/tools/TemperatureConverter";
+import RGBConverter from "./pages/tools/RGBConverter";
 
 
 const queryClient = new QueryClient();
@@ -188,7 +208,27 @@ const App = () => (
         <Route path="/tools/domain-age-checker" element={<DomainAgeChecker />} />
         <Route path="/tools/website-speed-test" element={<WebsiteSpeedTest />} />
         <Route path="/tools/xml-sitemap-generator" element={<XMLSitemapGenerator />} />
-        <Route path="/tools/subtitle-generator" element={<SubtitleGenerator />} />
+        <Route path="/tools/text-analyzer" element={<TextAnalyzer />} />
+        <Route path="/tools/color-palette-generator" element={<ColorPaletteGenerator />} />
+        <Route path="/tools/html-preview" element={<HTMLPreview />} />
+        <Route path="/tools/pomodoro-timer" element={<PomodoroTimer />} />
+        <Route path="/tools/string-reverser" element={<StringReverser />} />
+        <Route path="/tools/duplicate-remover" element={<DuplicateRemover />} />
+        <Route path="/tools/character-frequency" element={<CharacterFrequency />} />
+        <Route path="/tools/binary-translator" element={<BinaryTranslator />} />
+        <Route path="/tools/caesar-cipher" element={<CaesarCipher />} />
+        <Route path="/tools/whitespace-remover" element={<WhitespaceRemover />} />
+        <Route path="/tools/text-sorter" element={<TextSorter />} />
+        <Route path="/tools/random-string-generator" element={<RandomStringGenerator />} />
+        <Route path="/tools/find-replace" element={<FindReplace />} />
+        <Route path="/tools/text-statistics" element={<TextStatistics />} />
+        <Route path="/tools/html-entity-encoder" element={<HTMLEntityEncoder />} />
+        <Route path="/tools/line-number-adder" element={<LineNumberAdder />} />
+        <Route path="/tools/bracket-matcher" element={<BracketMatcher />} />
+        <Route path="/tools/text-compare" element={<TextCompare />} />
+        <Route path="/tools/hex-converter" element={<HexConverter />} />
+        <Route path="/tools/temperature-converter" element={<TemperatureConverter />} />
+        <Route path="/tools/rgb-converter" element={<RGBConverter />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
