@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { ImageEditor } from "@/components/ImageEditor";
@@ -117,7 +116,6 @@ const BackgroundRemover = () => {
         keywords="background remover, remove background, AI background removal, transparent background"
         canonical="https://toolmaster.cloud/tools/background-remover"
       />
-      <Header />
       <ToolLayout
         title="AI Background Remover"
         description="Remove image backgrounds instantly with state-of-the-art AI technology - no manual editing needed!"
