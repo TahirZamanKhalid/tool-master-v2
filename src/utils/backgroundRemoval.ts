@@ -84,43 +84,78 @@ export const removeBackground = async (
     
     if (!outputCtx) throw new Error('Could not get output canvas context');
     
-    // If backgroundColor is provided, fill the canvas with it
-    if (backgroundColor) {
-      outputCtx.fillStyle = backgroundColor;
-      outputCtx.fillRect(0, 0, outputCanvas.width, outputCanvas.height);
-    }
-    
-    // Draw original image
+    // Draw original image onto subject canvas
     outputCtx.drawImage(canvas, 0, 0);
     
     onProgress?.(80);
     
-    // Apply the mask
-    const outputImageData = outputCtx.getImageData(
-      0, 0,
-      outputCanvas.width,
-      outputCanvas.height
-    );
-    const data = outputImageData.data;
-    
-    // Apply mask to alpha channel - keep the subject, remove background
-    for (let i = 0; i < result[0].mask.data.length; i++) {
-      // Use mask directly: 1 = subject (keep), 0 = background (remove)
-      const alpha = Math.round(result[0].mask.data[i] * 255);
-      data[i * 4 + 3] = alpha;
+    // Apply the mask (auto-detect inversion using center sampling)
+    const maskRaw = (result[0].mask && (result[0].mask as any).data) as any;
+    let mask: Float32Array;
+    if (maskRaw instanceof Float32Array) {
+      mask = maskRaw;
+    } else if (maskRaw instanceof Uint8Array || maskRaw instanceof Uint8ClampedArray) {
+      mask = new Float32Array(maskRaw.length);
+      for (let i = 0; i < maskRaw.length; i++) mask[i] = maskRaw[i] / 255;
+    } else if (Array.isArray(maskRaw)) {
+      mask = new Float32Array(maskRaw.length);
+      for (let i = 0; i < maskRaw.length; i++) mask[i] = maskRaw[i];
+    } else {
+      throw new Error('Unsupported mask data type');
     }
-    
+
+    // Sample center region to decide if mask needs inversion
+    const w = outputCanvas.width;
+    const h = outputCanvas.height;
+    const x0 = Math.floor(w * 0.3);
+    const x1 = Math.floor(w * 0.7);
+    const y0 = Math.floor(h * 0.3);
+    const y1 = Math.floor(h * 0.7);
+    let sumCenter = 0;
+    let countCenter = 0;
+    for (let y = y0; y < y1; y++) {
+      for (let x = x0; x < x1; x++) {
+        const idx = y * w + x;
+        sumCenter += mask[idx] ?? 0;
+        countCenter++;
+      }
+    }
+    const avgCenter = sumCenter / Math.max(1, countCenter);
+    const invert = avgCenter < 0.5; // if center is mostly background by mask, invert it
+
+    const outputImageData = outputCtx.getImageData(0, 0, w, h);
+    const data = outputImageData.data;
+    for (let i = 0; i < mask.length; i++) {
+      const m = mask[i];
+      const use = invert ? (1 - m) : m; // 1 => keep subject
+      data[i * 4 + 3] = Math.round(use * 255);
+    }
     outputCtx.putImageData(outputImageData, 0, 0);
-    console.log('Mask applied successfully');
-    
+    console.log('Mask applied successfully', { invert });
+
     onProgress?.(95);
-    
+
+    // If background color is requested, composite subject over solid color
+    const finalCanvas = document.createElement('canvas');
+    finalCanvas.width = w;
+    finalCanvas.height = h;
+    const finalCtx = finalCanvas.getContext('2d');
+    if (!finalCtx) throw new Error('Could not get final canvas context');
+
+    if (backgroundColor) {
+      finalCtx.fillStyle = backgroundColor;
+      finalCtx.fillRect(0, 0, w, h); // base background
+    } else {
+      // Otherwise start with fully transparent
+      finalCtx.clearRect(0, 0, w, h);
+    }
+    finalCtx.drawImage(outputCanvas, 0, 0); // draw subject with alpha
+
     // Convert canvas to blob
     return new Promise((resolve, reject) => {
-      outputCanvas.toBlob(
+      finalCanvas.toBlob(
         (blob) => {
           if (blob) {
-            console.log('Successfully created final blob');
             onProgress?.(100);
             resolve(blob);
           } else {
