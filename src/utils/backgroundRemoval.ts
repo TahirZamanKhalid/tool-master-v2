@@ -103,10 +103,23 @@ export const removeBackground = async (
     } else {
       throw new Error('Unsupported mask data type');
     }
-
-    // Sample center region to decide if mask needs inversion
+    // Canvas dimensions
     const w = outputCanvas.width;
     const h = outputCanvas.height;
+
+    // Decide mask resolution
+    const maskMeta = (result[0].mask as any) || {};
+    const mW = (maskMeta.width ?? maskMeta.shape?.[1] ?? maskMeta.dims?.[1]) ?? Math.max(1, Math.round(Math.sqrt(mask.length * (w / h))));
+    const mH = (maskMeta.height ?? maskMeta.shape?.[0] ?? maskMeta.dims?.[0]) ?? Math.max(1, Math.round(mask.length / mW));
+
+    // Helper to sample mask value at canvas pixel (x,y)
+    const sampleMask = (x: number, y: number) => {
+      const mx = Math.min(mW - 1, Math.max(0, Math.floor((x / w) * mW)));
+      const my = Math.min(mH - 1, Math.max(0, Math.floor((y / h) * mH)));
+      return mask[my * mW + mx] ?? 0;
+    };
+
+    // Sample center region to decide if mask needs inversion
     const x0 = Math.floor(w * 0.3);
     const x1 = Math.floor(w * 0.7);
     const y0 = Math.floor(h * 0.3);
@@ -115,8 +128,7 @@ export const removeBackground = async (
     let countCenter = 0;
     for (let y = y0; y < y1; y++) {
       for (let x = x0; x < x1; x++) {
-        const idx = y * w + x;
-        sumCenter += mask[idx] ?? 0;
+        sumCenter += sampleMask(x, y);
         countCenter++;
       }
     }
@@ -125,13 +137,16 @@ export const removeBackground = async (
 
     const outputImageData = outputCtx.getImageData(0, 0, w, h);
     const data = outputImageData.data;
-    for (let i = 0; i < mask.length; i++) {
-      const m = mask[i];
-      const use = invert ? (1 - m) : m; // 1 => keep subject
-      data[i * 4 + 3] = Math.round(use * 255);
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const idx = (y * w + x) * 4;
+        const m = sampleMask(x, y);
+        const use = invert ? (1 - m) : m; // 1 => keep subject
+        data[idx + 3] = Math.round(use * 255);
+      }
     }
     outputCtx.putImageData(outputImageData, 0, 0);
-    console.log('Mask applied successfully', { invert });
+    console.log('Mask applied successfully', { invert, mW, mH });
 
     onProgress?.(95);
 
