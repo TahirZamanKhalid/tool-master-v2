@@ -64,6 +64,7 @@ import {
   Images,
   Send,
   CreditCard,
+  RefreshCw,
 } from "lucide-react";
 
 const categories = [
@@ -71,7 +72,7 @@ const categories = [
     icon: Sparkles,
     title: "AI & Content",
     description: "AI-powered writing, chatbots, and content generation",
-    toolCount: 3,
+    toolCount: 6,
     color: "from-blue-500 to-purple-600",
   },
   {
@@ -209,6 +210,25 @@ const popularTools = [
     icon: Captions,
     title: "Caption Generator",
     description: "Generate engaging social media captions with AI",
+    category: "AI & Content",
+  },
+  {
+    icon: Shield,
+    title: "Plagiarism Checker",
+    description: "Check text for plagiarism using AI analysis",
+    category: "AI & Content",
+    popular: true,
+  },
+  {
+    icon: Wand2,
+    title: "Plagiarism Remover",
+    description: "Rewrite text to remove plagiarism with AI",
+    category: "AI & Content",
+  },
+  {
+    icon: RefreshCw,
+    title: "Text Rephraser",
+    description: "Rephrase text with different tones using AI",
     category: "AI & Content",
   },
   {
@@ -919,6 +939,9 @@ const Index = () => {
                 "Video Trimmer": "/tools/video-trimmer",
                 "Video to GIF": "/tools/video-to-gif",
                 "Subtitle Generator": "/tools/subtitle-generator",
+                "Plagiarism Checker": "/tools/plagiarism-checker",
+                "Plagiarism Remover": "/tools/plagiarism-remover",
+                "Text Rephraser": "/tools/text-rephraser",
               };
               
               return (

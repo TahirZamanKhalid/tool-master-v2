@@ -12,3 +12,12 @@ verify_jwt = false
 [functions.remove-background]
 verify_jwt = false
 
+[functions.check-plagiarism]
+verify_jwt = false
+
+[functions.rewrite-text]
+verify_jwt = false
+
+[functions.rephrase-text]
+verify_jwt = false
+
