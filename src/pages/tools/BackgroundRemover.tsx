@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Upload, Download, Eraser } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SEOHead } from "@/components/SEOHead";
+import { removeBackground, loadImage } from "@/utils/backgroundRemoval";
 import { supabase } from "@/integrations/supabase/client";
 
 const BackgroundRemover = () => {
@@ -41,76 +42,81 @@ const BackgroundRemover = () => {
     if (!selectedImage) return;
 
     setIsProcessing(true);
-    setProgress(10);
+    setProgress(5);
     setShowSkip(false);
 
     try {
       toast({
         title: "Processing",
-        description: "AI is removing background with advanced model...",
+        description: "Removing background locally for best quality (no credits used)...",
       });
 
-      setProgress(30);
+      // 1) Try high-quality local matting first (WebGPU/CPU)
+      const originalResp = await fetch(selectedImage);
+      const originalBlob = await originalResp.blob();
+      const imageElement = await loadImage(originalBlob);
 
-      // Call edge function with image URL
-      const { data, error } = await supabase.functions.invoke('remove-background', {
-        body: { imageUrl: selectedImage }
-      });
+      const resultBlob = await removeBackground(
+        imageElement,
+        backgroundColor || undefined,
+        (p) => setProgress(Math.min(95, p))
+      );
 
-      if (error) {
-        throw new Error(error.message || 'Failed to remove background');
-      }
-
-      setProgress(70);
-
-      if (!data?.processedImage) {
-        throw new Error('No processed image received');
-      }
-
-      // If user specified a background color, apply it
-      let finalImage = data.processedImage;
-      if (backgroundColor) {
-        const img = new Image();
-        await new Promise((resolve, reject) => {
-          img.onload = resolve;
-          img.onerror = reject;
-          img.src = data.processedImage;
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProcessedImage(reader.result as string);
+        setIsProcessing(false);
+        setShowAdOverlay(true);
+        setCanDownload(false);
+        toast({ title: "Complete!", description: "Background removed with local AI." });
+      };
+      reader.readAsDataURL(resultBlob);
+    } catch (localError) {
+      console.warn("Local background removal failed, falling back to cloud:", localError);
+      try {
+        // 2) Fallback to Lovable AI (uses credits)
+        setProgress(30);
+        const { data, error } = await supabase.functions.invoke('remove-background', {
+          body: { imageUrl: selectedImage }
         });
+        if (error) throw new Error(error.message || 'Failed to remove background');
+        if (!data?.processedImage) throw new Error('No processed image received');
 
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        
-        if (ctx) {
-          // Fill with background color
-          ctx.fillStyle = backgroundColor;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          // Draw the processed image on top
-          ctx.drawImage(img, 0, 0);
-          finalImage = canvas.toDataURL('image/png');
+        let finalImage: string = data.processedImage;
+        if (backgroundColor) {
+          const img = new Image();
+          await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = data.processedImage;
+          });
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+            finalImage = canvas.toDataURL('image/png');
+          }
         }
-      }
 
-      setProgress(100);
-      setProcessedImage(finalImage);
-      setIsProcessing(false);
-      setShowAdOverlay(true);
-      setCanDownload(false);
-      
-      toast({
-        title: "Complete!",
-        description: "Background removed successfully with AI!",
-      });
-      
-    } catch (error) {
-      console.error("Background removal error:", error);
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Failed to remove background. Please try again.",
-        variant: "destructive",
-      });
-      setIsProcessing(false);
+        setProgress(100);
+        setProcessedImage(finalImage);
+        setIsProcessing(false);
+        setShowAdOverlay(true);
+        setCanDownload(false);
+        toast({ title: "Complete!", description: "Background removed with cloud AI." });
+      } catch (cloudError) {
+        console.error("Background removal error:", cloudError);
+        toast({
+          title: "Error",
+          description: cloudError instanceof Error ? cloudError.message : "Failed to remove background. Please try again.",
+          variant: "destructive",
+        });
+        setIsProcessing(false);
+      }
     }
   };
 
