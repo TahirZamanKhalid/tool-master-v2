@@ -103,10 +103,10 @@ export const removeBackground = async (
     );
     const data = outputImageData.data;
     
-    // Apply inverted mask to alpha channel
+    // Apply mask to alpha channel - keep the subject, remove background
     for (let i = 0; i < result[0].mask.data.length; i++) {
-      // Invert the mask value (1 - value) to keep the subject instead of the background
-      const alpha = Math.round((1 - result[0].mask.data[i]) * 255);
+      // Use mask directly: 1 = subject (keep), 0 = background (remove)
+      const alpha = Math.round(result[0].mask.data[i] * 255);
       data[i * 4 + 3] = alpha;
     }
     
