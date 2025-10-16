@@ -21,3 +21,12 @@ verify_jwt = false
 [functions.rephrase-text]
 verify_jwt = false
 
+[functions.generate-essay]
+verify_jwt = false
+
+[functions.generate-thesis]
+verify_jwt = false
+
+[functions.generate-blog]
+verify_jwt = false
+

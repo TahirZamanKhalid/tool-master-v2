@@ -65,6 +65,9 @@ import {
   Send,
   CreditCard,
   RefreshCw,
+  PenTool,
+  BookOpen,
+  Newspaper,
 } from "lucide-react";
 
 const categories = [
@@ -72,7 +75,7 @@ const categories = [
     icon: Sparkles,
     title: "AI & Content",
     description: "AI-powered writing, chatbots, and content generation",
-    toolCount: 6,
+    toolCount: 9,
     color: "from-blue-500 to-purple-600",
   },
   {
@@ -230,6 +233,26 @@ const popularTools = [
     title: "Text Rephraser",
     description: "Rephrase text with different tones using AI",
     category: "AI & Content",
+  },
+  {
+    icon: PenTool,
+    title: "Essay Writer",
+    description: "Generate academic essays with AI",
+    category: "AI & Content",
+    popular: true,
+  },
+  {
+    icon: BookOpen,
+    title: "Thesis Writer",
+    description: "Generate thesis and dissertation content with AI",
+    category: "AI & Content",
+  },
+  {
+    icon: Newspaper,
+    title: "Blog Article Writer",
+    description: "Generate SEO-optimized blog articles with AI",
+    category: "AI & Content",
+    popular: true,
   },
   {
     icon: Palette,
@@ -942,6 +965,9 @@ const Index = () => {
                 "Plagiarism Checker": "/tools/plagiarism-checker",
                 "Plagiarism Remover": "/tools/plagiarism-remover",
                 "Text Rephraser": "/tools/text-rephraser",
+                "Essay Writer": "/tools/essay-writer",
+                "Thesis Writer": "/tools/thesis-writer",
+                "Blog Article Writer": "/tools/blog-article-writer",
               };
               
               return (

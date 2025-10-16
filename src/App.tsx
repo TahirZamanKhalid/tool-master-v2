@@ -119,6 +119,9 @@ import RGBConverter from "./pages/tools/RGBConverter";
 import PlagiarismChecker from "./pages/tools/PlagiarismChecker";
 import PlagiarismRemover from "./pages/tools/PlagiarismRemover";
 import TextRephraser from "./pages/tools/TextRephraser";
+import EssayWriter from "./pages/tools/EssayWriter";
+import ThesisWriter from "./pages/tools/ThesisWriter";
+import BlogArticleWriter from "./pages/tools/BlogArticleWriter";
 
 const queryClient = new QueryClient();
 
@@ -233,9 +236,12 @@ const App = () => (
         <Route path="/tools/hex-converter" element={<HexConverter />} />
         <Route path="/tools/temperature-converter" element={<TemperatureConverter />} />
         <Route path="/tools/rgb-converter" element={<RGBConverter />} />
-        <Route path="/tools/plagiarism-checker" element={<PlagiarismChecker />} />
-        <Route path="/tools/plagiarism-remover" element={<PlagiarismRemover />} />
-        <Route path="/tools/text-rephraser" element={<TextRephraser />} />
+            <Route path="/tools/plagiarism-checker" element={<PlagiarismChecker />} />
+            <Route path="/tools/plagiarism-remover" element={<PlagiarismRemover />} />
+            <Route path="/tools/text-rephraser" element={<TextRephraser />} />
+            <Route path="/tools/essay-writer" element={<EssayWriter />} />
+            <Route path="/tools/thesis-writer" element={<ThesisWriter />} />
+            <Route path="/tools/blog-article-writer" element={<BlogArticleWriter />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
