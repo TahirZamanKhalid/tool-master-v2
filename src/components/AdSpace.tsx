@@ -37,12 +37,12 @@ export const AdSpace = ({ size, className = "" }: AdSpaceProps) => {
       <ins
         className="adsbygoogle"
         style={{
-          display: "inline-block",
+          display: "block",
           width: "100%",
           minHeight: "90px",
         }}
         data-ad-client="ca-pub-7382531001943020"
-        data-ad-slot="auto"
+        data-ad-slot="1212397554"
         data-ad-format="auto"
         data-full-width-responsive="true"
       />
