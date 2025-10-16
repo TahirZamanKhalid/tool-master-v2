@@ -19,6 +19,8 @@ interface AdWatchModalProps {
   adDuration?: number;
 }
 
+const AD_REOPEN_INTERVAL = 2 * 60 * 1000; // 2 minutes in milliseconds
+
 export const AdWatchModal = ({
   open,
   onOpenChange,
@@ -49,6 +51,21 @@ export const AdWatchModal = ({
       return () => clearInterval(timer);
     }
   }, [open, adDuration]);
+
+  // Track when modal is closed and set up 2-minute reopen timer
+  useEffect(() => {
+    if (!open) {
+      // Store the close time
+      const closeTime = Date.now();
+      
+      // Set up timer to reopen after 2 minutes
+      const reopenTimer = setTimeout(() => {
+        onOpenChange(true);
+      }, AD_REOPEN_INTERVAL);
+
+      return () => clearTimeout(reopenTimer);
+    }
+  }, [open, onOpenChange]);
 
   const handleProceed = () => {
     onAdWatched();
