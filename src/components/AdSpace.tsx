@@ -40,6 +40,8 @@ export const AdSpace = ({ size, className = "" }: AdSpaceProps) => {
           display: "block",
           width: "100%",
           minHeight: "90px",
+          maxWidth: "100%",
+          overflow: "hidden"
         }}
         data-ad-client="ca-pub-7382531001943020"
         data-ad-slot="1212397554"

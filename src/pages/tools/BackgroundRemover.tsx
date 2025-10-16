@@ -5,10 +5,12 @@ import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { ImageEditor } from "@/components/ImageEditor";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Upload, Download, Eraser } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { SEOHead } from "@/components/SEOHead";
+import { removeBackground, loadImage } from "@/utils/backgroundRemoval";
 
 const BackgroundRemover = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -19,6 +21,7 @@ const BackgroundRemover = () => {
   const [showSkip, setShowSkip] = useState(false);
   const [canDownload, setCanDownload] = useState(false);
   const [showAdOverlay, setShowAdOverlay] = useState(false);
+  const [backgroundColor, setBackgroundColor] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -35,7 +38,7 @@ const BackgroundRemover = () => {
     }
   };
 
-  const removeBackground = async () => {
+  const handleRemoveBackground = async () => {
     if (!selectedImage) return;
 
     setIsProcessing(true);
@@ -43,46 +46,40 @@ const BackgroundRemover = () => {
     setShowSkip(false);
 
     try {
-      setProgress(10);
       toast({
         title: "Processing",
-        description: "AI is removing background...",
+        description: "AI is removing background with high precision...",
       });
 
-      setProgress(30);
-
-      // Call the Lovable AI-powered edge function for faster processing
-      const { data, error } = await supabase.functions.invoke('remove-background', {
-        body: { imageUrl: selectedImage }
-      });
-
-      if (error) {
-        if (error.message?.includes('429')) {
-          throw new Error('Rate limit exceeded. Please wait a moment and try again.');
-        }
-        if (error.message?.includes('402')) {
-          throw new Error('AI credits exhausted. Please contact support.');
-        }
-        throw error;
-      }
-
-      setProgress(70);
-
-      if (!data?.processedImage) {
-        throw new Error('No processed image received');
-      }
-
-      setProgress(100);
+      // Convert data URL to blob
+      const response = await fetch(selectedImage);
+      const blob = await response.blob();
       
-      toast({
-        title: "Complete!",
-        description: "Background removed with AI precision in seconds!",
-      });
-
-      setProcessedImage(data.processedImage);
-      setIsProcessing(false);
-      setShowAdOverlay(true);
-      setCanDownload(false);
+      // Load image
+      const imageElement = await loadImage(blob);
+      
+      // Remove background with progress callback
+      const resultBlob = await removeBackground(
+        imageElement, 
+        backgroundColor || undefined,
+        (prog) => setProgress(prog)
+      );
+      
+      // Convert blob to data URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProcessedImage(reader.result as string);
+        setIsProcessing(false);
+        setShowAdOverlay(true);
+        setCanDownload(false);
+        
+        toast({
+          title: "Complete!",
+          description: "Background removed successfully with AI precision!",
+        });
+      };
+      reader.readAsDataURL(resultBlob);
+      
     } catch (error) {
       console.error("Background removal error:", error);
       toast({
@@ -127,6 +124,7 @@ const BackgroundRemover = () => {
         category="Image Tools"
         instructions={[
           "Upload any image (portrait, product, object, etc.)",
+          "Optionally choose a background color to replace the removed background",
           "AI automatically detects and removes background with precision",
           "Download transparent PNG or use brush tools for fine-tuning",
           "Optional: Use erase/keep brushes if you want to refine the result",
@@ -164,37 +162,73 @@ const BackgroundRemover = () => {
                 onDownload={downloadImage}
               />
             ) : (
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <p className="font-medium mb-2">Original</p>
-                  <img
-                    src={selectedImage}
-                    alt="Original"
-                    className="w-full rounded-lg border"
-                  />
-                </div>
-                {processedImage && (
-                  <div>
-                    <p className="font-medium mb-2">Background Removed</p>
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-[linear-gradient(45deg,#f0f0f0_25%,transparent_25%,transparent_75%,#f0f0f0_75%,#f0f0f0),linear-gradient(45deg,#f0f0f0_25%,transparent_25%,transparent_75%,#f0f0f0_75%,#f0f0f0)] bg-[length:20px_20px] bg-[position:0_0,10px_10px] rounded-lg"></div>
-                      <img
-                        src={processedImage}
-                        alt="Processed"
-                        className="relative w-full rounded-lg"
+              <>
+                {!processedImage && (
+                  <div className="space-y-3">
+                    <Label htmlFor="bgColor">Background Color (Optional)</Label>
+                    <div className="flex gap-3 items-center">
+                      <Input
+                        id="bgColor"
+                        type="color"
+                        value={backgroundColor}
+                        onChange={(e) => setBackgroundColor(e.target.value)}
+                        className="w-20 h-10 cursor-pointer"
                       />
+                      <Input
+                        type="text"
+                        value={backgroundColor}
+                        onChange={(e) => setBackgroundColor(e.target.value)}
+                        placeholder="#ffffff or transparent"
+                        className="flex-1"
+                      />
+                      {backgroundColor && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setBackgroundColor("")}
+                        >
+                          Clear
+                        </Button>
+                      )}
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                      Leave empty for transparent background
+                    </p>
                   </div>
                 )}
-              </div>
+                
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <p className="font-medium mb-2">Original</p>
+                    <img
+                      src={selectedImage}
+                      alt="Original"
+                      className="w-full rounded-lg border"
+                    />
+                  </div>
+                  {processedImage && (
+                    <div>
+                      <p className="font-medium mb-2">Background Removed</p>
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-[linear-gradient(45deg,#f0f0f0_25%,transparent_25%,transparent_75%,#f0f0f0_75%,#f0f0f0),linear-gradient(45deg,#f0f0f0_25%,transparent_25%,transparent_75%,#f0f0f0_75%,#f0f0f0)] bg-[length:20px_20px] bg-[position:0_0,10px_10px] rounded-lg"></div>
+                        <img
+                          src={processedImage}
+                          alt="Processed"
+                          className="relative w-full rounded-lg"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
 
           {!showEditor && (
-            <div className="flex gap-4 justify-center">
+            <div className="flex gap-4 justify-center flex-wrap">
               {selectedImage && !processedImage && (
                 <Button
-                  onClick={removeBackground}
+                  onClick={handleRemoveBackground}
                   disabled={isProcessing}
                   size="lg"
                   className="gradient-primary border-0"
@@ -231,7 +265,7 @@ const BackgroundRemover = () => {
 
       {isProcessing && (
         <ProcessingOverlay
-          message="AI is removing background... Much faster with cloud AI!"
+          message="AI is removing background with high precision..."
           progress={progress}
           showSkip={false}
           onSkip={() => setIsProcessing(false)}

@@ -118,9 +118,9 @@ export const ToolLayout = ({
 
         <div className="flex gap-6 justify-center">
           {/* Left Sidebar Ad */}
-          <div className="hidden xl:block flex-shrink-0">
-            <div className="sticky top-24">
-              <AdSpace size="skyscraper" />
+          <div className="hidden xl:block flex-shrink-0 w-[300px]">
+            <div className="sticky top-24 w-[300px]">
+              <AdSpace size="skyscraper" className="w-[300px]" />
             </div>
           </div>
 
@@ -177,9 +177,9 @@ export const ToolLayout = ({
           </div>
 
           {/* Right Sidebar Ad */}
-          <div className="hidden xl:block flex-shrink-0">
-            <div className="sticky top-24">
-              <AdSpace size="skyscraper" />
+          <div className="hidden xl:block flex-shrink-0 w-[300px]">
+            <div className="sticky top-24 w-[300px]">
+              <AdSpace size="skyscraper" className="w-[300px]" />
             </div>
           </div>
         </div>
