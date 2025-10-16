@@ -16,8 +16,9 @@ export const SEOHead = ({
   canonical
 }: SEOHeadProps) => {
   useEffect(() => {
-    // Set title - show just the title for homepage, add suffix for other pages
-    document.title = title === "ToolMaster Pro" ? title : `${title} | ToolMaster Pro`;
+    // Set title - limit to 60 characters for SEO, show just the title for homepage
+    const finalTitle = title === "ToolMaster Pro" ? title : `${title} | ToolMaster Pro`;
+    document.title = finalTitle.substring(0, 60);
 
     // Set or update meta tags
     const updateMetaTag = (property: string, content: string, isName = false) => {

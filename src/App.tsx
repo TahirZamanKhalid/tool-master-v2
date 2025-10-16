@@ -88,6 +88,12 @@ import RomanNumeralConverter from "./pages/tools/RomanNumeralConverter";
 import LoremIpsumAdvanced from "./pages/tools/LoremIpsumAdvanced";
 import JSONMinifier from "./pages/tools/JSONMinifier";
 import HTMLMinifier from "./pages/tools/HTMLMinifier";
+import OpenGraphGenerator from "./pages/tools/OpenGraphGenerator";
+import KeywordDensity from "./pages/tools/KeywordDensity";
+import BacklinkChecker from "./pages/tools/BacklinkChecker";
+import DomainAgeChecker from "./pages/tools/DomainAgeChecker";
+import WebsiteSpeedTest from "./pages/tools/WebsiteSpeedTest";
+import XMLSitemapGenerator from "./pages/tools/XMLSitemapGenerator";
 
 
 const queryClient = new QueryClient();
@@ -175,6 +181,12 @@ const App = () => (
         <Route path="/tools/html-minifier" element={<HTMLMinifier />} />
         <Route path="/tools/video-trimmer" element={<VideoTrimmer />} />
         <Route path="/tools/video-to-gif" element={<VideoToGIF />} />
+        <Route path="/tools/open-graph-generator" element={<OpenGraphGenerator />} />
+        <Route path="/tools/keyword-density" element={<KeywordDensity />} />
+        <Route path="/tools/backlink-checker" element={<BacklinkChecker />} />
+        <Route path="/tools/domain-age-checker" element={<DomainAgeChecker />} />
+        <Route path="/tools/website-speed-test" element={<WebsiteSpeedTest />} />
+        <Route path="/tools/xml-sitemap-generator" element={<XMLSitemapGenerator />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
