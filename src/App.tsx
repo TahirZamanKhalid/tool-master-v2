@@ -94,6 +94,7 @@ import BacklinkChecker from "./pages/tools/BacklinkChecker";
 import DomainAgeChecker from "./pages/tools/DomainAgeChecker";
 import WebsiteSpeedTest from "./pages/tools/WebsiteSpeedTest";
 import XMLSitemapGenerator from "./pages/tools/XMLSitemapGenerator";
+import SubtitleGenerator from "./pages/tools/SubtitleGenerator";
 
 
 const queryClient = new QueryClient();
@@ -187,6 +188,7 @@ const App = () => (
         <Route path="/tools/domain-age-checker" element={<DomainAgeChecker />} />
         <Route path="/tools/website-speed-test" element={<WebsiteSpeedTest />} />
         <Route path="/tools/xml-sitemap-generator" element={<XMLSitemapGenerator />} />
+        <Route path="/tools/subtitle-generator" element={<SubtitleGenerator />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />

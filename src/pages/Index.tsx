@@ -113,7 +113,7 @@ const categories = [
     icon: Video,
     title: "Video Tools",
     description: "Video editing and conversion",
-    toolCount: 2,
+    toolCount: 3,
     color: "from-purple-500 to-indigo-600",
   },
   {
@@ -626,6 +626,12 @@ const popularTools = [
     category: "Video Tools",
   },
   {
+    icon: FileCode,
+    title: "Subtitle Generator",
+    description: "Generate subtitles for videos with AI",
+    category: "Video Tools",
+  },
+  {
     icon: TrendingUp,
     title: "SEO Analyzer",
     description: "Analyze and optimize your website's SEO",
@@ -910,6 +916,9 @@ const Index = () => {
                 "Lorem Ipsum Pro": "/tools/lorem-ipsum-pro",
                 "JSON Minifier": "/tools/json-minifier",
                 "HTML Minifier": "/tools/html-minifier",
+                "Video Trimmer": "/tools/video-trimmer",
+                "Video to GIF": "/tools/video-to-gif",
+                "Subtitle Generator": "/tools/subtitle-generator",
               };
               
               return (
