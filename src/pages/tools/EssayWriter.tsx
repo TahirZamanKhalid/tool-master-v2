@@ -199,7 +199,11 @@ const EssayWriter = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Sidebar Ad */}
           <div className="hidden lg:block lg:col-span-2">
-            <div className="sticky top-4 space-y-4">
+            <div className="space-y-4">
+              <div className="sticky top-4">
+                <LazyAdSpace size="skyscraper" />
+              </div>
+              <LazyAdSpace size="skyscraper" />
               <LazyAdSpace size="skyscraper" />
               <LazyAdSpace size="skyscraper" />
             </div>
@@ -345,7 +349,11 @@ const EssayWriter = () => {
 
           {/* Right Sidebar Ad */}
           <div className="hidden lg:block lg:col-span-2">
-            <div className="sticky top-4 space-y-4">
+            <div className="space-y-4">
+              <div className="sticky top-4">
+                <LazyAdSpace size="skyscraper" />
+              </div>
+              <LazyAdSpace size="skyscraper" />
               <LazyAdSpace size="skyscraper" />
               <LazyAdSpace size="skyscraper" />
             </div>
