@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
 import { BlogPostCard } from "@/components/BlogPostCard";
 import { blogPosts } from "@/data/blogPosts";
+import { LazyAdSpace } from "@/components/LazyAdSpace";
 
 const Blog = () => {
   const navigate = useNavigate();
@@ -61,16 +62,17 @@ const Blog = () => {
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Blog</h1>
             <p className="text-xl text-muted-foreground mb-12">Tips, tutorials, and insights about our tools</p>
 
-            {/* Top Banner Ad - Full Width */}
-            <div className="mb-8 w-full flex justify-center">
+            <LazyAdSpace size="leaderboard" className="mb-8" />
+
+            {/* Display Ad 2 - Top Banner (DISPLAY format - will show banner ads) */}
+            <div className="mb-8 max-w-3xl mx-auto">
               <ins
                 className="adsbygoogle"
-                style={{ display: "block" }}
+                data-ad-format="auto"
+                style="display:inline-block;width:728px;height:90px"
                 data-ad-client="ca-pub-7382531001943020"
-                data-ad-slot="2918331088"
-                data-ad-format="leaderboard"
-                data-ad-width="728"
-                data-ad-height="90"
+                data-ad-slot="8907016752"
+                data-full-width-responsive="true"
               />
             </div>
 
@@ -80,44 +82,41 @@ const Blog = () => {
               ))}
             </div>
 
-            {/* Three Display Ads in a row - Images/Videos */}
+            {/* Three Display Ads in a row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
-              {/* Display Ad 1 - Rectangle for Images/Videos */}
-              <div className="min-h-[280px] flex justify-center">
+              {/* Display Ad 3 - Left */}
+              <div className="min-h-[250px]">
                 <ins
                   className="adsbygoogle"
                   style={{ display: "block" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="4402803148"
-                  data-ad-format="rectangle"
-                  data-ad-width="300"
-                  data-ad-height="250"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
                 />
               </div>
 
-              {/* Display Ad 2 - Rectangle for Images/Videos */}
-              <div className="min-h-[280px] flex justify-center">
+              {/* In-feed Ad 1 - Center */}
+              <div className="min-h-[250px]">
                 <ins
                   className="adsbygoogle"
                   style={{ display: "block" }}
+                  data-ad-format="fluid"
+                  data-ad-layout-key="-gk-24+14-4r+ke"
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="4739066253"
-                  data-ad-format="rectangle"
-                  data-ad-width="300"
-                  data-ad-height="250"
                 />
               </div>
 
-              {/* Display Ad 3 - Rectangle for Images/Videos */}
-              <div className="min-h-[280px] flex justify-center">
+              {/* Additional Display Ad - Right */}
+              <div className="min-h-[250px]">
                 <ins
                   className="adsbygoogle"
                   style={{ display: "block" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="1968211491"
-                  data-ad-format="rectangle"
-                  data-ad-width="300"
-                  data-ad-height="250"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
                 />
               </div>
             </div>
@@ -139,18 +138,7 @@ const Blog = () => {
               />
             </div>
 
-            {/* Bottom Banner Ad - Full Width */}
-            <div className="mt-8 w-full flex justify-center">
-              <ins
-                className="adsbygoogle"
-                style={{ display: "block" }}
-                data-ad-client="ca-pub-7382531001943020"
-                data-ad-slot="2918331088"
-                data-ad-format="banner"
-                data-ad-width="728"
-                data-ad-height="90"
-              />
-            </div>
+            <LazyAdSpace size="leaderboard" className="mt-8" />
           </div>
         </div>
       </main>
