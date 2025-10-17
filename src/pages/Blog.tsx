@@ -69,7 +69,7 @@ const Blog = () => {
               <ins
                 className="adsbygoogle"
                 data-ad-format="auto"
-                style="display:inline-block;width:728px;height:90px"
+                style={{ display: "inline-block", width: "728px", height: "90px" }}
                 data-ad-client="ca-pub-7382531001943020"
                 data-ad-slot="8907016752"
                 data-full-width-responsive="true"
