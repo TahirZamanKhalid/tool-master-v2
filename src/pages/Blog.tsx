@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
@@ -11,66 +11,79 @@ import { LazyAdSpace } from "@/components/LazyAdSpace";
 
 const Blog = () => {
   const navigate = useNavigate();
+  const adsInitialized = useRef(false);
 
   useEffect(() => {
-    // Load AdSense script
-    const script = document.createElement("script");
-    script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7382531001943020";
-    script.async = true;
-    script.crossOrigin = "anonymous";
-    document.head.appendChild(script);
-
-    // Initialize ads after script loads
-    script.onload = () => {
+    const loadAdSense = async () => {
       try {
-        // Wait a bit longer for DOM to be ready
+        // Check if script already exists
+        const existingScript = document.querySelector('script[src*="adsbygoogle.js"]');
+        if (existingScript) {
+          existingScript.remove();
+        }
+
+        // Create and load AdSense script
+        const script = document.createElement("script");
+        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7382531001943020";
+        script.async = true;
+        script.crossOrigin = "anonymous";
+
+        // Use a Promise to handle script loading
+        const scriptLoaded = new Promise((resolve, reject) => {
+          script.onload = resolve;
+          script.onerror = reject;
+        });
+
+        document.head.appendChild(script);
+
+        // Wait for script to load
+        await scriptLoaded;
+
+        // Initialize ads after script loads successfully
         setTimeout(() => {
-          const ads = document.querySelectorAll(".adsbygoogle");
-          console.log("Found ads:", ads.length); // Debug log
-
-          ads.forEach((ad, index) => {
-            try {
-              if (!ad.getAttribute("data-adsbygoogle-status")) {
-                console.log("Initializing ad", index); // Debug log
-                (window.adsbygoogle = window.adsbygoogle || []).push({});
-              }
-            } catch (adError) {
-              console.error("Error initializing ad", index, adError);
-            }
-          });
-        }, 500); // Increased timeout
-      } catch (e) {
-        console.error("AdSense error:", e);
+          if (!adsInitialized.current) {
+            initializeAds();
+            adsInitialized.current = true;
+          }
+        }, 1000);
+      } catch (error) {
+        console.error("Failed to load AdSense script:", error);
+        // Fallback: try to initialize anyway in case script was already loaded
+        setTimeout(() => {
+          if (window.adsbygoogle && !adsInitialized.current) {
+            initializeAds();
+            adsInitialized.current = true;
+          }
+        }, 2000);
       }
     };
 
-    return () => {
-      if (script.parentNode) {
-        script.parentNode.removeChild(script);
-      }
-    };
-  }, []);
-
-  // Additional effect to reinitialize ads when component updates
-  useEffect(() => {
-    const reinitializeAds = () => {
+    const initializeAds = () => {
       try {
-        if (window.adsbygoogle) {
-          const ads = document.querySelectorAll(".adsbygoogle");
-          ads.forEach((ad) => {
+        const ads = document.querySelectorAll(".adsbygoogle");
+        console.log("Initializing ads, found:", ads.length);
+
+        ads.forEach((ad, index) => {
+          try {
             if (!ad.getAttribute("data-adsbygoogle-status")) {
+              console.log("Pushing ad", index + 1);
               (window.adsbygoogle = window.adsbygoogle || []).push({});
             }
-          });
-        }
-      } catch (e) {
-        console.error("Ad reinitialization error:", e);
+          } catch (adError) {
+            console.error(`Error initializing ad ${index + 1}:`, adError);
+          }
+        });
+      } catch (error) {
+        console.error("Error in initializeAds:", error);
       }
     };
 
-    // Reinitialize after a delay to ensure DOM is ready
-    const timer = setTimeout(reinitializeAds, 1000);
-    return () => clearTimeout(timer);
+    loadAdSense();
+
+    // Cleanup
+    return () => {
+      adsInitialized.current = false;
+    };
   }, []);
 
   return (
@@ -101,12 +114,16 @@ const Blog = () => {
             </div>
 
             {/* Three Display Ads in a Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 my-8">
               {/* Side bar Ads1 */}
-              <div className="min-h-[280px] w-full">
+              <div className="min-h-[300px] bg-gray-50 rounded-lg flex items-center justify-center">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block", width: "100%", height: "280px" }}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    minHeight: "280px",
+                  }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="5628599414"
                   data-ad-format="auto"
@@ -115,10 +132,14 @@ const Blog = () => {
               </div>
 
               {/* Display Ad 2 */}
-              <div className="min-h-[280px] w-full">
+              <div className="min-h-[300px] bg-gray-50 rounded-lg flex items-center justify-center">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block", width: "100%", height: "280px" }}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    minHeight: "280px",
+                  }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="2918331088"
                   data-ad-format="auto"
@@ -127,10 +148,14 @@ const Blog = () => {
               </div>
 
               {/* Display ad 3 */}
-              <div className="min-h-[280px] w-full">
+              <div className="min-h-[300px] bg-gray-50 rounded-lg flex items-center justify-center">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block", width: "100%", height: "280px" }}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    minHeight: "280px",
+                  }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="4402803148"
                   data-ad-format="auto"
