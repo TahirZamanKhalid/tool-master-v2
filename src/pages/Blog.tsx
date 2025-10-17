@@ -58,20 +58,20 @@ const Blog = () => {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Button>
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Blog</h1>
             <p className="text-xl text-muted-foreground mb-12">Tips, tutorials, and insights about our tools</p>
 
             <LazyAdSpace size="leaderboard" className="mb-8" />
 
-            {/* Display Ad 2 - Top Banner (DISPLAY format - will show banner ads) */}
-            <div className="mb-8 max-w-3xl mx-auto">
+            {/* Display Ad 2 - Top Banner - Full Width Flexible */}
+            <div className="mb-8 w-full flex justify-center">
               <ins
                 className="adsbygoogle"
-                data-ad-format="auto"
-                style={{ display: "inline-block", width: "728px", height: "90px" }}
+                style={{ display: "block", width: "100%", maxWidth: "728px" }}
                 data-ad-client="ca-pub-7382531001943020"
                 data-ad-slot="8907016752"
+                data-ad-format="auto"
                 data-full-width-responsive="true"
               />
             </div>
@@ -82,13 +82,13 @@ const Blog = () => {
               ))}
             </div>
 
-            {/* Three Display Ads in a row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
-              {/* Display Ad 3 - Left */}
-              <div className="min-h-[250px]">
+            {/* First Row - Three Flexible Ads */}
+            <div className="flex flex-col md:flex-row gap-4 my-8 items-start justify-center">
+              {/* Display Ad 1 - Flexible */}
+              <div className="flex-1 min-w-0 flex justify-center">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block" }}
+                  style={{ display: "block", width: "100%", maxWidth: "400px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="4402803148"
                   data-ad-format="auto"
@@ -96,23 +96,23 @@ const Blog = () => {
                 />
               </div>
 
-              {/* In-feed Ad 1 - Center */}
-              <div className="min-h-[250px]">
+              {/* Display Ad 2 - Flexible */}
+              <div className="flex-1 min-w-0 flex justify-center">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block" }}
-                  data-ad-format="fluid"
-                  data-ad-layout-key="-gk-24+14-4r+ke"
+                  style={{ display: "block", width: "100%", maxWidth: "400px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="4739066253"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
                 />
               </div>
 
-              {/* Additional Display Ad - Right */}
-              <div className="min-h-[250px]">
+              {/* Display Ad 3 - Flexible */}
+              <div className="flex-1 min-w-0 flex justify-center">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block" }}
+                  style={{ display: "block", width: "100%", maxWidth: "400px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="1968211491"
                   data-ad-format="auto"
@@ -125,6 +125,84 @@ const Blog = () => {
               {blogPosts.slice(3).map((post) => (
                 <BlogPostCard key={post.id} post={post} />
               ))}
+            </div>
+
+            {/* Second Row - Three More Flexible Ads */}
+            <div className="flex flex-col md:flex-row gap-4 my-8 items-start justify-center">
+              {/* Additional Ad 1 - Flexible */}
+              <div className="flex-1 min-w-0 flex justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", maxWidth: "400px" }}
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="4402803148"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
+              </div>
+
+              {/* Additional Ad 2 - Flexible */}
+              <div className="flex-1 min-w-0 flex justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", maxWidth: "400px" }}
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="4739066253"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
+              </div>
+
+              {/* Additional Ad 3 - Flexible */}
+              <div className="flex-1 min-w-0 flex justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", maxWidth: "400px" }}
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="1968211491"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
+              </div>
+            </div>
+
+            {/* Third Row - Three More Flexible Ads */}
+            <div className="flex flex-col md:flex-row gap-4 my-8 items-start justify-center">
+              {/* More Ad 1 - Flexible */}
+              <div className="flex-1 min-w-0 flex justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", maxWidth: "400px" }}
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="4402803148"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
+              </div>
+
+              {/* More Ad 2 - Flexible */}
+              <div className="flex-1 min-w-0 flex justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", maxWidth: "400px" }}
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="4739066253"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
+              </div>
+
+              {/* More Ad 3 - Flexible */}
+              <div className="flex-1 min-w-0 flex justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", maxWidth: "400px" }}
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="1968211491"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
+              </div>
             </div>
 
             {/* Multiplex Ad - Native content recommendation grid */}
