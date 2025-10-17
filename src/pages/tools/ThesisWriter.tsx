@@ -196,12 +196,7 @@ const ThesisWriter = () => {
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="hidden lg:block lg:col-span-2">
-            <div className="space-y-4">
-              <LazyAdSpace size="skyscraper" />
-              <LazyAdSpace size="skyscraper" />
-              <LazyAdSpace size="skyscraper" />
-              <LazyAdSpace size="skyscraper" />
-              <LazyAdSpace size="skyscraper" />
+            <div className="sticky top-4">
               <LazyAdSpace size="skyscraper" />
             </div>
           </div>
@@ -351,12 +346,7 @@ const ThesisWriter = () => {
           </div>
 
           <div className="hidden lg:block lg:col-span-2">
-            <div className="space-y-4">
-              <LazyAdSpace size="skyscraper" />
-              <LazyAdSpace size="skyscraper" />
-              <LazyAdSpace size="skyscraper" />
-              <LazyAdSpace size="skyscraper" />
-              <LazyAdSpace size="skyscraper" />
+            <div className="sticky top-4">
               <LazyAdSpace size="skyscraper" />
             </div>
           </div>
