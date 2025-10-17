@@ -51,19 +51,19 @@ export const AdSpace = (props: AdSpaceProps) => {
       } catch (err) {
         console.error("AdSense error:", err);
       }
-    }, 100);
+    }, 500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [adConfig]);
 
   const { type, slot, layoutKey } = adConfig;
 
   if (type === "infeed") {
     return (
-      <div className={`flex items-center justify-center w-full ${className}`}>
+      <div className={`flex items-center justify-center w-full min-h-[250px] min-w-[300px] ${className}`}>
         <ins
           className="adsbygoogle"
-          style={{ display: "block" }}
+          style={{ display: "block", minHeight: "250px", minWidth: "300px" }}
           data-ad-format="fluid"
           data-ad-layout-key={layoutKey}
           data-ad-client="ca-pub-7382531001943020"
@@ -75,10 +75,10 @@ export const AdSpace = (props: AdSpaceProps) => {
 
   if (type === "multiplex") {
     return (
-      <div className={`flex items-center justify-center w-full ${className}`}>
+      <div className={`flex items-center justify-center w-full min-h-[250px] min-w-[300px] ${className}`}>
         <ins
           className="adsbygoogle"
-          style={{ display: "block" }}
+          style={{ display: "block", minHeight: "250px", minWidth: "300px" }}
           data-ad-format="autorelaxed"
           data-ad-client="ca-pub-7382531001943020"
           data-ad-slot={slot}
@@ -88,10 +88,10 @@ export const AdSpace = (props: AdSpaceProps) => {
   }
 
   return (
-    <div className={`flex items-center justify-center w-full min-h-[90px] ${className}`}>
+    <div className={`flex items-center justify-center w-full min-h-[250px] min-w-[300px] ${className}`}>
       <ins
         className="adsbygoogle"
-        style={{ display: "block" }}
+        style={{ display: "block", minHeight: "250px", minWidth: "300px" }}
         data-ad-client="ca-pub-7382531001943020"
         data-ad-slot={slot}
         data-ad-format="auto"
