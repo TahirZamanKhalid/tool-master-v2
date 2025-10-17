@@ -23,9 +23,10 @@ const Blog = () => {
     // Initialize ads after a short delay to ensure DOM is ready
     const timer = setTimeout(() => {
       try {
-        // Push ads for each ad unit
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        // Push ads for each ad unit (7 total ads)
+        for (let i = 0; i < 7; i++) {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        }
       } catch (e) {
         console.error("AdSense error:", e);
       }
@@ -61,16 +62,38 @@ const Blog = () => {
 
             <LazyAdSpace size="leaderboard" className="mb-8" />
 
-            {/* First AdSense Ad - Top of Blog Posts */}
-            <div className="my-8 flex justify-center">
-              <ins
-                className="adsbygoogle"
-                style={{ display: "block" }}
-                data-ad-format="fluid"
-                data-ad-layout-key="-g5-1u+99-a6-k8"
-                data-ad-client="ca-pub-7382531001943020"
-                data-ad-slot="1968211491"
-              />
+            {/* First Row - 3 Ads Horizontally */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
+              <div className="min-h-[250px] flex items-center justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", minHeight: "250px" }}
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="1968211491"
+                />
+              </div>
+              <div className="min-h-[250px] flex items-center justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", minHeight: "250px" }}
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="1968211491"
+                />
+              </div>
+              <div className="min-h-[250px] flex items-center justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", minHeight: "250px" }}
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="1968211491"
+                />
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -79,16 +102,48 @@ const Blog = () => {
               ))}
             </div>
 
-            {/* Second AdSense Ad - Bottom of Blog Posts */}
-            <div className="my-8 flex justify-center">
-              <ins
-                className="adsbygoogle"
-                style={{ display: "block" }}
-                data-ad-format="fluid"
-                data-ad-layout-key="-g5-1u+99-a6-k8"
-                data-ad-client="ca-pub-7382531001943020"
-                data-ad-slot="1968211491"
-              />
+            {/* Second Row - 4 Ads Horizontally */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-8">
+              <div className="min-h-[250px] flex items-center justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", minHeight: "250px" }}
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="1968211491"
+                />
+              </div>
+              <div className="min-h-[250px] flex items-center justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", minHeight: "250px" }}
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="1968211491"
+                />
+              </div>
+              <div className="min-h-[250px] flex items-center justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", minHeight: "250px" }}
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="1968211491"
+                />
+              </div>
+              <div className="min-h-[250px] flex items-center justify-center">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block", width: "100%", minHeight: "250px" }}
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="1968211491"
+                />
+              </div>
             </div>
 
             <LazyAdSpace size="leaderboard" className="mt-8" />
