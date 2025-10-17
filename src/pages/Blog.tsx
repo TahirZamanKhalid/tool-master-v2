@@ -23,14 +23,22 @@ const Blog = () => {
     // Initialize ads after script loads
     script.onload = () => {
       try {
+        // Wait a bit longer for DOM to be ready
         setTimeout(() => {
           const ads = document.querySelectorAll(".adsbygoogle");
-          ads.forEach((ad) => {
-            if (!ad.getAttribute("data-adsbygoogle-status")) {
-              (window.adsbygoogle = window.adsbygoogle || []).push({});
+          console.log("Found ads:", ads.length); // Debug log
+
+          ads.forEach((ad, index) => {
+            try {
+              if (!ad.getAttribute("data-adsbygoogle-status")) {
+                console.log("Initializing ad", index); // Debug log
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+              }
+            } catch (adError) {
+              console.error("Error initializing ad", index, adError);
             }
           });
-        }, 300);
+        }, 500); // Increased timeout
       } catch (e) {
         console.error("AdSense error:", e);
       }
@@ -41,6 +49,28 @@ const Blog = () => {
         script.parentNode.removeChild(script);
       }
     };
+  }, []);
+
+  // Additional effect to reinitialize ads when component updates
+  useEffect(() => {
+    const reinitializeAds = () => {
+      try {
+        if (window.adsbygoogle) {
+          const ads = document.querySelectorAll(".adsbygoogle");
+          ads.forEach((ad) => {
+            if (!ad.getAttribute("data-adsbygoogle-status")) {
+              (window.adsbygoogle = window.adsbygoogle || []).push({});
+            }
+          });
+        }
+      } catch (e) {
+        console.error("Ad reinitialization error:", e);
+      }
+    };
+
+    // Reinitialize after a delay to ensure DOM is ready
+    const timer = setTimeout(reinitializeAds, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -73,10 +103,10 @@ const Blog = () => {
             {/* Three Display Ads in a Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
               {/* Side bar Ads1 */}
-              <div className="min-h-[250px] flex items-center justify-center">
+              <div className="min-h-[280px] w-full">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block" }}
+                  style={{ display: "block", width: "100%", height: "280px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="5628599414"
                   data-ad-format="auto"
@@ -85,10 +115,10 @@ const Blog = () => {
               </div>
 
               {/* Display Ad 2 */}
-              <div className="min-h-[250px] flex items-center justify-center">
+              <div className="min-h-[280px] w-full">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block" }}
+                  style={{ display: "block", width: "100%", height: "280px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="2918331088"
                   data-ad-format="auto"
@@ -97,10 +127,10 @@ const Blog = () => {
               </div>
 
               {/* Display ad 3 */}
-              <div className="min-h-[250px] flex items-center justify-center">
+              <div className="min-h-[280px] w-full">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block" }}
+                  style={{ display: "block", width: "100%", height: "280px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="4402803148"
                   data-ad-format="auto"
