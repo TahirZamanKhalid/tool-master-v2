@@ -22,24 +22,24 @@ export const AdRow = ({ type, count, className = "", position = 'content' }: AdR
         if (type === 'display') {
           const slot = getDisplayAdSlot(baseIndex + i);
           return (
-            <div key={`ad-${type}-${i}`} className="flex justify-center">
-              <LazyAdSpace type="display" slot={slot} position={position} />
+            <div key={`ad-${type}-${i}`} className="flex justify-center max-w-md mx-auto">
+              <LazyAdSpace type="display" slot={slot} position={position} className="w-full" />
             </div>
           );
         }
         if (type === 'multiplex') {
           const slot = getMultiplexAdSlot(baseIndex + i);
           return (
-            <div key={`ad-${type}-${i}`} className="flex justify-center">
-              <LazyAdSpace type="multiplex" slot={slot} position={position} />
+            <div key={`ad-${type}-${i}`} className="flex justify-center max-w-md mx-auto">
+              <LazyAdSpace type="multiplex" slot={slot} position={position} className="w-full" />
             </div>
           );
         }
         // infeed
         const { slot, layoutKey } = getInfeedAdConfig(baseIndex + i);
         return (
-          <div key={`ad-${type}-${i}`} className="flex justify-center">
-            <LazyAdSpace type="infeed" slot={slot} layoutKey={layoutKey} position={position} />
+          <div key={`ad-${type}-${i}`} className="flex justify-center max-w-md mx-auto">
+            <LazyAdSpace type="infeed" slot={slot} layoutKey={layoutKey} position={position} className="w-full" />
           </div>
         );
       })}
