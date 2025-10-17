@@ -82,9 +82,9 @@ const Blog = () => {
               ))}
             </div>
 
-            {/* Display Ads side by side - Different display formats */}
-            <div className="grid md:grid-cols-2 gap-6 my-8">
-              {/* Display Ad 3 - Square/Rectangle display ad */}
+            {/* Three Display Ads in a row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
+              {/* Display Ad 3 - Left */}
               <div className="min-h-[250px]">
                 <ins
                   className="adsbygoogle"
@@ -96,7 +96,7 @@ const Blog = () => {
                 />
               </div>
 
-              {/* In-feed Ad 1 - Feed style ad */}
+              {/* In-feed Ad 1 - Center */}
               <div className="min-h-[250px]">
                 <ins
                   className="adsbygoogle"
@@ -107,24 +107,24 @@ const Blog = () => {
                   data-ad-slot="4739066253"
                 />
               </div>
+
+              {/* Additional Display Ad - Right */}
+              <div className="min-h-[250px]">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block" }}
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="1968211491"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {blogPosts.slice(3).map((post) => (
                 <BlogPostCard key={post.id} post={post} />
               ))}
-            </div>
-
-            {/* In-feed Ad 2 - Full width feed ad */}
-            <div className="my-8 max-w-2xl mx-auto">
-              <ins
-                className="adsbygoogle"
-                style={{ display: "block" }}
-                data-ad-format="fluid"
-                data-ad-layout-key="-g5-1u+99-a6-k8"
-                data-ad-client="ca-pub-7382531001943020"
-                data-ad-slot="1968211491"
-              />
             </div>
 
             {/* Multiplex Ad - Native content recommendation grid */}
