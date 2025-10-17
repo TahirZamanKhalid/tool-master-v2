@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { LazyAdSpace } from "./LazyAdSpace";
+import { getInfeedAdConfig } from "@/utils/adSlotRotation";
 
 interface ContentAdBreakProps {
   index: number;
@@ -7,6 +8,7 @@ interface ContentAdBreakProps {
 
 export const ContentAdBreak = ({ index }: ContentAdBreakProps) => {
   const [isVisible, setIsVisible] = useState(true);
+  const adConfig = getInfeedAdConfig(index);
 
   useEffect(() => {
     // Auto-close ad after 30 seconds (Google AdSense typical policy)
@@ -21,9 +23,6 @@ export const ContentAdBreak = ({ index }: ContentAdBreakProps) => {
     return null;
   }
 
-  // Alternate between in-feed ads
-  const adSlot = index % 2 === 0 ? "4739066253" : "1968211491";
-  const layoutKey = index % 2 === 0 ? "-gk-24+14-4r+ke" : "-g5-1u+99-a6-k8";
 
   return (
     <div className="my-8 relative">
@@ -32,8 +31,8 @@ export const ContentAdBreak = ({ index }: ContentAdBreakProps) => {
       </div>
       <LazyAdSpace 
         type="infeed" 
-        slot={adSlot}
-        layoutKey={layoutKey}
+        slot={adConfig.slot}
+        layoutKey={adConfig.layoutKey}
         className="mx-auto" 
       />
       <button

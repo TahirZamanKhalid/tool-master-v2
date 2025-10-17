@@ -7,11 +7,13 @@ type LazyAdSpacePropsNew = {
   slot: string;
   layoutKey?: string;
   className?: string;
+  position?: 'top' | 'bottom' | 'sidebar-left' | 'sidebar-right' | 'content';
 };
 
 type LazyAdSpacePropsOld = {
   size: "banner" | "leaderboard" | "rectangle" | "skyscraper";
   className?: string;
+  position?: 'top' | 'bottom' | 'sidebar-left' | 'sidebar-right' | 'content';
 };
 
 type LazyAdSpaceProps = LazyAdSpacePropsNew | LazyAdSpacePropsOld;

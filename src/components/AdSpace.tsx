@@ -1,44 +1,45 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { getDisplayAdSlot, getAdIndex } from "@/utils/adSlotRotation";
 
 type AdSpacePropsNew = {
   type: "display" | "infeed" | "multiplex";
   slot: string;
   layoutKey?: string;
   className?: string;
+  position?: 'top' | 'bottom' | 'sidebar-left' | 'sidebar-right' | 'content';
 };
 
 type AdSpacePropsOld = {
   size: "banner" | "leaderboard" | "rectangle" | "skyscraper";
   className?: string;
+  position?: 'top' | 'bottom' | 'sidebar-left' | 'sidebar-right' | 'content';
 };
 
 type AdSpaceProps = AdSpacePropsNew | AdSpacePropsOld;
 
 export const AdSpace = (props: AdSpaceProps) => {
-  const { className = "" } = props;
+  const { className = "", position = 'top' } = props;
   
   // Handle backward compatibility - convert old size API to new type/slot API
-  let type: "display" | "infeed" | "multiplex";
-  let slot: string;
-  let layoutKey: string | undefined;
-  
-  if ("size" in props) {
-    // Old API - map to new slots
-    const sizeMap = {
-      leaderboard: { type: "display" as const, slot: "4402803148" },
-      banner: { type: "display" as const, slot: "4402803148" },
-      rectangle: { type: "display" as const, slot: "2918331088" },
-      skyscraper: { type: "display" as const, slot: "2918331088" },
-    };
-    const config = sizeMap[props.size];
-    type = config.type;
-    slot = config.slot;
-  } else {
-    // New API
-    type = props.type;
-    slot = props.slot;
-    layoutKey = props.layoutKey;
-  }
+  const adConfig = useMemo(() => {
+    let type: "display" | "infeed" | "multiplex";
+    let slot: string;
+    let layoutKey: string | undefined;
+    
+    if ("size" in props) {
+      // Old API - use rotation based on position
+      const index = getAdIndex(position);
+      slot = getDisplayAdSlot(index);
+      type = "display";
+    } else {
+      // New API
+      type = props.type;
+      slot = props.slot;
+      layoutKey = props.layoutKey;
+    }
+    
+    return { type, slot, layoutKey };
+  }, [props, position]);
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
@@ -54,6 +55,8 @@ export const AdSpace = (props: AdSpaceProps) => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  const { type, slot, layoutKey } = adConfig;
 
   if (type === "infeed") {
     return (

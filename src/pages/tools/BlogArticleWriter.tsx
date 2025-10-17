@@ -199,13 +199,13 @@ const BlogArticleWriter = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="hidden lg:block lg:col-span-2">
             <div className="sticky top-4">
-              <LazyAdSpace type="display" slot="2918331088" />
+              <LazyAdSpace type="display" slot="2918331088" position="sidebar-left" />
             </div>
           </div>
 
           <div className="lg:col-span-8">
             <div className="mb-6">
-              <LazyAdSpace type="display" slot="4402803148" />
+              <LazyAdSpace type="display" slot="4402803148" position="top" />
             </div>
 
             <div className="bg-card rounded-lg border p-6 space-y-6">
@@ -358,13 +358,13 @@ const BlogArticleWriter = () => {
             </div>
 
             <div className="mt-6">
-              <LazyAdSpace type="multiplex" slot="4356563508" />
+              <LazyAdSpace type="multiplex" slot="4356563508" position="bottom" />
             </div>
           </div>
 
           <div className="hidden lg:block lg:col-span-2">
             <div className="sticky top-4">
-              <LazyAdSpace type="display" slot="4402803148" />
+              <LazyAdSpace type="display" slot="4402803148" position="sidebar-right" />
             </div>
           </div>
         </div>

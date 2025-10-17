@@ -200,7 +200,7 @@ const EssayWriter = () => {
           {/* Sidebar Ad */}
           <div className="hidden lg:block lg:col-span-2">
             <div className="sticky top-4">
-              <LazyAdSpace type="display" slot="2918331088" />
+              <LazyAdSpace type="display" slot="2918331088" position="sidebar-left" />
             </div>
           </div>
 
@@ -208,7 +208,7 @@ const EssayWriter = () => {
           <div className="lg:col-span-8">
             {/* Top Ad */}
             <div className="mb-6">
-              <LazyAdSpace type="display" slot="4402803148" />
+              <LazyAdSpace type="display" slot="4402803148" position="top" />
             </div>
 
             <div className="bg-card rounded-lg border p-6 space-y-6">
@@ -337,14 +337,14 @@ const EssayWriter = () => {
             </div>
 
             <div className="mt-6">
-              <LazyAdSpace type="multiplex" slot="2127993591" />
+              <LazyAdSpace type="multiplex" slot="2127993591" position="bottom" />
             </div>
           </div>
 
           {/* Right Sidebar Ad */}
           <div className="hidden lg:block lg:col-span-2">
             <div className="sticky top-4">
-              <LazyAdSpace type="display" slot="4402803148" />
+              <LazyAdSpace type="display" slot="4402803148" position="sidebar-right" />
             </div>
           </div>
         </div>
