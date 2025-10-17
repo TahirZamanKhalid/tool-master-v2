@@ -849,7 +849,7 @@ const Index = () => {
         
         {/* Ad after Categories section */}
         <div className="mt-12">
-          <LazyAdSpace size="leaderboard" />
+          <LazyAdSpace type="display" slot="2918331088" position="content" />
         </div>
       </section>
 
@@ -873,7 +873,7 @@ const Index = () => {
           <>
             {/* Ad before tools grid */}
             <div className="mb-8">
-              <LazyAdSpace size="leaderboard" />
+              <LazyAdSpace type="display" slot="4402803148" position="content" />
             </div>
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -981,10 +981,16 @@ const Index = () => {
                     <ToolCard {...tool} comingSoon={tool.comingSoon} />
                   </div>
                   
-                  {/* Insert rectangle ad after every 8 tools */}
+                  {/* Insert in-feed ad after every 8 tools */}
                   {showAdAfter && (
                     <div className="col-span-full my-4">
-                      <LazyAdSpace size="rectangle" className="mx-auto" />
+                      <LazyAdSpace 
+                        type="infeed" 
+                        slot="4739066253" 
+                        layoutKey="-gk-24+14-4r+ke"
+                        position="content" 
+                        className="mx-auto" 
+                      />
                     </div>
                   )}
                 </>
@@ -1007,9 +1013,9 @@ const Index = () => {
           </div>
         )}
 
-        {/* Bottom Ad - Lazy loaded */}
+        {/* Bottom Ad - Multiplex */}
         <div className="mt-12">
-          <LazyAdSpace size="leaderboard" />
+          <LazyAdSpace type="multiplex" slot="2127993591" position="bottom" />
         </div>
       </section>
 
@@ -1051,9 +1057,9 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Ad after Stats section - Lazy loaded */}
+          {/* Ad after Stats section - Display */}
           <div className="mt-12">
-            <LazyAdSpace size="leaderboard" />
+            <LazyAdSpace type="display" slot="2918331088" position="bottom" />
           </div>
         </div>
       </section>
