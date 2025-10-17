@@ -358,7 +358,7 @@ const BlogArticleWriter = () => {
             </div>
 
             <div className="mt-6">
-              <LazyAdSpace type="multiplex" slot="2127993591" />
+              <LazyAdSpace type="multiplex" slot="4356563508" />
             </div>
           </div>
 

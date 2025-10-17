@@ -336,7 +336,6 @@ const EssayWriter = () => {
               )}
             </div>
 
-            {/* Bottom Ad */}
             <div className="mt-6">
               <LazyAdSpace type="multiplex" slot="2127993591" />
             </div>

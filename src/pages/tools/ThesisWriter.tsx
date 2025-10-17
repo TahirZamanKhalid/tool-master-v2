@@ -341,7 +341,7 @@ const ThesisWriter = () => {
             </div>
 
             <div className="mt-6">
-              <LazyAdSpace type="multiplex" slot="2127993591" />
+              <LazyAdSpace type="multiplex" slot="7202218695" />
             </div>
           </div>
 
