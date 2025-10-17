@@ -64,57 +64,45 @@ const Blog = () => {
 
             <LazyAdSpace size="leaderboard" className="mb-8" />
 
-            {/* Display Ad 2 - Top Banner (DISPLAY format - will show banner ads) */}
-            <div className="mb-8 max-w-3xl mx-auto">
-              <ins
-                className="adsbygoogle"
-                style={{ display: "block" }}
-                data-ad-client="ca-pub-7382531001943020"
-                data-ad-slot="2918331088"
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-              />
-            </div>
-
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {blogPosts.slice(0, 3).map((post) => (
                 <BlogPostCard key={post.id} post={post} />
               ))}
             </div>
 
-            {/* Three Display Ads in a row */}
+            {/* Three Display Ads in a Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
-              {/* Display Ad 3 - Left */}
-              <div className="min-h-[250px]">
+              {/* Side bar Ads1 */}
+              <div className="min-h-[250px] flex items-center justify-center">
                 <ins
                   className="adsbygoogle"
                   style={{ display: "block" }}
                   data-ad-client="ca-pub-7382531001943020"
-                  data-ad-slot="4402803148"
+                  data-ad-slot="5628599414"
                   data-ad-format="auto"
                   data-full-width-responsive="true"
                 />
               </div>
 
-              {/* In-feed Ad 1 - Center */}
-              <div className="min-h-[250px]">
+              {/* Display Ad 2 */}
+              <div className="min-h-[250px] flex items-center justify-center">
                 <ins
                   className="adsbygoogle"
                   style={{ display: "block" }}
-                  data-ad-format="fluid"
-                  data-ad-layout-key="-gk-24+14-4r+ke"
                   data-ad-client="ca-pub-7382531001943020"
-                  data-ad-slot="4739066253"
+                  data-ad-slot="2918331088"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
                 />
               </div>
 
-              {/* Additional Display Ad - Right */}
-              <div className="min-h-[250px]">
+              {/* Display ad 3 */}
+              <div className="min-h-[250px] flex items-center justify-center">
                 <ins
                   className="adsbygoogle"
                   style={{ display: "block" }}
                   data-ad-client="ca-pub-7382531001943020"
-                  data-ad-slot="1968211491"
+                  data-ad-slot="4402803148"
                   data-ad-format="auto"
                   data-full-width-responsive="true"
                 />
@@ -125,6 +113,18 @@ const Blog = () => {
               {blogPosts.slice(3).map((post) => (
                 <BlogPostCard key={post.id} post={post} />
               ))}
+            </div>
+
+            {/* In-feed Ad - Full width feed ad */}
+            <div className="my-8 max-w-2xl mx-auto">
+              <ins
+                className="adsbygoogle"
+                style={{ display: "block" }}
+                data-ad-format="fluid"
+                data-ad-layout-key="-g5-1u+99-a6-k8"
+                data-ad-client="ca-pub-7382531001943020"
+                data-ad-slot="1968211491"
+              />
             </div>
 
             {/* Multiplex Ad - Native content recommendation grid */}
