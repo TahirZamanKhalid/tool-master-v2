@@ -63,33 +63,27 @@ const Blog = () => {
             <LazyAdSpace size="leaderboard" className="mb-8" />
 
             {/* First Row - 3 Ads Horizontally */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
-              <div className="min-h-[250px] flex items-center justify-center">
+            <div className="flex gap-4 my-8 overflow-x-auto">
+              <div className="min-w-[300px] min-h-[250px] flex items-center justify-center flex-shrink-0">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block", width: "100%", minHeight: "250px" }}
-                  data-ad-format="auto"
-                  data-full-width-responsive="true"
+                  style={{ display: "inline-block", width: "300px", height: "250px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="1968211491"
                 />
               </div>
-              <div className="min-h-[250px] flex items-center justify-center">
+              <div className="min-w-[300px] min-h-[250px] flex items-center justify-center flex-shrink-0">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block", width: "100%", minHeight: "250px" }}
-                  data-ad-format="auto"
-                  data-full-width-responsive="true"
+                  style={{ display: "inline-block", width: "300px", height: "250px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="1968211491"
                 />
               </div>
-              <div className="min-h-[250px] flex items-center justify-center">
+              <div className="min-w-[300px] min-h-[250px] flex items-center justify-center flex-shrink-0">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block", width: "100%", minHeight: "250px" }}
-                  data-ad-format="auto"
-                  data-full-width-responsive="true"
+                  style={{ display: "inline-block", width: "300px", height: "250px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="1968211491"
                 />
@@ -103,43 +97,35 @@ const Blog = () => {
             </div>
 
             {/* Second Row - 4 Ads Horizontally */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-8">
-              <div className="min-h-[250px] flex items-center justify-center">
+            <div className="flex gap-4 my-8 overflow-x-auto">
+              <div className="min-w-[300px] min-h-[250px] flex items-center justify-center flex-shrink-0">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block", width: "100%", minHeight: "250px" }}
-                  data-ad-format="auto"
-                  data-full-width-responsive="true"
+                  style={{ display: "inline-block", width: "300px", height: "250px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="1968211491"
                 />
               </div>
-              <div className="min-h-[250px] flex items-center justify-center">
+              <div className="min-w-[300px] min-h-[250px] flex items-center justify-center flex-shrink-0">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block", width: "100%", minHeight: "250px" }}
-                  data-ad-format="auto"
-                  data-full-width-responsive="true"
+                  style={{ display: "inline-block", width: "300px", height: "250px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="1968211491"
                 />
               </div>
-              <div className="min-h-[250px] flex items-center justify-center">
+              <div className="min-w-[300px] min-h-[250px] flex items-center justify-center flex-shrink-0">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block", width: "100%", minHeight: "250px" }}
-                  data-ad-format="auto"
-                  data-full-width-responsive="true"
+                  style={{ display: "inline-block", width: "300px", height: "250px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="1968211491"
                 />
               </div>
-              <div className="min-h-[250px] flex items-center justify-center">
+              <div className="min-w-[300px] min-h-[250px] flex items-center justify-center flex-shrink-0">
                 <ins
                   className="adsbygoogle"
-                  style={{ display: "block", width: "100%", minHeight: "250px" }}
-                  data-ad-format="auto"
-                  data-full-width-responsive="true"
+                  style={{ display: "inline-block", width: "300px", height: "250px" }}
                   data-ad-client="ca-pub-7382531001943020"
                   data-ad-slot="1968211491"
                 />
