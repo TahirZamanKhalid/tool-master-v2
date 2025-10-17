@@ -64,8 +64,8 @@ const Blog = () => {
 
             <LazyAdSpace size="leaderboard" className="mb-8" />
 
-            {/* Display Ad 2 - Top Banner (responsive, not too tall) */}
-            <div className="mb-8">
+            {/* Display Ad 2 - Top Banner (DISPLAY format - will show banner ads) */}
+            <div className="mb-8 max-w-3xl mx-auto">
               <ins
                 className="adsbygoogle"
                 style={{ display: "block" }}
@@ -82,26 +82,41 @@ const Blog = () => {
               ))}
             </div>
 
-            {/* In-feed Ad 1 - Blends with content (fluid format) */}
-            <div className="my-6">
-              <ins
-                className="adsbygoogle"
-                style={{ display: "block" }}
-                data-ad-format="fluid"
-                data-ad-layout-key="-gk-24+14-4r+ke"
-                data-ad-client="ca-pub-7382531001943020"
-                data-ad-slot="4739066253"
-              />
+            {/* Display Ads side by side - Different display formats */}
+            <div className="grid md:grid-cols-2 gap-6 my-8">
+              {/* Display Ad 3 - Square/Rectangle display ad */}
+              <div className="min-h-[250px]">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block" }}
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="4402803148"
+                  data-ad-format="auto"
+                  data-full-width-responsive="true"
+                />
+              </div>
+
+              {/* In-feed Ad 1 - Feed style ad */}
+              <div className="min-h-[250px]">
+                <ins
+                  className="adsbygoogle"
+                  style={{ display: "block" }}
+                  data-ad-format="fluid"
+                  data-ad-layout-key="-gk-24+14-4r+ke"
+                  data-ad-client="ca-pub-7382531001943020"
+                  data-ad-slot="4739066253"
+                />
+              </div>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {blogPosts.slice(3, 6).map((post) => (
+              {blogPosts.slice(3).map((post) => (
                 <BlogPostCard key={post.id} post={post} />
               ))}
             </div>
 
-            {/* In-feed Ad 2 - Blends with content (fluid format) */}
-            <div className="my-6">
+            {/* In-feed Ad 2 - Full width feed ad */}
+            <div className="my-8 max-w-2xl mx-auto">
               <ins
                 className="adsbygoogle"
                 style={{ display: "block" }}
@@ -112,25 +127,7 @@ const Blog = () => {
               />
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {blogPosts.slice(6).map((post) => (
-                <BlogPostCard key={post.id} post={post} />
-              ))}
-            </div>
-
-            {/* Display Ad 3 - Bottom Banner (responsive) */}
-            <div className="mt-8 mb-6">
-              <ins
-                className="adsbygoogle"
-                style={{ display: "block" }}
-                data-ad-client="ca-pub-7382531001943020"
-                data-ad-slot="4402803148"
-                data-ad-format="auto"
-                data-full-width-responsive="true"
-              />
-            </div>
-
-            {/* Multiplex Ad - Native content recommendation (at the very bottom) */}
+            {/* Multiplex Ad - Native content recommendation grid */}
             <div className="mt-8">
               <ins
                 className="adsbygoogle"
