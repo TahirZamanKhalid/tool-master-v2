@@ -1,30 +1,31 @@
+// components/LazyAdSpace.tsx
 import { lazy, Suspense } from "react";
 
-const AdSpace = lazy(() => import("./AdSpace").then(module => ({ default: module.AdSpace })));
+const AdSpace = lazy(() => import("./AdSpace").then((module) => ({ default: module.AdSpace })));
 
 type LazyAdSpacePropsNew = {
   type: "display" | "infeed" | "multiplex";
   slot: string;
   layoutKey?: string;
   className?: string;
-  position?: 'top' | 'bottom' | 'sidebar-left' | 'sidebar-right' | 'content';
+  position?: "top" | "bottom" | "sidebar-left" | "sidebar-right" | "content";
 };
 
 type LazyAdSpacePropsOld = {
   size: "banner" | "leaderboard" | "rectangle" | "skyscraper";
   className?: string;
-  position?: 'top' | 'bottom' | 'sidebar-left' | 'sidebar-right' | 'content';
+  position?: "top" | "bottom" | "sidebar-left" | "sidebar-right" | "content";
 };
 
 type LazyAdSpaceProps = LazyAdSpacePropsNew | LazyAdSpacePropsOld;
 
 export const LazyAdSpace = (props: LazyAdSpaceProps) => {
   return (
-    <Suspense 
+    <Suspense
       fallback={
-        <div 
-          className={`bg-muted/10 animate-pulse rounded ${props.className || ""}`} 
-          style={{ minHeight: '90px' }}
+        <div
+          className={`bg-muted/10 animate-pulse rounded-lg ${props.className || ""}`}
+          style={{ minHeight: "90px" }}
           aria-label="Loading advertisement"
         />
       }
