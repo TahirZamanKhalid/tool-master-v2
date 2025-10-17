@@ -21,12 +21,21 @@ export const ContentAdBreak = ({ index }: ContentAdBreakProps) => {
     return null;
   }
 
+  // Alternate between in-feed ads
+  const adSlot = index % 2 === 0 ? "4739066253" : "1968211491";
+  const layoutKey = index % 2 === 0 ? "-gk-24+14-4r+ke" : "-g5-1u+99-a6-k8";
+
   return (
     <div className="my-8 relative">
       <div className="text-xs text-muted-foreground text-center mb-2">
         Advertisement
       </div>
-      <LazyAdSpace size="rectangle" className="mx-auto" />
+      <LazyAdSpace 
+        type="infeed" 
+        slot={adSlot}
+        layoutKey={layoutKey}
+        className="mx-auto" 
+      />
       <button
         onClick={() => setIsVisible(false)}
         className="absolute top-0 right-0 text-xs text-muted-foreground hover:text-foreground px-2 py-1"
