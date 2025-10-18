@@ -71,9 +71,9 @@ const Blog = () => {
               </div>
             </section>
 
-            {/* Bottom Multiplex Ad */}
+            {/* Bottom Display Ads */}
             <div className="mt-16">
-              <AdRow type="multiplex" count={1} position="bottom" />
+              <AdRow type="display" count={3} position="bottom" />
             </div>
           </div>
         </div>

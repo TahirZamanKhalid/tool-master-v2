@@ -1014,9 +1014,9 @@ const Index = () => {
           </div>
         )}
 
-        {/* Bottom Ad - Multiplex */}
+        {/* Bottom Ad - Display Ads */}
         <div className="mt-12">
-          <AdRow type="multiplex" count={3} position="bottom" />
+          <AdRow type="display" count={3} position="bottom" />
         </div>
       </section>
 
