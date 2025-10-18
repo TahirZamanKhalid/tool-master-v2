@@ -1,8 +1,15 @@
 // Ad slot rotation to maximize impressions across different ad units
 
 export const displayAdSlots = [
-  "2918331088", // Display Ad 2
-  "4402803148", // Display Ad 3
+  "8907016752", // Blog page ad 1 / Ad 1
+  "1212397554", // Sidebar for both mobile and desktop / Ad 2
+  "2918331088", // Display Ad 2 / Ad 3
+  "4402803148", // Display ad 3 / Ad 4
+  "9239216915", // Display ad 6 / Ad 6
+  "8923135106", // Display ad 7 / Ad 7
+  "4202125614", // Display ad 8 / Ad 8
+  "2889043946", // Display ad 9 / Ad 9
+  "1575962277", // Display ad 10 / Ad 10
 ];
 
 export const infeedAdSlots = [

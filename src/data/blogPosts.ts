@@ -10,6 +10,7 @@ export interface BlogPost {
   tags: string[];
   image: string;
   readTime: string;
+  featured?: boolean;
 }
 
 export const blogPosts: BlogPost[] = [
@@ -24,6 +25,7 @@ export const blogPosts: BlogPost[] = [
     tags: ["tools", "productivity", "development", "coding"],
     image: "/placeholder.svg",
     readTime: "5 min read",
+    featured: true,
     content: `
 # 10 Essential Free Online Tools Every Developer Needs in 2025
 
@@ -73,6 +75,7 @@ These tools are completely free and require no installation. Start using them to
     tags: ["security", "passwords", "cybersecurity", "best practices"],
     image: "/placeholder.svg",
     readTime: "4 min read",
+    featured: true,
     content: `
 # How to Generate Secure Passwords: A Complete Guide
 
@@ -119,6 +122,7 @@ Stay safe online by using strong, unique passwords for every account!
     tags: ["qr codes", "marketing", "technology", "mobile"],
     image: "/placeholder.svg",
     readTime: "6 min read",
+    featured: true,
     content: `
 # QR Codes in 2025: Uses, Benefits, and How to Create Them
 

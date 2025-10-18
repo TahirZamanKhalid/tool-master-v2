@@ -3,21 +3,9 @@ import { lazy, Suspense } from "react";
 
 const AdSpace = lazy(() => import("./AdSpace").then((module) => ({ default: module.AdSpace })));
 
-type LazyAdSpacePropsNew = {
-  type: "display" | "infeed" | "multiplex";
-  slot: string;
-  layoutKey?: string;
-  className?: string;
-  position?: "top" | "bottom" | "sidebar-left" | "sidebar-right" | "content";
-};
+import type { AdSpaceProps } from "./AdSpace";
 
-type LazyAdSpacePropsOld = {
-  size: "banner" | "leaderboard" | "rectangle" | "skyscraper";
-  className?: string;
-  position?: "top" | "bottom" | "sidebar-left" | "sidebar-right" | "content";
-};
-
-type LazyAdSpaceProps = LazyAdSpacePropsNew | LazyAdSpacePropsOld;
+type LazyAdSpaceProps = AdSpaceProps;
 
 export const LazyAdSpace = (props: LazyAdSpaceProps) => {
   return (
