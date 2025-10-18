@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import { PeriodicAdModal } from "@/components/PeriodicAdModal";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import BackgroundRemover from "./pages/tools/BackgroundRemover";
@@ -130,7 +129,6 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <PeriodicAdModal />
       <BrowserRouter>
         <ScrollToTop />
         <Routes>
