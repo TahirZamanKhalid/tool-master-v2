@@ -7,6 +7,7 @@ import { ToolCard } from "@/components/ToolCard";
 import { HowItWorks } from "@/components/HowItWorks";
 import { FAQ } from "@/components/FAQ";
 import { LazyAdSpace } from "@/components/LazyAdSpace";
+import { AdSpace } from "@/components/AdSpace";
 import { AdRow } from "@/components/AdRow";
 import { SEOHead } from "@/components/SEOHead";
 import { trackSearch } from "@/hooks/useToolAnalytics";
@@ -789,9 +790,9 @@ const Index = () => {
 
       <OptimizedHero searchQuery={searchQuery} onSearch={handleButtonSearch} />
       
-      {/* Ad after Hero - High visibility */}
+      {/* Ad after Hero - High visibility - NOT lazy loaded for AdSense detection */}
       <div className="container px-4 py-6">
-        <LazyAdSpace size="leaderboard" />
+        <AdSpace type="display" slot="8907016752" position="top" />
       </div>
 
       {/* Categories Section */}
@@ -848,9 +849,11 @@ const Index = () => {
           {/* Right Sidebar Ad - Desktop Only (Removed for better performance) */}
         </div>
         
-        {/* Ad after Categories section */}
-        <div className="mt-12">
-          <AdRow type="display" count={3} position="content" />
+        {/* Ad after Categories section - NOT lazy loaded for AdSense detection */}
+        <div className="mt-12 flex gap-4 justify-center flex-wrap">
+          <AdSpace type="display" slot="4402803148" position="content" />
+          <AdSpace type="display" slot="9239216915" position="content" />
+          <AdSpace type="display" slot="8923135106" position="content" />
         </div>
       </section>
 
@@ -872,9 +875,10 @@ const Index = () => {
 
         {filteredTools.length > 0 ? (
           <>
-            {/* Ad before tools grid */}
-            <div className="mb-8">
-              <AdRow type="display" count={2} position="content" />
+            {/* Ad before tools grid - NOT lazy loaded for AdSense detection */}
+            <div className="mb-8 flex gap-4 justify-center flex-wrap">
+              <AdSpace type="display" slot="1212397554" position="content" />
+              <AdSpace type="display" slot="2918331088" position="content" />
             </div>
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
