@@ -85,15 +85,18 @@ export const AdSpace = (props: AdSpaceProps) => {
   }
 
   const getAdStyle = () => {
+    const isFixedLeaderboard = actualSlot === "8907016752" || (!isNewFormat && (props as any).size === "leaderboard");
     switch (type) {
       case "display":
-        return { display: "block", minHeight: "200px", maxWidth: "400px", width: "100%" };
+        return isFixedLeaderboard
+          ? { display: "inline-block", width: "728px", height: "90px" }
+          : { display: "block", width: "100%" };
       case "multiplex":
-        return { display: "block", minHeight: "200px", maxWidth: "400px", width: "100%" };
+        return { display: "block", width: "100%" };
       case "infeed":
-        return { display: "block", minHeight: "120px", maxWidth: "400px", width: "100%" };
+        return { display: "block", width: "100%", minHeight: "120px" };
       default:
-        return { display: "block", minHeight: "200px", maxWidth: "400px", width: "100%" };
+        return { display: "block", width: "100%" };
     }
   };
 
@@ -111,9 +114,9 @@ export const AdSpace = (props: AdSpaceProps) => {
         style={getAdStyle()}
         data-ad-client={adClient}
         data-ad-slot={actualSlot}
-        data-ad-format={type === "infeed" ? "fluid" : "auto"}
-        data-ad-layout-key={layoutKey}
-        data-full-width-responsive="true"
+        data-ad-format={actualSlot === "8907016752" ? undefined : (type === "infeed" ? "fluid" : "auto")}
+        data-ad-layout-key={type === "infeed" ? layoutKey : undefined}
+        data-full-width-responsive={actualSlot === "8907016752" ? undefined : "true"}
       />
     </div>
   );
