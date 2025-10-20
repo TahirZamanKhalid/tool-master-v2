@@ -34,8 +34,10 @@ const slotConfig: Record<string, string> = {
 
 export const AdSpace = (props: AdSpaceProps) => {
   const adRef = useRef<any>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
   const [adLoaded, setAdLoaded] = useState(false);
   const [adError, setAdError] = useState(false);
+  const [containerWidth, setContainerWidth] = useState<number>(0);
   const adClient = "ca-pub-7382531001943020";
   
   // Handle both old and new prop formats
@@ -48,9 +50,25 @@ export const AdSpace = (props: AdSpaceProps) => {
   
   const actualSlot = slotConfig[slot] || slot;
 
+  // Observe container width to prevent "No slot size for availableWidth" errors
+  useEffect(() => {
+    if (!wrapperRef.current) return;
+    const element = wrapperRef.current;
+    // Initial measure
+    setContainerWidth(element.clientWidth || 0);
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const cw = Math.floor(entry.contentRect.width);
+        setContainerWidth(cw);
+      }
+    });
+    ro.observe(element);
+    return () => ro.disconnect();
+  }, []);
+
   useEffect(() => {
     // Load AdSense script if not already loaded
-    if (!document.querySelector('script[src*="googlesyndication.com"]')) {
+    if (!document.querySelector('script[src*="googlesyndication.com/pagead/js/adsbygoogle.js"]')) {
       const script = document.createElement("script");
       script.async = true;
       script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`;
@@ -58,8 +76,21 @@ export const AdSpace = (props: AdSpaceProps) => {
       document.head.appendChild(script);
     }
 
+    const minWidth = (() => {
+      const isLeaderboardSlot = actualSlot === "8907016752";
+      if (type === "infeed") return 180;
+      if (isLeaderboardSlot && containerWidth >= 728) return 728;
+      return 250;
+    })();
+
     const initializeAd = () => {
-      if (window.adsbygoogle && adRef.current) {
+      if (adLoaded || adError) return;
+      if (!adRef.current || containerWidth < minWidth) {
+        // Retry until script is ready and container is wide enough
+        setTimeout(initializeAd, 300);
+        return;
+      }
+      if (window.adsbygoogle) {
         try {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
           setAdLoaded(true);
@@ -69,15 +100,15 @@ export const AdSpace = (props: AdSpaceProps) => {
         }
       } else {
         // Retry if not ready
-        setTimeout(initializeAd, 500);
+        setTimeout(initializeAd, 300);
       }
     };
 
-    // Wait a bit for the script to load
-    const timer = setTimeout(initializeAd, 1000);
+    // Initialize shortly after mount or when width changes
+    const timer = setTimeout(initializeAd, 100);
 
     return () => clearTimeout(timer);
-  }, [actualSlot, adClient]);
+  }, [actualSlot, adClient, containerWidth, type, adLoaded, adError]);
 
   // Don't show fallback - just hide if error
   if (adError) {
@@ -85,7 +116,7 @@ export const AdSpace = (props: AdSpaceProps) => {
   }
 
   const getAdStyle = () => {
-    const isFixedLeaderboard = actualSlot === "8907016752" || (!isNewFormat && (props as any).size === "leaderboard");
+    const isFixedLeaderboard = type === "display" && actualSlot === "8907016752" && containerWidth >= 728;
     switch (type) {
       case "display":
         return isFixedLeaderboard
@@ -101,7 +132,7 @@ export const AdSpace = (props: AdSpaceProps) => {
   };
 
   return (
-    <div className={`ad-container ${className}`}>
+    <div className={`ad-container ${className}`} ref={wrapperRef}>
       {!adLoaded && !adError && (
         <div className="animate-pulse bg-gray-200 rounded-lg flex items-center justify-center" style={getAdStyle()}>
           <span className="text-gray-500 text-sm">Loading ad...</span>
@@ -114,9 +145,9 @@ export const AdSpace = (props: AdSpaceProps) => {
         style={getAdStyle()}
         data-ad-client={adClient}
         data-ad-slot={actualSlot}
-        data-ad-format={actualSlot === "8907016752" ? undefined : (type === "infeed" ? "fluid" : "auto")}
+        data-ad-format={(actualSlot === "8907016752" && containerWidth >= 728) ? undefined : (type === "infeed" ? "fluid" : "auto")}
         data-ad-layout-key={type === "infeed" ? layoutKey : undefined}
-        data-full-width-responsive={actualSlot === "8907016752" ? undefined : "true"}
+        data-full-width-responsive={(actualSlot === "8907016752" && containerWidth >= 728) ? undefined : "true"}
       />
     </div>
   );
