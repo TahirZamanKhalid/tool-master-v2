@@ -78,16 +78,18 @@ export const AdSpace = (props: AdSpaceProps) => {
 
     const minWidth = (() => {
       const isLeaderboardSlot = actualSlot === "8907016752";
-      if (type === "infeed") return 180;
+      // Mobile-friendly minimum widths
+      if (type === "infeed") return 250;
       if (isLeaderboardSlot && containerWidth >= 728) return 728;
-      return 250;
+      // Lower threshold for mobile responsiveness (was 250, now 200)
+      return 200;
     })();
 
     const initializeAd = () => {
       if (adLoaded || adError) return;
       if (!adRef.current || containerWidth < minWidth) {
         // Retry until script is ready and container is wide enough
-        setTimeout(initializeAd, 300);
+        setTimeout(initializeAd, 200);
         return;
       }
       if (window.adsbygoogle) {
@@ -100,12 +102,12 @@ export const AdSpace = (props: AdSpaceProps) => {
         }
       } else {
         // Retry if not ready
-        setTimeout(initializeAd, 300);
+        setTimeout(initializeAd, 200);
       }
     };
 
-    // Initialize shortly after mount or when width changes
-    const timer = setTimeout(initializeAd, 100);
+    // Initialize faster for better impression rate
+    const timer = setTimeout(initializeAd, 50);
 
     return () => clearTimeout(timer);
   }, [actualSlot, adClient, containerWidth, type, adLoaded, adError]);
@@ -121,13 +123,13 @@ export const AdSpace = (props: AdSpaceProps) => {
       case "display":
         return isFixedLeaderboard
           ? { display: "inline-block", width: "728px", height: "90px" }
-          : { display: "block", width: "100%" };
+          : { display: "block", width: "100%", minHeight: "50px" };
       case "multiplex":
-        return { display: "block", width: "100%" };
+        return { display: "block", width: "100%", minHeight: "100px" };
       case "infeed":
-        return { display: "block", width: "100%", minHeight: "120px" };
+        return { display: "block", width: "100%", minHeight: "250px" };
       default:
-        return { display: "block", width: "100%" };
+        return { display: "block", width: "100%", minHeight: "50px" };
     }
   };
 
