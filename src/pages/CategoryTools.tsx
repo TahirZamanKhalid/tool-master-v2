@@ -10,7 +10,22 @@ const CategoryTools = () => {
   const navigate = useNavigate();
   const { category } = useParams();
 
-  const decodedCategory = category?.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+  // Map URL slugs to exact category names
+  const categoryMap: Record<string, string> = {
+    "ai-content": "AI & Content",
+    "image-tools": "Image Tools",
+    "developer-tools": "Developer Tools",
+    "qr-barcodes": "QR & Barcodes",
+    "pdf-tools": "PDF Tools",
+    "text-tools": "Text Tools",
+    "video-tools": "Video Tools",
+    "seo-marketing": "SEO & Marketing",
+    "calculators": "Calculators",
+    "security-tools": "Security Tools",
+    "utilities": "Utilities"
+  };
+
+  const decodedCategory = categoryMap[category || ""] || "";
   const categoryTools = allTools.filter((tool) => tool.category === decodedCategory);
 
   return (

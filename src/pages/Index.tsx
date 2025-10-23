@@ -812,12 +812,28 @@ const Index = () => {
           {/* Main Content */}
           <div className="flex-1 max-w-6xl">
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {categories.map((category, index) => (
+          {categories.map((category, index) => {
+            // Create URL-friendly slugs
+            const categorySlug: Record<string, string> = {
+              "AI & Content": "ai-content",
+              "Image Tools": "image-tools",
+              "Developer Tools": "developer-tools",
+              "QR & Barcodes": "qr-barcodes",
+              "PDF Tools": "pdf-tools",
+              "Text Tools": "text-tools",
+              "Video Tools": "video-tools",
+              "SEO & Marketing": "seo-marketing",
+              "Calculators": "calculators",
+              "Security Tools": "security-tools",
+              "Utilities": "utilities"
+            };
+            
+            return (
               <div
                 key={index}
                 className="animate-scale-in cursor-pointer"
                 style={{ animationDelay: `${index * 0.05}s` }}
-                onClick={() => navigate(`/category/${category.title.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`)}
+                onClick={() => navigate(`/category/${categorySlug[category.title]}`)}
               >
                 <CategoryCard 
                   {...category}
@@ -826,7 +842,8 @@ const Index = () => {
                   comingSoon={false}
                 />
               </div>
-          ))}
+            );
+          })}
             </div>
 
             {selectedCategory && (
