@@ -70,6 +70,9 @@ import {
   PenTool,
   BookOpen,
   Newspaper,
+  Monitor,
+  Coins,
+  Shuffle
 } from "lucide-react";
 
 const categories = [
@@ -91,7 +94,7 @@ const categories = [
     icon: Code,
     title: "Developer Tools",
     description: "API testing, formatters, and development utilities",
-    toolCount: 20,
+    toolCount: 21,
     color: "from-green-500 to-emerald-600",
   },
   {
@@ -112,7 +115,7 @@ const categories = [
     icon: Type,
     title: "Text Tools",
     description: "Word counter, case converter, and more",
-    toolCount: 18,
+    toolCount: 23,
     color: "from-indigo-500 to-blue-600",
   },
   {
@@ -147,7 +150,7 @@ const categories = [
     icon: Dices,
     title: "Utilities",
     description: "Random generators, timers, and more",
-    toolCount: 4,
+    toolCount: 9,
     color: "from-fuchsia-500 to-pink-600",
   },
 ];
@@ -809,26 +812,21 @@ const Index = () => {
           {/* Main Content */}
           <div className="flex-1 max-w-6xl">
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {categories.map((category, index) => {
-            const toolCount = getToolCountByCategory(category.title);
-            const comingSoon = toolCount === 0;
-            
-            return (
+          {categories.map((category, index) => (
               <div
                 key={index}
                 className="animate-scale-in cursor-pointer"
                 style={{ animationDelay: `${index * 0.05}s` }}
-                onClick={() => !comingSoon && handleCategoryFilter(category.title)}
+                onClick={() => navigate(`/category/${category.title.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')}`)}
               >
                 <CategoryCard 
                   {...category}
-                  toolCount={toolCount}
-                  isSelected={selectedCategory === category.title}
-                  comingSoon={comingSoon}
+                  toolCount={category.toolCount}
+                  isSelected={false}
+                  comingSoon={false}
                 />
               </div>
-            );
-          })}
+          ))}
             </div>
 
             {selectedCategory && (
@@ -865,12 +863,20 @@ const Index = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             {searchQuery || selectedCategory ? "Search Results" : "Popular Tools"}
           </h2>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-lg mb-4">
             {searchQuery || selectedCategory 
               ? `Found ${filteredTools.length} tool${filteredTools.length !== 1 ? 's' : ''}`
               : "Most used tools by our community"
             }
           </p>
+          {!searchQuery && !selectedCategory && (
+            <button
+              onClick={() => navigate("/tools")}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all font-semibold"
+            >
+              View All Tools
+            </button>
+          )}
         </div>
 
         {filteredTools.length > 0 ? (

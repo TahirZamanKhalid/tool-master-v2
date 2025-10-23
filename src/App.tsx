@@ -121,6 +121,13 @@ import TextRephraser from "./pages/tools/TextRephraser";
 import EssayWriter from "./pages/tools/EssayWriter";
 import ThesisWriter from "./pages/tools/ThesisWriter";
 import BlogArticleWriter from "./pages/tools/BlogArticleWriter";
+import AllTools from "./pages/AllTools";
+import CategoryTools from "./pages/CategoryTools";
+import IPDetector from "./pages/tools/IPDetector";
+import ScreenDetector from "./pages/tools/ScreenDetector";
+import WordScrambler from "./pages/tools/WordScrambler";
+import CoinFlip from "./pages/tools/CoinFlip";
+import JSONValidator from "./pages/tools/JSONValidator";
 
 const queryClient = new QueryClient();
 
@@ -134,6 +141,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/tools" element={<AllTools />} />
+          <Route path="/category/:category" element={<CategoryTools />} />
         <Route path="/tools/background-remover" element={<BackgroundRemover />} />
         <Route path="/tools/qr-code-generator" element={<QRCodeGenerator />} />
         <Route path="/tools/pdf-merger" element={<PDFMerger />} />
@@ -240,6 +249,11 @@ const App = () => (
             <Route path="/tools/essay-writer" element={<EssayWriter />} />
             <Route path="/tools/thesis-writer" element={<ThesisWriter />} />
             <Route path="/tools/blog-article-writer" element={<BlogArticleWriter />} />
+            <Route path="/tools/ip-detector" element={<IPDetector />} />
+            <Route path="/tools/screen-detector" element={<ScreenDetector />} />
+            <Route path="/tools/word-scrambler" element={<WordScrambler />} />
+            <Route path="/tools/coin-flip" element={<CoinFlip />} />
+            <Route path="/tools/json-validator" element={<JSONValidator />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
