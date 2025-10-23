@@ -77,37 +77,36 @@ export const AdSpace = (props: AdSpaceProps) => {
     }
 
     const minWidth = (() => {
-      const isLeaderboardSlot = actualSlot === "8907016752";
-      // Mobile-friendly minimum widths
-      if (type === "infeed") return 250;
-      if (isLeaderboardSlot && containerWidth >= 728) return 728;
-      // Lower threshold for mobile responsiveness (was 250, now 200)
-      return 200;
+      // Mobile-optimized minimum widths for better ad serving
+      if (type === "infeed") return 300;
+      if (type === "multiplex") return 250;
+      return 250; // Standard minimum for display ads
     })();
 
     const initializeAd = () => {
       if (adLoaded || adError) return;
       if (!adRef.current || containerWidth < minWidth) {
-        // Retry until script is ready and container is wide enough
-        setTimeout(initializeAd, 200);
+        // Retry until container is ready
+        setTimeout(initializeAd, 100);
         return;
       }
       if (window.adsbygoogle) {
         try {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
-          setAdLoaded(true);
+          // Mark as loaded after push
+          setTimeout(() => setAdLoaded(true), 500);
         } catch (error) {
           console.error("AdSense error:", error);
           setAdError(true);
         }
       } else {
-        // Retry if not ready
-        setTimeout(initializeAd, 200);
+        // Retry if script not ready
+        setTimeout(initializeAd, 100);
       }
     };
 
-    // Initialize faster for better impression rate
-    const timer = setTimeout(initializeAd, 50);
+    // Start initialization
+    const timer = setTimeout(initializeAd, 100);
 
     return () => clearTimeout(timer);
   }, [actualSlot, adClient, containerWidth, type, adLoaded, adError]);
@@ -118,38 +117,29 @@ export const AdSpace = (props: AdSpaceProps) => {
   }
 
   const getAdStyle = () => {
-    const isFixedLeaderboard = type === "display" && actualSlot === "8907016752" && containerWidth >= 728;
     switch (type) {
       case "display":
-        return isFixedLeaderboard
-          ? { display: "inline-block", width: "728px", height: "90px" }
-          : { display: "block", width: "100%", minHeight: "50px" };
+        return { display: "block", width: "100%", minHeight: "90px" };
       case "multiplex":
-        return { display: "block", width: "100%", minHeight: "100px" };
-      case "infeed":
         return { display: "block", width: "100%", minHeight: "250px" };
+      case "infeed":
+        return { display: "block", width: "100%", minHeight: "280px" };
       default:
-        return { display: "block", width: "100%", minHeight: "50px" };
+        return { display: "block", width: "100%", minHeight: "90px" };
     }
   };
 
   return (
-    <div className={`ad-container ${className}`} ref={wrapperRef}>
-      {!adLoaded && !adError && (
-        <div className="animate-pulse bg-gray-200 rounded-lg flex items-center justify-center" style={getAdStyle()}>
-          <span className="text-gray-500 text-sm">Loading ad...</span>
-        </div>
-      )}
-
+    <div className={`ad-container ${className}`} ref={wrapperRef} style={{ minWidth: "250px" }}>
       <ins
         ref={adRef}
         className="adsbygoogle"
-        style={getAdStyle()}
+        style={{ ...getAdStyle(), visibility: adLoaded ? "visible" : "hidden" }}
         data-ad-client={adClient}
         data-ad-slot={actualSlot}
-        data-ad-format={(actualSlot === "8907016752" && containerWidth >= 728) ? undefined : (type === "infeed" ? "fluid" : "auto")}
+        data-ad-format={type === "infeed" ? "fluid" : "auto"}
         data-ad-layout-key={type === "infeed" ? layoutKey : undefined}
-        data-full-width-responsive={(actualSlot === "8907016752" && containerWidth >= 728) ? undefined : "true"}
+        data-full-width-responsive="true"
       />
     </div>
   );
