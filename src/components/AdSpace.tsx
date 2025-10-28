@@ -49,6 +49,10 @@ export const AdSpace = (props: AdSpaceProps) => {
   const position = props.position;
   
   const actualSlot = slotConfig[slot] || slot;
+  const isTestMode = typeof window !== "undefined" && (
+    window.location.hostname.includes("localhost") ||
+    window.location.hostname.endsWith(".lovable.app")
+  );
 
   // Observe container width to prevent "No slot size for availableWidth" errors
   useEffect(() => {
@@ -92,11 +96,15 @@ export const AdSpace = (props: AdSpaceProps) => {
       }
       if (window.adsbygoogle) {
         try {
+          console.log("[AdSense] push", { type, slot: actualSlot, containerWidth, minWidth, isTestMode });
           (window.adsbygoogle = window.adsbygoogle || []).push({});
           // Mark as loaded after push
-          setTimeout(() => setAdLoaded(true), 500);
+          setTimeout(() => {
+            setAdLoaded(true);
+            console.log("[AdSense] marked loaded", { slot: actualSlot });
+          }, 500);
         } catch (error) {
-          console.error("AdSense error:", error);
+          console.error("[AdSense] error on push:", error);
           setAdError(true);
         }
       } else {
@@ -140,6 +148,7 @@ export const AdSpace = (props: AdSpaceProps) => {
         data-ad-format={type === "infeed" ? "fluid" : "auto"}
         data-ad-layout-key={type === "infeed" ? layoutKey : undefined}
         data-full-width-responsive="true"
+        data-adtest={isTestMode ? "on" : undefined}
       />
     </div>
   );
