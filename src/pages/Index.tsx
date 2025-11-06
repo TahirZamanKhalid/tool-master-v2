@@ -72,7 +72,9 @@ import {
   Newspaper,
   Monitor,
   Coins,
-  Shuffle
+  Shuffle,
+  ArrowRightLeft,
+  Receipt
 } from "lucide-react";
 
 const categories = [
@@ -87,7 +89,7 @@ const categories = [
     icon: Image,
     title: "Image Tools",
     description: "Edit, compress, convert, and enhance images",
-    toolCount: 11,
+    toolCount: 12,
     color: "from-pink-500 to-rose-600",
   },
   {
@@ -143,7 +145,7 @@ const categories = [
     icon: Shield,
     title: "Security Tools",
     description: "Password generators and validators",
-    toolCount: 3,
+    toolCount: 4,
     color: "from-red-500 to-orange-600",
   },
   {
@@ -152,6 +154,20 @@ const categories = [
     description: "Random generators, timers, and more",
     toolCount: 9,
     color: "from-fuchsia-500 to-pink-600",
+  },
+  {
+    icon: ArrowRightLeft,
+    title: "File Converters",
+    description: "Convert files between formats (Excel, CSV, images, PDFs)",
+    toolCount: 7,
+    color: "from-amber-500 to-orange-600",
+  },
+  {
+    icon: Receipt,
+    title: "Business Tools",
+    description: "Invoice generation and business utilities",
+    toolCount: 1,
+    color: "from-teal-500 to-cyan-600",
   },
 ];
 
@@ -825,7 +841,9 @@ const Index = () => {
               "SEO & Marketing": "seo-marketing",
               "Calculators": "calculators",
               "Security Tools": "security-tools",
-              "Utilities": "utilities"
+              "Utilities": "utilities",
+              "File Converters": "file-converters",
+              "Business Tools": "business-tools"
             };
             
             return (
