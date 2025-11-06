@@ -22,7 +22,9 @@ const CategoryTools = () => {
     "seo-marketing": "SEO & Marketing",
     "calculators": "Calculators",
     "security-tools": "Security Tools",
-    "utilities": "Utilities"
+    "utilities": "Utilities",
+    "file-converters": "File Converters",
+    "business-tools": "Business Tools"
   };
 
   const decodedCategory = categoryMap[category || ""] || "";
