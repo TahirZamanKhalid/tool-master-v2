@@ -6,7 +6,8 @@ import {
   FileSpreadsheet, FileJson, Database, Globe, Send, CreditCard,
   Link, Dices, Timer, Calendar, TrendingUp, Barcode, ScanLine,
   Wifi, Camera, Scissors, Minimize2, FileType, Images, Paintbrush,
-  FileImage, Video, Brain, Monitor, Coins, Shuffle
+  FileImage, Video, Brain, Monitor, Coins, Shuffle, ArrowRightLeft,
+  ImageDown, Smartphone, FileArchive, Receipt, ShieldCheck
 } from "lucide-react";
 
 export const allTools = [
@@ -132,4 +133,22 @@ export const allTools = [
   { icon: Monitor, title: "IP Address Detector", description: "Detect your IP address", category: "Utilities", path: "/tools/ip-detector" },
   { icon: Monitor, title: "Screen Size Detector", description: "Display screen dimensions", category: "Utilities", path: "/tools/screen-detector" },
   { icon: Coins, title: "Coin Flip", description: "Flip a virtual coin", category: "Utilities", path: "/tools/coin-flip" },
+
+  // File Converters (7) - NEW HIGH-DEMAND TOOLS
+  { icon: ArrowRightLeft, title: "Excel to CSV", description: "Convert Excel files to CSV format instantly", category: "File Converters", path: "/tools/excel-to-csv", popular: true },
+  { icon: ArrowRightLeft, title: "CSV to Excel", description: "Convert CSV files to Excel (.xlsx) format", category: "File Converters", path: "/tools/csv-to-excel", popular: true },
+  { icon: ImageDown, title: "PNG to JPG", description: "Convert PNG images to JPG format online", category: "File Converters", path: "/tools/png-to-jpg", popular: true },
+  { icon: ImageDown, title: "JPG to PNG", description: "Convert JPG/JPEG images to PNG format", category: "File Converters", path: "/tools/jpg-to-png", popular: true },
+  { icon: Smartphone, title: "HEIC to JPG", description: "Convert iPhone HEIC images to JPG format", category: "File Converters", path: "/tools/heic-to-jpg", popular: true },
+  { icon: FileArchive, title: "PDF to Images", description: "Convert PDF pages to JPG or PNG images", category: "File Converters", path: "/tools/pdf-to-images", popular: true },
+  { icon: ImageDown, title: "WebP to PNG", description: "Convert WebP images to PNG format", category: "File Converters", path: "/tools/webp-to-png" },
+
+  // Advanced Image Tools (1) - NEW
+  { icon: Minimize2, title: "Advanced Image Compressor", description: "Compress images with full control over quality and format", category: "Image Tools", path: "/tools/advanced-image-compressor" },
+
+  // Business Tools (1) - NEW
+  { icon: Receipt, title: "Invoice Generator", description: "Create professional invoices with PDF download", category: "Business Tools", path: "/tools/invoice-generator", popular: true },
+
+  // Advanced Security Tools (1) - NEW
+  { icon: ShieldCheck, title: "Advanced Password Generator", description: "Generate ultra-secure passwords with full customization", category: "Security Tools", path: "/tools/advanced-password-generator", popular: true },
 ];

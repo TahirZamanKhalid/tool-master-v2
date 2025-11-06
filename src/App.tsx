@@ -127,6 +127,17 @@ import ScreenDetector from "./pages/tools/ScreenDetector";
 import WordScrambler from "./pages/tools/WordScrambler";
 import CoinFlip from "./pages/tools/CoinFlip";
 import JSONValidator from "./pages/tools/JSONValidator";
+// NEW HIGH-DEMAND TOOLS
+import ExcelToCSV from "./pages/tools/ExcelToCSV";
+import CSVToExcel from "./pages/tools/CSVToExcel";
+import PNGToJPG from "./pages/tools/PNGToJPG";
+import JPGToPNG from "./pages/tools/JPGToPNG";
+import HEICToJPG from "./pages/tools/HEICToJPG";
+import PDFToImages from "./pages/tools/PDFToImages";
+import WebPToPNG from "./pages/tools/WebPToPNG";
+import AdvancedImageCompressor from "./pages/tools/AdvancedImageCompressor";
+import InvoiceGenerator from "./pages/tools/InvoiceGenerator";
+import AdvancedPasswordGenerator from "./pages/tools/AdvancedPasswordGenerator";
 
 const queryClient = new QueryClient();
 
@@ -252,6 +263,18 @@ const App = () => (
             <Route path="/tools/word-scrambler" element={<WordScrambler />} />
             <Route path="/tools/coin-flip" element={<CoinFlip />} />
             <Route path="/tools/json-validator" element={<JSONValidator />} />
+
+            {/* NEW HIGH-DEMAND TOOLS */}
+            <Route path="/tools/excel-to-csv" element={<ExcelToCSV />} />
+            <Route path="/tools/csv-to-excel" element={<CSVToExcel />} />
+            <Route path="/tools/png-to-jpg" element={<PNGToJPG />} />
+            <Route path="/tools/jpg-to-png" element={<JPGToPNG />} />
+            <Route path="/tools/heic-to-jpg" element={<HEICToJPG />} />
+            <Route path="/tools/pdf-to-images" element={<PDFToImages />} />
+            <Route path="/tools/webp-to-png" element={<WebPToPNG />} />
+            <Route path="/tools/advanced-image-compressor" element={<AdvancedImageCompressor />} />
+            <Route path="/tools/invoice-generator" element={<InvoiceGenerator />} />
+            <Route path="/tools/advanced-password-generator" element={<AdvancedPasswordGenerator />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
