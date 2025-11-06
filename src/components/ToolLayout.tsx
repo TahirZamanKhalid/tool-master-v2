@@ -7,6 +7,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ToolRating } from "@/components/ToolRating";
 import { SEOHead } from "@/components/SEOHead";
+import { ShareButtons } from "@/components/ShareButtons";
+import { ToolFAQ } from "@/components/ToolFAQ";
 import { useToolAnalytics } from "@/hooks/useToolAnalytics";
 
 interface ToolLayoutProps {
@@ -104,19 +106,14 @@ export const ToolLayout = ({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }} />
       <div className="container max-w-[1600px] py-8 px-4">
-        <Breadcrumbs 
+        <Breadcrumbs
           items={[
             { label: category },
             { label: title }
           ]}
         />
 
-        {/* Top Banner Ad */}
-        <div className="flex justify-center mb-8 overflow-hidden">
-          <AdSpace size="banner" />
-        </div>
-
-        <div className="flex gap-6 justify-center">
+        <div className="flex gap-6 justify-center mt-8">
           {/* Left Sidebar Ad */}
           <div className="hidden xl:block flex-shrink-0 w-[300px]">
             <div className="sticky top-24 w-[300px]">
@@ -131,7 +128,13 @@ export const ToolLayout = ({
                 <Badge>{category}</Badge>
                 <h1 className="text-3xl md:text-4xl font-bold break-words">{title}</h1>
               </div>
-              <p className="text-lg text-muted-foreground">{description}</p>
+              <p className="text-lg text-muted-foreground mb-4">{description}</p>
+
+              <ShareButtons
+                title={title}
+                description={description}
+                url={`https://toolmaster.online${location.pathname}`}
+              />
             </div>
 
             <div className="overflow-hidden">
@@ -153,9 +156,7 @@ export const ToolLayout = ({
 
             <ToolRating toolPath={location.pathname} />
 
-            <div className="flex justify-center overflow-hidden">
-              <AdSpace size="leaderboard" />
-            </div>
+            <ToolFAQ toolName={title} />
 
             {relatedTools && relatedTools.length > 0 && (
               <div>
