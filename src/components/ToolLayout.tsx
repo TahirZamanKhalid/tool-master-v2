@@ -133,7 +133,7 @@ export const ToolLayout = ({
               <ShareButtons
                 title={title}
                 description={description}
-                url={`https://toolmaster.online${location.pathname}`}
+                url={`https://toolmaster.cloud${location.pathname}`}
               />
             </div>
 
