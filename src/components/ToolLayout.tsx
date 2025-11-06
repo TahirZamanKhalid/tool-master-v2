@@ -7,6 +7,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ToolRating } from "@/components/ToolRating";
 import { SEOHead } from "@/components/SEOHead";
+import { ShareButtons } from "@/components/ShareButtons";
+import { ToolFAQ } from "@/components/ToolFAQ";
 import { useToolAnalytics } from "@/hooks/useToolAnalytics";
 
 interface ToolLayoutProps {
@@ -126,7 +128,13 @@ export const ToolLayout = ({
                 <Badge>{category}</Badge>
                 <h1 className="text-3xl md:text-4xl font-bold break-words">{title}</h1>
               </div>
-              <p className="text-lg text-muted-foreground">{description}</p>
+              <p className="text-lg text-muted-foreground mb-4">{description}</p>
+
+              <ShareButtons
+                title={title}
+                description={description}
+                url={`https://toolmaster.online${location.pathname}`}
+              />
             </div>
 
             <div className="overflow-hidden">
@@ -147,6 +155,8 @@ export const ToolLayout = ({
             )}
 
             <ToolRating toolPath={location.pathname} />
+
+            <ToolFAQ toolName={title} />
 
             {relatedTools && relatedTools.length > 0 && (
               <div>
