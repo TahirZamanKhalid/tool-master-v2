@@ -1,4 +1,5 @@
 import { useState } from "react";
+import DOMPurify from "dompurify";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,6 +7,9 @@ import { AdSpace } from "@/components/AdSpace";
 
 const HTMLPreview = () => {
   const [html, setHtml] = useState("");
+
+  // Sanitize HTML to prevent XSS attacks
+  const sanitizedHtml = DOMPurify.sanitize(html);
 
   return (
     <ToolLayout
@@ -32,7 +36,7 @@ const HTMLPreview = () => {
             <h3 className="text-lg font-semibold mb-4">Preview</h3>
             <div
               className="border rounded-lg p-4 min-h-[400px] bg-background"
-              dangerouslySetInnerHTML={{ __html: html }}
+              dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
             />
           </CardContent>
         </Card>

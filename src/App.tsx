@@ -78,7 +78,6 @@ import NumberBaseConverter from "./pages/tools/NumberBaseConverter";
 import AIChat from "./pages/tools/AIChat";
 import EmailValidator from "./pages/tools/EmailValidator";
 import MarkdownToHTML from "./pages/tools/MarkdownToHTML";
-import ImageToBase64 from "./pages/tools/ImageToBase64";
 import TextToSpeech from "./pages/tools/TextToSpeech";
 import MorseCodeTranslator from "./pages/tools/MorseCodeTranslator";
 import VideoTrimmer from "./pages/tools/VideoTrimmer";
@@ -206,7 +205,6 @@ const App = () => (
         <Route path="/tools/ai-chat" element={<AIChat />} />
         <Route path="/tools/email-validator" element={<EmailValidator />} />
         <Route path="/tools/markdown-to-html" element={<MarkdownToHTML />} />
-        <Route path="/tools/image-to-base64" element={<ImageToBase64 />} />
         <Route path="/tools/text-to-speech" element={<TextToSpeech />} />
         <Route path="/tools/morse-code" element={<MorseCodeTranslator />} />
         <Route path="/tools/credit-card-validator" element={<CreditCardValidator />} />

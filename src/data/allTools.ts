@@ -67,7 +67,7 @@ export const allTools = [
   // PDF Tools (5)
   { icon: FileDown, title: "PDF Merger", description: "Combine multiple PDFs into a single document", category: "PDF Tools", path: "/tools/pdf-merger", popular: true },
   { icon: Scissors, title: "PDF Splitter", description: "Split PDF into multiple files", category: "PDF Tools", path: "/tools/pdf-splitter" },
-  { icon: Minimize2, title: "PDF Compressor", description: "Reduce PDF file size", category: "PDF Tools", path: "/tools/pdf-compressor" },
+  { icon: Minimize2, title: "PDF Optimizer", description: "Optimize PDF file structure to reduce size", category: "PDF Tools", path: "/tools/pdf-compressor" },
   { icon: FileType, title: "PDF to Text", description: "Extract text from PDF files", category: "PDF Tools", path: "/tools/pdf-to-text" },
   { icon: Images, title: "Images to PDF", description: "Convert images to PDF", category: "PDF Tools", path: "/tools/images-to-pdf" },
 
@@ -96,10 +96,9 @@ export const allTools = [
   { icon: Type, title: "Text Compare", description: "Compare two texts side by side", category: "Text Tools", path: "/tools/text-compare" },
   { icon: Shuffle, title: "Word Scrambler", description: "Scramble words randomly", category: "Text Tools", path: "/tools/word-scrambler" },
 
-  // Video Tools (3)
+  // Video Tools (2)
   { icon: Scissors, title: "Video Trimmer", description: "Trim and cut videos", category: "Video Tools", path: "/tools/video-trimmer" },
   { icon: Video, title: "Video to GIF", description: "Convert videos to GIF format", category: "Video Tools", path: "/tools/video-to-gif" },
-  { icon: Camera, title: "Image to Base64", description: "Convert images to Base64", category: "Video Tools", path: "/tools/image-to-base64" },
 
   // SEO & Marketing (8)
   { icon: TrendingUp, title: "Meta Tag Generator", description: "Generate SEO meta tags", category: "SEO & Marketing", path: "/tools/meta-tag-generator" },
