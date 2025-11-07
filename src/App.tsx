@@ -170,6 +170,12 @@ import AltTextGenerator from "./pages/tools/AltTextGenerator";
 import CanonicalURLGenerator from "./pages/tools/CanonicalURLGenerator";
 import SitemapValidator from "./pages/tools/SitemapValidator";
 import BreadcrumbGenerator from "./pages/tools/BreadcrumbGenerator";
+// PREMIUM FINANCIAL & DATE TOOLS
+import CompoundInterestCalculator from "./pages/tools/CompoundInterestCalculator";
+import TDEECalculator from "./pages/tools/TDEECalculator";
+import BudgetPlanner from "./pages/tools/BudgetPlanner";
+import SavingsGoalCalculator from "./pages/tools/SavingsGoalCalculator";
+import DateDifferenceCalculator from "./pages/tools/DateDifferenceCalculator";
 
 const queryClient = new QueryClient();
 
@@ -301,6 +307,11 @@ const App = () => (
             <Route path="/tools/word-scrambler" element={<WordScrambler />} />
             <Route path="/tools/coin-flip" element={<CoinFlip />} />
             <Route path="/tools/json-validator" element={<JSONValidator />} />
+            <Route path="/tools/compound-interest-calculator" element={<CompoundInterestCalculator />} />
+            <Route path="/tools/tdee-calculator" element={<TDEECalculator />} />
+            <Route path="/tools/budget-planner" element={<BudgetPlanner />} />
+            <Route path="/tools/savings-goal-calculator" element={<SavingsGoalCalculator />} />
+            <Route path="/tools/date-difference-calculator" element={<DateDifferenceCalculator />} />
 
             {/* NEW HIGH-DEMAND TOOLS */}
             <Route path="/tools/excel-to-csv" element={<ExcelToCSV />} />
@@ -339,6 +350,11 @@ const App = () => (
             <Route path="/tools/canonical-url-generator" element={<CanonicalURLGenerator />} />
             <Route path="/tools/sitemap-validator" element={<SitemapValidator />} />
             <Route path="/tools/breadcrumb-generator" element={<BreadcrumbGenerator />} />
+            <Route path="/tools/compound-interest-calculator" element={<CompoundInterestCalculator />} />
+            <Route path="/tools/tdee-calculator" element={<TDEECalculator />} />
+            <Route path="/tools/budget-planner" element={<BudgetPlanner />} />
+            <Route path="/tools/savings-goal-calculator" element={<SavingsGoalCalculator />} />
+            <Route path="/tools/date-difference-calculator" element={<DateDifferenceCalculator />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
