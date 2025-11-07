@@ -24,7 +24,8 @@ export const allTools = [
   { icon: Newspaper, title: "Blog Article Writer", description: "Generate SEO-optimized blog articles with AI", category: "AI & Content", path: "/tools/blog-article-writer", popular: true },
   { icon: Zap, title: "Text to Speech", description: "Convert text to natural-sounding speech", category: "AI & Content", path: "/tools/text-to-speech" },
 
-  // Image Tools (11)
+  // Image Tools (12)
+  { icon: Edit, title: "Advanced Image Editor", description: "Professional image editor with filters, text, crop, rotate, and drawing tools", category: "Image Tools", path: "/tools/advanced-image-editor", popular: true },
   { icon: Eraser, title: "Background Remover", description: "Remove image backgrounds instantly with AI", category: "Image Tools", path: "/tools/background-remover", popular: true },
   { icon: Image, title: "Image Compressor", description: "Reduce image file size without losing quality", category: "Image Tools", path: "/tools/image-compressor" },
   { icon: Palette, title: "Color Picker", description: "Pick colors and generate palettes", category: "Image Tools", path: "/tools/color-picker" },
