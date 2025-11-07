@@ -40,6 +40,7 @@ import MemeGenerator from "./pages/tools/MemeGenerator";
 import AdvancedImageEditor from "./pages/tools/AdvancedImageEditor";
 import WatermarkTool from "./pages/tools/WatermarkTool";
 import PhotoCollageMaker from "./pages/tools/PhotoCollageMaker";
+import GIFMaker from "./pages/tools/GIFMaker";
 import ASCIIArtGenerator from "./pages/tools/ASCIIArtGenerator";
 import CSVToJSON from "./pages/tools/CSVToJSON";
 import JSONToCSV from "./pages/tools/JSONToCSV";
@@ -213,6 +214,7 @@ const App = () => (
         <Route path="/tools/advanced-image-editor" element={<AdvancedImageEditor />} />
         <Route path="/tools/watermark-tool" element={<WatermarkTool />} />
         <Route path="/tools/photo-collage-maker" element={<PhotoCollageMaker />} />
+        <Route path="/tools/gif-maker" element={<GIFMaker />} />
         <Route path="/tools/meme-generator" element={<MemeGenerator />} />
         <Route path="/tools/ascii-art" element={<ASCIIArtGenerator />} />
         <Route path="/tools/csv-to-json" element={<CSVToJSON />} />
