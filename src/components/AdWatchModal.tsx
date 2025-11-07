@@ -27,7 +27,7 @@ export const AdWatchModal = ({
   onAdWatched,
   title = "Watch Ad to Continue",
   description = "Please watch this short ad to unlock this premium feature",
-  adDuration = 5,
+  adDuration = 12, // Changed from 5 to 12 seconds (10-15 sec range)
 }: AdWatchModalProps) => {
   const [countdown, setCountdown] = useState(adDuration);
   const [canProceed, setCanProceed] = useState(false);
