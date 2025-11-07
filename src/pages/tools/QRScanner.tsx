@@ -49,37 +49,39 @@ const QRScanner = () => {
       const qrCodeScanner = new Html5Qrcode("qr-reader");
       setHtml5QrCode(qrCodeScanner);
 
-      // Enhanced configuration for powerful scanning
+      // Configure for QR codes only (not barcodes)
       await qrCodeScanner.start(
         { facingMode: "environment" },
         {
           fps: 30, // Higher FPS for faster detection
-          qrbox: { width: 300, height: 300 }, // Larger box for easier scanning
+          qrbox: { width: 300, height: 300 }, // Square box for QR codes
           aspectRatio: 1.0,
           disableFlip: false,
+          formatsToSupport: [0], // 0 = QR_CODE only (not barcodes)
           videoConstraints: {
             facingMode: "environment",
             focusMode: "continuous",
             advanced: [{ zoom: 1.0 }]
           }
         },
-        (decodedText) => {
-          // QR Code detected - automatic capture
-          setIsDetecting(true);
-          setResult(decodedText);
-          captureScreenshot();
+        (decodedText, decodedResult) => {
+          // QR Code detected - immediate stop to prevent continuous scanning
+          if (html5QrCode?.isScanning) {
+            html5QrCode.stop().then(() => {
+              setScanning(false);
+              setIsDetecting(true);
+              setResult(decodedText);
+              captureScreenshot();
 
-          // Visual feedback
-          setTimeout(() => {
-            setIsDetecting(false);
-            stopCamera();
-            toast.success("QR Code detected and captured automatically!");
-          }, 500);
+              setTimeout(() => {
+                setIsDetecting(false);
+                toast.success("QR Code scanned successfully!");
+              }, 500);
+            }).catch(console.error);
+          }
         },
         (errorMessage) => {
           // Suppress console errors - these are normal during scanning
-          // The library logs "No MultiFormat Readers were able to detect the code"
-          // when actively searching for QR codes
         }
       );
 
