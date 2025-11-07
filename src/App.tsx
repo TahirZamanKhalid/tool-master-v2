@@ -62,6 +62,7 @@ import WiFiQRGenerator from "./pages/tools/WiFiQRGenerator";
 import CaptionGenerator from "./pages/tools/CaptionGenerator";
 import PDFSplitter from "./pages/tools/PDFSplitter";
 import PDFCompressor from "./pages/tools/PDFCompressor";
+import PDFEditor from "./pages/tools/PDFEditor";
 import PDFToText from "./pages/tools/PDFToText";
 import ImagesToPDF from "./pages/tools/ImagesToPDF";
 import Auth from "./pages/Auth";
@@ -231,6 +232,7 @@ const App = () => (
         <Route path="/tools/caption-generator" element={<CaptionGenerator />} />
         <Route path="/tools/pdf-splitter" element={<PDFSplitter />} />
         <Route path="/tools/pdf-compressor" element={<PDFCompressor />} />
+        <Route path="/tools/pdf-editor" element={<PDFEditor />} />
         <Route path="/tools/pdf-to-text" element={<PDFToText />} />
         <Route path="/tools/images-to-pdf" element={<ImagesToPDF />} />
         <Route path="/tools/api-tester" element={<APITester />} />

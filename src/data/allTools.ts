@@ -9,7 +9,7 @@ import {
   FileImage, Video, Brain, Monitor, Coins, Shuffle, ArrowRightLeft,
   ImageDown, Smartphone, FileArchive, Receipt, ShieldCheck,
   Calculator, GraduationCap, Tag, Briefcase, Mail, Instagram, Youtube,
-  User, Building2, Package, Sparkles, Search, FileText, Heading, FileCheck, List
+  User, Building2, Package, Sparkles, Search, FileText, Heading, FileCheck, List, Edit
 } from "lucide-react";
 
 export const allTools = [
@@ -67,7 +67,8 @@ export const allTools = [
   { icon: ScanLine, title: "Barcode Scanner", description: "Scan and decode barcodes", category: "QR & Barcodes", path: "/tools/barcode-scanner" },
   { icon: Wifi, title: "WiFi QR Generator", description: "Generate WiFi QR codes", category: "QR & Barcodes", path: "/tools/wifi-qr" },
 
-  // PDF Tools (5)
+  // PDF Tools (6)
+  { icon: Edit, title: "PDF Editor", description: "Edit PDF files online - add text, highlights, and annotations", category: "PDF Tools", path: "/tools/pdf-editor", popular: true },
   { icon: FileDown, title: "PDF Merger", description: "Combine multiple PDFs into a single document", category: "PDF Tools", path: "/tools/pdf-merger", popular: true },
   { icon: Scissors, title: "PDF Splitter", description: "Split PDF into multiple files", category: "PDF Tools", path: "/tools/pdf-splitter" },
   { icon: Minimize2, title: "PDF Optimizer", description: "Optimize PDF file structure to reduce size", category: "PDF Tools", path: "/tools/pdf-compressor" },
