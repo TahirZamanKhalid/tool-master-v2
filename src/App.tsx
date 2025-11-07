@@ -138,6 +138,12 @@ import WebPToPNG from "./pages/tools/WebPToPNG";
 import AdvancedImageCompressor from "./pages/tools/AdvancedImageCompressor";
 import InvoiceGenerator from "./pages/tools/InvoiceGenerator";
 import AdvancedPasswordGenerator from "./pages/tools/AdvancedPasswordGenerator";
+import TipCalculator from "./pages/tools/TipCalculator";
+import DiscountCalculator from "./pages/tools/DiscountCalculator";
+import LoanCalculator from "./pages/tools/LoanCalculator";
+import GPACalculator from "./pages/tools/GPACalculator";
+import SVGToPNG from "./pages/tools/SVGToPNG";
+import HashtagGenerator from "./pages/tools/HashtagGenerator";
 
 const queryClient = new QueryClient();
 
@@ -275,6 +281,12 @@ const App = () => (
             <Route path="/tools/advanced-image-compressor" element={<AdvancedImageCompressor />} />
             <Route path="/tools/invoice-generator" element={<InvoiceGenerator />} />
             <Route path="/tools/advanced-password-generator" element={<AdvancedPasswordGenerator />} />
+            <Route path="/tools/tip-calculator" element={<TipCalculator />} />
+            <Route path="/tools/discount-calculator" element={<DiscountCalculator />} />
+            <Route path="/tools/loan-calculator" element={<LoanCalculator />} />
+            <Route path="/tools/gpa-calculator" element={<GPACalculator />} />
+            <Route path="/tools/svg-to-png" element={<SVGToPNG />} />
+            <Route path="/tools/hashtag-generator" element={<HashtagGenerator />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />

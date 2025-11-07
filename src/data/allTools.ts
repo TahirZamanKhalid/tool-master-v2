@@ -7,7 +7,8 @@ import {
   Link, Dices, Timer, Calendar, TrendingUp, Barcode, ScanLine,
   Wifi, Camera, Scissors, Minimize2, FileType, Images, Paintbrush,
   FileImage, Video, Brain, Monitor, Coins, Shuffle, ArrowRightLeft,
-  ImageDown, Smartphone, FileArchive, Receipt, ShieldCheck
+  ImageDown, Smartphone, FileArchive, Receipt, ShieldCheck,
+  Calculator, GraduationCap, Tag
 } from "lucide-react";
 
 export const allTools = [
@@ -151,4 +152,16 @@ export const allTools = [
 
   // Advanced Security Tools (1) - NEW
   { icon: ShieldCheck, title: "Advanced Password Generator", description: "Generate ultra-secure passwords with full customization", category: "Security Tools", path: "/tools/advanced-password-generator", popular: true },
+
+  // NEW TOOLS - Calculators (3)
+  { icon: Calculator, title: "Tip Calculator", description: "Calculate tips and split bills easily for restaurants and services", category: "Calculators", path: "/tools/tip-calculator", popular: true },
+  { icon: Tag, title: "Discount Calculator", description: "Calculate discounts, sale prices, and savings instantly", category: "Calculators", path: "/tools/discount-calculator", popular: true },
+  { icon: Calculator, title: "Loan Calculator", description: "Calculate monthly payments and total interest for any loan", category: "Calculators", path: "/tools/loan-calculator", popular: true },
+  { icon: GraduationCap, title: "GPA Calculator", description: "Calculate your Grade Point Average with multiple courses", category: "Calculators", path: "/tools/gpa-calculator", popular: true },
+
+  // NEW TOOLS - More File Converters (1)
+  { icon: ImageDown, title: "SVG to PNG", description: "Convert SVG vector images to PNG raster format with custom dimensions", category: "File Converters", path: "/tools/svg-to-png", popular: true },
+
+  // NEW TOOLS - Social Media (1)
+  { icon: Hash, title: "Hashtag Generator", description: "Generate trending hashtags for Instagram, TikTok, Twitter, YouTube", category: "Social Media", path: "/tools/hashtag-generator", popular: true },
 ];

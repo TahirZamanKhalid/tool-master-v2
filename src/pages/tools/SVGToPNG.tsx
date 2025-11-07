@@ -23,7 +23,7 @@ interface SVGData {
 const SVGToPNG = () => {
   const [svgFiles, setSvgFiles] = useState<SVGData[]>([]);
   const [scale, setScale] = useState<number>(1);
-  const [backgroundColor, setBackground Color] = useState<string>("transparent");
+  const [backgroundColor, setBackgroundColor] = useState<string>("transparent");
   const [bgPreset, setBgPreset] = useState<string>("transparent");
   const [width, setWidth] = useState<number>(1000);
   const [height, setHeight] = useState<number>(1000);
