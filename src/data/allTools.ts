@@ -6,7 +6,10 @@ import {
   FileSpreadsheet, FileJson, Database, Globe, Send, CreditCard,
   Link, Dices, Timer, Calendar, TrendingUp, Barcode, ScanLine,
   Wifi, Camera, Scissors, Minimize2, FileType, Images, Paintbrush,
-  FileImage, Video, Brain, Monitor, Coins, Shuffle
+  FileImage, Video, Brain, Monitor, Coins, Shuffle, ArrowRightLeft,
+  ImageDown, Smartphone, FileArchive, Receipt, ShieldCheck,
+  Calculator, GraduationCap, Tag, Briefcase, Mail, Instagram, Youtube,
+  User, Building2, Package, Sparkles, Search, FileText, Heading, FileCheck, List, Edit, Film
 } from "lucide-react";
 
 export const allTools = [
@@ -21,7 +24,11 @@ export const allTools = [
   { icon: Newspaper, title: "Blog Article Writer", description: "Generate SEO-optimized blog articles with AI", category: "AI & Content", path: "/tools/blog-article-writer", popular: true },
   { icon: Zap, title: "Text to Speech", description: "Convert text to natural-sounding speech", category: "AI & Content", path: "/tools/text-to-speech" },
 
-  // Image Tools (11)
+  // Image Tools (15)
+  { icon: Edit, title: "Advanced Image Editor", description: "Professional image editor with filters, text, crop, rotate, and drawing tools", category: "Image Tools", path: "/tools/advanced-image-editor", popular: true },
+  { icon: Paintbrush, title: "Watermark Tool", description: "Add text or image watermarks to protect your photos and images", category: "Image Tools", path: "/tools/watermark-tool", popular: true },
+  { icon: Images, title: "Photo Collage Maker", description: "Create beautiful photo collages with multiple layout templates and customization options", category: "Image Tools", path: "/tools/photo-collage-maker", popular: true },
+  { icon: Film, title: "GIF Maker", description: "Create animated GIFs from multiple images with customizable speed and quality", category: "Image Tools", path: "/tools/gif-maker", popular: true },
   { icon: Eraser, title: "Background Remover", description: "Remove image backgrounds instantly with AI", category: "Image Tools", path: "/tools/background-remover", popular: true },
   { icon: Image, title: "Image Compressor", description: "Reduce image file size without losing quality", category: "Image Tools", path: "/tools/image-compressor" },
   { icon: Palette, title: "Color Picker", description: "Pick colors and generate palettes", category: "Image Tools", path: "/tools/color-picker" },
@@ -64,7 +71,8 @@ export const allTools = [
   { icon: ScanLine, title: "Barcode Scanner", description: "Scan and decode barcodes", category: "QR & Barcodes", path: "/tools/barcode-scanner" },
   { icon: Wifi, title: "WiFi QR Generator", description: "Generate WiFi QR codes", category: "QR & Barcodes", path: "/tools/wifi-qr" },
 
-  // PDF Tools (5)
+  // PDF Tools (6)
+  { icon: Edit, title: "PDF Editor", description: "Edit PDF files online - add text, highlights, and annotations", category: "PDF Tools", path: "/tools/pdf-editor", popular: true },
   { icon: FileDown, title: "PDF Merger", description: "Combine multiple PDFs into a single document", category: "PDF Tools", path: "/tools/pdf-merger", popular: true },
   { icon: Scissors, title: "PDF Splitter", description: "Split PDF into multiple files", category: "PDF Tools", path: "/tools/pdf-splitter" },
   { icon: Minimize2, title: "PDF Optimizer", description: "Optimize PDF file structure to reduce size", category: "PDF Tools", path: "/tools/pdf-compressor" },
@@ -132,4 +140,57 @@ export const allTools = [
   { icon: Monitor, title: "IP Address Detector", description: "Detect your IP address", category: "Utilities", path: "/tools/ip-detector" },
   { icon: Monitor, title: "Screen Size Detector", description: "Display screen dimensions", category: "Utilities", path: "/tools/screen-detector" },
   { icon: Coins, title: "Coin Flip", description: "Flip a virtual coin", category: "Utilities", path: "/tools/coin-flip" },
+
+  // File Converters (7) - NEW HIGH-DEMAND TOOLS
+  { icon: ArrowRightLeft, title: "Excel to CSV", description: "Convert Excel files to CSV format instantly", category: "File Converters", path: "/tools/excel-to-csv", popular: true },
+  { icon: ArrowRightLeft, title: "CSV to Excel", description: "Convert CSV files to Excel (.xlsx) format", category: "File Converters", path: "/tools/csv-to-excel", popular: true },
+  { icon: ImageDown, title: "PNG to JPG", description: "Convert PNG images to JPG format online", category: "File Converters", path: "/tools/png-to-jpg", popular: true },
+  { icon: ImageDown, title: "JPG to PNG", description: "Convert JPG/JPEG images to PNG format", category: "File Converters", path: "/tools/jpg-to-png", popular: true },
+  { icon: Smartphone, title: "HEIC to JPG", description: "Convert iPhone HEIC images to JPG format", category: "File Converters", path: "/tools/heic-to-jpg", popular: true },
+  { icon: FileArchive, title: "PDF to Images", description: "Convert PDF pages to JPG or PNG images", category: "File Converters", path: "/tools/pdf-to-images", popular: true },
+  { icon: ImageDown, title: "WebP to PNG", description: "Convert WebP images to PNG format", category: "File Converters", path: "/tools/webp-to-png" },
+
+  // Advanced Image Tools (1) - NEW
+  { icon: Minimize2, title: "Advanced Image Compressor", description: "Compress images with full control over quality and format", category: "Image Tools", path: "/tools/advanced-image-compressor" },
+
+  // Business Tools (2) - NEW
+  { icon: Receipt, title: "Invoice Generator", description: "Create professional invoices with PDF download", category: "Business Tools", path: "/tools/invoice-generator", popular: true },
+  { icon: FileText, title: "Resume Builder", description: "Create professional resumes with live preview and customizable templates", category: "Business Tools", path: "/tools/resume-builder", popular: true },
+
+  // Advanced Security Tools (1) - NEW
+  { icon: ShieldCheck, title: "Advanced Password Generator", description: "Generate ultra-secure passwords with full customization", category: "Security Tools", path: "/tools/advanced-password-generator", popular: true },
+
+  // NEW TOOLS - Calculators (3)
+  { icon: Calculator, title: "Tip Calculator", description: "Calculate tips and split bills easily for restaurants and services", category: "Calculators", path: "/tools/tip-calculator", popular: true },
+  { icon: Tag, title: "Discount Calculator", description: "Calculate discounts, sale prices, and savings instantly", category: "Calculators", path: "/tools/discount-calculator", popular: true },
+  { icon: Calculator, title: "Loan Calculator", description: "Calculate monthly payments and total interest for any loan", category: "Calculators", path: "/tools/loan-calculator", popular: true },
+  { icon: GraduationCap, title: "GPA Calculator", description: "Calculate your Grade Point Average with multiple courses", category: "Calculators", path: "/tools/gpa-calculator", popular: true },
+
+  // NEW TOOLS - More File Converters (1)
+  { icon: ImageDown, title: "SVG to PNG", description: "Convert SVG vector images to PNG raster format with custom dimensions", category: "File Converters", path: "/tools/svg-to-png", popular: true },
+
+  // NEW TOOLS - Social Media & Generators (11)
+  { icon: Hash, title: "Hashtag Generator", description: "Generate trending hashtags for Instagram, TikTok, Twitter, YouTube", category: "Social Media", path: "/tools/hashtag-generator", popular: true },
+  { icon: Briefcase, title: "Business Name Generator", description: "Generate creative business names for startups and companies", category: "Generators", path: "/tools/business-name-generator", popular: true },
+  { icon: Globe, title: "Domain Name Generator", description: "Generate unique domain names with availability check hints", category: "Generators", path: "/tools/domain-name-generator", popular: true },
+  { icon: Mail, title: "Email Signature Generator", description: "Create professional HTML email signatures for Gmail, Outlook", category: "Generators", path: "/tools/email-signature-generator", popular: true },
+  { icon: Instagram, title: "Instagram Bio Generator", description: "Generate creative Instagram bio ideas with emojis", category: "Social Media", path: "/tools/instagram-bio-generator", popular: true },
+  { icon: Youtube, title: "YouTube Title Generator", description: "Generate catchy SEO-optimized YouTube video titles", category: "Social Media", path: "/tools/youtube-title-generator", popular: true },
+  { icon: Database, title: "Fake Data Generator", description: "Generate realistic test data for development and testing", category: "Generators", path: "/tools/fake-data-generator", popular: true },
+  { icon: User, title: "Random Name Generator", description: "Generate random names from different countries and cultures", category: "Generators", path: "/tools/random-name-generator", popular: true },
+  { icon: Building2, title: "Company Name Generator", description: "Generate professional company names for your business", category: "Generators", path: "/tools/company-name-generator", popular: true },
+  { icon: Package, title: "Product Name Generator", description: "Generate catchy product names for launches and branding", category: "Generators", path: "/tools/product-name-generator", popular: true },
+  { icon: Sparkles, title: "Tagline Generator", description: "Generate catchy taglines and slogans for your business", category: "Generators", path: "/tools/tagline-generator", popular: true },
+
+  // NEW TOOLS - Batch 3: SEO & Marketing Tools (10)
+  { icon: Search, title: "Keyword Research Tool", description: "Generate keyword ideas and variations for SEO content strategy", category: "SEO & Marketing", path: "/tools/keyword-research", popular: true },
+  { icon: FileText, title: "Robots.txt Generator", description: "Generate robots.txt file to control search engine crawlers", category: "SEO & Marketing", path: "/tools/robots-txt-generator", popular: true },
+  { icon: Code, title: "Schema Markup Generator", description: "Generate JSON-LD structured data for rich snippets in search", category: "SEO & Marketing", path: "/tools/schema-markup-generator", popular: true },
+  { icon: TrendingUp, title: "SEO Content Analyzer", description: "Analyze your content for SEO best practices and get recommendations", category: "SEO & Marketing", path: "/tools/seo-content-analyzer", popular: true },
+  { icon: Monitor, title: "Title & Meta Checker", description: "Check if your page title and meta description are optimal length", category: "SEO & Marketing", path: "/tools/title-meta-checker", popular: true },
+  { icon: Heading, title: "Heading Structure Analyzer", description: "Analyze HTML heading structure (H1-H6) for SEO and accessibility", category: "SEO & Marketing", path: "/tools/heading-analyzer", popular: true },
+  { icon: Image, title: "Alt Text Generator", description: "Generate descriptive alt text for images to improve SEO and accessibility", category: "SEO & Marketing", path: "/tools/alt-text-generator", popular: true },
+  { icon: Link2, title: "Canonical URL Generator", description: "Generate canonical link tags to prevent duplicate content issues", category: "SEO & Marketing", path: "/tools/canonical-url-generator", popular: true },
+  { icon: FileCheck, title: "Sitemap Validator", description: "Validate XML sitemap structure and check for errors", category: "SEO & Marketing", path: "/tools/sitemap-validator", popular: true },
+  { icon: List, title: "Breadcrumb Generator", description: "Generate breadcrumb navigation with structured data for SEO", category: "SEO & Marketing", path: "/tools/breadcrumb-generator", popular: true },
 ];

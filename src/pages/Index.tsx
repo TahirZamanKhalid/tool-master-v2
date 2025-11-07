@@ -72,7 +72,9 @@ import {
   Newspaper,
   Monitor,
   Coins,
-  Shuffle
+  Shuffle,
+  ArrowRightLeft,
+  Receipt
 } from "lucide-react";
 
 const categories = [
@@ -87,7 +89,7 @@ const categories = [
     icon: Image,
     title: "Image Tools",
     description: "Edit, compress, convert, and enhance images",
-    toolCount: 11,
+    toolCount: 12,
     color: "from-pink-500 to-rose-600",
   },
   {
@@ -143,7 +145,7 @@ const categories = [
     icon: Shield,
     title: "Security Tools",
     description: "Password generators and validators",
-    toolCount: 3,
+    toolCount: 4,
     color: "from-red-500 to-orange-600",
   },
   {
@@ -152,6 +154,20 @@ const categories = [
     description: "Random generators, timers, and more",
     toolCount: 9,
     color: "from-fuchsia-500 to-pink-600",
+  },
+  {
+    icon: ArrowRightLeft,
+    title: "File Converters",
+    description: "Convert files between formats (Excel, CSV, images, PDFs)",
+    toolCount: 7,
+    color: "from-amber-500 to-orange-600",
+  },
+  {
+    icon: Receipt,
+    title: "Business Tools",
+    description: "Invoice generation and business utilities",
+    toolCount: 1,
+    color: "from-teal-500 to-cyan-600",
   },
 ];
 
@@ -761,16 +777,26 @@ const Index = () => {
   };
 
   const filteredTools = useMemo(() => {
-    return popularTools.filter((tool) => {
-      const matchesSearch = !searchQuery || 
+    const filtered = popularTools.filter((tool) => {
+      const matchesSearch = !searchQuery ||
         tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         tool.category.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       const matchesCategory = !selectedCategory || tool.category === selectedCategory;
-      
+
       return matchesSearch && matchesCategory;
     });
+
+    // Show only 12 most popular tools when no search/filter is active
+    if (!searchQuery && !selectedCategory) {
+      // Get tools marked as popular first, then fill with others up to 12
+      const popularFirst = filtered.filter(t => t.popular);
+      const others = filtered.filter(t => !t.popular);
+      return [...popularFirst, ...others].slice(0, 12);
+    }
+
+    return filtered;
   }, [searchQuery, selectedCategory]);
 
   const handleToolClick = (path: string, comingSoon?: boolean) => {
@@ -792,11 +818,6 @@ const Index = () => {
 
 
       <OptimizedHero searchQuery={searchQuery} onSearch={handleButtonSearch} />
-      
-      {/* Ad after Hero - High visibility - NOT lazy loaded for AdSense detection */}
-      <div className="container px-4 py-6">
-        <AdSpace type="display" slot="8907016752" position="top" />
-      </div>
 
       {/* Categories Section */}
       <section className="py-16 container w-full overflow-hidden px-4">
@@ -807,11 +828,9 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Desktop Sidebar Layout */}
-        <div className="flex gap-6 justify-center w-full">
-          {/* Main Content */}
-          <div className="flex-1 max-w-6xl">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Categories Grid - Full width */}
+        <div className="max-w-6xl mx-auto">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {categories.map((category, index) => {
             // Create URL-friendly slugs
             const categorySlug: Record<string, string> = {
@@ -825,7 +844,9 @@ const Index = () => {
               "SEO & Marketing": "seo-marketing",
               "Calculators": "calculators",
               "Security Tools": "security-tools",
-              "Utilities": "utilities"
+              "Utilities": "utilities",
+              "File Converters": "file-converters",
+              "Business Tools": "business-tools"
             };
             
             return (
@@ -846,29 +867,24 @@ const Index = () => {
           })}
             </div>
 
-            {selectedCategory && (
-              <div className="text-center mb-8">
-                <p className="text-lg text-muted-foreground">
-                  Showing tools in <span className="font-semibold text-foreground">{selectedCategory}</span>
-                  <button 
-                    onClick={() => handleCategoryFilter("")}
-                    className="ml-2 text-primary hover:underline"
-                  >
-                    Clear filter
-                  </button>
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Right Sidebar Ad - Desktop Only (Removed for better performance) */}
+          {selectedCategory && (
+            <div className="text-center mb-8">
+              <p className="text-lg text-muted-foreground">
+                Showing tools in <span className="font-semibold text-foreground">{selectedCategory}</span>
+                <button
+                  onClick={() => handleCategoryFilter("")}
+                  className="ml-2 text-primary hover:underline"
+                >
+                  Clear filter
+                </button>
+              </p>
+            </div>
+          )}
         </div>
-        
-        {/* Ad after Categories section - NOT lazy loaded for AdSense detection */}
-        <div className="mt-12 flex gap-4 justify-center flex-wrap">
-          <AdSpace type="display" slot="4402803148" position="content" />
-          <AdSpace type="display" slot="9239216915" position="content" />
-          <AdSpace type="display" slot="8923135106" position="content" />
+
+        {/* Single ad in center after categories */}
+        <div className="mt-12 flex justify-center">
+          <AdSpace type="display" slot="1212397554" position="content" />
         </div>
       </section>
 
@@ -898,13 +914,9 @@ const Index = () => {
 
         {filteredTools.length > 0 ? (
           <>
-            {/* Ad before tools grid - NOT lazy loaded for AdSense detection */}
-            <div className="mb-8 flex gap-4 justify-center flex-wrap">
-              <AdSpace type="display" slot="1212397554" position="content" />
-              <AdSpace type="display" slot="2918331088" position="content" />
-            </div>
-            
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {/* Tools Grid - Full width */}
+            <div className="max-w-6xl mx-auto">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredTools.map((tool, index) => {
               // Insert ad after every 8 tools
               const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
@@ -1024,7 +1036,8 @@ const Index = () => {
                 </>
               );
             })}
-          </div>
+              </div>
+            </div>
           </>
         ) : (
           <div className="text-center py-12">
@@ -1041,9 +1054,9 @@ const Index = () => {
           </div>
         )}
 
-        {/* Bottom Ad - Display Ads */}
-        <div className="mt-12">
-          <AdRow type="display" count={3} position="bottom" />
+        {/* Single ad at bottom */}
+        <div className="mt-12 flex justify-center">
+          <AdSpace type="display" slot="2918331088" position="bottom" />
         </div>
       </section>
 
@@ -1083,11 +1096,6 @@ const Index = () => {
               </div>
               <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Forever</p>
             </div>
-          </div>
-
-          {/* Ad after Stats section - Display */}
-          <div className="mt-12">
-            <AdRow type="display" count={3} position="bottom" />
           </div>
         </div>
       </section>

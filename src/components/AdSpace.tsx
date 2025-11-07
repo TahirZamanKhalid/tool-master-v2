@@ -25,7 +25,7 @@ export type AdSpaceProps = AdSpacePropsNew | AdSpacePropsOld;
 
 // Map slot IDs to your actual AdSense slots (for backward compatibility)
 const slotConfig: Record<string, string> = {
-  display_ad_slot_1: "1212397554", // Sidebar 
+  display_ad_slot_1: "1212397554", // Sidebar
   display_ad_slot_2: "2918331088", // Display Ad 2
   display_ad_slot_3: "4402803148", // Display ad 3
   infeed_ad_slot_1: "4739066253", // In-feed ad
@@ -34,12 +34,9 @@ const slotConfig: Record<string, string> = {
 
 export const AdSpace = (props: AdSpaceProps) => {
   const adRef = useRef<any>(null);
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const [adLoaded, setAdLoaded] = useState(false);
-  const [adError, setAdError] = useState(false);
-  const [containerWidth, setContainerWidth] = useState<number>(0);
+  const [isInitialized, setIsInitialized] = useState(false);
   const adClient = "ca-pub-7382531001943020";
-  
+
   // Handle both old and new prop formats
   const isNewFormat = 'type' in props;
   const type = isNewFormat ? props.type : 'display';
@@ -47,30 +44,17 @@ export const AdSpace = (props: AdSpaceProps) => {
   const layoutKey = isNewFormat ? props.layoutKey : undefined;
   const className = props.className || '';
   const position = props.position;
-  
+
   const actualSlot = slotConfig[slot] || slot;
   const isTestMode = typeof window !== "undefined" && (
     window.location.hostname.includes("localhost") ||
     window.location.hostname.endsWith(".lovable.app")
   );
 
-  // Observe container width to prevent "No slot size for availableWidth" errors
   useEffect(() => {
-    if (!wrapperRef.current) return;
-    const element = wrapperRef.current;
-    // Initial measure
-    setContainerWidth(element.clientWidth || 0);
-    const ro = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const cw = Math.floor(entry.contentRect.width);
-        setContainerWidth(cw);
-      }
-    });
-    ro.observe(element);
-    return () => ro.disconnect();
-  }, []);
+    // Prevent double initialization
+    if (isInitialized) return;
 
-  useEffect(() => {
     // Load AdSense script if not already loaded
     if (!document.querySelector('script[src*="googlesyndication.com/pagead/js/adsbygoogle.js"]')) {
       const script = document.createElement("script");
@@ -80,49 +64,31 @@ export const AdSpace = (props: AdSpaceProps) => {
       document.head.appendChild(script);
     }
 
-    const minWidth = (() => {
-      // Mobile-optimized minimum widths for better ad serving
-      if (type === "infeed") return 300;
-      if (type === "multiplex") return 250;
-      return 250; // Standard minimum for display ads
-    })();
-
     const initializeAd = () => {
-      if (adLoaded || adError) return;
-      if (!adRef.current || containerWidth < minWidth) {
-        // Retry until container is ready
-        setTimeout(initializeAd, 100);
-        return;
-      }
-      if (window.adsbygoogle) {
-        try {
-          console.log("[AdSense] push", { type, slot: actualSlot, containerWidth, minWidth, isTestMode });
+      if (!adRef.current || isInitialized) return;
+
+      try {
+        // Make sure window.adsbygoogle exists
+        if (typeof window !== "undefined" && window.adsbygoogle) {
+          console.log("[AdSense] Initializing ad:", { type, slot: actualSlot, position });
           (window.adsbygoogle = window.adsbygoogle || []).push({});
-          // Mark as loaded after push
-          setTimeout(() => {
-            setAdLoaded(true);
-            console.log("[AdSense] marked loaded", { slot: actualSlot });
-          }, 500);
-        } catch (error) {
-          console.error("[AdSense] error on push:", error);
-          setAdError(true);
+          setIsInitialized(true);
+        } else {
+          // Retry if adsbygoogle not ready yet
+          setTimeout(initializeAd, 200);
         }
-      } else {
-        // Retry if script not ready
-        setTimeout(initializeAd, 100);
+      } catch (error) {
+        console.error("[AdSense] Error initializing ad:", error);
+        // Don't retry on error, but keep the container visible
+        setIsInitialized(true);
       }
     };
 
-    // Start initialization
+    // Delay initialization slightly to ensure DOM is ready
     const timer = setTimeout(initializeAd, 100);
 
     return () => clearTimeout(timer);
-  }, [actualSlot, adClient, containerWidth, type, adLoaded, adError]);
-
-  // Don't show fallback - just hide if error
-  if (adError) {
-    return null;
-  }
+  }, [actualSlot, adClient, type, position, isInitialized]);
 
   const getAdStyle = () => {
     switch (type) {
@@ -137,12 +103,13 @@ export const AdSpace = (props: AdSpaceProps) => {
     }
   };
 
+  // Always render the ad container - don't hide or remove it
   return (
-    <div className={`ad-container ${className}`} ref={wrapperRef} style={{ minWidth: "250px" }}>
+    <div className={`ad-container ${className}`} style={{ minWidth: "250px" }}>
       <ins
         ref={adRef}
         className="adsbygoogle"
-        style={{ ...getAdStyle(), visibility: adLoaded ? "visible" : "hidden" }}
+        style={getAdStyle()}
         data-ad-client={adClient}
         data-ad-slot={actualSlot}
         data-ad-format={type === "infeed" ? "fluid" : "auto"}

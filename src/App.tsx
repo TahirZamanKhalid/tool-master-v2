@@ -37,6 +37,10 @@ import Contact from "./pages/Contact";
 import ImageResizer from "./pages/tools/ImageResizer";
 import ImageCropper from "./pages/tools/ImageCropper";
 import MemeGenerator from "./pages/tools/MemeGenerator";
+import AdvancedImageEditor from "./pages/tools/AdvancedImageEditor";
+import WatermarkTool from "./pages/tools/WatermarkTool";
+import PhotoCollageMaker from "./pages/tools/PhotoCollageMaker";
+import GIFMaker from "./pages/tools/GIFMaker";
 import ASCIIArtGenerator from "./pages/tools/ASCIIArtGenerator";
 import CSVToJSON from "./pages/tools/CSVToJSON";
 import JSONToCSV from "./pages/tools/JSONToCSV";
@@ -62,7 +66,9 @@ import WiFiQRGenerator from "./pages/tools/WiFiQRGenerator";
 import CaptionGenerator from "./pages/tools/CaptionGenerator";
 import PDFSplitter from "./pages/tools/PDFSplitter";
 import PDFCompressor from "./pages/tools/PDFCompressor";
+import PDFEditor from "./pages/tools/PDFEditor";
 import PDFToText from "./pages/tools/PDFToText";
+import ResumeBuilder from "./pages/tools/ResumeBuilder";
 import ImagesToPDF from "./pages/tools/ImagesToPDF";
 import Auth from "./pages/Auth";
 import About from "./pages/About";
@@ -127,6 +133,44 @@ import ScreenDetector from "./pages/tools/ScreenDetector";
 import WordScrambler from "./pages/tools/WordScrambler";
 import CoinFlip from "./pages/tools/CoinFlip";
 import JSONValidator from "./pages/tools/JSONValidator";
+// NEW HIGH-DEMAND TOOLS
+import ExcelToCSV from "./pages/tools/ExcelToCSV";
+import CSVToExcel from "./pages/tools/CSVToExcel";
+import PNGToJPG from "./pages/tools/PNGToJPG";
+import JPGToPNG from "./pages/tools/JPGToPNG";
+import HEICToJPG from "./pages/tools/HEICToJPG";
+import PDFToImages from "./pages/tools/PDFToImages";
+import WebPToPNG from "./pages/tools/WebPToPNG";
+import AdvancedImageCompressor from "./pages/tools/AdvancedImageCompressor";
+import InvoiceGenerator from "./pages/tools/InvoiceGenerator";
+import AdvancedPasswordGenerator from "./pages/tools/AdvancedPasswordGenerator";
+import TipCalculator from "./pages/tools/TipCalculator";
+import DiscountCalculator from "./pages/tools/DiscountCalculator";
+import LoanCalculator from "./pages/tools/LoanCalculator";
+import GPACalculator from "./pages/tools/GPACalculator";
+import SVGToPNG from "./pages/tools/SVGToPNG";
+import HashtagGenerator from "./pages/tools/HashtagGenerator";
+import BusinessNameGenerator from "./pages/tools/BusinessNameGenerator";
+import DomainNameGenerator from "./pages/tools/DomainNameGenerator";
+import EmailSignatureGenerator from "./pages/tools/EmailSignatureGenerator";
+import InstagramBioGenerator from "./pages/tools/InstagramBioGenerator";
+import YouTubeTitleGenerator from "./pages/tools/YouTubeTitleGenerator";
+import FakeDataGenerator from "./pages/tools/FakeDataGenerator";
+import RandomNameGenerator from "./pages/tools/RandomNameGenerator";
+import CompanyNameGenerator from "./pages/tools/CompanyNameGenerator";
+import ProductNameGenerator from "./pages/tools/ProductNameGenerator";
+import TaglineGenerator from "./pages/tools/TaglineGenerator";
+import KeywordResearchTool from "./pages/tools/KeywordResearchTool";
+import RobotsTxtGenerator from "./pages/tools/RobotsTxtGenerator";
+import SchemaMarkupGenerator from "./pages/tools/SchemaMarkupGenerator";
+import SEOContentAnalyzer from "./pages/tools/SEOContentAnalyzer";
+import TitleMetaChecker from "./pages/tools/TitleMetaChecker";
+import HeadingAnalyzer from "./pages/tools/HeadingAnalyzer";
+import AltTextGenerator from "./pages/tools/AltTextGenerator";
+import CanonicalURLGenerator from "./pages/tools/CanonicalURLGenerator";
+import SitemapValidator from "./pages/tools/SitemapValidator";
+import BreadcrumbGenerator from "./pages/tools/BreadcrumbGenerator";
+// PREMIUM FINANCIAL & DATE TOOLS
 import CompoundInterestCalculator from "./pages/tools/CompoundInterestCalculator";
 import TDEECalculator from "./pages/tools/TDEECalculator";
 import BudgetPlanner from "./pages/tools/BudgetPlanner";
@@ -173,6 +217,10 @@ const App = () => (
         <Route path="/tools/bmi-calculator" element={<BMICalculator />} />
         <Route path="/tools/image-resizer" element={<ImageResizer />} />
         <Route path="/tools/image-cropper" element={<ImageCropper />} />
+        <Route path="/tools/advanced-image-editor" element={<AdvancedImageEditor />} />
+        <Route path="/tools/watermark-tool" element={<WatermarkTool />} />
+        <Route path="/tools/photo-collage-maker" element={<PhotoCollageMaker />} />
+        <Route path="/tools/gif-maker" element={<GIFMaker />} />
         <Route path="/tools/meme-generator" element={<MemeGenerator />} />
         <Route path="/tools/ascii-art" element={<ASCIIArtGenerator />} />
         <Route path="/tools/csv-to-json" element={<CSVToJSON />} />
@@ -199,8 +247,10 @@ const App = () => (
         <Route path="/tools/caption-generator" element={<CaptionGenerator />} />
         <Route path="/tools/pdf-splitter" element={<PDFSplitter />} />
         <Route path="/tools/pdf-compressor" element={<PDFCompressor />} />
+        <Route path="/tools/pdf-editor" element={<PDFEditor />} />
         <Route path="/tools/pdf-to-text" element={<PDFToText />} />
         <Route path="/tools/images-to-pdf" element={<ImagesToPDF />} />
+        <Route path="/tools/resume-builder" element={<ResumeBuilder />} />
         <Route path="/tools/api-tester" element={<APITester />} />
         <Route path="/tools/json-to-yaml" element={<JSONToYAML />} />
         <Route path="/tools/css-minifier" element={<CSSMinifier />} />
@@ -257,6 +307,49 @@ const App = () => (
             <Route path="/tools/word-scrambler" element={<WordScrambler />} />
             <Route path="/tools/coin-flip" element={<CoinFlip />} />
             <Route path="/tools/json-validator" element={<JSONValidator />} />
+            <Route path="/tools/compound-interest-calculator" element={<CompoundInterestCalculator />} />
+            <Route path="/tools/tdee-calculator" element={<TDEECalculator />} />
+            <Route path="/tools/budget-planner" element={<BudgetPlanner />} />
+            <Route path="/tools/savings-goal-calculator" element={<SavingsGoalCalculator />} />
+            <Route path="/tools/date-difference-calculator" element={<DateDifferenceCalculator />} />
+
+            {/* NEW HIGH-DEMAND TOOLS */}
+            <Route path="/tools/excel-to-csv" element={<ExcelToCSV />} />
+            <Route path="/tools/csv-to-excel" element={<CSVToExcel />} />
+            <Route path="/tools/png-to-jpg" element={<PNGToJPG />} />
+            <Route path="/tools/jpg-to-png" element={<JPGToPNG />} />
+            <Route path="/tools/heic-to-jpg" element={<HEICToJPG />} />
+            <Route path="/tools/pdf-to-images" element={<PDFToImages />} />
+            <Route path="/tools/webp-to-png" element={<WebPToPNG />} />
+            <Route path="/tools/advanced-image-compressor" element={<AdvancedImageCompressor />} />
+            <Route path="/tools/invoice-generator" element={<InvoiceGenerator />} />
+            <Route path="/tools/advanced-password-generator" element={<AdvancedPasswordGenerator />} />
+            <Route path="/tools/tip-calculator" element={<TipCalculator />} />
+            <Route path="/tools/discount-calculator" element={<DiscountCalculator />} />
+            <Route path="/tools/loan-calculator" element={<LoanCalculator />} />
+            <Route path="/tools/gpa-calculator" element={<GPACalculator />} />
+            <Route path="/tools/svg-to-png" element={<SVGToPNG />} />
+            <Route path="/tools/hashtag-generator" element={<HashtagGenerator />} />
+            <Route path="/tools/business-name-generator" element={<BusinessNameGenerator />} />
+            <Route path="/tools/domain-name-generator" element={<DomainNameGenerator />} />
+            <Route path="/tools/email-signature-generator" element={<EmailSignatureGenerator />} />
+            <Route path="/tools/instagram-bio-generator" element={<InstagramBioGenerator />} />
+            <Route path="/tools/youtube-title-generator" element={<YouTubeTitleGenerator />} />
+            <Route path="/tools/fake-data-generator" element={<FakeDataGenerator />} />
+            <Route path="/tools/random-name-generator" element={<RandomNameGenerator />} />
+            <Route path="/tools/company-name-generator" element={<CompanyNameGenerator />} />
+            <Route path="/tools/product-name-generator" element={<ProductNameGenerator />} />
+            <Route path="/tools/tagline-generator" element={<TaglineGenerator />} />
+            <Route path="/tools/keyword-research" element={<KeywordResearchTool />} />
+            <Route path="/tools/robots-txt-generator" element={<RobotsTxtGenerator />} />
+            <Route path="/tools/schema-markup-generator" element={<SchemaMarkupGenerator />} />
+            <Route path="/tools/seo-content-analyzer" element={<SEOContentAnalyzer />} />
+            <Route path="/tools/title-meta-checker" element={<TitleMetaChecker />} />
+            <Route path="/tools/heading-analyzer" element={<HeadingAnalyzer />} />
+            <Route path="/tools/alt-text-generator" element={<AltTextGenerator />} />
+            <Route path="/tools/canonical-url-generator" element={<CanonicalURLGenerator />} />
+            <Route path="/tools/sitemap-validator" element={<SitemapValidator />} />
+            <Route path="/tools/breadcrumb-generator" element={<BreadcrumbGenerator />} />
             <Route path="/tools/compound-interest-calculator" element={<CompoundInterestCalculator />} />
             <Route path="/tools/tdee-calculator" element={<TDEECalculator />} />
             <Route path="/tools/budget-planner" element={<BudgetPlanner />} />
