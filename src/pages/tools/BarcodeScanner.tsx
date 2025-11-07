@@ -1,23 +1,159 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Copy } from "lucide-react";
+import { Copy, Camera, Upload, ScanLine, CheckCircle2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
 import { supabase } from "@/integrations/supabase/client";
+import { AdSpace } from "@/components/AdSpace";
 
 const BarcodeScanner = () => {
+  const [scanning, setScanning] = useState(false);
   const [result, setResult] = useState("");
   const [format, setFormat] = useState("");
+  const [html5QrCode, setHtml5QrCode] = useState<Html5Qrcode | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string>("");
+  const [isDetecting, setIsDetecting] = useState(false);
   const [productInfo, setProductInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [manualBarcode, setManualBarcode] = useState("");
 
+  useEffect(() => {
+    return () => {
+      if (html5QrCode?.isScanning) {
+        html5QrCode.stop().catch(console.error);
+      }
+    };
+  }, [html5QrCode]);
+
+  // Capture screenshot from video element
+  const captureScreenshot = () => {
+    const video = document.querySelector("#barcode-reader video") as HTMLVideoElement;
+    if (!video) return;
+
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0);
+        const imageData = canvas.toDataURL("image/png");
+        setCapturedImage(imageData);
+      }
+    } catch (error) {
+      console.error("Failed to capture screenshot:", error);
+    }
+  };
+
+  const startCamera = async () => {
+    try {
+      const barcodeScanner = new Html5Qrcode("barcode-reader");
+      setHtml5QrCode(barcodeScanner);
+
+      // Configure for barcode-specific scanning with all formats
+      await barcodeScanner.start(
+        { facingMode: "environment" },
+        {
+          fps: 30, // High FPS for fast detection
+          qrbox: { width: 350, height: 150 }, // Wider box for barcodes
+          aspectRatio: 2.33,
+          disableFlip: false,
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.CODE_93,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.ITF,
+            Html5QrcodeSupportedFormats.CODABAR,
+          ],
+          videoConstraints: {
+            facingMode: "environment",
+            focusMode: "continuous",
+            advanced: [{ zoom: 1.0 }]
+          }
+        },
+        (decodedText, decodedResult) => {
+          // Barcode detected - automatic capture
+          setIsDetecting(true);
+          setResult(decodedText);
+          setFormat(decodedResult.result.format?.formatName || "Unknown");
+          captureScreenshot();
+
+          // Visual feedback and auto-lookup
+          setTimeout(() => {
+            setIsDetecting(false);
+            stopCamera();
+            toast.success(`${decodedResult.result.format?.formatName || "Barcode"} detected and captured!`);
+            // Auto lookup product info for retail barcodes
+            if (decodedText.length >= 8 && /^\d+$/.test(decodedText)) {
+              fetchProductInfo(decodedText);
+            }
+          }, 500);
+        },
+        (errorMessage) => {
+          // Suppress console errors during active scanning
+        }
+      );
+
+      setScanning(true);
+      toast.success("Camera started - Place barcode in the scanning area");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to access camera. Please grant camera permissions.");
+    }
+  };
+
+  const stopCamera = async () => {
+    if (html5QrCode?.isScanning) {
+      try {
+        await html5QrCode.stop();
+        setScanning(false);
+        toast.info("Camera stopped");
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
+  const scanFile = async () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+
+      try {
+        const barcodeScanner = new Html5Qrcode("barcode-reader");
+        const decodedText = await barcodeScanner.scanFile(file, true);
+        setResult(decodedText);
+        setFormat("Image Scan");
+        toast.success("Barcode decoded successfully!");
+
+        // Auto lookup if numeric barcode
+        if (decodedText.length >= 8 && /^\d+$/.test(decodedText)) {
+          fetchProductInfo(decodedText);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to decode barcode from image");
+      }
+    };
+
+    input.click();
+  };
+
   const fetchProductInfo = async (barcode: string) => {
     setLoading(true);
     setProductInfo(null);
-    
+
     try {
       const { data, error } = await supabase.functions.invoke('lookup-barcode', {
         body: { barcode }
@@ -35,10 +171,9 @@ const BarcodeScanner = () => {
         message: "Failed to fetch product information. Please try again.",
       });
     }
-    
+
     setLoading(false);
   };
-
 
   const handleManualLookup = () => {
     const trimmed = manualBarcode.trim();
@@ -67,13 +202,16 @@ const BarcodeScanner = () => {
 
   return (
     <ToolLayout
-      title="Barcode Lookup"
-      description="Look up product information by entering a barcode number"
+      title="Barcode Scanner"
+      description="Powerful barcode scanner with camera, automatic detection and product lookup"
       category="QR & Barcodes"
       instructions={[
-        "Enter a barcode number (8-14 digits)",
-        "Click Lookup to search product databases",
-        "View detailed product information",
+        "Click 'Start Camera' to activate powerful barcode scanner",
+        "Place barcode horizontally in front of camera within scanning box",
+        "Scanner automatically detects CODE128, CODE39, EAN-13, UPC, and more",
+        "View barcode format, captured image, and product information",
+        "Or upload an image containing a barcode",
+        "Manual entry available for quick lookups",
       ]}
       relatedTools={[
         { name: "QR Code Scanner", path: "/tools/qr-scanner" },
@@ -81,26 +219,88 @@ const BarcodeScanner = () => {
         { name: "QR Code Generator", path: "/tools/qr-code-generator" },
       ]}
     >
+      <AdSpace size="leaderboard" className="mb-6" />
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
             <div>
-              <Label>Manual Barcode Entry</Label>
+              <Label>Scan Method</Label>
+              <div className="grid grid-cols-3 gap-2 mt-2">
+                {!scanning ? (
+                  <>
+                    <Button onClick={startCamera} size="lg" className="w-full">
+                      <Camera className="h-4 w-4 mr-2" />
+                      Camera
+                    </Button>
+                    <Button onClick={scanFile} size="lg" variant="secondary" className="w-full">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload
+                    </Button>
+                  </>
+                ) : (
+                  <Button onClick={stopCamera} size="lg" variant="destructive" className="col-span-2">
+                    Stop Camera
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            <div className="border rounded-lg overflow-hidden bg-black/5 relative">
+              <div
+                id="barcode-reader"
+                className={`w-full min-h-[300px] transition-all ${isDetecting ? 'ring-4 ring-green-500' : ''}`}
+              ></div>
+              {!scanning && (
+                <div className="flex items-center justify-center h-[300px]">
+                  <div className="text-center text-muted-foreground">
+                    <ScanLine className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                    <p>Camera preview will appear here</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Live Instructions Overlay */}
+              {scanning && !isDetecting && (
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 bg-black/80 text-white px-6 py-3 rounded-lg shadow-lg animate-pulse">
+                  <div className="flex items-center space-x-2">
+                    <ScanLine className="h-5 w-5" />
+                    <p className="font-medium text-sm">Place barcode horizontally in front of camera</p>
+                  </div>
+                  <p className="text-xs mt-1 text-center opacity-75">Align within the scanning box</p>
+                </div>
+              )}
+
+              {/* Detection Success Overlay */}
+              {isDetecting && (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 bg-green-500 text-white px-8 py-4 rounded-lg shadow-2xl">
+                  <div className="flex items-center space-x-3">
+                    <CheckCircle2 className="h-8 w-8 animate-bounce" />
+                    <div>
+                      <p className="font-bold text-lg">Barcode Detected!</p>
+                      <p className="text-sm">Capturing automatically...</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <Label>Manual Entry (Optional)</Label>
               <div className="flex gap-2 mt-2">
                 <input
                   type="text"
-                  placeholder="Enter barcode number (e.g., 012345678912)"
+                  placeholder="Enter barcode number..."
                   value={manualBarcode}
                   onChange={(e) => setManualBarcode(e.target.value.replace(/\D/g, ''))}
                   onKeyDown={(e) => e.key === 'Enter' && handleManualLookup()}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   maxLength={14}
                 />
-                <Button onClick={handleManualLookup} size="lg">
+                <Button onClick={handleManualLookup} size="sm">
                   Lookup
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Enter 8-14 digit barcode number</p>
+              <p className="text-xs text-muted-foreground mt-1">8-14 digit barcode</p>
             </div>
           </div>
         </Card>
@@ -110,12 +310,26 @@ const BarcodeScanner = () => {
             <Label>Scanned Result</Label>
             <div className="mt-2 p-4 bg-muted rounded-lg min-h-[100px] break-all">
               {result ? (
-                <>
-                  <p className="font-mono text-sm mb-2">{result}</p>
-                  {format && (
-                    <p className="text-xs text-muted-foreground">Format: {format}</p>
+                <div className="space-y-3">
+                  <div>
+                    <p className="font-mono text-lg font-bold">{result}</p>
+                    {format && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Format: <span className="font-semibold">{format}</span>
+                      </p>
+                    )}
+                  </div>
+                  {capturedImage && (
+                    <div className="mt-4">
+                      <Label className="text-xs text-muted-foreground">Captured Image</Label>
+                      <img
+                        src={capturedImage}
+                        alt="Captured Barcode"
+                        className="mt-2 w-full rounded-lg border-2 border-green-500/30"
+                      />
+                    </div>
                   )}
-                </>
+                </div>
               ) : (
                 <p className="text-muted-foreground text-center py-8">
                   No barcode scanned yet
@@ -248,6 +462,8 @@ const BarcodeScanner = () => {
           </div>
         </Card>
       </div>
+
+      <AdSpace size="leaderboard" className="mt-6" />
     </ToolLayout>
   );
 };

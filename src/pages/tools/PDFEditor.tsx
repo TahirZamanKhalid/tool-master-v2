@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,8 +27,27 @@ const PDFEditor = () => {
   const [fontFamily, setFontFamily] = useState("Arial");
   const [textColor, setTextColor] = useState("#000000");
   const [isLoading, setIsLoading] = useState(false);
+  const [extractedContent, setExtractedContent] = useState("");
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Update editor content when extracted content changes
+  useEffect(() => {
+    if (extractedContent && editorRef.current && !isLoading) {
+      // Use setTimeout to avoid React render conflicts
+      setTimeout(() => {
+        if (editorRef.current) {
+          editorRef.current.innerHTML = extractedContent;
+        }
+      }, 100);
+    }
+  }, [extractedContent, isLoading]);
+
+  const escapeHtml = (text: string): string => {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -38,6 +57,8 @@ const PDFEditor = () => {
 
     if (file.type === "application/pdf") {
       setIsLoading(true);
+      setExtractedContent(""); // Clear previous content
+
       try {
         const arrayBuffer = await file.arrayBuffer();
         const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
@@ -52,10 +73,10 @@ const PDFEditor = () => {
           const viewport = page.getViewport({ scale: 1.0 });
 
           // Create a page container
-          htmlContent += `<div style="margin-bottom: 40px; padding: 20px; background: white; min-height: 297mm; position: relative;">`;
+          htmlContent += `<div style="margin-bottom: 40px; padding: 20px; background: white; position: relative; page-break-after: always;">`;
 
           // Sort items by vertical position (y coordinate)
-          const items = textContent.items.sort((a: any, b: any) => {
+          const items = textContent.items.filter((item: any) => item.str && item.str.trim()).sort((a: any, b: any) => {
             // Group by lines (items with similar y coordinates)
             const yDiff = Math.abs(a.transform[5] - b.transform[5]);
             if (yDiff < 5) {
@@ -72,29 +93,28 @@ const PDFEditor = () => {
 
           items.forEach((item: any, index: number) => {
             const text = item.str;
-            if (!text.trim()) return;
+            if (!text || !text.trim()) return;
 
             const transform = item.transform;
-            const x = transform[4];
             const y = viewport.height - transform[5]; // Convert to top-down coordinates
-            const fontSize = Math.round(transform[0]);
+            const fontSize = Math.max(8, Math.min(72, Math.round(Math.abs(transform[0])))); // Clamp font size
             const fontName = item.fontName || "Arial";
 
             // Determine font family from PDF font name
-            let fontFamily = "Arial";
-            if (fontName.includes("Times") || fontName.includes("Serif")) {
-              fontFamily = "Times New Roman";
-            } else if (fontName.includes("Courier") || fontName.includes("Mono")) {
-              fontFamily = "Courier New";
-            } else if (fontName.includes("Georgia")) {
-              fontFamily = "Georgia";
-            } else if (fontName.includes("Verdana")) {
-              fontFamily = "Verdana";
+            let detectedFontFamily = "Arial, sans-serif";
+            if (fontName.toLowerCase().includes("times") || fontName.toLowerCase().includes("serif")) {
+              detectedFontFamily = "Times New Roman, serif";
+            } else if (fontName.toLowerCase().includes("courier") || fontName.toLowerCase().includes("mono")) {
+              detectedFontFamily = "Courier New, monospace";
+            } else if (fontName.toLowerCase().includes("georgia")) {
+              detectedFontFamily = "Georgia, serif";
+            } else if (fontName.toLowerCase().includes("verdana")) {
+              detectedFontFamily = "Verdana, sans-serif";
             }
 
             // Detect bold and italic from font name
-            const isBold = fontName.includes("Bold");
-            const isItalic = fontName.includes("Italic") || fontName.includes("Oblique");
+            const isBold = fontName.toLowerCase().includes("bold");
+            const isItalic = fontName.toLowerCase().includes("italic") || fontName.toLowerCase().includes("oblique");
 
             // Check if this item is on a new line
             if (lastY !== -1 && Math.abs(y - lastY) > lineThreshold) {
@@ -106,13 +126,11 @@ const PDFEditor = () => {
             }
 
             currentLine.push({
-              text,
+              text: escapeHtml(text),
               fontSize,
-              fontFamily,
+              fontFamily: detectedFontFamily,
               isBold,
-              isItalic,
-              x,
-              y
+              isItalic
             });
 
             lastY = y;
@@ -126,14 +144,13 @@ const PDFEditor = () => {
           htmlContent += `</div>`;
         }
 
-        if (editorRef.current) {
-          editorRef.current.innerHTML = htmlContent;
-        }
-
+        // Set content and wait for loading to finish
+        setExtractedContent(htmlContent || '<p style="font-size: 16px; line-height: 1.6;">No text content found in PDF.</p>');
         toast.success("PDF loaded with original styling! You can now edit the content.");
       } catch (error) {
         console.error("Error loading PDF:", error);
         toast.error("Failed to load PDF. Try uploading a text-based PDF.");
+        setExtractedContent('<p style="font-size: 16px; line-height: 1.6; color: #ef4444;">Error loading PDF. Please try a different file.</p>');
       } finally {
         setIsLoading(false);
       }
@@ -146,12 +163,12 @@ const PDFEditor = () => {
     if (lineItems.length === 0) return "";
 
     const avgFontSize = lineItems.reduce((sum, item) => sum + item.fontSize, 0) / lineItems.length;
-    const lineHeight = avgFontSize * 1.5;
+    const lineHeight = Math.max(avgFontSize * 1.4, 12);
 
-    let lineHtml = `<p style="margin: 0; padding: 0; line-height: ${lineHeight}px; min-height: ${lineHeight}px;">`;
+    let lineHtml = `<p style="margin: 0 0 ${lineHeight * 0.2}px 0; padding: 0; line-height: ${lineHeight}px; min-height: ${lineHeight}px;">`;
 
     lineItems.forEach(item => {
-      let style = `font-size: ${item.fontSize}px; font-family: ${item.fontFamily};`;
+      let style = `font-size: ${item.fontSize}px; font-family: '${item.fontFamily}';`;
       if (item.isBold) style += " font-weight: bold;";
       if (item.isItalic) style += " font-style: italic;";
 
@@ -213,7 +230,7 @@ const PDFEditor = () => {
   };
 
   const handleDownload = () => {
-    if (!editorRef.current?.innerHTML.trim()) {
+    if (!editorRef.current?.innerHTML.trim() || editorRef.current.innerHTML.includes("Start typing here")) {
       toast.error("Please add some content or upload a PDF first");
       return;
     }
@@ -269,12 +286,12 @@ const PDFEditor = () => {
   };
 
   const createNewDocument = () => {
-    if (editorRef.current) {
-      editorRef.current.innerHTML = '<p style="font-size: 16px; line-height: 1.6;"><br></p>';
-      setFileName("new-document");
-      editorRef.current.focus();
-      toast.success("New document created");
-    }
+    setExtractedContent('<p style="font-size: 16px; line-height: 1.6;"><br></p>');
+    setFileName("new-document");
+    toast.success("New document created");
+    setTimeout(() => {
+      editorRef.current?.focus();
+    }, 150);
   };
 
   return (
@@ -541,18 +558,21 @@ const PDFEditor = () => {
               suppressContentEditableWarning
             >
               {isLoading ? (
-                <div className="flex items-center justify-center h-full">
+                <div className="flex items-center justify-center min-h-[400px]">
                   <div className="text-center">
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
                     <p className="text-muted-foreground">Extracting PDF with original styling...</p>
+                    <p className="text-xs text-muted-foreground mt-2">This may take a few moments</p>
                   </div>
                 </div>
               ) : (
-                <p>
-                  <span style={{ color: "#9ca3af" }}>
-                    Start typing here or upload a PDF to edit with preserved styling...
-                  </span>
-                </p>
+                !extractedContent && (
+                  <p>
+                    <span style={{ color: "#9ca3af" }}>
+                      Start typing here or upload a PDF to edit with preserved styling...
+                    </span>
+                  </p>
+                )
               )}
             </div>
 
