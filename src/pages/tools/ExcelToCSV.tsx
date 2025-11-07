@@ -4,105 +4,168 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { Download, Upload, FileSpreadsheet } from "lucide-react";
+import { Download, Upload, FileSpreadsheet, File, Files } from "lucide-react";
 import * as XLSX from 'xlsx';
+import JSZip from 'jszip';
+
+interface SheetData {
+  name: string;
+  data: string;
+  rows: number;
+  cols: number;
+}
 
 const ExcelToCSV = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [csvData, setCsvData] = useState<string>("");
-  const [fileName, setFileName] = useState<string>("");
+  const [files, setFiles] = useState<File[]>([]);
+  const [sheets, setSheets] = useState<SheetData[]>([]);
+  const [selectedSheets, setSelectedSheets] = useState<string[]>([]);
+  const [delimiter, setDelimiter] = useState<string>(",");
+  const [encoding, setEncoding] = useState<string>("UTF-8");
+  const [includeHeaders, setIncludeHeaders] = useState<boolean>(true);
+  const [quoteFields, setQuoteFields] = useState<boolean>(false);
   const [converting, setConverting] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      if (
-        selectedFile.name.endsWith('.xlsx') ||
-        selectedFile.name.endsWith('.xls') ||
-        selectedFile.name.endsWith('.xlsm')
-      ) {
-        setFile(selectedFile);
-        setFileName(selectedFile.name.replace(/\.(xlsx|xls|xlsm)$/i, '.csv'));
-        setCsvData("");
-        toast.success("Excel file loaded successfully!");
-      } else {
-        toast.error("Please select a valid Excel file (.xlsx, .xls, .xlsm)");
-      }
+    const selectedFiles = Array.from(e.target.files || []);
+    const validFiles = selectedFiles.filter(file =>
+      file.name.endsWith('.xlsx') ||
+      file.name.endsWith('.xls') ||
+      file.name.endsWith('.xlsm')
+    );
+
+    if (validFiles.length === 0) {
+      toast.error("Please select valid Excel files (.xlsx, .xls, .xlsm)");
+      return;
     }
+
+    setFiles(validFiles);
+    setSheets([]);
+    setSelectedSheets([]);
+    toast.success(`${validFiles.length} Excel file(s) loaded successfully!`);
   };
 
-  const convertToCSV = async () => {
-    if (!file) {
-      toast.error("Please select an Excel file first");
+  const processFiles = async () => {
+    if (files.length === 0) {
+      toast.error("Please select Excel files first");
       return;
     }
 
     setConverting(true);
+    const allSheets: SheetData[] = [];
 
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      for (const file of files) {
+        const arrayBuffer = await file.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
 
-      // Get the first sheet
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
+        workbook.SheetNames.forEach((sheetName) => {
+          const worksheet = workbook.Sheets[sheetName];
+          const range = XLSX.utils.decode_range(worksheet['!ref'] || 'A1');
+          const rows = range.e.r - range.s.r + 1;
+          const cols = range.e.c - range.s.c + 1;
 
-      // Convert to CSV
-      const csv = XLSX.utils.sheet_to_csv(worksheet);
-      setCsvData(csv);
+          // Convert to CSV with custom delimiter
+          let csv = XLSX.utils.sheet_to_csv(worksheet, { FS: delimiter });
 
-      toast.success(`Converted successfully! Sheet: ${firstSheetName}`);
+          // Apply quote fields if needed
+          if (quoteFields) {
+            csv = csv.split('\n').map(row =>
+              row.split(delimiter).map(field => `"${field}"`).join(delimiter)
+            ).join('\n');
+          }
+
+          // Remove headers if needed
+          if (!includeHeaders && csv) {
+            csv = csv.split('\n').slice(1).join('\n');
+          }
+
+          allSheets.push({
+            name: `${file.name.replace(/\.(xlsx|xls|xlsm)$/i, '')}_${sheetName}`,
+            data: csv,
+            rows,
+            cols
+          });
+        });
+      }
+
+      setSheets(allSheets);
+      setSelectedSheets(allSheets.map(s => s.name));
+      toast.success(`Processed ${allSheets.length} sheet(s) successfully!`);
     } catch (error) {
-      console.error("Error converting file:", error);
-      toast.error("Failed to convert Excel to CSV");
+      console.error("Error processing files:", error);
+      toast.error("Failed to process Excel files");
     } finally {
       setConverting(false);
     }
   };
 
-  const downloadCSV = () => {
-    if (!csvData) {
-      toast.error("Please convert the file first");
-      return;
-    }
-
-    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+  const downloadSingleCSV = (sheet: SheetData) => {
+    const blob = new Blob([sheet.data], { type: `text/csv;charset=${encoding};` });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = fileName;
+    link.download = `${sheet.name}.csv`;
     link.click();
     URL.revokeObjectURL(link.href);
-
-    toast.success("CSV file downloaded!");
+    toast.success(`Downloaded ${sheet.name}.csv`);
   };
 
-  const copyToClipboard = () => {
-    if (!csvData) {
-      toast.error("No CSV data to copy");
+  const downloadAllAsZip = async () => {
+    if (selectedSheets.length === 0) {
+      toast.error("Please select sheets to download");
       return;
     }
 
-    navigator.clipboard.writeText(csvData);
-    toast.success("CSV data copied to clipboard!");
+    const zip = new JSZip();
+    const selectedData = sheets.filter(s => selectedSheets.includes(s.name));
+
+    selectedData.forEach(sheet => {
+      zip.file(`${sheet.name}.csv`, sheet.data);
+    });
+
+    const content = await zip.generateAsync({ type: 'blob' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(content);
+    link.download = `csv_files_${Date.now()}.zip`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    toast.success(`Downloaded ${selectedSheets.length} CSV file(s) as ZIP`);
+  };
+
+  const toggleSheetSelection = (sheetName: string) => {
+    setSelectedSheets(prev =>
+      prev.includes(sheetName)
+        ? prev.filter(s => s !== sheetName)
+        : [...prev, sheetName]
+    );
+  };
+
+  const selectAllSheets = () => {
+    setSelectedSheets(sheets.map(s => s.name));
+  };
+
+  const deselectAllSheets = () => {
+    setSelectedSheets([]);
   };
 
   return (
     <ToolLayout
       title="Excel to CSV Converter"
-      description="Convert Excel files (.xlsx, .xls) to CSV format instantly. Free, fast, and secure - all processing happens in your browser."
+      description="Convert Excel files (.xlsx, .xls) to CSV format with advanced options. Batch processing, multiple sheets, custom delimiters, and more. 100% free and secure."
       category="File Converters"
       instructions={[
-        "Click 'Choose File' and select your Excel file (.xlsx, .xls, .xlsm)",
-        "Click 'Convert to CSV' to process the file",
-        "Preview the CSV data in the output area",
-        "Click 'Download CSV' to save the converted file",
-        "Or click 'Copy CSV' to copy data to clipboard"
+        "Upload one or more Excel files (.xlsx, .xls, .xlsm)",
+        "Choose delimiter (comma, semicolon, tab, pipe)",
+        "Select encoding and other advanced options",
+        "Click 'Process Files' to convert all sheets",
+        "Select which sheets to download",
+        "Download individual CSV files or all as ZIP"
       ]}
       relatedTools={[
         { name: "CSV to Excel", path: "/tools/csv-to-excel" },
-        { name: "JSON to CSV", path: "/tools/json-to-csv" },
-        { name: "Excel to JSON", path: "/tools/excel-to-json" }
+        { name: "JSON to CSV", path: "/tools/json-to-csv" }
       ]}
     >
       <div className="grid gap-6">
@@ -110,111 +173,215 @@ const ExcelToCSV = () => {
           <CardContent className="p-6 space-y-6">
             {/* File Upload Section */}
             <div>
-              <Label htmlFor="excel-file">Upload Excel File</Label>
+              <Label htmlFor="excel-files">Upload Excel Files (Multiple Supported)</Label>
               <div className="mt-2">
                 <label
-                  htmlFor="excel-file"
+                  htmlFor="excel-files"
                   className="flex items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
                 >
                   <div className="text-center">
-                    {file ? (
+                    {files.length > 0 ? (
                       <>
-                        <FileSpreadsheet className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                        <p className="text-sm font-medium">{file.name}</p>
+                        <Files className="h-8 w-8 mx-auto mb-2 text-green-600" />
+                        <p className="text-sm font-medium">{files.length} file(s) selected</p>
                         <p className="text-xs text-muted-foreground">
-                          {(file.size / 1024).toFixed(2)} KB
+                          {files.map(f => f.name).join(', ')}
                         </p>
                       </>
                     ) : (
                       <>
                         <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                         <p className="text-sm text-muted-foreground">
-                          Click to upload Excel file
+                          Click to upload Excel files
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Supports .xlsx, .xls, .xlsm
+                          Supports .xlsx, .xls, .xlsm (multiple files)
                         </p>
                       </>
                     )}
                   </div>
                   <Input
-                    id="excel-file"
+                    id="excel-files"
                     type="file"
                     accept=".xlsx,.xls,.xlsm"
                     onChange={handleFileChange}
                     className="hidden"
+                    multiple
                   />
                 </label>
               </div>
             </div>
 
-            {/* Convert Button */}
+            {/* Advanced Options */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Delimiter</Label>
+                <Select value={delimiter} onValueChange={setDelimiter}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value=",">Comma (,)</SelectItem>
+                    <SelectItem value=";">Semicolon (;)</SelectItem>
+                    <SelectItem value="\t">Tab (\t)</SelectItem>
+                    <SelectItem value="|">Pipe (|)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label>Encoding</Label>
+                <Select value={encoding} onValueChange={setEncoding}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="UTF-8">UTF-8</SelectItem>
+                    <SelectItem value="UTF-16">UTF-16</SelectItem>
+                    <SelectItem value="ISO-8859-1">ISO-8859-1</SelectItem>
+                    <SelectItem value="Windows-1252">Windows-1252</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Checkboxes */}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="include-headers"
+                  checked={includeHeaders}
+                  onCheckedChange={(checked) => setIncludeHeaders(checked as boolean)}
+                />
+                <label
+                  htmlFor="include-headers"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Include column headers (first row)
+                </label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="quote-fields"
+                  checked={quoteFields}
+                  onCheckedChange={(checked) => setQuoteFields(checked as boolean)}
+                />
+                <label
+                  htmlFor="quote-fields"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Quote all fields with double quotes
+                </label>
+              </div>
+            </div>
+
+            {/* Process Button */}
             <Button
-              onClick={convertToCSV}
-              disabled={!file || converting}
+              onClick={processFiles}
+              disabled={files.length === 0 || converting}
               size="lg"
               className="w-full"
             >
-              {converting ? "Converting..." : "Convert to CSV"}
+              {converting ? "Processing..." : "Process Files & Convert"}
             </Button>
+          </CardContent>
+        </Card>
 
-            {/* CSV Preview and Download */}
-            {csvData && (
-              <div className="space-y-4">
-                <div>
-                  <Label>CSV Preview</Label>
-                  <textarea
-                    value={csvData.slice(0, 1000) + (csvData.length > 1000 ? '\n...(truncated)' : '')}
-                    readOnly
-                    className="w-full h-64 p-3 mt-2 font-mono text-sm border rounded-lg bg-muted/30"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Total size: {csvData.length} characters
-                  </p>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button onClick={downloadCSV} className="flex-1">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download CSV
+        {/* Sheets Selection and Download */}
+        {sheets.length > 0 && (
+          <Card>
+            <CardContent className="p-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">
+                  Converted Sheets ({sheets.length})
+                </h3>
+                <div className="flex gap-2">
+                  <Button onClick={selectAllSheets} variant="outline" size="sm">
+                    Select All
                   </Button>
-                  <Button onClick={copyToClipboard} variant="outline" className="flex-1">
-                    Copy CSV
+                  <Button onClick={deselectAllSheets} variant="outline" size="sm">
+                    Deselect All
                   </Button>
                 </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+
+              {/* Sheets List */}
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {sheets.map((sheet) => (
+                  <div
+                    key={sheet.name}
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50"
+                  >
+                    <div className="flex items-center gap-3 flex-1">
+                      <Checkbox
+                        checked={selectedSheets.includes(sheet.name)}
+                        onCheckedChange={() => toggleSheetSelection(sheet.name)}
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{sheet.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {sheet.rows} rows × {sheet.cols} columns | {sheet.data.length} chars
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => downloadSingleCSV(sheet)}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      Download
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Download All Button */}
+              {selectedSheets.length > 0 && (
+                <div className="pt-4 border-t">
+                  <Button onClick={downloadAllAsZip} className="w-full" size="lg">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Selected ({selectedSheets.length}) as ZIP
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Features Section */}
         <Card>
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Why Use Our Excel to CSV Converter?</h3>
+            <h3 className="text-lg font-semibold mb-4">Advanced Features</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
-                <span><strong>100% Free:</strong> No registration, no hidden fees</span>
+                <span><strong>Batch Processing:</strong> Convert multiple Excel files at once</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
-                <span><strong>Secure & Private:</strong> All conversion happens in your browser</span>
+                <span><strong>Multiple Sheets:</strong> Extract all sheets from workbooks</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
-                <span><strong>Fast Processing:</strong> Instant conversion, no upload delays</span>
+                <span><strong>Custom Delimiters:</strong> Comma, semicolon, tab, or pipe</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
-                <span><strong>Multiple Formats:</strong> Supports .xlsx, .xls, and .xlsm files</span>
+                <span><strong>Encoding Options:</strong> UTF-8, UTF-16, ISO-8859-1, Windows-1252</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
-                <span><strong>No Software Needed:</strong> Works directly in your web browser</span>
+                <span><strong>Field Quoting:</strong> Optional double quotes around fields</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
-                <span><strong>Preserves Data:</strong> Maintains cell values and formatting</span>
+                <span><strong>ZIP Download:</strong> Download all CSV files as single ZIP</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">✓</span>
+                <span><strong>100% Secure:</strong> All processing happens in your browser</span>
               </li>
             </ul>
           </CardContent>
