@@ -129,6 +129,9 @@ import CoinFlip from "./pages/tools/CoinFlip";
 import JSONValidator from "./pages/tools/JSONValidator";
 import CompoundInterestCalculator from "./pages/tools/CompoundInterestCalculator";
 import TDEECalculator from "./pages/tools/TDEECalculator";
+import BudgetPlanner from "./pages/tools/BudgetPlanner";
+import SavingsGoalCalculator from "./pages/tools/SavingsGoalCalculator";
+import DateDifferenceCalculator from "./pages/tools/DateDifferenceCalculator";
 
 const queryClient = new QueryClient();
 
@@ -256,6 +259,9 @@ const App = () => (
             <Route path="/tools/json-validator" element={<JSONValidator />} />
             <Route path="/tools/compound-interest-calculator" element={<CompoundInterestCalculator />} />
             <Route path="/tools/tdee-calculator" element={<TDEECalculator />} />
+            <Route path="/tools/budget-planner" element={<BudgetPlanner />} />
+            <Route path="/tools/savings-goal-calculator" element={<SavingsGoalCalculator />} />
+            <Route path="/tools/date-difference-calculator" element={<DateDifferenceCalculator />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
