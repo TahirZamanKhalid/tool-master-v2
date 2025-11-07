@@ -38,6 +38,7 @@ import ImageResizer from "./pages/tools/ImageResizer";
 import ImageCropper from "./pages/tools/ImageCropper";
 import MemeGenerator from "./pages/tools/MemeGenerator";
 import AdvancedImageEditor from "./pages/tools/AdvancedImageEditor";
+import WatermarkTool from "./pages/tools/WatermarkTool";
 import ASCIIArtGenerator from "./pages/tools/ASCIIArtGenerator";
 import CSVToJSON from "./pages/tools/CSVToJSON";
 import JSONToCSV from "./pages/tools/JSONToCSV";
@@ -209,6 +210,7 @@ const App = () => (
         <Route path="/tools/image-resizer" element={<ImageResizer />} />
         <Route path="/tools/image-cropper" element={<ImageCropper />} />
         <Route path="/tools/advanced-image-editor" element={<AdvancedImageEditor />} />
+        <Route path="/tools/watermark-tool" element={<WatermarkTool />} />
         <Route path="/tools/meme-generator" element={<MemeGenerator />} />
         <Route path="/tools/ascii-art" element={<ASCIIArtGenerator />} />
         <Route path="/tools/csv-to-json" element={<CSVToJSON />} />
