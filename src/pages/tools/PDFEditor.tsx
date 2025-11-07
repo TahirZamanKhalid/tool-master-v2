@@ -1,570 +1,498 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { jsPDF } from "jspdf";
 import * as pdfjsLib from "pdfjs-dist";
-import { FileText, Download, Upload, Type, Highlighter, Eraser, MousePointer, Undo, Redo, ZoomIn, ZoomOut } from "lucide-react";
+import {
+  FileText, Download, Upload, Bold, Italic, Underline,
+  AlignLeft, AlignCenter, AlignRight, AlignJustify,
+  List, ListOrdered, Heading1, Heading2, Type
+} from "lucide-react";
 import { AdWatchModal } from "@/components/AdWatchModal";
+import { SEOHead } from "@/components/SEOHead";
 
 // Set up PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
-interface Annotation {
-  type: "text" | "highlight" | "draw";
-  page: number;
-  x: number;
-  y: number;
-  width?: number;
-  height?: number;
-  text?: string;
-  color?: string;
-  fontSize?: number;
-  points?: { x: number; y: number }[];
-}
-
 const PDFEditor = () => {
-  const [file, setFile] = useState<File | null>(null);
-  const [pdfDoc, setPdfDoc] = useState<any>(null);
-  const [pdfData, setPdfData] = useState<Uint8Array | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [zoom, setZoom] = useState(1);
-  const [tool, setTool] = useState<"select" | "text" | "highlight" | "draw" | "eraser">("select");
-  const [annotations, setAnnotations] = useState<Annotation[]>([]);
-  const [undoStack, setUndoStack] = useState<Annotation[][]>([]);
-  const [redoStack, setRedoStack] = useState<Annotation[][]>([]);
-  const [textInput, setTextInput] = useState("");
-  const [textColor, setTextColor] = useState("#000000");
-  const [textSize, setTextSize] = useState(16);
-  const [highlightColor, setHighlightColor] = useState("#FFFF00");
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [currentDrawPoints, setCurrentDrawPoints] = useState<{ x: number; y: number }[]>([]);
+  const [fileName, setFileName] = useState("");
   const [showAdModal, setShowAdModal] = useState(false);
   const [canDownload, setCanDownload] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [fontSize, setFontSize] = useState("16");
+  const [fontFamily, setFontFamily] = useState("Arial");
+  const [textColor, setTextColor] = useState("#000000");
+  const editorRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (file && pdfDoc) {
-      renderPage(currentPage);
-    }
-  }, [currentPage, zoom, pdfDoc, annotations]);
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.type === "application/pdf") {
-      setFile(selectedFile);
-      const arrayBuffer = await selectedFile.arrayBuffer();
-      const data = new Uint8Array(arrayBuffer);
-      setPdfData(data);
+    setFileName(file.name.replace('.pdf', ''));
 
-      const loadingTask = pdfjsLib.getDocument({ data });
-      const pdf = await loadingTask.promise;
-      setPdfDoc(pdf);
-      setTotalPages(pdf.numPages);
-      setCurrentPage(1);
-      setAnnotations([]);
-      setUndoStack([]);
-      setRedoStack([]);
-      toast.success("PDF loaded successfully");
-    } else {
-      toast.error("Please select a valid PDF file");
-    }
-  };
+    if (file.type === "application/pdf") {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+        const pdf = await loadingTask.promise;
 
-  const renderPage = async (pageNumber: number) => {
-    if (!pdfDoc || !canvasRef.current) return;
+        let extractedText = "";
 
-    const page = await pdfDoc.getPage(pageNumber);
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-    if (!context) return;
+        // Extract text from all pages
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          const pageText = textContent.items
+            .map((item: any) => item.str)
+            .join(" ");
+          extractedText += pageText + "\n\n";
+        }
 
-    const viewport = page.getViewport({ scale: zoom });
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
+        if (editorRef.current) {
+          // Set the extracted text with basic formatting
+          editorRef.current.innerHTML = extractedText
+            .split('\n\n')
+            .map(para => para.trim())
+            .filter(para => para.length > 0)
+            .map(para => `<p style="margin-bottom: 12px;">${para}</p>`)
+            .join('');
+        }
 
-    await page.render({
-      canvasContext: context,
-      viewport: viewport,
-    }).promise;
-
-    // Draw annotations for current page
-    const pageAnnotations = annotations.filter(a => a.page === pageNumber);
-    pageAnnotations.forEach(annotation => {
-      if (annotation.type === "text" && annotation.text) {
-        context.fillStyle = annotation.color || "#000000";
-        context.font = `${(annotation.fontSize || 16) * zoom}px Arial`;
-        context.fillText(annotation.text, annotation.x * zoom, annotation.y * zoom);
-      } else if (annotation.type === "highlight" && annotation.width && annotation.height) {
-        context.fillStyle = annotation.color || "#FFFF0080";
-        context.fillRect(
-          annotation.x * zoom,
-          annotation.y * zoom,
-          annotation.width * zoom,
-          annotation.height * zoom
-        );
-      } else if (annotation.type === "draw" && annotation.points && annotation.points.length > 1) {
-        context.strokeStyle = annotation.color || "#000000";
-        context.lineWidth = 2 * zoom;
-        context.lineCap = "round";
-        context.lineJoin = "round";
-        context.beginPath();
-        context.moveTo(annotation.points[0].x * zoom, annotation.points[0].y * zoom);
-        annotation.points.forEach(point => {
-          context.lineTo(point.x * zoom, point.y * zoom);
-        });
-        context.stroke();
+        toast.success("PDF loaded! You can now edit the content.");
+      } catch (error) {
+        console.error("Error loading PDF:", error);
+        toast.error("Failed to load PDF. Try uploading a text-based PDF.");
       }
-    });
-  };
-
-  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!canvasRef.current || tool === "select") return;
-
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / zoom;
-    const y = (e.clientY - rect.top) / zoom;
-
-    if (tool === "text" && textInput) {
-      addAnnotation({
-        type: "text",
-        page: currentPage,
-        x,
-        y,
-        text: textInput,
-        color: textColor,
-        fontSize: textSize,
-      });
-      setTextInput("");
-    } else if (tool === "highlight") {
-      addAnnotation({
-        type: "highlight",
-        page: currentPage,
-        x,
-        y,
-        width: 100,
-        height: 20,
-        color: highlightColor + "80",
-      });
+    } else {
+      toast.error("Please upload a PDF file");
     }
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (tool !== "draw" || !canvasRef.current) return;
-
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / zoom;
-    const y = (e.clientY - rect.top) / zoom;
-
-    setIsDrawing(true);
-    setCurrentDrawPoints([{ x, y }]);
+  const execCommand = (command: string, value?: string) => {
+    document.execCommand(command, false, value);
+    editorRef.current?.focus();
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing || tool !== "draw" || !canvasRef.current) return;
-
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / zoom;
-    const y = (e.clientY - rect.top) / zoom;
-
-    setCurrentDrawPoints(prev => [...prev, { x, y }]);
-
-    // Draw temporarily
-    const context = canvasRef.current.getContext("2d");
-    if (context && currentDrawPoints.length > 0) {
-      context.strokeStyle = textColor;
-      context.lineWidth = 2 * zoom;
-      context.lineCap = "round";
-      context.lineJoin = "round";
-      context.beginPath();
-      const last = currentDrawPoints[currentDrawPoints.length - 1];
-      context.moveTo(last.x * zoom, last.y * zoom);
-      context.lineTo(x * zoom, y * zoom);
-      context.stroke();
+  const handleFontSizeChange = (value: string) => {
+    setFontSize(value);
+    execCommand("fontSize", "7");
+    // Wrap in span with actual size
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const span = document.createElement("span");
+      span.style.fontSize = value + "px";
+      try {
+        range.surroundContents(span);
+      } catch (e) {
+        // If can't surround, just apply to future text
+      }
     }
   };
 
-  const handleMouseUp = () => {
-    if (isDrawing && tool === "draw" && currentDrawPoints.length > 1) {
-      addAnnotation({
-        type: "draw",
-        page: currentPage,
-        x: 0,
-        y: 0,
-        points: currentDrawPoints,
-        color: textColor,
-      });
+  const handleFontFamilyChange = (value: string) => {
+    setFontFamily(value);
+    execCommand("fontName", value);
+  };
+
+  const handleTextColorChange = (color: string) => {
+    setTextColor(color);
+    execCommand("foreColor", color);
+  };
+
+  const insertHeading = (level: 1 | 2) => {
+    const size = level === 1 ? "32" : "24";
+    execCommand("fontSize", "7");
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const heading = document.createElement(level === 1 ? "h1" : "h2");
+      heading.style.fontSize = size + "px";
+      heading.style.fontWeight = "bold";
+      heading.style.marginTop = "16px";
+      heading.style.marginBottom = "8px";
+      try {
+        range.surroundContents(heading);
+      } catch (e) {
+        console.error("Could not insert heading");
+      }
     }
-    setIsDrawing(false);
-    setCurrentDrawPoints([]);
-  };
-
-  const addAnnotation = (annotation: Annotation) => {
-    setUndoStack(prev => [...prev, annotations]);
-    setAnnotations(prev => [...prev, annotation]);
-    setRedoStack([]);
-  };
-
-  const undo = () => {
-    if (undoStack.length === 0) return;
-    const previous = undoStack[undoStack.length - 1];
-    setRedoStack(prev => [...prev, annotations]);
-    setAnnotations(previous);
-    setUndoStack(prev => prev.slice(0, -1));
-  };
-
-  const redo = () => {
-    if (redoStack.length === 0) return;
-    const next = redoStack[redoStack.length - 1];
-    setUndoStack(prev => [...prev, annotations]);
-    setAnnotations(next);
-    setRedoStack(prev => prev.slice(0, -1));
-  };
-
-  const clearAnnotations = () => {
-    if (annotations.length === 0) return;
-    setUndoStack(prev => [...prev, annotations]);
-    setAnnotations([]);
-    setRedoStack([]);
-    toast.success("All annotations cleared");
   };
 
   const handleDownload = () => {
+    if (!editorRef.current?.innerHTML.trim()) {
+      toast.error("Please add some content or upload a PDF first");
+      return;
+    }
+
     if (!canDownload) {
       setShowAdModal(true);
       return;
     }
-    performDownload();
+
+    generatePDF();
   };
 
-  const performDownload = async () => {
-    if (!pdfData) {
-      toast.error("No PDF loaded");
-      return;
-    }
+  const generatePDF = () => {
+    if (!editorRef.current) return;
 
     try {
-      const pdfDoc = await PDFDocument.load(pdfData);
-      const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 20;
+      const maxWidth = pageWidth - (margin * 2);
+      let yPos = margin;
 
-      // Apply annotations to PDF
-      for (const annotation of annotations) {
-        const page = pdfDoc.getPage(annotation.page - 1);
-        const { height } = page.getSize();
+      // Get all the text content
+      const content = editorRef.current.innerText;
+      const lines = content.split('\n');
 
-        if (annotation.type === "text" && annotation.text) {
-          page.drawText(annotation.text, {
-            x: annotation.x,
-            y: height - annotation.y,
-            size: annotation.fontSize || 16,
-            font: font,
-            color: hexToRgb(annotation.color || "#000000"),
+      doc.setFontSize(12);
+
+      lines.forEach((line) => {
+        if (line.trim()) {
+          const textLines = doc.splitTextToSize(line, maxWidth);
+
+          textLines.forEach((textLine: string) => {
+            if (yPos > pageHeight - margin) {
+              doc.addPage();
+              yPos = margin;
+            }
+            doc.text(textLine, margin, yPos);
+            yPos += 7;
           });
-        } else if (annotation.type === "highlight" && annotation.width && annotation.height) {
-          page.drawRectangle({
-            x: annotation.x,
-            y: height - annotation.y - annotation.height,
-            width: annotation.width,
-            height: annotation.height,
-            color: hexToRgb(annotation.color || "#FFFF0080"),
-            opacity: 0.5,
-          });
+
+          yPos += 3; // Paragraph spacing
         }
-      }
+      });
 
-      const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `edited_${file?.name || "document.pdf"}`;
-      link.click();
-
+      doc.save(`${fileName || 'edited-document'}.pdf`);
       toast.success("PDF downloaded successfully!");
     } catch (error) {
-      console.error("Error saving PDF:", error);
-      toast.error("Failed to save PDF");
+      console.error("Error generating PDF:", error);
+      toast.error("Failed to generate PDF");
     }
   };
 
-  const hexToRgb = (hex: string) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})/i.exec(hex);
-    return result
-      ? rgb(
-          parseInt(result[1], 16) / 255,
-          parseInt(result[2], 16) / 255,
-          parseInt(result[3], 16) / 255
-        )
-      : rgb(0, 0, 0);
-  };
-
-  const handleAdWatched = () => {
-    setCanDownload(true);
-    toast.success("Ad watched! You can now download your edited PDF.");
-    performDownload();
+  const createNewDocument = () => {
+    if (editorRef.current) {
+      editorRef.current.innerHTML = '<p><br></p>';
+      setFileName("new-document");
+      editorRef.current.focus();
+      toast.success("New document created");
+    }
   };
 
   return (
-    <ToolLayout
-      title="Online PDF Editor"
-      description="Edit PDF files online - add text, highlights, and annotations. Free online PDF editor with no signup required."
-      category="PDF Tools"
-      instructions={[
-        "Upload your PDF file",
-        "Select a tool (text, highlight, or draw)",
-        "Click on the PDF to add annotations",
-        "Navigate between pages and zoom as needed",
-        "Watch a short ad to download your edited PDF"
-      ]}
-      relatedTools={[
-        { name: "PDF Merger", path: "/tools/pdf-merger" },
-        { name: "PDF Splitter", path: "/tools/pdf-splitter" },
-        { name: "PDF Compressor", path: "/tools/pdf-compressor" }
-      ]}
-    >
-      <div className="grid gap-6">
+    <>
+      <SEOHead
+        title="PDF Editor - Edit PDF Documents Online Like Word"
+        description="Edit PDF files online with our powerful editor. Format text, add content, and download as PDF. Works like Microsoft Word."
+        keywords="pdf editor, edit pdf, pdf text editor, online pdf editor, modify pdf"
+        canonical="https://toolmaster.cloud/tools/pdf-editor"
+      />
+      <ToolLayout
+        title="PDF Editor"
+        description="Edit PDF documents like Microsoft Word - format text, add content, and download"
+        category="PDF Tools"
+        instructions={[
+          "Upload a PDF to extract and edit its text",
+          "Or start with a blank document",
+          "Use the toolbar to format text (bold, italic, fonts, colors)",
+          "Edit content directly in the editor",
+          "Download your edited document as PDF"
+        ]}
+        relatedTools={[
+          { name: "PDF Merger", path: "/tools/pdf-merger" },
+          { name: "PDF Splitter", path: "/tools/pdf-splitter" },
+          { name: "Resume Builder", path: "/tools/resume-builder" }
+        ]}
+      >
         <Card>
-          <CardContent className="p-6 space-y-6">
-            <div>
-              <Label htmlFor="pdf-upload">Upload PDF</Label>
-              <Input
-                id="pdf-upload"
-                type="file"
-                accept=".pdf"
-                onChange={handleFileChange}
-                className="mt-2"
-              />
-            </div>
-
-            {file && (
-              <>
-                <div className="flex flex-wrap gap-2">
-                  <Button
-                    onClick={() => setTool("select")}
-                    variant={tool === "select" ? "default" : "outline"}
-                    size="sm"
-                  >
-                    <MousePointer className="h-4 w-4 mr-2" />
-                    Select
-                  </Button>
-                  <Button
-                    onClick={() => setTool("text")}
-                    variant={tool === "text" ? "default" : "outline"}
-                    size="sm"
-                  >
-                    <Type className="h-4 w-4 mr-2" />
-                    Text
-                  </Button>
-                  <Button
-                    onClick={() => setTool("highlight")}
-                    variant={tool === "highlight" ? "default" : "outline"}
-                    size="sm"
-                  >
-                    <Highlighter className="h-4 w-4 mr-2" />
-                    Highlight
-                  </Button>
-                  <Button
-                    onClick={() => setTool("draw")}
-                    variant={tool === "draw" ? "default" : "outline"}
-                    size="sm"
-                  >
-                    Draw
-                  </Button>
-                  <Button onClick={undo} variant="outline" size="sm" disabled={undoStack.length === 0}>
-                    <Undo className="h-4 w-4" />
-                  </Button>
-                  <Button onClick={redo} variant="outline" size="sm" disabled={redoStack.length === 0}>
-                    <Redo className="h-4 w-4" />
-                  </Button>
-                  <Button onClick={clearAnnotations} variant="outline" size="sm">
-                    <Eraser className="h-4 w-4 mr-2" />
-                    Clear All
-                  </Button>
-                </div>
-
-                {tool === "text" && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <Label htmlFor="text-input">Text</Label>
-                      <Input
-                        id="text-input"
-                        value={textInput}
-                        onChange={(e) => setTextInput(e.target.value)}
-                        placeholder="Enter text..."
-                        className="mt-2"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="text-color">Color</Label>
-                      <Input
-                        id="text-color"
-                        type="color"
-                        value={textColor}
-                        onChange={(e) => setTextColor(e.target.value)}
-                        className="mt-2 h-10"
-                      />
-                    </div>
-                    <div>
-                      <Label>Size: {textSize}px</Label>
-                      <Slider
-                        value={[textSize]}
-                        onValueChange={(value) => setTextSize(value[0])}
-                        min={8}
-                        max={48}
-                        step={1}
-                        className="mt-2"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {tool === "highlight" && (
-                  <div>
-                    <Label htmlFor="highlight-color">Highlight Color</Label>
-                    <Input
-                      id="highlight-color"
-                      type="color"
-                      value={highlightColor}
-                      onChange={(e) => setHighlightColor(e.target.value)}
-                      className="mt-2 h-10 w-32"
-                    />
-                  </div>
-                )}
-
-                {(tool === "draw") && (
-                  <div>
-                    <Label htmlFor="draw-color">Draw Color</Label>
-                    <Input
-                      id="draw-color"
-                      type="color"
-                      value={textColor}
-                      onChange={(e) => setTextColor(e.target.value)}
-                      className="mt-2 h-10 w-32"
-                    />
-                  </div>
-                )}
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {pdfDoc && (
-          <Card className="border-primary/20">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    size="sm"
-                  >
-                    Previous
-                  </Button>
-                  <span className="text-sm">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <Button
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
-                    size="sm"
-                  >
-                    Next
-                  </Button>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={() => setZoom(Math.max(0.5, zoom - 0.25))}
-                    size="sm"
-                    variant="outline"
-                  >
-                    <ZoomOut className="h-4 w-4" />
-                  </Button>
-                  <span className="text-sm">{Math.round(zoom * 100)}%</span>
-                  <Button
-                    onClick={() => setZoom(Math.min(2, zoom + 0.25))}
-                    size="sm"
-                    variant="outline"
-                  >
-                    <ZoomIn className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="border rounded-lg overflow-auto bg-gray-100 dark:bg-gray-900" style={{ maxHeight: "600px" }}>
-                <canvas
-                  ref={canvasRef}
-                  onClick={handleCanvasClick}
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseUp}
-                  className="cursor-crosshair mx-auto"
-                  style={{ display: "block" }}
+          <CardContent className="p-6 space-y-4">
+            {/* Toolbar */}
+            <div className="space-y-4">
+              {/* File Operations */}
+              <div className="flex flex-wrap gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileUpload}
+                  className="hidden"
                 />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  {annotations.length} annotation{annotations.length !== 1 ? "s" : ""} added
-                </div>
-                <Button onClick={handleDownload} size="lg">
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  variant="outline"
+                  size="sm"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload PDF
+                </Button>
+                <Button
+                  onClick={createNewDocument}
+                  variant="outline"
+                  size="sm"
+                >
+                  <FileText className="h-4 w-4 mr-2" />
+                  New Document
+                </Button>
+                <Button
+                  onClick={handleDownload}
+                  size="sm"
+                  className="ml-auto"
+                >
                   <Download className="h-4 w-4 mr-2" />
-                  Download Edited PDF
+                  Download PDF
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        )}
 
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">PDF Editor Features</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Text Tool:</strong> Add custom text anywhere on your PDF pages</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Highlight Tool:</strong> Mark important sections with colored highlights</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Draw Tool:</strong> Free-hand drawing for signatures and annotations</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Undo/Redo:</strong> Easy correction of mistakes</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Multi-page:</strong> Navigate and edit all pages in your PDF</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Privacy:</strong> All editing happens in your browser - files are not uploaded</span>
-              </li>
-            </ul>
+              <Separator />
+
+              {/* Text Formatting Toolbar */}
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Font Family */}
+                <Select value={fontFamily} onValueChange={handleFontFamilyChange}>
+                  <SelectTrigger className="w-[140px] h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Arial">Arial</SelectItem>
+                    <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+                    <SelectItem value="Courier New">Courier New</SelectItem>
+                    <SelectItem value="Georgia">Georgia</SelectItem>
+                    <SelectItem value="Verdana">Verdana</SelectItem>
+                    <SelectItem value="Comic Sans MS">Comic Sans MS</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Font Size */}
+                <Select value={fontSize} onValueChange={handleFontSizeChange}>
+                  <SelectTrigger className="w-[80px] h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="12">12</SelectItem>
+                    <SelectItem value="14">14</SelectItem>
+                    <SelectItem value="16">16</SelectItem>
+                    <SelectItem value="18">18</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                    <SelectItem value="24">24</SelectItem>
+                    <SelectItem value="28">28</SelectItem>
+                    <SelectItem value="32">32</SelectItem>
+                    <SelectItem value="36">36</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <div className="h-6 w-px bg-border mx-1" />
+
+                {/* Text Style Buttons */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => execCommand("bold")}
+                  className="h-9 w-9 p-0"
+                  title="Bold (Ctrl+B)"
+                >
+                  <Bold className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => execCommand("italic")}
+                  className="h-9 w-9 p-0"
+                  title="Italic (Ctrl+I)"
+                >
+                  <Italic className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => execCommand("underline")}
+                  className="h-9 w-9 p-0"
+                  title="Underline (Ctrl+U)"
+                >
+                  <Underline className="h-4 w-4" />
+                </Button>
+
+                <div className="h-6 w-px bg-border mx-1" />
+
+                {/* Text Color */}
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs">Color:</Label>
+                  <input
+                    type="color"
+                    value={textColor}
+                    onChange={(e) => handleTextColorChange(e.target.value)}
+                    className="h-9 w-16 cursor-pointer rounded border"
+                    title="Text Color"
+                  />
+                </div>
+
+                <div className="h-6 w-px bg-border mx-1" />
+
+                {/* Alignment */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => execCommand("justifyLeft")}
+                  className="h-9 w-9 p-0"
+                  title="Align Left"
+                >
+                  <AlignLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => execCommand("justifyCenter")}
+                  className="h-9 w-9 p-0"
+                  title="Align Center"
+                >
+                  <AlignCenter className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => execCommand("justifyRight")}
+                  className="h-9 w-9 p-0"
+                  title="Align Right"
+                >
+                  <AlignRight className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => execCommand("justifyFull")}
+                  className="h-9 w-9 p-0"
+                  title="Justify"
+                >
+                  <AlignJustify className="h-4 w-4" />
+                </Button>
+
+                <div className="h-6 w-px bg-border mx-1" />
+
+                {/* Lists */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => execCommand("insertUnorderedList")}
+                  className="h-9 w-9 p-0"
+                  title="Bullet List"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => execCommand("insertOrderedList")}
+                  className="h-9 w-9 p-0"
+                  title="Numbered List"
+                >
+                  <ListOrdered className="h-4 w-4" />
+                </Button>
+
+                <div className="h-6 w-px bg-border mx-1" />
+
+                {/* Headings */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => insertHeading(1)}
+                  className="h-9 px-2"
+                  title="Heading 1"
+                >
+                  <Heading1 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => insertHeading(2)}
+                  className="h-9 px-2"
+                  title="Heading 2"
+                >
+                  <Heading2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Editor */}
+            <div
+              ref={editorRef}
+              contentEditable
+              className="min-h-[600px] w-full p-8 border-2 border-dashed rounded-lg focus:outline-none focus:border-primary bg-white text-black"
+              style={{
+                fontFamily: fontFamily,
+                fontSize: fontSize + "px",
+                lineHeight: "1.6",
+                maxWidth: "210mm", // A4 width
+                margin: "0 auto",
+                boxShadow: "0 0 10px rgba(0,0,0,0.1)"
+              }}
+              suppressContentEditableWarning
+            >
+              <p>
+                <span style={{ color: "#9ca3af" }}>
+                  Start typing here or upload a PDF to edit...
+                </span>
+              </p>
+            </div>
+
+            <div className="text-sm text-muted-foreground">
+              <strong>Tips:</strong> Use Ctrl+B for bold, Ctrl+I for italic, Ctrl+U for underline.
+              This editor works like Microsoft Word - format text, change fonts, add headings, and more!
+            </div>
           </CardContent>
         </Card>
-      </div>
+
+        <Card className="mt-6">
+          <CardContent className="p-6">
+            <h3 className="text-lg font-semibold mb-4">How to Use PDF Editor</h3>
+            <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+              <div>
+                <h4 className="font-semibold text-foreground mb-2">Editing Existing PDFs:</h4>
+                <ul className="space-y-1">
+                  <li>• Click "Upload PDF" to load a PDF file</li>
+                  <li>• Text will be extracted and editable</li>
+                  <li>• Format, modify, and rearrange content</li>
+                  <li>• Download as new PDF when done</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-foreground mb-2">Creating New Documents:</h4>
+                <ul className="space-y-1">
+                  <li>• Click "New Document" to start fresh</li>
+                  <li>• Type and format text like in Word</li>
+                  <li>• Use toolbar for formatting options</li>
+                  <li>• Download as PDF when complete</li>
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </ToolLayout>
 
       <AdWatchModal
         open={showAdModal}
         onOpenChange={setShowAdModal}
-        onAdWatched={handleAdWatched}
-        title="Watch Ad to Download"
-        description="Please watch this short ad to download your edited PDF"
-        adDuration={5}
+        onAdWatched={() => {
+          setCanDownload(true);
+          setShowAdModal(false);
+          generatePDF();
+        }}
+        title="Watch ad to download your PDF"
+        description="Please watch this short ad to download your edited PDF document."
       />
-    </ToolLayout>
+    </>
   );
 };
 
