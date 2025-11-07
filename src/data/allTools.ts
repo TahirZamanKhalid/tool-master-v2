@@ -9,7 +9,8 @@ import {
   FileImage, Video, Brain, Monitor, Coins, Shuffle, ArrowRightLeft,
   ImageDown, Smartphone, FileArchive, Receipt, ShieldCheck,
   Calculator, GraduationCap, Tag, Briefcase, Mail, Instagram, Youtube,
-  User, Building2, Package, Sparkles, Search, FileText, Heading, FileCheck, List, Edit, Film
+  User, Building2, Package, Sparkles, Search, FileText, Heading, FileCheck, List, Edit, Film,
+  Target, PiggyBank, CalendarClock
 } from "lucide-react";
 
 export const allTools = [
@@ -118,7 +119,7 @@ export const allTools = [
   { icon: Code, title: "XML Sitemap Generator", description: "Generate XML sitemaps", category: "SEO & Marketing", path: "/tools/xml-sitemap-generator" },
   { icon: Code, title: "HTML Preview", description: "Preview HTML in real-time", category: "SEO & Marketing", path: "/tools/html-preview" },
 
-  // Calculators (5)
+  // Calculators (14)
   { icon: DollarSign, title: "Currency Converter", description: "Convert between world currencies", category: "Calculators", path: "/tools/currency-converter" },
   { icon: Scale, title: "Unit Converter", description: "Convert units of measurement", category: "Calculators", path: "/tools/unit-converter" },
   { icon: Percent, title: "Percentage Calculator", description: "Calculate percentages", category: "Calculators", path: "/tools/percentage-calculator" },
@@ -160,11 +161,16 @@ export const allTools = [
   // Advanced Security Tools (1) - NEW
   { icon: ShieldCheck, title: "Advanced Password Generator", description: "Generate ultra-secure passwords with full customization", category: "Security Tools", path: "/tools/advanced-password-generator", popular: true },
 
-  // NEW TOOLS - Calculators (3)
+  // NEW TOOLS - Calculators (9)
   { icon: Calculator, title: "Tip Calculator", description: "Calculate tips and split bills easily for restaurants and services", category: "Calculators", path: "/tools/tip-calculator", popular: true },
   { icon: Tag, title: "Discount Calculator", description: "Calculate discounts, sale prices, and savings instantly", category: "Calculators", path: "/tools/discount-calculator", popular: true },
   { icon: Calculator, title: "Loan Calculator", description: "Calculate monthly payments and total interest for any loan", category: "Calculators", path: "/tools/loan-calculator", popular: true },
   { icon: GraduationCap, title: "GPA Calculator", description: "Calculate your Grade Point Average with multiple courses", category: "Calculators", path: "/tools/gpa-calculator", popular: true },
+  { icon: TrendingUp, title: "Compound Interest Calculator", description: "Calculate compound interest with yearly breakdowns, what-if scenarios, and inflation adjustments", category: "Calculators", path: "/tools/compound-interest-calculator", popular: true },
+  { icon: Activity, title: "TDEE & Calorie Calculator", description: "Calculate daily calorie needs with multiple BMR formulas, macro breakdowns, and goal targets", category: "Calculators", path: "/tools/tdee-calculator", popular: true },
+  { icon: PiggyBank, title: "Budget Planner", description: "Track income and expenses with 50/30/20 rule analysis and savings goal tracking", category: "Calculators", path: "/tools/budget-planner", popular: true },
+  { icon: Target, title: "Savings Goal Calculator", description: "Track multiple savings goals with compound interest calculations and timeline projections", category: "Calculators", path: "/tools/savings-goal-calculator", popular: true },
+  { icon: CalendarClock, title: "Date Difference Calculator", description: "Calculate exact differences between dates with business days, time, and date arithmetic", category: "Calculators", path: "/tools/date-difference-calculator", popular: true },
 
   // NEW TOOLS - More File Converters (1)
   { icon: ImageDown, title: "SVG to PNG", description: "Convert SVG vector images to PNG raster format with custom dimensions", category: "File Converters", path: "/tools/svg-to-png", popular: true },
