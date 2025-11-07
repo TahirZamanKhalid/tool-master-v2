@@ -9,7 +9,7 @@ import {
   FileImage, Video, Brain, Monitor, Coins, Shuffle, ArrowRightLeft,
   ImageDown, Smartphone, FileArchive, Receipt, ShieldCheck,
   Calculator, GraduationCap, Tag, Briefcase, Mail, Instagram, Youtube,
-  User, Building2, Package, Sparkles, Search, FileText
+  User, Building2, Package, Sparkles, Search, FileText, Heading, FileCheck, List
 } from "lucide-react";
 
 export const allTools = [
@@ -176,10 +176,15 @@ export const allTools = [
   { icon: Package, title: "Product Name Generator", description: "Generate catchy product names for launches and branding", category: "Generators", path: "/tools/product-name-generator", popular: true },
   { icon: Sparkles, title: "Tagline Generator", description: "Generate catchy taglines and slogans for your business", category: "Generators", path: "/tools/tagline-generator", popular: true },
 
-  // NEW TOOLS - Batch 3: SEO & Marketing Tools (5)
+  // NEW TOOLS - Batch 3: SEO & Marketing Tools (10)
   { icon: Search, title: "Keyword Research Tool", description: "Generate keyword ideas and variations for SEO content strategy", category: "SEO & Marketing", path: "/tools/keyword-research", popular: true },
   { icon: FileText, title: "Robots.txt Generator", description: "Generate robots.txt file to control search engine crawlers", category: "SEO & Marketing", path: "/tools/robots-txt-generator", popular: true },
   { icon: Code, title: "Schema Markup Generator", description: "Generate JSON-LD structured data for rich snippets in search", category: "SEO & Marketing", path: "/tools/schema-markup-generator", popular: true },
   { icon: TrendingUp, title: "SEO Content Analyzer", description: "Analyze your content for SEO best practices and get recommendations", category: "SEO & Marketing", path: "/tools/seo-content-analyzer", popular: true },
   { icon: Monitor, title: "Title & Meta Checker", description: "Check if your page title and meta description are optimal length", category: "SEO & Marketing", path: "/tools/title-meta-checker", popular: true },
+  { icon: Heading, title: "Heading Structure Analyzer", description: "Analyze HTML heading structure (H1-H6) for SEO and accessibility", category: "SEO & Marketing", path: "/tools/heading-analyzer", popular: true },
+  { icon: Image, title: "Alt Text Generator", description: "Generate descriptive alt text for images to improve SEO and accessibility", category: "SEO & Marketing", path: "/tools/alt-text-generator", popular: true },
+  { icon: Link2, title: "Canonical URL Generator", description: "Generate canonical link tags to prevent duplicate content issues", category: "SEO & Marketing", path: "/tools/canonical-url-generator", popular: true },
+  { icon: FileCheck, title: "Sitemap Validator", description: "Validate XML sitemap structure and check for errors", category: "SEO & Marketing", path: "/tools/sitemap-validator", popular: true },
+  { icon: List, title: "Breadcrumb Generator", description: "Generate breadcrumb navigation with structured data for SEO", category: "SEO & Marketing", path: "/tools/breadcrumb-generator", popular: true },
 ];

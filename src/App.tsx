@@ -159,6 +159,11 @@ import RobotsTxtGenerator from "./pages/tools/RobotsTxtGenerator";
 import SchemaMarkupGenerator from "./pages/tools/SchemaMarkupGenerator";
 import SEOContentAnalyzer from "./pages/tools/SEOContentAnalyzer";
 import TitleMetaChecker from "./pages/tools/TitleMetaChecker";
+import HeadingAnalyzer from "./pages/tools/HeadingAnalyzer";
+import AltTextGenerator from "./pages/tools/AltTextGenerator";
+import CanonicalURLGenerator from "./pages/tools/CanonicalURLGenerator";
+import SitemapValidator from "./pages/tools/SitemapValidator";
+import BreadcrumbGenerator from "./pages/tools/BreadcrumbGenerator";
 
 const queryClient = new QueryClient();
 
@@ -317,6 +322,11 @@ const App = () => (
             <Route path="/tools/schema-markup-generator" element={<SchemaMarkupGenerator />} />
             <Route path="/tools/seo-content-analyzer" element={<SEOContentAnalyzer />} />
             <Route path="/tools/title-meta-checker" element={<TitleMetaChecker />} />
+            <Route path="/tools/heading-analyzer" element={<HeadingAnalyzer />} />
+            <Route path="/tools/alt-text-generator" element={<AltTextGenerator />} />
+            <Route path="/tools/canonical-url-generator" element={<CanonicalURLGenerator />} />
+            <Route path="/tools/sitemap-validator" element={<SitemapValidator />} />
+            <Route path="/tools/breadcrumb-generator" element={<BreadcrumbGenerator />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
