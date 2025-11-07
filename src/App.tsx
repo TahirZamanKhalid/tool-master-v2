@@ -144,6 +144,11 @@ import LoanCalculator from "./pages/tools/LoanCalculator";
 import GPACalculator from "./pages/tools/GPACalculator";
 import SVGToPNG from "./pages/tools/SVGToPNG";
 import HashtagGenerator from "./pages/tools/HashtagGenerator";
+import BusinessNameGenerator from "./pages/tools/BusinessNameGenerator";
+import DomainNameGenerator from "./pages/tools/DomainNameGenerator";
+import EmailSignatureGenerator from "./pages/tools/EmailSignatureGenerator";
+import InstagramBioGenerator from "./pages/tools/InstagramBioGenerator";
+import YouTubeTitleGenerator from "./pages/tools/YouTubeTitleGenerator";
 
 const queryClient = new QueryClient();
 
@@ -287,6 +292,11 @@ const App = () => (
             <Route path="/tools/gpa-calculator" element={<GPACalculator />} />
             <Route path="/tools/svg-to-png" element={<SVGToPNG />} />
             <Route path="/tools/hashtag-generator" element={<HashtagGenerator />} />
+            <Route path="/tools/business-name-generator" element={<BusinessNameGenerator />} />
+            <Route path="/tools/domain-name-generator" element={<DomainNameGenerator />} />
+            <Route path="/tools/email-signature-generator" element={<EmailSignatureGenerator />} />
+            <Route path="/tools/instagram-bio-generator" element={<InstagramBioGenerator />} />
+            <Route path="/tools/youtube-title-generator" element={<YouTubeTitleGenerator />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
