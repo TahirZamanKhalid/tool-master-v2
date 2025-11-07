@@ -833,10 +833,19 @@ const Index = () => {
           </p>
         </div>
 
-        {/* Desktop Sidebar Layout */}
+        {/* Three Column Layout: Left Ads | Content | Right Ads */}
         <div className="flex gap-6 justify-center w-full">
-          {/* Main Content */}
-          <div className="flex-1 max-w-6xl">
+          {/* Left Sidebar Ad - Desktop Only */}
+          <div className="hidden xl:block w-80 space-y-6">
+            <div className="sticky top-6 space-y-6">
+              <AdSpace type="display" slot="1212397554" position="sidebar-left" />
+              <AdSpace type="display" slot="2918331088" position="sidebar-left" />
+              <AdSpace type="display" slot="4402803148" position="sidebar-left" />
+            </div>
+          </div>
+
+          {/* Main Content - Full width between sidebars */}
+          <div className="flex-1">
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {categories.map((category, index) => {
             // Create URL-friendly slugs
@@ -892,14 +901,13 @@ const Index = () => {
           {/* Right Sidebar Ad - Desktop Only - Multiple stacked ads */}
           <div className="hidden xl:block w-80 space-y-6">
             <div className="sticky top-6 space-y-6">
-              <AdSpace type="display" slot="1212397554" position="sidebar-right" />
-              <AdSpace type="display" slot="2918331088" position="sidebar-right" />
-              <AdSpace type="display" slot="4402803148" position="sidebar-right" />
+              <AdSpace type="display" slot="9239216915" position="sidebar-right" />
+              <AdSpace type="display" slot="8923135106" position="sidebar-right" />
             </div>
           </div>
         </div>
 
-        {/* Ad after Categories section - Horizontal row */}
+        {/* Ad after Categories section - Horizontal row for mobile/tablet */}
         <div className="mt-12 flex gap-4 justify-center flex-wrap xl:hidden">
           <AdSpace type="display" slot="9239216915" position="content" />
           <AdSpace type="display" slot="8923135106" position="content" />
@@ -938,10 +946,19 @@ const Index = () => {
               <AdSpace type="display" slot="8923135106" position="content" />
             </div>
 
-            {/* Main content with sidebar layout */}
+            {/* Three Column Layout: Left Ads | Tools Grid | Right Ads */}
             <div className="flex gap-6 justify-center w-full">
-              {/* Tools Grid */}
-              <div className="flex-1 max-w-6xl">
+              {/* Left Sidebar Ad - Desktop Only */}
+              <div className="hidden xl:block w-80 space-y-6">
+                <div className="sticky top-6 space-y-6">
+                  <AdSpace type="display" slot="1212397554" position="sidebar-left" />
+                  <AdSpace type="display" slot="2918331088" position="sidebar-left" />
+                  <AdSpace type="display" slot="4402803148" position="sidebar-left" />
+                </div>
+              </div>
+
+              {/* Tools Grid - Full width between sidebars */}
+              <div className="flex-1">
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTools.map((tool, index) => {
               // Insert ad after every 8 tools
@@ -1068,10 +1085,8 @@ const Index = () => {
               {/* Right Sidebar Ad - Desktop Only - Multiple stacked ads */}
               <div className="hidden xl:block w-80 space-y-6">
                 <div className="sticky top-6 space-y-6">
-                  <AdSpace type="display" slot="1212397554" position="sidebar-right" />
-                  <AdSpace type="display" slot="2918331088" position="sidebar-right" />
-                  <AdSpace type="display" slot="4402803148" position="sidebar-right" />
                   <AdSpace type="display" slot="9239216915" position="sidebar-right" />
+                  <AdSpace type="display" slot="8923135106" position="sidebar-right" />
                 </div>
               </div>
             </div>
