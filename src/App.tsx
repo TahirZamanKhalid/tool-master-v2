@@ -65,6 +65,7 @@ import PDFSplitter from "./pages/tools/PDFSplitter";
 import PDFCompressor from "./pages/tools/PDFCompressor";
 import PDFEditor from "./pages/tools/PDFEditor";
 import PDFToText from "./pages/tools/PDFToText";
+import ResumeBuilder from "./pages/tools/ResumeBuilder";
 import ImagesToPDF from "./pages/tools/ImagesToPDF";
 import Auth from "./pages/Auth";
 import About from "./pages/About";
@@ -237,6 +238,7 @@ const App = () => (
         <Route path="/tools/pdf-editor" element={<PDFEditor />} />
         <Route path="/tools/pdf-to-text" element={<PDFToText />} />
         <Route path="/tools/images-to-pdf" element={<ImagesToPDF />} />
+        <Route path="/tools/resume-builder" element={<ResumeBuilder />} />
         <Route path="/tools/api-tester" element={<APITester />} />
         <Route path="/tools/json-to-yaml" element={<JSONToYAML />} />
         <Route path="/tools/css-minifier" element={<CSSMinifier />} />

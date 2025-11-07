@@ -150,8 +150,9 @@ export const allTools = [
   // Advanced Image Tools (1) - NEW
   { icon: Minimize2, title: "Advanced Image Compressor", description: "Compress images with full control over quality and format", category: "Image Tools", path: "/tools/advanced-image-compressor" },
 
-  // Business Tools (1) - NEW
+  // Business Tools (2) - NEW
   { icon: Receipt, title: "Invoice Generator", description: "Create professional invoices with PDF download", category: "Business Tools", path: "/tools/invoice-generator", popular: true },
+  { icon: FileText, title: "Resume Builder", description: "Create professional resumes with live preview and customizable templates", category: "Business Tools", path: "/tools/resume-builder", popular: true },
 
   // Advanced Security Tools (1) - NEW
   { icon: ShieldCheck, title: "Advanced Password Generator", description: "Generate ultra-secure passwords with full customization", category: "Security Tools", path: "/tools/advanced-password-generator", popular: true },
