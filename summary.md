@@ -1,6 +1,11 @@
 # Tools Created Progress
 
-## Completed (26 tools):
+## Completed (28 tools):
+
+### Heavy/Complex Tools (2):
+1. **PDF Editor** ✅ - Edit PDFs online with text, highlights, drawing
+2. **Advanced Image Editor** ✅ - Professional image editing with filters, text, shapes
+
 ### Batch 2 - Generators (10):
 1. Business Name Generator ✅
 2. Domain Name Generator ✅  
@@ -33,4 +38,15 @@
 5. GPA Calculator ✅
 6. Hashtag Generator ✅
 
-## Remaining: 64 tools
+## Remaining: 62 tools
+
+## Next Heavy Tools to Create:
+- Video Trimmer/Editor
+- Resume Builder
+- Watermark Tool
+- Photo Collage Maker
+- GIF Maker
+- Video Compressor
+- Audio Editor
+- Certificate Generator
+- Logo Maker

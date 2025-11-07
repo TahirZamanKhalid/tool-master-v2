@@ -9,7 +9,7 @@ import {
   FileImage, Video, Brain, Monitor, Coins, Shuffle, ArrowRightLeft,
   ImageDown, Smartphone, FileArchive, Receipt, ShieldCheck,
   Calculator, GraduationCap, Tag, Briefcase, Mail, Instagram, Youtube,
-  User, Building2, Package, Sparkles, Search, FileText, Heading, FileCheck, List
+  User, Building2, Package, Sparkles, Search, FileText, Heading, FileCheck, List, Edit, Film
 } from "lucide-react";
 
 export const allTools = [
@@ -24,7 +24,11 @@ export const allTools = [
   { icon: Newspaper, title: "Blog Article Writer", description: "Generate SEO-optimized blog articles with AI", category: "AI & Content", path: "/tools/blog-article-writer", popular: true },
   { icon: Zap, title: "Text to Speech", description: "Convert text to natural-sounding speech", category: "AI & Content", path: "/tools/text-to-speech" },
 
-  // Image Tools (11)
+  // Image Tools (15)
+  { icon: Edit, title: "Advanced Image Editor", description: "Professional image editor with filters, text, crop, rotate, and drawing tools", category: "Image Tools", path: "/tools/advanced-image-editor", popular: true },
+  { icon: Paintbrush, title: "Watermark Tool", description: "Add text or image watermarks to protect your photos and images", category: "Image Tools", path: "/tools/watermark-tool", popular: true },
+  { icon: Images, title: "Photo Collage Maker", description: "Create beautiful photo collages with multiple layout templates and customization options", category: "Image Tools", path: "/tools/photo-collage-maker", popular: true },
+  { icon: Film, title: "GIF Maker", description: "Create animated GIFs from multiple images with customizable speed and quality", category: "Image Tools", path: "/tools/gif-maker", popular: true },
   { icon: Eraser, title: "Background Remover", description: "Remove image backgrounds instantly with AI", category: "Image Tools", path: "/tools/background-remover", popular: true },
   { icon: Image, title: "Image Compressor", description: "Reduce image file size without losing quality", category: "Image Tools", path: "/tools/image-compressor" },
   { icon: Palette, title: "Color Picker", description: "Pick colors and generate palettes", category: "Image Tools", path: "/tools/color-picker" },
@@ -67,7 +71,8 @@ export const allTools = [
   { icon: ScanLine, title: "Barcode Scanner", description: "Scan and decode barcodes", category: "QR & Barcodes", path: "/tools/barcode-scanner" },
   { icon: Wifi, title: "WiFi QR Generator", description: "Generate WiFi QR codes", category: "QR & Barcodes", path: "/tools/wifi-qr" },
 
-  // PDF Tools (5)
+  // PDF Tools (6)
+  { icon: Edit, title: "PDF Editor", description: "Edit PDF files online - add text, highlights, and annotations", category: "PDF Tools", path: "/tools/pdf-editor", popular: true },
   { icon: FileDown, title: "PDF Merger", description: "Combine multiple PDFs into a single document", category: "PDF Tools", path: "/tools/pdf-merger", popular: true },
   { icon: Scissors, title: "PDF Splitter", description: "Split PDF into multiple files", category: "PDF Tools", path: "/tools/pdf-splitter" },
   { icon: Minimize2, title: "PDF Optimizer", description: "Optimize PDF file structure to reduce size", category: "PDF Tools", path: "/tools/pdf-compressor" },
@@ -148,8 +153,9 @@ export const allTools = [
   // Advanced Image Tools (1) - NEW
   { icon: Minimize2, title: "Advanced Image Compressor", description: "Compress images with full control over quality and format", category: "Image Tools", path: "/tools/advanced-image-compressor" },
 
-  // Business Tools (1) - NEW
+  // Business Tools (2) - NEW
   { icon: Receipt, title: "Invoice Generator", description: "Create professional invoices with PDF download", category: "Business Tools", path: "/tools/invoice-generator", popular: true },
+  { icon: FileText, title: "Resume Builder", description: "Create professional resumes with live preview and customizable templates", category: "Business Tools", path: "/tools/resume-builder", popular: true },
 
   // Advanced Security Tools (1) - NEW
   { icon: ShieldCheck, title: "Advanced Password Generator", description: "Generate ultra-secure passwords with full customization", category: "Security Tools", path: "/tools/advanced-password-generator", popular: true },

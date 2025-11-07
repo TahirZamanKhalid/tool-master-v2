@@ -37,6 +37,10 @@ import Contact from "./pages/Contact";
 import ImageResizer from "./pages/tools/ImageResizer";
 import ImageCropper from "./pages/tools/ImageCropper";
 import MemeGenerator from "./pages/tools/MemeGenerator";
+import AdvancedImageEditor from "./pages/tools/AdvancedImageEditor";
+import WatermarkTool from "./pages/tools/WatermarkTool";
+import PhotoCollageMaker from "./pages/tools/PhotoCollageMaker";
+import GIFMaker from "./pages/tools/GIFMaker";
 import ASCIIArtGenerator from "./pages/tools/ASCIIArtGenerator";
 import CSVToJSON from "./pages/tools/CSVToJSON";
 import JSONToCSV from "./pages/tools/JSONToCSV";
@@ -62,7 +66,9 @@ import WiFiQRGenerator from "./pages/tools/WiFiQRGenerator";
 import CaptionGenerator from "./pages/tools/CaptionGenerator";
 import PDFSplitter from "./pages/tools/PDFSplitter";
 import PDFCompressor from "./pages/tools/PDFCompressor";
+import PDFEditor from "./pages/tools/PDFEditor";
 import PDFToText from "./pages/tools/PDFToText";
+import ResumeBuilder from "./pages/tools/ResumeBuilder";
 import ImagesToPDF from "./pages/tools/ImagesToPDF";
 import Auth from "./pages/Auth";
 import About from "./pages/About";
@@ -205,6 +211,10 @@ const App = () => (
         <Route path="/tools/bmi-calculator" element={<BMICalculator />} />
         <Route path="/tools/image-resizer" element={<ImageResizer />} />
         <Route path="/tools/image-cropper" element={<ImageCropper />} />
+        <Route path="/tools/advanced-image-editor" element={<AdvancedImageEditor />} />
+        <Route path="/tools/watermark-tool" element={<WatermarkTool />} />
+        <Route path="/tools/photo-collage-maker" element={<PhotoCollageMaker />} />
+        <Route path="/tools/gif-maker" element={<GIFMaker />} />
         <Route path="/tools/meme-generator" element={<MemeGenerator />} />
         <Route path="/tools/ascii-art" element={<ASCIIArtGenerator />} />
         <Route path="/tools/csv-to-json" element={<CSVToJSON />} />
@@ -231,8 +241,10 @@ const App = () => (
         <Route path="/tools/caption-generator" element={<CaptionGenerator />} />
         <Route path="/tools/pdf-splitter" element={<PDFSplitter />} />
         <Route path="/tools/pdf-compressor" element={<PDFCompressor />} />
+        <Route path="/tools/pdf-editor" element={<PDFEditor />} />
         <Route path="/tools/pdf-to-text" element={<PDFToText />} />
         <Route path="/tools/images-to-pdf" element={<ImagesToPDF />} />
+        <Route path="/tools/resume-builder" element={<ResumeBuilder />} />
         <Route path="/tools/api-tester" element={<APITester />} />
         <Route path="/tools/json-to-yaml" element={<JSONToYAML />} />
         <Route path="/tools/css-minifier" element={<CSSMinifier />} />
