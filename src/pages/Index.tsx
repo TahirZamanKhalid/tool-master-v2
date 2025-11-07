@@ -777,16 +777,26 @@ const Index = () => {
   };
 
   const filteredTools = useMemo(() => {
-    return popularTools.filter((tool) => {
-      const matchesSearch = !searchQuery || 
+    const filtered = popularTools.filter((tool) => {
+      const matchesSearch = !searchQuery ||
         tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         tool.category.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       const matchesCategory = !selectedCategory || tool.category === selectedCategory;
-      
+
       return matchesSearch && matchesCategory;
     });
+
+    // Show only 12 most popular tools when no search/filter is active
+    if (!searchQuery && !selectedCategory) {
+      // Get tools marked as popular first, then fill with others up to 12
+      const popularFirst = filtered.filter(t => t.popular);
+      const others = filtered.filter(t => !t.popular);
+      return [...popularFirst, ...others].slice(0, 12);
+    }
+
+    return filtered;
   }, [searchQuery, selectedCategory]);
 
   const handleToolClick = (path: string, comingSoon?: boolean) => {
@@ -879,12 +889,18 @@ const Index = () => {
             )}
           </div>
 
-          {/* Right Sidebar Ad - Desktop Only (Removed for better performance) */}
+          {/* Right Sidebar Ad - Desktop Only - Multiple stacked ads */}
+          <div className="hidden xl:block w-80 space-y-6">
+            <div className="sticky top-6 space-y-6">
+              <AdSpace type="display" slot="1212397554" position="sidebar-right" />
+              <AdSpace type="display" slot="2918331088" position="sidebar-right" />
+              <AdSpace type="display" slot="4402803148" position="sidebar-right" />
+            </div>
+          </div>
         </div>
-        
-        {/* Ad after Categories section - NOT lazy loaded for AdSense detection */}
-        <div className="mt-12 flex gap-4 justify-center flex-wrap">
-          <AdSpace type="display" slot="4402803148" position="content" />
+
+        {/* Ad after Categories section - Horizontal row */}
+        <div className="mt-12 flex gap-4 justify-center flex-wrap xl:hidden">
           <AdSpace type="display" slot="9239216915" position="content" />
           <AdSpace type="display" slot="8923135106" position="content" />
         </div>
@@ -916,13 +932,17 @@ const Index = () => {
 
         {filteredTools.length > 0 ? (
           <>
-            {/* Ad before tools grid - NOT lazy loaded for AdSense detection */}
-            <div className="mb-8 flex gap-4 justify-center flex-wrap">
-              <AdSpace type="display" slot="1212397554" position="content" />
-              <AdSpace type="display" slot="2918331088" position="content" />
+            {/* Ad before tools grid - Horizontal row for mobile/tablet */}
+            <div className="mb-8 flex gap-4 justify-center flex-wrap xl:hidden">
+              <AdSpace type="display" slot="9239216915" position="content" />
+              <AdSpace type="display" slot="8923135106" position="content" />
             </div>
-            
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+            {/* Main content with sidebar layout */}
+            <div className="flex gap-6 justify-center w-full">
+              {/* Tools Grid */}
+              <div className="flex-1 max-w-6xl">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTools.map((tool, index) => {
               // Insert ad after every 8 tools
               const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
@@ -1042,7 +1062,19 @@ const Index = () => {
                 </>
               );
             })}
-          </div>
+                </div>
+              </div>
+
+              {/* Right Sidebar Ad - Desktop Only - Multiple stacked ads */}
+              <div className="hidden xl:block w-80 space-y-6">
+                <div className="sticky top-6 space-y-6">
+                  <AdSpace type="display" slot="1212397554" position="sidebar-right" />
+                  <AdSpace type="display" slot="2918331088" position="sidebar-right" />
+                  <AdSpace type="display" slot="4402803148" position="sidebar-right" />
+                  <AdSpace type="display" slot="9239216915" position="sidebar-right" />
+                </div>
+              </div>
+            </div>
           </>
         ) : (
           <div className="text-center py-12">
