@@ -9,7 +9,7 @@ import {
   FileImage, Video, Brain, Monitor, Coins, Shuffle, ArrowRightLeft,
   ImageDown, Smartphone, FileArchive, Receipt, ShieldCheck,
   Calculator, GraduationCap, Tag, Briefcase, Mail, Instagram, Youtube,
-  User, Building2, Package, Sparkles
+  User, Building2, Package, Sparkles, Search, FileText
 } from "lucide-react";
 
 export const allTools = [
@@ -175,4 +175,11 @@ export const allTools = [
   { icon: Building2, title: "Company Name Generator", description: "Generate professional company names for your business", category: "Generators", path: "/tools/company-name-generator", popular: true },
   { icon: Package, title: "Product Name Generator", description: "Generate catchy product names for launches and branding", category: "Generators", path: "/tools/product-name-generator", popular: true },
   { icon: Sparkles, title: "Tagline Generator", description: "Generate catchy taglines and slogans for your business", category: "Generators", path: "/tools/tagline-generator", popular: true },
+
+  // NEW TOOLS - Batch 3: SEO & Marketing Tools (5)
+  { icon: Search, title: "Keyword Research Tool", description: "Generate keyword ideas and variations for SEO content strategy", category: "SEO & Marketing", path: "/tools/keyword-research", popular: true },
+  { icon: FileText, title: "Robots.txt Generator", description: "Generate robots.txt file to control search engine crawlers", category: "SEO & Marketing", path: "/tools/robots-txt-generator", popular: true },
+  { icon: Code, title: "Schema Markup Generator", description: "Generate JSON-LD structured data for rich snippets in search", category: "SEO & Marketing", path: "/tools/schema-markup-generator", popular: true },
+  { icon: TrendingUp, title: "SEO Content Analyzer", description: "Analyze your content for SEO best practices and get recommendations", category: "SEO & Marketing", path: "/tools/seo-content-analyzer", popular: true },
+  { icon: Monitor, title: "Title & Meta Checker", description: "Check if your page title and meta description are optimal length", category: "SEO & Marketing", path: "/tools/title-meta-checker", popular: true },
 ];

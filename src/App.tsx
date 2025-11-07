@@ -154,6 +154,11 @@ import RandomNameGenerator from "./pages/tools/RandomNameGenerator";
 import CompanyNameGenerator from "./pages/tools/CompanyNameGenerator";
 import ProductNameGenerator from "./pages/tools/ProductNameGenerator";
 import TaglineGenerator from "./pages/tools/TaglineGenerator";
+import KeywordResearchTool from "./pages/tools/KeywordResearchTool";
+import RobotsTxtGenerator from "./pages/tools/RobotsTxtGenerator";
+import SchemaMarkupGenerator from "./pages/tools/SchemaMarkupGenerator";
+import SEOContentAnalyzer from "./pages/tools/SEOContentAnalyzer";
+import TitleMetaChecker from "./pages/tools/TitleMetaChecker";
 
 const queryClient = new QueryClient();
 
@@ -307,6 +312,11 @@ const App = () => (
             <Route path="/tools/company-name-generator" element={<CompanyNameGenerator />} />
             <Route path="/tools/product-name-generator" element={<ProductNameGenerator />} />
             <Route path="/tools/tagline-generator" element={<TaglineGenerator />} />
+            <Route path="/tools/keyword-research" element={<KeywordResearchTool />} />
+            <Route path="/tools/robots-txt-generator" element={<RobotsTxtGenerator />} />
+            <Route path="/tools/schema-markup-generator" element={<SchemaMarkupGenerator />} />
+            <Route path="/tools/seo-content-analyzer" element={<SEOContentAnalyzer />} />
+            <Route path="/tools/title-meta-checker" element={<TitleMetaChecker />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
