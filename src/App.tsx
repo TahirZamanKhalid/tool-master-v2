@@ -138,6 +138,32 @@ import WebPToPNG from "./pages/tools/WebPToPNG";
 import AdvancedImageCompressor from "./pages/tools/AdvancedImageCompressor";
 import InvoiceGenerator from "./pages/tools/InvoiceGenerator";
 import AdvancedPasswordGenerator from "./pages/tools/AdvancedPasswordGenerator";
+import TipCalculator from "./pages/tools/TipCalculator";
+import DiscountCalculator from "./pages/tools/DiscountCalculator";
+import LoanCalculator from "./pages/tools/LoanCalculator";
+import GPACalculator from "./pages/tools/GPACalculator";
+import SVGToPNG from "./pages/tools/SVGToPNG";
+import HashtagGenerator from "./pages/tools/HashtagGenerator";
+import BusinessNameGenerator from "./pages/tools/BusinessNameGenerator";
+import DomainNameGenerator from "./pages/tools/DomainNameGenerator";
+import EmailSignatureGenerator from "./pages/tools/EmailSignatureGenerator";
+import InstagramBioGenerator from "./pages/tools/InstagramBioGenerator";
+import YouTubeTitleGenerator from "./pages/tools/YouTubeTitleGenerator";
+import FakeDataGenerator from "./pages/tools/FakeDataGenerator";
+import RandomNameGenerator from "./pages/tools/RandomNameGenerator";
+import CompanyNameGenerator from "./pages/tools/CompanyNameGenerator";
+import ProductNameGenerator from "./pages/tools/ProductNameGenerator";
+import TaglineGenerator from "./pages/tools/TaglineGenerator";
+import KeywordResearchTool from "./pages/tools/KeywordResearchTool";
+import RobotsTxtGenerator from "./pages/tools/RobotsTxtGenerator";
+import SchemaMarkupGenerator from "./pages/tools/SchemaMarkupGenerator";
+import SEOContentAnalyzer from "./pages/tools/SEOContentAnalyzer";
+import TitleMetaChecker from "./pages/tools/TitleMetaChecker";
+import HeadingAnalyzer from "./pages/tools/HeadingAnalyzer";
+import AltTextGenerator from "./pages/tools/AltTextGenerator";
+import CanonicalURLGenerator from "./pages/tools/CanonicalURLGenerator";
+import SitemapValidator from "./pages/tools/SitemapValidator";
+import BreadcrumbGenerator from "./pages/tools/BreadcrumbGenerator";
 
 const queryClient = new QueryClient();
 
@@ -275,6 +301,32 @@ const App = () => (
             <Route path="/tools/advanced-image-compressor" element={<AdvancedImageCompressor />} />
             <Route path="/tools/invoice-generator" element={<InvoiceGenerator />} />
             <Route path="/tools/advanced-password-generator" element={<AdvancedPasswordGenerator />} />
+            <Route path="/tools/tip-calculator" element={<TipCalculator />} />
+            <Route path="/tools/discount-calculator" element={<DiscountCalculator />} />
+            <Route path="/tools/loan-calculator" element={<LoanCalculator />} />
+            <Route path="/tools/gpa-calculator" element={<GPACalculator />} />
+            <Route path="/tools/svg-to-png" element={<SVGToPNG />} />
+            <Route path="/tools/hashtag-generator" element={<HashtagGenerator />} />
+            <Route path="/tools/business-name-generator" element={<BusinessNameGenerator />} />
+            <Route path="/tools/domain-name-generator" element={<DomainNameGenerator />} />
+            <Route path="/tools/email-signature-generator" element={<EmailSignatureGenerator />} />
+            <Route path="/tools/instagram-bio-generator" element={<InstagramBioGenerator />} />
+            <Route path="/tools/youtube-title-generator" element={<YouTubeTitleGenerator />} />
+            <Route path="/tools/fake-data-generator" element={<FakeDataGenerator />} />
+            <Route path="/tools/random-name-generator" element={<RandomNameGenerator />} />
+            <Route path="/tools/company-name-generator" element={<CompanyNameGenerator />} />
+            <Route path="/tools/product-name-generator" element={<ProductNameGenerator />} />
+            <Route path="/tools/tagline-generator" element={<TaglineGenerator />} />
+            <Route path="/tools/keyword-research" element={<KeywordResearchTool />} />
+            <Route path="/tools/robots-txt-generator" element={<RobotsTxtGenerator />} />
+            <Route path="/tools/schema-markup-generator" element={<SchemaMarkupGenerator />} />
+            <Route path="/tools/seo-content-analyzer" element={<SEOContentAnalyzer />} />
+            <Route path="/tools/title-meta-checker" element={<TitleMetaChecker />} />
+            <Route path="/tools/heading-analyzer" element={<HeadingAnalyzer />} />
+            <Route path="/tools/alt-text-generator" element={<AltTextGenerator />} />
+            <Route path="/tools/canonical-url-generator" element={<CanonicalURLGenerator />} />
+            <Route path="/tools/sitemap-validator" element={<SitemapValidator />} />
+            <Route path="/tools/breadcrumb-generator" element={<BreadcrumbGenerator />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
