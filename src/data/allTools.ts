@@ -8,7 +8,8 @@ import {
   Wifi, Camera, Scissors, Minimize2, FileType, Images, Paintbrush,
   FileImage, Video, Brain, Monitor, Coins, Shuffle, ArrowRightLeft,
   ImageDown, Smartphone, FileArchive, Receipt, ShieldCheck,
-  Calculator, GraduationCap, Tag, Briefcase, Mail, Instagram, Youtube
+  Calculator, GraduationCap, Tag, Briefcase, Mail, Instagram, Youtube,
+  User, Building2, Package, Sparkles
 } from "lucide-react";
 
 export const allTools = [
@@ -162,11 +163,16 @@ export const allTools = [
   // NEW TOOLS - More File Converters (1)
   { icon: ImageDown, title: "SVG to PNG", description: "Convert SVG vector images to PNG raster format with custom dimensions", category: "File Converters", path: "/tools/svg-to-png", popular: true },
 
-  // NEW TOOLS - Social Media & Generators (6)
+  // NEW TOOLS - Social Media & Generators (11)
   { icon: Hash, title: "Hashtag Generator", description: "Generate trending hashtags for Instagram, TikTok, Twitter, YouTube", category: "Social Media", path: "/tools/hashtag-generator", popular: true },
   { icon: Briefcase, title: "Business Name Generator", description: "Generate creative business names for startups and companies", category: "Generators", path: "/tools/business-name-generator", popular: true },
   { icon: Globe, title: "Domain Name Generator", description: "Generate unique domain names with availability check hints", category: "Generators", path: "/tools/domain-name-generator", popular: true },
   { icon: Mail, title: "Email Signature Generator", description: "Create professional HTML email signatures for Gmail, Outlook", category: "Generators", path: "/tools/email-signature-generator", popular: true },
   { icon: Instagram, title: "Instagram Bio Generator", description: "Generate creative Instagram bio ideas with emojis", category: "Social Media", path: "/tools/instagram-bio-generator", popular: true },
   { icon: Youtube, title: "YouTube Title Generator", description: "Generate catchy SEO-optimized YouTube video titles", category: "Social Media", path: "/tools/youtube-title-generator", popular: true },
+  { icon: Database, title: "Fake Data Generator", description: "Generate realistic test data for development and testing", category: "Generators", path: "/tools/fake-data-generator", popular: true },
+  { icon: User, title: "Random Name Generator", description: "Generate random names from different countries and cultures", category: "Generators", path: "/tools/random-name-generator", popular: true },
+  { icon: Building2, title: "Company Name Generator", description: "Generate professional company names for your business", category: "Generators", path: "/tools/company-name-generator", popular: true },
+  { icon: Package, title: "Product Name Generator", description: "Generate catchy product names for launches and branding", category: "Generators", path: "/tools/product-name-generator", popular: true },
+  { icon: Sparkles, title: "Tagline Generator", description: "Generate catchy taglines and slogans for your business", category: "Generators", path: "/tools/tagline-generator", popular: true },
 ];

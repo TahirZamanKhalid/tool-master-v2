@@ -149,6 +149,11 @@ import DomainNameGenerator from "./pages/tools/DomainNameGenerator";
 import EmailSignatureGenerator from "./pages/tools/EmailSignatureGenerator";
 import InstagramBioGenerator from "./pages/tools/InstagramBioGenerator";
 import YouTubeTitleGenerator from "./pages/tools/YouTubeTitleGenerator";
+import FakeDataGenerator from "./pages/tools/FakeDataGenerator";
+import RandomNameGenerator from "./pages/tools/RandomNameGenerator";
+import CompanyNameGenerator from "./pages/tools/CompanyNameGenerator";
+import ProductNameGenerator from "./pages/tools/ProductNameGenerator";
+import TaglineGenerator from "./pages/tools/TaglineGenerator";
 
 const queryClient = new QueryClient();
 
@@ -297,6 +302,11 @@ const App = () => (
             <Route path="/tools/email-signature-generator" element={<EmailSignatureGenerator />} />
             <Route path="/tools/instagram-bio-generator" element={<InstagramBioGenerator />} />
             <Route path="/tools/youtube-title-generator" element={<YouTubeTitleGenerator />} />
+            <Route path="/tools/fake-data-generator" element={<FakeDataGenerator />} />
+            <Route path="/tools/random-name-generator" element={<RandomNameGenerator />} />
+            <Route path="/tools/company-name-generator" element={<CompanyNameGenerator />} />
+            <Route path="/tools/product-name-generator" element={<ProductNameGenerator />} />
+            <Route path="/tools/tagline-generator" element={<TaglineGenerator />} />
 
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
