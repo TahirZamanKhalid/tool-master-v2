@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
@@ -12,7 +11,7 @@ import * as pdfjsLib from "pdfjs-dist";
 import {
   FileText, Download, Upload, Bold, Italic, Underline,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  List, ListOrdered, Heading1, Heading2, Type
+  List, ListOrdered, Heading1, Heading2, Loader2
 } from "lucide-react";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { SEOHead } from "@/components/SEOHead";
@@ -27,6 +26,7 @@ const PDFEditor = () => {
   const [fontSize, setFontSize] = useState("16");
   const [fontFamily, setFontFamily] = useState("Arial");
   const [textColor, setTextColor] = useState("#000000");
+  const [isLoading, setIsLoading] = useState(false);
   const editorRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -37,41 +37,129 @@ const PDFEditor = () => {
     setFileName(file.name.replace('.pdf', ''));
 
     if (file.type === "application/pdf") {
+      setIsLoading(true);
       try {
         const arrayBuffer = await file.arrayBuffer();
         const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
         const pdf = await loadingTask.promise;
 
-        let extractedText = "";
+        let htmlContent = "";
 
-        // Extract text from all pages
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
+        // Extract text with styling from all pages
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
           const textContent = await page.getTextContent();
-          const pageText = textContent.items
-            .map((item: any) => item.str)
-            .join(" ");
-          extractedText += pageText + "\n\n";
+          const viewport = page.getViewport({ scale: 1.0 });
+
+          // Create a page container
+          htmlContent += `<div style="margin-bottom: 40px; padding: 20px; background: white; min-height: 297mm; position: relative;">`;
+
+          // Sort items by vertical position (y coordinate)
+          const items = textContent.items.sort((a: any, b: any) => {
+            // Group by lines (items with similar y coordinates)
+            const yDiff = Math.abs(a.transform[5] - b.transform[5]);
+            if (yDiff < 5) {
+              // Same line, sort by x
+              return a.transform[4] - b.transform[4];
+            }
+            // Different lines, sort by y (descending because PDF coords are bottom-up)
+            return b.transform[5] - a.transform[5];
+          });
+
+          let currentLine: any[] = [];
+          let lastY = -1;
+          const lineThreshold = 5; // pixels to consider same line
+
+          items.forEach((item: any, index: number) => {
+            const text = item.str;
+            if (!text.trim()) return;
+
+            const transform = item.transform;
+            const x = transform[4];
+            const y = viewport.height - transform[5]; // Convert to top-down coordinates
+            const fontSize = Math.round(transform[0]);
+            const fontName = item.fontName || "Arial";
+
+            // Determine font family from PDF font name
+            let fontFamily = "Arial";
+            if (fontName.includes("Times") || fontName.includes("Serif")) {
+              fontFamily = "Times New Roman";
+            } else if (fontName.includes("Courier") || fontName.includes("Mono")) {
+              fontFamily = "Courier New";
+            } else if (fontName.includes("Georgia")) {
+              fontFamily = "Georgia";
+            } else if (fontName.includes("Verdana")) {
+              fontFamily = "Verdana";
+            }
+
+            // Detect bold and italic from font name
+            const isBold = fontName.includes("Bold");
+            const isItalic = fontName.includes("Italic") || fontName.includes("Oblique");
+
+            // Check if this item is on a new line
+            if (lastY !== -1 && Math.abs(y - lastY) > lineThreshold) {
+              // New line - output current line
+              if (currentLine.length > 0) {
+                htmlContent += formatLine(currentLine);
+                currentLine = [];
+              }
+            }
+
+            currentLine.push({
+              text,
+              fontSize,
+              fontFamily,
+              isBold,
+              isItalic,
+              x,
+              y
+            });
+
+            lastY = y;
+
+            // Output last line
+            if (index === items.length - 1 && currentLine.length > 0) {
+              htmlContent += formatLine(currentLine);
+            }
+          });
+
+          htmlContent += `</div>`;
         }
 
         if (editorRef.current) {
-          // Set the extracted text with basic formatting
-          editorRef.current.innerHTML = extractedText
-            .split('\n\n')
-            .map(para => para.trim())
-            .filter(para => para.length > 0)
-            .map(para => `<p style="margin-bottom: 12px;">${para}</p>`)
-            .join('');
+          editorRef.current.innerHTML = htmlContent;
         }
 
-        toast.success("PDF loaded! You can now edit the content.");
+        toast.success("PDF loaded with original styling! You can now edit the content.");
       } catch (error) {
         console.error("Error loading PDF:", error);
         toast.error("Failed to load PDF. Try uploading a text-based PDF.");
+      } finally {
+        setIsLoading(false);
       }
     } else {
       toast.error("Please upload a PDF file");
     }
+  };
+
+  const formatLine = (lineItems: any[]): string => {
+    if (lineItems.length === 0) return "";
+
+    const avgFontSize = lineItems.reduce((sum, item) => sum + item.fontSize, 0) / lineItems.length;
+    const lineHeight = avgFontSize * 1.5;
+
+    let lineHtml = `<p style="margin: 0; padding: 0; line-height: ${lineHeight}px; min-height: ${lineHeight}px;">`;
+
+    lineItems.forEach(item => {
+      let style = `font-size: ${item.fontSize}px; font-family: ${item.fontFamily};`;
+      if (item.isBold) style += " font-weight: bold;";
+      if (item.isItalic) style += " font-style: italic;";
+
+      lineHtml += `<span style="${style}">${item.text}</span>`;
+    });
+
+    lineHtml += "</p>";
+    return lineHtml;
   };
 
   const execCommand = (command: string, value?: string) => {
@@ -82,7 +170,6 @@ const PDFEditor = () => {
   const handleFontSizeChange = (value: string) => {
     setFontSize(value);
     execCommand("fontSize", "7");
-    // Wrap in span with actual size
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
@@ -183,7 +270,7 @@ const PDFEditor = () => {
 
   const createNewDocument = () => {
     if (editorRef.current) {
-      editorRef.current.innerHTML = '<p><br></p>';
+      editorRef.current.innerHTML = '<p style="font-size: 16px; line-height: 1.6;"><br></p>';
       setFileName("new-document");
       editorRef.current.focus();
       toast.success("New document created");
@@ -194,16 +281,16 @@ const PDFEditor = () => {
     <>
       <SEOHead
         title="PDF Editor - Edit PDF Documents Online Like Word"
-        description="Edit PDF files online with our powerful editor. Format text, add content, and download as PDF. Works like Microsoft Word."
+        description="Edit PDF files online with our powerful editor. Preserves original formatting. Works like Microsoft Word."
         keywords="pdf editor, edit pdf, pdf text editor, online pdf editor, modify pdf"
         canonical="https://toolmaster.cloud/tools/pdf-editor"
       />
       <ToolLayout
         title="PDF Editor"
-        description="Edit PDF documents like Microsoft Word - format text, add content, and download"
+        description="Edit PDF documents like Microsoft Word - preserves original formatting and styling"
         category="PDF Tools"
         instructions={[
-          "Upload a PDF to extract and edit its text",
+          "Upload a PDF to extract text with original styling",
           "Or start with a blank document",
           "Use the toolbar to format text (bold, italic, fonts, colors)",
           "Edit content directly in the editor",
@@ -227,19 +314,31 @@ const PDFEditor = () => {
                   accept=".pdf"
                   onChange={handleFileUpload}
                   className="hidden"
+                  disabled={isLoading}
                 />
                 <Button
                   onClick={() => fileInputRef.current?.click()}
                   variant="outline"
                   size="sm"
+                  disabled={isLoading}
                 >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload PDF
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload PDF
+                    </>
+                  )}
                 </Button>
                 <Button
                   onClick={createNewDocument}
                   variant="outline"
                   size="sm"
+                  disabled={isLoading}
                 >
                   <FileText className="h-4 w-4 mr-2" />
                   New Document
@@ -248,6 +347,7 @@ const PDFEditor = () => {
                   onClick={handleDownload}
                   size="sm"
                   className="ml-auto"
+                  disabled={isLoading}
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Download PDF
@@ -428,8 +528,8 @@ const PDFEditor = () => {
             {/* Editor */}
             <div
               ref={editorRef}
-              contentEditable
-              className="min-h-[600px] w-full p-8 border-2 border-dashed rounded-lg focus:outline-none focus:border-primary bg-white text-black"
+              contentEditable={!isLoading}
+              className="min-h-[600px] w-full p-8 border-2 border-dashed rounded-lg focus:outline-none focus:border-primary bg-white text-black overflow-auto"
               style={{
                 fontFamily: fontFamily,
                 fontSize: fontSize + "px",
@@ -440,16 +540,25 @@ const PDFEditor = () => {
               }}
               suppressContentEditableWarning
             >
-              <p>
-                <span style={{ color: "#9ca3af" }}>
-                  Start typing here or upload a PDF to edit...
-                </span>
-              </p>
+              {isLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+                    <p className="text-muted-foreground">Extracting PDF with original styling...</p>
+                  </div>
+                </div>
+              ) : (
+                <p>
+                  <span style={{ color: "#9ca3af" }}>
+                    Start typing here or upload a PDF to edit with preserved styling...
+                  </span>
+                </p>
+              )}
             </div>
 
             <div className="text-sm text-muted-foreground">
               <strong>Tips:</strong> Use Ctrl+B for bold, Ctrl+I for italic, Ctrl+U for underline.
-              This editor works like Microsoft Word - format text, change fonts, add headings, and more!
+              This editor preserves original PDF fonts, sizes, and formatting when you upload!
             </div>
           </CardContent>
         </Card>
@@ -462,8 +571,9 @@ const PDFEditor = () => {
                 <h4 className="font-semibold text-foreground mb-2">Editing Existing PDFs:</h4>
                 <ul className="space-y-1">
                   <li>• Click "Upload PDF" to load a PDF file</li>
-                  <li>• Text will be extracted and editable</li>
-                  <li>• Format, modify, and rearrange content</li>
+                  <li>• Text is extracted with <strong>original styling preserved</strong></li>
+                  <li>• Fonts, sizes, bold, italic are maintained</li>
+                  <li>• Edit like a Word document</li>
                   <li>• Download as new PDF when done</li>
                 </ul>
               </div>
