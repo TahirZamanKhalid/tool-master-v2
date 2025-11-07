@@ -53,7 +53,7 @@ const BarcodeScanner = () => {
       const barcodeScanner = new Html5Qrcode("barcode-reader");
       setHtml5QrCode(barcodeScanner);
 
-      // Configure for barcode-specific scanning with all formats
+      // Configure for barcode-only scanning (exclude QR codes)
       await barcodeScanner.start(
         { facingMode: "environment" },
         {
@@ -71,6 +71,7 @@ const BarcodeScanner = () => {
             Html5QrcodeSupportedFormats.UPC_E,
             Html5QrcodeSupportedFormats.ITF,
             Html5QrcodeSupportedFormats.CODABAR,
+            // QR_CODE format (0) is intentionally excluded
           ],
           videoConstraints: {
             facingMode: "environment",
@@ -79,22 +80,28 @@ const BarcodeScanner = () => {
           }
         },
         (decodedText, decodedResult) => {
-          // Barcode detected - automatic capture
-          setIsDetecting(true);
-          setResult(decodedText);
-          setFormat(decodedResult.result.format?.formatName || "Unknown");
-          captureScreenshot();
+          // Barcode detected - immediate stop to prevent continuous scanning
+          const formatName = decodedResult.result.format?.formatName || "Barcode";
 
-          // Visual feedback and auto-lookup
-          setTimeout(() => {
-            setIsDetecting(false);
-            stopCamera();
-            toast.success(`${decodedResult.result.format?.formatName || "Barcode"} detected and captured!`);
-            // Auto lookup product info for retail barcodes
-            if (decodedText.length >= 8 && /^\d+$/.test(decodedText)) {
-              fetchProductInfo(decodedText);
-            }
-          }, 500);
+          if (barcodeScanner.isScanning) {
+            barcodeScanner.stop().then(() => {
+              setScanning(false);
+              setIsDetecting(true);
+              setResult(decodedText);
+              setFormat(formatName);
+              captureScreenshot();
+
+              setTimeout(() => {
+                setIsDetecting(false);
+                toast.success(`${formatName} scanned successfully!`);
+
+                // Auto lookup product info for retail barcodes
+                if (decodedText.length >= 8 && /^\d+$/.test(decodedText)) {
+                  fetchProductInfo(decodedText);
+                }
+              }, 500);
+            }).catch(console.error);
+          }
         },
         (errorMessage) => {
           // Suppress console errors during active scanning
@@ -439,7 +446,25 @@ const BarcodeScanner = () => {
                   <p className="text-xs text-muted-foreground mt-2">Source: {productInfo.source}</p>
                 </>
               ) : (
-                <p className="text-sm text-muted-foreground">{productInfo.message}</p>
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-amber-600">{productInfo.message}</p>
+                  {productInfo.suggestion && (
+                    <div className="text-xs text-muted-foreground whitespace-pre-line">
+                      {productInfo.suggestion}
+                    </div>
+                  )}
+                  {productInfo.searchUrl && (
+                    <a
+                      href={productInfo.searchUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      Search on Google
+                    </a>
+                  )}
+                </div>
               )}
             </div>
           )}
