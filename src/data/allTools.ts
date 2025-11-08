@@ -10,7 +10,7 @@ import {
   ImageDown, Smartphone, FileArchive, Receipt, ShieldCheck,
   Calculator, GraduationCap, Tag, Briefcase, Mail, Instagram, Youtube,
   User, Building2, Package, Sparkles, Search, FileText, Heading, FileCheck, List, Edit, Film,
-  Target, PiggyBank, CalendarClock, Ruler
+  Target, PiggyBank, CalendarClock, Ruler, Layers
 } from "lucide-react";
 
 export const allTools = [
@@ -104,9 +104,13 @@ export const allTools = [
   { icon: Type, title: "Text Compare", description: "Compare two texts side by side", category: "Text Tools", path: "/tools/text-compare" },
   { icon: Shuffle, title: "Word Scrambler", description: "Scramble words randomly", category: "Text Tools", path: "/tools/word-scrambler" },
 
-  // Video Tools (2)
-  { icon: Scissors, title: "Video Trimmer", description: "Trim and cut videos", category: "Video Tools", path: "/tools/video-trimmer" },
-  { icon: Video, title: "Video to GIF", description: "Convert videos to GIF format", category: "Video Tools", path: "/tools/video-to-gif" },
+  // Premium Video Tools (6) - State-of-the-art video editing suite
+  { icon: Sparkles, title: "Premium Video Editor", description: "Professional video editing with filters, effects, color adjustments, speed control, rotation, and more", category: "Premium Video Tools", path: "/tools/premium-video-editor", popular: true },
+  { icon: Minimize2, title: "Premium Video Compressor", description: "Advanced video compression with multiple codecs (H.264, H.265, VP9), quality presets, resolution control, and format conversion", category: "Premium Video Tools", path: "/tools/premium-video-compressor", popular: true },
+  { icon: Layers, title: "Premium Video Merger", description: "Combine multiple videos with custom ordering, transitions, quality control, and batch processing", category: "Premium Video Tools", path: "/tools/premium-video-merger", popular: true },
+  { icon: Shield, title: "Premium Video Watermark", description: "Add professional text or image watermarks with full customization of position, size, opacity, and styling", category: "Premium Video Tools", path: "/tools/premium-video-watermark", popular: true },
+  { icon: Scissors, title: "Video Trimmer", description: "Trim and cut videos with precision controls", category: "Premium Video Tools", path: "/tools/video-trimmer" },
+  { icon: Film, title: "Video to GIF", description: "Convert videos to high-quality animated GIFs with custom settings", category: "Premium Video Tools", path: "/tools/video-to-gif" },
 
   // SEO & Marketing (8)
   { icon: TrendingUp, title: "Meta Tag Generator", description: "Generate SEO meta tags", category: "SEO & Marketing", path: "/tools/meta-tag-generator" },

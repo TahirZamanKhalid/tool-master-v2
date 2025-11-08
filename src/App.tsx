@@ -88,6 +88,10 @@ import TextToSpeech from "./pages/tools/TextToSpeech";
 import MorseCodeTranslator from "./pages/tools/MorseCodeTranslator";
 import VideoTrimmer from "./pages/tools/VideoTrimmer";
 import VideoToGIF from "./pages/tools/VideoToGIF";
+import PremiumVideoEditor from "./pages/tools/PremiumVideoEditor";
+import PremiumVideoCompressor from "./pages/tools/PremiumVideoCompressor";
+import PremiumVideoMerger from "./pages/tools/PremiumVideoMerger";
+import PremiumVideoWatermark from "./pages/tools/PremiumVideoWatermark";
 import CreditCardValidator from "./pages/tools/CreditCardValidator";
 import RomanNumeralConverter from "./pages/tools/RomanNumeralConverter";
 import LoremIpsumAdvanced from "./pages/tools/LoremIpsumAdvanced";
@@ -273,6 +277,10 @@ const App = () => (
         <Route path="/tools/html-minifier" element={<HTMLMinifier />} />
         <Route path="/tools/video-trimmer" element={<VideoTrimmer />} />
         <Route path="/tools/video-to-gif" element={<VideoToGIF />} />
+        <Route path="/tools/premium-video-editor" element={<PremiumVideoEditor />} />
+        <Route path="/tools/premium-video-compressor" element={<PremiumVideoCompressor />} />
+        <Route path="/tools/premium-video-merger" element={<PremiumVideoMerger />} />
+        <Route path="/tools/premium-video-watermark" element={<PremiumVideoWatermark />} />
         <Route path="/tools/open-graph-generator" element={<OpenGraphGenerator />} />
         <Route path="/tools/keyword-density" element={<KeywordDensity />} />
         <Route path="/tools/backlink-checker" element={<BacklinkChecker />} />
