@@ -122,6 +122,7 @@ import TemperatureConverter from "./pages/tools/TemperatureConverter";
 import RGBConverter from "./pages/tools/RGBConverter";
 import PlagiarismChecker from "./pages/tools/PlagiarismChecker";
 import PlagiarismRemover from "./pages/tools/PlagiarismRemover";
+import PremiumPlagiarismAITool from "./pages/tools/PremiumPlagiarismAITool";
 import TextRephraser from "./pages/tools/TextRephraser";
 import EssayWriter from "./pages/tools/EssayWriter";
 import ThesisWriter from "./pages/tools/ThesisWriter";
@@ -298,6 +299,7 @@ const App = () => (
         <Route path="/tools/rgb-converter" element={<RGBConverter />} />
             <Route path="/tools/plagiarism-checker" element={<PlagiarismChecker />} />
             <Route path="/tools/plagiarism-remover" element={<PlagiarismRemover />} />
+            <Route path="/tools/premium-plagiarism-ai-tool" element={<PremiumPlagiarismAITool />} />
             <Route path="/tools/text-rephraser" element={<TextRephraser />} />
             <Route path="/tools/essay-writer" element={<EssayWriter />} />
             <Route path="/tools/thesis-writer" element={<ThesisWriter />} />

@@ -17,7 +17,7 @@ export const allTools = [
   // AI & Content (9)
   { icon: MessageSquare, title: "AI Chat", description: "Chat with AI powered by Google Gemini 2.5 Pro", category: "AI & Content", path: "/tools/ai-chat", popular: true },
   { icon: Captions, title: "Caption Generator", description: "Generate engaging social media captions with AI", category: "AI & Content", path: "/tools/caption-generator" },
-  { icon: Shield, title: "Plagiarism Checker", description: "Check text for plagiarism using AI analysis", category: "AI & Content", path: "/tools/plagiarism-checker", popular: true },
+  { icon: Shield, title: "Premium Plagiarism & AI Detector", description: "Advanced plagiarism detection, AI content analysis, and intelligent text rephrasing with real-time visualizations", category: "AI & Content", path: "/tools/premium-plagiarism-ai-tool", popular: true },
   { icon: Wand2, title: "Plagiarism Remover", description: "Rewrite text to remove plagiarism with AI", category: "AI & Content", path: "/tools/plagiarism-remover" },
   { icon: RefreshCw, title: "Text Rephraser", description: "Rephrase text with different tones using AI", category: "AI & Content", path: "/tools/text-rephraser" },
   { icon: PenTool, title: "Essay Writer", description: "Generate academic essays with AI", category: "AI & Content", path: "/tools/essay-writer", popular: true },
