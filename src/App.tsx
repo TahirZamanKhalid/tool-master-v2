@@ -88,6 +88,10 @@ import TextToSpeech from "./pages/tools/TextToSpeech";
 import MorseCodeTranslator from "./pages/tools/MorseCodeTranslator";
 import VideoTrimmer from "./pages/tools/VideoTrimmer";
 import VideoToGIF from "./pages/tools/VideoToGIF";
+import PremiumVideoEditor from "./pages/tools/PremiumVideoEditor";
+import PremiumVideoCompressor from "./pages/tools/PremiumVideoCompressor";
+import PremiumVideoMerger from "./pages/tools/PremiumVideoMerger";
+import PremiumVideoWatermark from "./pages/tools/PremiumVideoWatermark";
 import CreditCardValidator from "./pages/tools/CreditCardValidator";
 import RomanNumeralConverter from "./pages/tools/RomanNumeralConverter";
 import LoremIpsumAdvanced from "./pages/tools/LoremIpsumAdvanced";
@@ -120,9 +124,12 @@ import TextCompare from "./pages/tools/TextCompare";
 import HexConverter from "./pages/tools/HexConverter";
 import TemperatureConverter from "./pages/tools/TemperatureConverter";
 import RGBConverter from "./pages/tools/RGBConverter";
-import PlagiarismChecker from "./pages/tools/PlagiarismChecker";
-import PlagiarismRemover from "./pages/tools/PlagiarismRemover";
 import PremiumPlagiarismAITool from "./pages/tools/PremiumPlagiarismAITool";
+import PremiumPlusWordCounter from "./pages/tools/PremiumPlusWordCounter";
+import PremiumPlusBatchImageResizer from "./pages/tools/PremiumPlusBatchImageResizer";
+import PremiumPlusUnitConverter from "./pages/tools/PremiumPlusUnitConverter";
+import PremiumPlusRandomNumberGenerator from "./pages/tools/PremiumPlusRandomNumberGenerator";
+import PremiumPlusMultiStopwatch from "./pages/tools/PremiumPlusMultiStopwatch";
 import TextRephraser from "./pages/tools/TextRephraser";
 import EssayWriter from "./pages/tools/EssayWriter";
 import ThesisWriter from "./pages/tools/ThesisWriter";
@@ -270,6 +277,10 @@ const App = () => (
         <Route path="/tools/html-minifier" element={<HTMLMinifier />} />
         <Route path="/tools/video-trimmer" element={<VideoTrimmer />} />
         <Route path="/tools/video-to-gif" element={<VideoToGIF />} />
+        <Route path="/tools/premium-video-editor" element={<PremiumVideoEditor />} />
+        <Route path="/tools/premium-video-compressor" element={<PremiumVideoCompressor />} />
+        <Route path="/tools/premium-video-merger" element={<PremiumVideoMerger />} />
+        <Route path="/tools/premium-video-watermark" element={<PremiumVideoWatermark />} />
         <Route path="/tools/open-graph-generator" element={<OpenGraphGenerator />} />
         <Route path="/tools/keyword-density" element={<KeywordDensity />} />
         <Route path="/tools/backlink-checker" element={<BacklinkChecker />} />
@@ -297,9 +308,12 @@ const App = () => (
         <Route path="/tools/hex-converter" element={<HexConverter />} />
         <Route path="/tools/temperature-converter" element={<TemperatureConverter />} />
         <Route path="/tools/rgb-converter" element={<RGBConverter />} />
-            <Route path="/tools/plagiarism-checker" element={<PlagiarismChecker />} />
-            <Route path="/tools/plagiarism-remover" element={<PlagiarismRemover />} />
             <Route path="/tools/premium-plagiarism-ai-tool" element={<PremiumPlagiarismAITool />} />
+            <Route path="/tools/premium-plus-word-counter" element={<PremiumPlusWordCounter />} />
+            <Route path="/tools/premium-plus-batch-image-resizer" element={<PremiumPlusBatchImageResizer />} />
+            <Route path="/tools/premium-plus-unit-converter" element={<PremiumPlusUnitConverter />} />
+            <Route path="/tools/premium-plus-random-number-generator" element={<PremiumPlusRandomNumberGenerator />} />
+            <Route path="/tools/premium-plus-multi-stopwatch" element={<PremiumPlusMultiStopwatch />} />
             <Route path="/tools/text-rephraser" element={<TextRephraser />} />
             <Route path="/tools/essay-writer" element={<EssayWriter />} />
             <Route path="/tools/thesis-writer" element={<ThesisWriter />} />
