@@ -10,7 +10,7 @@ import {
   ImageDown, Smartphone, FileArchive, Receipt, ShieldCheck,
   Calculator, GraduationCap, Tag, Briefcase, Mail, Instagram, Youtube,
   User, Building2, Package, Sparkles, Search, FileText, Heading, FileCheck, List, Edit, Film,
-  Target, PiggyBank, CalendarClock
+  Target, PiggyBank, CalendarClock, Ruler
 } from "lucide-react";
 
 export const allTools = [
@@ -18,7 +18,6 @@ export const allTools = [
   { icon: MessageSquare, title: "AI Chat", description: "Chat with AI powered by Google Gemini 2.5 Pro", category: "AI & Content", path: "/tools/ai-chat", popular: true },
   { icon: Captions, title: "Caption Generator", description: "Generate engaging social media captions with AI", category: "AI & Content", path: "/tools/caption-generator" },
   { icon: Shield, title: "Premium Plagiarism & AI Detector", description: "Advanced plagiarism detection, AI content analysis, and intelligent text rephrasing with real-time visualizations", category: "AI & Content", path: "/tools/premium-plagiarism-ai-tool", popular: true },
-  { icon: Wand2, title: "Plagiarism Remover", description: "Rewrite text to remove plagiarism with AI", category: "AI & Content", path: "/tools/plagiarism-remover" },
   { icon: RefreshCw, title: "Text Rephraser", description: "Rephrase text with different tones using AI", category: "AI & Content", path: "/tools/text-rephraser" },
   { icon: PenTool, title: "Essay Writer", description: "Generate academic essays with AI", category: "AI & Content", path: "/tools/essay-writer", popular: true },
   { icon: BookOpen, title: "Thesis Writer", description: "Generate thesis and dissertation content with AI", category: "AI & Content", path: "/tools/thesis-writer" },
@@ -199,4 +198,11 @@ export const allTools = [
   { icon: Link2, title: "Canonical URL Generator", description: "Generate canonical link tags to prevent duplicate content issues", category: "SEO & Marketing", path: "/tools/canonical-url-generator", popular: true },
   { icon: FileCheck, title: "Sitemap Validator", description: "Validate XML sitemap structure and check for errors", category: "SEO & Marketing", path: "/tools/sitemap-validator", popular: true },
   { icon: List, title: "Breadcrumb Generator", description: "Generate breadcrumb navigation with structured data for SEO", category: "SEO & Marketing", path: "/tools/breadcrumb-generator", popular: true },
+
+  // Premium Plus Tools (5) - Enhanced versions with advanced features
+  { icon: Sparkles, title: "Premium Plus Word Counter", description: "Advanced text analysis with reading time, writing analytics, readability scores, and keyword density", category: "Premium Plus", path: "/tools/premium-plus-word-counter", popular: true },
+  { icon: Images, title: "Premium Plus Batch Image Resizer", description: "Resize multiple images at once with social media presets, custom dimensions, and batch export", category: "Premium Plus", path: "/tools/premium-plus-batch-image-resizer", popular: true },
+  { icon: Ruler, title: "Premium Plus Unit Converter", description: "Convert units with conversion history tracking, 8 categories, and quick access to recent conversions", category: "Premium Plus", path: "/tools/premium-plus-unit-converter", popular: true },
+  { icon: Dices, title: "Premium Plus Random Number Generator", description: "Generate random numbers with multiple probability distributions (uniform, normal, exponential, poisson) and statistical analysis", category: "Premium Plus", path: "/tools/premium-plus-random-number-generator", popular: true },
+  { icon: Timer, title: "Premium Plus Multi-Stopwatch", description: "Multiple simultaneous stopwatches with lap timing, split analysis, and performance statistics", category: "Premium Plus", path: "/tools/premium-plus-multi-stopwatch", popular: true },
 ];
