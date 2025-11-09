@@ -167,9 +167,7 @@ const PremiumVideoEditor = () => {
       setTrimEnd(dur);
 
       // Setup audio when metadata is loaded
-      if (videoRef.current.audioTracks?.length > 0) {
-        setupAudio();
-      }
+      setupAudio();
     }
   };
 
@@ -451,7 +449,7 @@ const PremiumVideoEditor = () => {
       // Read and create output URL
       const data = await ffmpeg.readFile(outputFile);
       const mimeType = format === "webm" ? "video/webm" : format === "avi" ? "video/x-msvideo" : "video/mp4";
-      const blob = new Blob([data as BlobobPart], { type: mimeType });
+      const blob = new Blob([data as BlobPart], { type: mimeType });
       const url = URL.createObjectURL(blob);
 
       setOutputUrl(url);
