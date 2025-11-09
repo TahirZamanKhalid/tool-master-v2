@@ -76,7 +76,7 @@ const categories = [
   },
   {
     icon: Video,
-    title: "Premium Video Tools",
+    title: "Video Tools",
     description: "Professional video editing, compression, merging, and watermarking",
     toolCount: 6,
     color: "from-purple-500 to-indigo-600",
@@ -122,13 +122,6 @@ const categories = [
     description: "Invoice generation and business utilities",
     toolCount: 2,
     color: "from-teal-500 to-cyan-600",
-  },
-  {
-    icon: Sparkles,
-    title: "Premium Plus",
-    description: "Enhanced tools with advanced features and analytics",
-    toolCount: 5,
-    color: "from-yellow-500 to-amber-600",
   },
   {
     icon: Hash,
@@ -280,7 +273,7 @@ const Index = () => {
               "QR & Barcodes": "qr-barcodes",
               "PDF Tools": "pdf-tools",
               "Text Tools": "text-tools",
-              "Premium Video Tools": "video-tools",
+              "Video Tools": "video-tools",
               "SEO & Marketing": "seo-marketing",
               "Calculators": "calculators",
               "Security Tools": "security-tools",
@@ -288,8 +281,7 @@ const Index = () => {
               "File Converters": "file-converters",
               "Business Tools": "business-tools",
               "Social Media": "social-media",
-              "Generators": "generators",
-              "Premium Plus": "premium-plus"
+              "Generators": "generators"
             };
             
             return (

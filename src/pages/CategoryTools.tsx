@@ -18,7 +18,7 @@ const CategoryTools = () => {
     "qr-barcodes": "QR & Barcodes",
     "pdf-tools": "PDF Tools",
     "text-tools": "Text Tools",
-    "video-tools": "Premium Video Tools",
+    "video-tools": "Video Tools",
     "seo-marketing": "SEO & Marketing",
     "calculators": "Calculators",
     "security-tools": "Security Tools",
@@ -26,8 +26,7 @@ const CategoryTools = () => {
     "file-converters": "File Converters",
     "business-tools": "Business Tools",
     "social-media": "Social Media",
-    "generators": "Generators",
-    "premium-plus": "Premium Plus"
+    "generators": "Generators"
   };
 
   const decodedCategory = categoryMap[category || ""] || "";
