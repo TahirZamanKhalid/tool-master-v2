@@ -12,7 +12,7 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { Header } from "@/components/Header";
-import { ToolLayout } from "@/components/ToolLayout";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 
 interface VideoItem {
   id: string;
@@ -45,7 +45,10 @@ const PremiumVideoMerger = () => {
 
   const loadFFmpeg = async () => {
     try {
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd';
+      const bases = [
+        'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd',
+        'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd'
+      ];
       const ffmpeg = ffmpegRef.current;
 
       ffmpeg.on('log', ({ message }) => {
@@ -56,11 +59,22 @@ const PremiumVideoMerger = () => {
         setProcessingProgress(Math.round(progress * 100));
       });
 
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
-      });
+      let loaded = false;
+      for (const baseURL of bases) {
+        try {
+          await ffmpeg.load({
+            coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+            wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+            workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
+          });
+          loaded = true;
+          break;
+        } catch (err) {
+          console.warn('FFmpeg load failed from', baseURL, err);
+        }
+      }
+
+      if (!loaded) throw new Error('All FFmpeg sources failed');
 
       setFfmpegLoaded(true);
       toast({ title: "Video merger ready!" });
@@ -489,6 +503,14 @@ const PremiumVideoMerger = () => {
         </div>
       </div>
       </div>
+
+      {isProcessing && (
+        <ProcessingOverlay
+          message="Merging your videos..."
+          progress={processingProgress}
+          showSkip={false}
+        />
+      )}
 
       <AdWatchModal
         open={showAdModal}
