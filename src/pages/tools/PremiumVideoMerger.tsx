@@ -45,7 +45,7 @@ const PremiumVideoMerger = () => {
 
   const loadFFmpeg = async () => {
     try {
-      const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd';
+      const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
       const ffmpeg = ffmpegRef.current;
 
       ffmpeg.on('log', ({ message }) => {
@@ -56,16 +56,22 @@ const PremiumVideoMerger = () => {
         setProcessingProgress(Math.round(progress * 100));
       });
 
+      // toBlobURL is used to bypass CORS issue
       await ffmpeg.load({
         coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
       });
 
       setFfmpegLoaded(true);
+      console.log('FFmpeg loaded successfully');
       toast({ title: "Video merger ready!" });
     } catch (error) {
       console.error('Failed to load FFmpeg:', error);
-      toast({ title: "Failed to load merger. Please refresh the page.", variant: "destructive" });
+      toast({ 
+        title: "Failed to load video merger", 
+        description: "Please refresh the page and try again.",
+        variant: "destructive" 
+      });
     }
   };
 
