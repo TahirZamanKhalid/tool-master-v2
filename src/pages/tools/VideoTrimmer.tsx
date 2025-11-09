@@ -30,8 +30,9 @@ const VideoTrimmer = () => {
   const loadFFmpeg = async () => {
     try {
       const baseURLs = [
-        'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm',
-        'https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm',
+        '/ffmpeg',
+        'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd',
+        'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd',
       ];
       const ffmpeg = ffmpegRef.current;
 

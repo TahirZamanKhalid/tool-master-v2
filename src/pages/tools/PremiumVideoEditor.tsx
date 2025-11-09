@@ -112,11 +112,12 @@ const PremiumVideoEditor = () => {
         console.log(`Processing: ${(progress * 100).toFixed(2)}%`);
       });
 
-      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd";
+      const baseURL = "/ffmpeg";
 
       await ffmpeg.load({
         coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
+        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, "text/javascript"),
       });
 
       setFfmpegLoaded(true);

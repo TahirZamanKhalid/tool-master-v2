@@ -30,8 +30,9 @@ const VideoToGIF = () => {
     try {
       const ffmpeg = ffmpegRef.current;
       const bases = [
-        'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm',
-        'https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm',
+        '/ffmpeg',
+        'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd',
+        'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd',
       ];
 
       let loaded = false;
