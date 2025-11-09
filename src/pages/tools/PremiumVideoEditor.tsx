@@ -87,8 +87,8 @@ const PremiumVideoEditor = () => {
       });
 
       const bases = [
-        'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd',
-        'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd'
+        'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm',
+        'https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm'
       ];
 
       let loaded = false;

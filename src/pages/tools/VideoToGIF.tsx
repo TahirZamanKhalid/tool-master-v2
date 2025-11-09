@@ -28,13 +28,28 @@ const VideoToGIF = () => {
 
   const loadFFmpeg = async () => {
     try {
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
       const ffmpeg = ffmpegRef.current;
-      
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-      });
+      const bases = [
+        'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm',
+        'https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm',
+      ];
+
+      let loaded = false;
+      for (const baseURL of bases) {
+        try {
+          await ffmpeg.load({
+            coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+            wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+            workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
+          });
+          loaded = true;
+          break;
+        } catch (error) {
+          console.warn('FFmpeg load failed from', baseURL, error);
+        }
+      }
+
+      if (!loaded) throw new Error('All FFmpeg sources failed');
 
       setFfmpegLoaded(true);
       toast.success("GIF converter ready!");
