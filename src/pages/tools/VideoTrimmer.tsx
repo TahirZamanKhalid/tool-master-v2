@@ -29,39 +29,24 @@ const VideoTrimmer = () => {
 
   const loadFFmpeg = async () => {
     try {
-      const baseURLs = [
-        '/ffmpeg',
-        'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd',
-        'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd',
-      ];
       const ffmpeg = ffmpegRef.current;
+      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd';
 
       ffmpeg.on('log', ({ message }) => {
         console.log(message);
       });
 
-      let loaded = false;
-      for (const baseURL of baseURLs) {
-        try {
-          await ffmpeg.load({
-            coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-            wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-            workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
-          });
-          loaded = true;
-          break;
-        } catch (error) {
-          console.warn('FFmpeg load failed from', baseURL, error);
-        }
-      }
-
-      if (!loaded) throw new Error('All FFmpeg sources failed');
+      await ffmpeg.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
+      });
 
       setFfmpegLoaded(true);
       toast.success("Video editor ready!");
     } catch (error) {
       console.error('Failed to load FFmpeg:', error);
-      toast.error("Failed to load video editor");
+      toast.error("Failed to load video editor. Please refresh the page.");
     }
   };
 

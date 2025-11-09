@@ -29,34 +29,19 @@ const VideoToGIF = () => {
   const loadFFmpeg = async () => {
     try {
       const ffmpeg = ffmpegRef.current;
-      const bases = [
-        '/ffmpeg',
-        'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd',
-        'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd',
-      ];
+      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd';
 
-      let loaded = false;
-      for (const baseURL of bases) {
-        try {
-          await ffmpeg.load({
-            coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-            wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-            workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
-          });
-          loaded = true;
-          break;
-        } catch (error) {
-          console.warn('FFmpeg load failed from', baseURL, error);
-        }
-      }
-
-      if (!loaded) throw new Error('All FFmpeg sources failed');
+      await ffmpeg.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
+      });
 
       setFfmpegLoaded(true);
       toast.success("GIF converter ready!");
     } catch (error) {
       console.error('Failed to load FFmpeg:', error);
-      toast.error("Failed to load converter");
+      toast.error("Failed to load converter. Please refresh the page.");
     }
   };
 
