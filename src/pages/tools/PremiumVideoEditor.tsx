@@ -31,6 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { SEOHead } from "@/components/SEOHead";
 
 interface TextOverlay {
   id: string;
@@ -97,7 +98,10 @@ const PremiumVideoEditor = () => {
   const gainNodeRef = useRef<GainNode | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
 
+  const UNDER_DEVELOPMENT = true;
+
   useEffect(() => {
+    if (UNDER_DEVELOPMENT) return;
     loadFFmpeg();
   }, []);
 
@@ -519,6 +523,39 @@ const PremiumVideoEditor = () => {
       if (outputUrl) URL.revokeObjectURL(outputUrl);
     };
   }, [videoUrl, outputUrl]);
+
+  if (UNDER_DEVELOPMENT) {
+    return (
+      <>
+        <SEOHead
+          title="Premium Video Editor (Under Development)"
+          description="This tool is currently under development. Please try our other video tools."
+          keywords="video editor under development, video tools"
+          canonical="https://toolmaster.cloud/tools/premium-video-editor"
+        />
+        <div className="min-h-screen bg-gradient-to-br from-muted/20 to-background p-6 md:p-12">
+          <div className="max-w-2xl mx-auto">
+            <h1 className="text-3xl font-bold mb-4">Premium Video Editor — Under Development</h1>
+            <Card className="border-2">
+              <CardHeader>
+                <CardTitle>Premium Video Editor</CardTitle>
+                <CardDescription>This tool is currently under development</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Thanks for your patience! In the meantime, you can use these alternatives:
+                </p>
+                <ul className="list-disc pl-5 space-y-1 text-sm">
+                  <li><a href="/tools/video-trimmer" className="underline">Video Trimmer</a></li>
+                  <li><a href="/tools/video-to-gif" className="underline">Video to GIF</a></li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4 md:p-8">
