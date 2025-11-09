@@ -45,10 +45,7 @@ const PremiumVideoMerger = () => {
 
   const loadFFmpeg = async () => {
     try {
-      const bases = [
-        'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd',
-        'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd'
-      ];
+      const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd';
       const ffmpeg = ffmpegRef.current;
 
       ffmpeg.on('log', ({ message }) => {
@@ -59,22 +56,10 @@ const PremiumVideoMerger = () => {
         setProcessingProgress(Math.round(progress * 100));
       });
 
-      let loaded = false;
-      for (const baseURL of bases) {
-        try {
-          await ffmpeg.load({
-            coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-            wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-            workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
-          });
-          loaded = true;
-          break;
-        } catch (err) {
-          console.warn('FFmpeg load failed from', baseURL, err);
-        }
-      }
-
-      if (!loaded) throw new Error('All FFmpeg sources failed');
+      await ffmpeg.load({
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+      });
 
       setFfmpegLoaded(true);
       toast({ title: "Video merger ready!" });
