@@ -367,6 +367,20 @@ const PremiumVideoEditor = () => {
                     onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
                     onPlay={() => setIsPlaying(true)}
                     onPause={() => setIsPlaying(false)}
+                    style={{
+                      filter: `
+                        brightness(${settings.brightness})
+                        contrast(${settings.contrast})
+                        saturate(${settings.saturation})
+                        hue-rotate(${settings.hue}deg)
+                        blur(${settings.blur}px)
+                      `,
+                      transform: `
+                        rotate(${settings.rotation}deg)
+                        scaleX(${settings.flipHorizontal ? -1 : 1})
+                        scaleY(${settings.flipVertical ? -1 : 1})
+                      `
+                    }}
                   />
                   <div className="absolute bottom-4 left-4 flex gap-2">
                     <Button
@@ -380,6 +394,11 @@ const PremiumVideoEditor = () => {
                   <div className="absolute bottom-4 right-4 bg-black/70 px-3 py-1 rounded text-white text-sm">
                     {formatTime(currentTime)} / {formatTime(duration)}
                   </div>
+                  {activeTab !== 'export' && (
+                    <div className="absolute top-4 left-4 bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium">
+                      Live Preview
+                    </div>
+                  )}
                 </div>
 
                 <Button
@@ -666,7 +685,7 @@ const PremiumVideoEditor = () => {
                   <div className="flex gap-2">
                     <Button
                       onClick={processVideo}
-                      disabled={isProcessing || !ffmpegLoaded}
+                      disabled={isProcessing}
                       className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600"
                       size="lg"
                     >
@@ -674,6 +693,11 @@ const PremiumVideoEditor = () => {
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                           Processing...
+                        </>
+                      ) : !ffmpegLoaded ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Loading Editor...
                         </>
                       ) : (
                         <>
