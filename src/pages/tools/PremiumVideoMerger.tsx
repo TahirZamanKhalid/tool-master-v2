@@ -45,7 +45,6 @@ const PremiumVideoMerger = () => {
 
   const loadFFmpeg = async () => {
     try {
-      const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
       const ffmpeg = ffmpegRef.current;
 
       ffmpeg.on('log', ({ message }) => {
@@ -56,22 +55,47 @@ const PremiumVideoMerger = () => {
         setProcessingProgress(Math.round(progress * 100));
       });
 
-      // toBlobURL is used to bypass CORS issue
+      // Prefer self-hosted core to avoid CSP/CORS and large cross-origin fetches
       await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+        coreURL: '/ffmpeg/ffmpeg-core.js',
+        wasmURL: '/ffmpeg/ffmpeg-core.wasm',
       });
 
       setFfmpegLoaded(true);
-      console.log('FFmpeg loaded successfully');
+      console.log('FFmpeg loaded successfully (self-hosted)');
       toast({ title: "Video merger ready!" });
     } catch (error) {
-      console.error('Failed to load FFmpeg:', error);
-      toast({ 
-        title: "Failed to load video merger", 
-        description: "Please refresh the page and try again.",
-        variant: "destructive" 
-      });
+      console.error('Self-hosted FFmpeg load failed, trying direct CDN URLs:', error);
+      const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
+      try {
+        // Try direct CDN URLs (CORS-enabled on jsDelivr)
+        await ffmpegRef.current.load({
+          coreURL: `${baseURL}/ffmpeg-core.js`,
+          wasmURL: `${baseURL}/ffmpeg-core.wasm`,
+        });
+        setFfmpegLoaded(true);
+        console.log('FFmpeg loaded successfully (CDN direct)');
+        toast({ title: "Video merger ready!" });
+      } catch (e1) {
+        console.error('Direct CDN load failed, trying blob URL fallback:', e1);
+        try {
+          // Final fallback using toBlobURL to bypass any remaining CORS issues
+          await ffmpegRef.current.load({
+            coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+            wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+          });
+          setFfmpegLoaded(true);
+          console.log('FFmpeg loaded successfully (CDN blob fallback)');
+          toast({ title: "Video merger ready!" });
+        } catch (e2) {
+          console.error('All FFmpeg load strategies failed:', e2);
+          toast({ 
+            title: "Failed to load video merger", 
+            description: "Please refresh the page and try again.",
+            variant: "destructive" 
+          });
+        }
+      }
     }
   };
 
