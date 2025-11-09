@@ -74,6 +74,10 @@ const PremiumVideoEditor = () => {
   const ffmpegRef = useRef(new FFmpeg());
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const audioReadyRef = useRef(false);
 
   useEffect(() => {
     loadFFmpeg();
@@ -116,6 +120,75 @@ const PremiumVideoEditor = () => {
     }
   };
 
+  // Ensure WebAudio pipeline for live volume preview (supports >100%)
+  const ensureAudioChain = async () => {
+    if (!videoRef.current) return;
+    // Create context if needed
+    if (!audioContextRef.current) {
+      const AC = (window as any).AudioContext || (window as any).webkitAudioContext;
+      audioContextRef.current = new AC();
+    }
+    const ctx = audioContextRef.current!;
+    // Resume on user gesture
+    if (ctx.state === 'suspended') {
+      try { await ctx.resume(); } catch {}
+    }
+    // Create nodes if needed
+    if (!sourceNodeRef.current) {
+      sourceNodeRef.current = ctx.createMediaElementSource(videoRef.current);
+    }
+    if (!gainNodeRef.current) {
+      gainNodeRef.current = ctx.createGain();
+      gainNodeRef.current.gain.value = settings.volume;
+    }
+    // Connect graph: video -> gain -> speakers
+    try {
+      sourceNodeRef.current.connect(gainNodeRef.current);
+      gainNodeRef.current.connect(ctx.destination);
+      // Avoid double audio
+      videoRef.current.muted = true;
+      audioReadyRef.current = true;
+    } catch (e) {
+      console.warn('Audio graph connect error (may already be connected):', e);
+      videoRef.current.muted = true;
+      audioReadyRef.current = true;
+    }
+  };
+
+  // Keep video playback speed in sync with the speed setting
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.playbackRate = settings.speed || 1;
+  }, [settings.speed, videoUrl]);
+
+  // Live volume preview via WebAudio (supports >1.0 gain)
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    // If user boosted volume, ensure audio chain
+    if (!audioReadyRef.current && settings.volume !== 1) {
+      ensureAudioChain();
+    }
+    if (audioReadyRef.current && gainNodeRef.current) {
+      v.muted = true;
+      gainNodeRef.current.gain.value = settings.volume;
+    } else {
+      // Fallback for normal volume without WebAudio
+      v.muted = false;
+      v.volume = Math.min(settings.volume, 1);
+    }
+  }, [settings.volume, videoUrl]);
+
+  // Keep playhead within trim bounds during preview
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (trimEnd <= trimStart) return;
+    if (v.currentTime < trimStart) v.currentTime = trimStart;
+    if (v.currentTime > trimEnd) v.currentTime = trimEnd;
+  }, [trimStart, trimEnd]);
+
   const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -146,6 +219,13 @@ const PremiumVideoEditor = () => {
     if (isPlaying) {
       videoRef.current.pause();
     } else {
+      // Prepare audio chain on first play for live volume
+      ensureAudioChain();
+      videoRef.current.playbackRate = settings.speed || 1;
+      const ctx = audioContextRef.current;
+      if (ctx && ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
       videoRef.current.play();
     }
     setIsPlaying(!isPlaying);
@@ -379,7 +459,22 @@ const PremiumVideoEditor = () => {
                     src={videoUrl}
                     className="w-full max-h-[500px]"
                     onLoadedMetadata={handleLoadedMetadata}
-                    onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
+                      onTimeUpdate={() => {
+                        const v = videoRef.current;
+                        if (!v) return;
+                        const t = v.currentTime;
+                        if (t < trimStart) {
+                          v.currentTime = trimStart;
+                          return;
+                        }
+                        if (t > trimEnd && trimEnd > trimStart) {
+                          v.pause();
+                          setIsPlaying(false);
+                          v.currentTime = trimStart;
+                          return;
+                        }
+                        setCurrentTime(t);
+                      }}
                     onPlay={() => setIsPlaying(true)}
                     onPause={() => setIsPlaying(false)}
                     style={{
