@@ -10,6 +10,9 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { AdWatchModal } from "@/components/AdWatchModal";
+import { Header } from "@/components/Header";
+import { ToolLayout } from "@/components/ToolLayout";
 
 interface VideoItem {
   id: string;
@@ -31,6 +34,7 @@ const PremiumVideoMerger = () => {
   const [addTransitions, setAddTransitions] = useState(false);
   const [transition, setTransition] = useState("fade");
   const [transitionDuration, setTransitionDuration] = useState("0.5");
+  const [showAdModal, setShowAdModal] = useState(false);
 
   const ffmpegRef = useRef(new FFmpeg());
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -41,7 +45,7 @@ const PremiumVideoMerger = () => {
 
   const loadFFmpeg = async () => {
     try {
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd';
       const ffmpeg = ffmpegRef.current;
 
       ffmpeg.on('log', ({ message }) => {
@@ -55,13 +59,14 @@ const PremiumVideoMerger = () => {
       await ffmpeg.load({
         coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
       });
 
       setFfmpegLoaded(true);
-      toast({ title: "Video merger loaded!" });
+      toast({ title: "Video merger ready!" });
     } catch (error) {
       console.error('Failed to load FFmpeg:', error);
-      toast({ title: "Failed to load merger", variant: "destructive" });
+      toast({ title: "Failed to load merger. Please refresh the page.", variant: "destructive" });
     }
   };
 
@@ -134,6 +139,11 @@ const PremiumVideoMerger = () => {
       return;
     }
 
+    setShowAdModal(true);
+  };
+
+  const handleAdWatched = async () => {
+    setShowAdModal(false);
     setIsProcessing(true);
     setProcessingProgress(0);
     toast({ title: "Merging videos... This may take several minutes" });
@@ -204,7 +214,9 @@ const PremiumVideoMerger = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 p-4 md:p-8">
+    <>
+      <Header />
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
@@ -386,13 +398,18 @@ const PremiumVideoMerger = () => {
               <Button
                 onClick={mergeVideos}
                 disabled={isProcessing || !ffmpegLoaded || videos.length < 2}
-                className="w-full bg-gradient-to-r from-orange-600 to-yellow-600"
+                className="w-full bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700"
                 size="lg"
               >
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Merging... {processingProgress}%
+                  </>
+                ) : !ffmpegLoaded ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Loading merger...
                   </>
                 ) : (
                   <>
@@ -403,7 +420,13 @@ const PremiumVideoMerger = () => {
               </Button>
 
               {isProcessing && (
-                <Progress value={processingProgress} className="h-3" />
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Merging progress</span>
+                    <span className="font-medium">{processingProgress}%</span>
+                  </div>
+                  <Progress value={processingProgress} className="h-3" />
+                </div>
               )}
             </CardContent>
           </Card>
@@ -465,7 +488,16 @@ const PremiumVideoMerger = () => {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+
+      <AdWatchModal
+        open={showAdModal}
+        onOpenChange={setShowAdModal}
+        onAdWatched={handleAdWatched}
+        title="Watch Ad to Merge Videos"
+        description="Watch this short ad to start merging your videos"
+      />
+    </>
   );
 };
 
