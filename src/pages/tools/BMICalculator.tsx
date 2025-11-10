@@ -702,62 +702,64 @@ const EnhancedBMICalculator = () => {
             <Card className="p-6">
               <h3 className="font-semibold text-lg mb-4">BMI Distribution</h3>
               <ResponsiveContainer width="100%" height={300}>
-                {chartType === "area" && (
-                  <AreaChart data={generateBMIRangeData()}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="bmi" />
-                    <YAxis />
-                    <Tooltip />
-                    <Area
-                      type="monotone"
-                      dataKey="value"
-                      stroke="#8884d8"
-                      fill="#8884d8"
-                      fillOpacity={0.6}
-                      animationDuration={animationEnabled ? 1000 : 0}
-                    />
-                  </AreaChart>
-                )}
-                {chartType === "line" && (
-                  <LineChart data={generateBMIRangeData()}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="bmi" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="value"
-                      stroke="#8884d8"
-                      strokeWidth={2}
-                      dot={false}
-                      animationDuration={animationEnabled ? 1000 : 0}
-                    />
-                  </LineChart>
-                )}
-                {chartType === "bar" && (
-                  <BarChart data={generateBMIRangeData().filter((_, i) => i % 5 === 0)}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="bmi" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="#8884d8" animationDuration={animationEnabled ? 1000 : 0} />
-                  </BarChart>
-                )}
-                {chartType === "radar" && showHealthMetrics && (
-                  <RadarChart data={getHealthMetricsData()}>
-                    <PolarGrid />
-                    <PolarAngleAxis dataKey="metric" />
-                    <PolarRadiusAxis />
-                    <Radar
-                      name="Health Score"
-                      dataKey="value"
-                      stroke="#8884d8"
-                      fill="#8884d8"
-                      fillOpacity={0.6}
-                      animationDuration={animationEnabled ? 1000 : 0}
-                    />
-                  </RadarChart>
-                )}
+                <>
+                  {chartType === "area" && (
+                    <AreaChart data={generateBMIRangeData()}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="bmi" />
+                      <YAxis />
+                      <Tooltip />
+                      <Area
+                        type="monotone"
+                        dataKey="value"
+                        stroke="#8884d8"
+                        fill="#8884d8"
+                        fillOpacity={0.6}
+                        animationDuration={animationEnabled ? 1000 : 0}
+                      />
+                    </AreaChart>
+                  )}
+                  {chartType === "line" && (
+                    <LineChart data={generateBMIRangeData()}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="bmi" />
+                      <YAxis />
+                      <Tooltip />
+                      <Line
+                        type="monotone"
+                        dataKey="value"
+                        stroke="#8884d8"
+                        strokeWidth={2}
+                        dot={false}
+                        animationDuration={animationEnabled ? 1000 : 0}
+                      />
+                    </LineChart>
+                  )}
+                  {chartType === "bar" && (
+                    <BarChart data={generateBMIRangeData().filter((_, i) => i % 5 === 0)}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="bmi" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="value" fill="#8884d8" animationDuration={animationEnabled ? 1000 : 0} />
+                    </BarChart>
+                  )}
+                  {chartType === "radar" && showHealthMetrics && (
+                    <RadarChart data={getHealthMetricsData()}>
+                      <PolarGrid />
+                      <PolarAngleAxis dataKey="metric" />
+                      <PolarRadiusAxis />
+                      <Radar
+                        name="Health Score"
+                        dataKey="value"
+                        stroke="#8884d8"
+                        fill="#8884d8"
+                        fillOpacity={0.6}
+                        animationDuration={animationEnabled ? 1000 : 0}
+                      />
+                    </RadarChart>
+                  )}
+                </>
               </ResponsiveContainer>
             </Card>
 
