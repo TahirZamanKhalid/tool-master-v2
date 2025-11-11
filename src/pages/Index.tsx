@@ -35,105 +35,105 @@ const categories = [
   {
     icon: Sparkles,
     title: "AI & Content",
-    description: "AI-powered writing, chatbots, and content generation",
+    description: "AI-powered content writing tools, chatbots, and text generation utilities",
     toolCount: 8,
     color: "from-blue-500 to-purple-600",
   },
   {
     icon: Image,
     title: "Image Tools",
-    description: "Edit, compress, convert, and enhance images",
+    description: "Free online image editor, compressor, converter, and background remover tools",
     toolCount: 16,
     color: "from-pink-500 to-rose-600",
   },
   {
     icon: Code,
     title: "Developer Tools",
-    description: "API testing, formatters, and development utilities",
+    description: "API testing, code formatters, JSON validators, and web development utilities",
     toolCount: 21,
     color: "from-green-500 to-emerald-600",
   },
   {
     icon: QrCode,
     title: "QR & Barcodes",
-    description: "Generate and customize QR codes and barcodes",
+    description: "Free QR code generator, barcode creator, and scanner tools online",
     toolCount: 5,
     color: "from-emerald-500 to-teal-600",
   },
   {
     icon: FileText,
     title: "PDF Tools",
-    description: "Merge, split, compress, and convert PDFs",
+    description: "Online PDF merger, splitter, compressor, and converter - no download",
     toolCount: 6,
     color: "from-orange-500 to-red-600",
   },
   {
     icon: Type,
     title: "Text Tools",
-    description: "Word counter, case converter, and more",
+    description: "Word counter, case converter, text formatter, and string manipulation tools",
     toolCount: 23,
     color: "from-indigo-500 to-blue-600",
   },
   {
     icon: Video,
     title: "Video Tools",
-    description: "Professional video editing, compression, merging, and watermarking",
+    description: "Online video editor, compressor, merger, and watermark tools - free",
     toolCount: 6,
     color: "from-purple-500 to-indigo-600",
   },
   {
     icon: TrendingUp,
     title: "SEO & Marketing",
-    description: "Meta tags, sitemaps, and SEO optimization",
+    description: "SEO tools, meta tag generator, sitemap creator, and marketing utilities",
     toolCount: 18,
     color: "from-violet-500 to-purple-600",
   },
   {
     icon: Calculator,
     title: "Calculators",
-    description: "Percentage, BMI, loan, tip, compound interest, and more",
+    description: "Free online calculators: percentage, BMI, loan, tip, compound interest, and more",
     toolCount: 23,
     color: "from-cyan-500 to-blue-600",
   },
   {
     icon: Shield,
     title: "Security Tools",
-    description: "Password generators and validators",
+    description: "Password generator, strength checker, and encryption tools online",
     toolCount: 4,
     color: "from-red-500 to-orange-600",
   },
   {
     icon: Dices,
     title: "Utilities",
-    description: "Random generators, timers, and more",
+    description: "Random number generator, timer, stopwatch, and utility tools",
     toolCount: 9,
     color: "from-fuchsia-500 to-pink-600",
   },
   {
     icon: ArrowRightLeft,
     title: "File Converters",
-    description: "Convert files between formats (Excel, CSV, images, PDFs)",
+    description: "Free file converter: Excel to CSV, image format converter, PDF converter",
     toolCount: 8,
     color: "from-amber-500 to-orange-600",
   },
   {
     icon: Receipt,
     title: "Business Tools",
-    description: "Invoice generation and business utilities",
+    description: "Invoice generator, business name creator, and professional utilities",
     toolCount: 2,
     color: "from-teal-500 to-cyan-600",
   },
   {
     icon: Hash,
     title: "Social Media",
-    description: "Hashtag generator, Instagram bio, YouTube titles",
+    description: "Hashtag generator, Instagram bio maker, YouTube title generator tools",
     toolCount: 3,
     color: "from-rose-500 to-pink-600",
   },
   {
     icon: Brain,
     title: "Generators",
-    description: "Business names, domains, fake data, and more",
+    description: "Business name generator, domain name creator, fake data, and more",
     toolCount: 8,
     color: "from-lime-500 to-green-600",
   },
@@ -242,9 +242,9 @@ const Index = () => {
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
       <SEOHead
-        title="ToolMaster Pro"
-        description="Access 100+ free online tools for developers, designers, and content creators. No signup required. Image tools, text converters, calculators, and more."
-        keywords="free online tools, developer tools, image tools, text tools, converters, calculators, no signup"
+        title="ToolMaster Pro - 100+ Free Online Tools | No Registration Required"
+        description="Access 100+ free online tools instantly. Background remover, PDF merger, image compressor, QR generator, text tools, calculators & more. No signup, browser-based, secure."
+        keywords="free online tools, web tools, browser tools, no registration, PDF tools, image tools, text converters, calculators, developer tools, online utilities, free web apps"
         canonical="https://toolmaster.cloud"
       />
       <Header />
@@ -255,9 +255,9 @@ const Index = () => {
       {/* Categories Section */}
       <section className="py-16 container w-full overflow-hidden px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 break-words">Browse by Category</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 break-words">Browse Free Online Tools by Category</h2>
           <p className="text-muted-foreground text-base sm:text-lg break-words">
-            Explore our comprehensive collection of free online tools
+            Explore our comprehensive collection of free web-based tools and utilities. No registration required, instant access to 100+ professional-grade online tools.
           </p>
         </div>
 
@@ -329,12 +329,12 @@ const Index = () => {
       <section id="tools-section" className="py-16 container">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            {searchQuery || selectedCategory ? "Search Results" : "Popular Tools"}
+            {searchQuery || selectedCategory ? "Search Results" : "Most Popular Free Online Tools"}
           </h2>
           <p className="text-muted-foreground text-lg mb-4">
             {searchQuery || selectedCategory 
-              ? `Found ${filteredTools.length} tool${filteredTools.length !== 1 ? 's' : ''}`
-              : "Most used tools by our community"
+              ? `Found ${filteredTools.length} tool${filteredTools.length !== 1 ? 's' : ''} - All free, no signup required`
+              : "Trusted by thousands of developers, designers, and content creators worldwide"
             }
           </p>
           {!searchQuery && !selectedCategory && (
@@ -409,6 +409,10 @@ const Index = () => {
       {/* Stats Section */}
       <section className="py-16 bg-muted/30">
         <div className="container px-4">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold mb-2">Why Choose Our Free Online Tools?</h2>
+            <p className="text-muted-foreground">Trusted by professionals worldwide for fast, secure, and reliable results</p>
+          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
             <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth">
               <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">

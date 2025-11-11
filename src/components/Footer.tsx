@@ -19,7 +19,7 @@ export const Footer = () => {
               </h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              Your all-in-one platform for 100+ free online tools. Making your daily tasks easier and more efficient.
+              Your all-in-one platform for 100+ free online tools. Professional web-based utilities for developers, designers, and content creators. No signup required.
             </p>
             <div className="flex gap-3">
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
@@ -39,31 +39,31 @@ export const Footer = () => {
 
           {/* Tools Section */}
           <div>
-            <h4 className="font-semibold mb-4">Popular Tools</h4>
+            <h4 className="font-semibold mb-4">Top Free Online Tools</h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link to="/tools/background-remover" className="text-muted-foreground hover:text-primary transition-colors">
-                  Background Remover
+                  Free Background Remover Online
                 </Link>
               </li>
               <li>
                 <Link to="/tools/qr-code-generator" className="text-muted-foreground hover:text-primary transition-colors">
-                  QR Code Generator
+                  QR Code Generator Free
                 </Link>
               </li>
               <li>
                 <Link to="/tools/pdf-merger" className="text-muted-foreground hover:text-primary transition-colors">
-                  PDF Merger
+                  Online PDF Merger Tool
                 </Link>
               </li>
               <li>
                 <Link to="/tools/image-compressor" className="text-muted-foreground hover:text-primary transition-colors">
-                  Image Compressor
+                  Image Compressor Free
                 </Link>
               </li>
               <li>
                 <Link to="/tools/word-counter" className="text-muted-foreground hover:text-primary transition-colors">
-                  Word Counter
+                  Word Counter Online Tool
                 </Link>
               </li>
             </ul>
@@ -127,7 +127,7 @@ export const Footer = () => {
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
           <p>&copy; {currentYear} ToolMaster Pro. All rights reserved.</p>
           <p className="mt-2">
-            Made with ❤️ to make your life easier. 100% free tools, no signup required.
+            Made with ❤️ to make your life easier. 100% free online tools and utilities, no signup or registration required. Browser-based tools for instant productivity.
           </p>
         </div>
       </div>

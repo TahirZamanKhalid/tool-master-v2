@@ -13,9 +13,9 @@ const About = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title="About Us - ToolMaster Pro"
-        description="Learn about ToolMaster Pro, your trusted source for 100+ free online tools. Our mission is to make everyday tasks easier and more efficient for everyone."
-        keywords="about toolmaster pro, free online tools, web tools, productivity tools"
+        title="About ToolMaster Pro - Free Online Tools Platform | No Signup Required"
+        description="Learn about ToolMaster Pro, offering 100+ free online tools for developers, designers & creators. Browser-based utilities, no download, no registration. Trusted by thousands worldwide."
+        keywords="about toolmaster pro, free online tools, web tools platform, browser-based tools, no signup tools, online utilities, productivity tools"
         canonical="https://toolmaster.cloud/about"
       />
       <Header />
@@ -32,35 +32,36 @@ const About = () => {
 
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              About ToolMaster Pro
+              About ToolMaster Pro - Free Online Tools Platform
             </h1>
             <p className="text-xl text-muted-foreground mb-12">
-              Your trusted platform for free, professional-grade online tools
+              Your trusted source for 100+ free, professional-grade web-based tools and utilities. No registration or download required.
             </p>
             
             <LazyAdSpace size="leaderboard" className="mb-8" />
 
             <div className="prose prose-slate dark:prose-invert max-w-none mb-12">
-              <h2>Who We Are</h2>
+              <h2>Who We Are - Leading Free Online Tools Provider</h2>
               <p>
-                ToolMaster Pro is a comprehensive platform offering 100+ free online tools designed to simplify your daily tasks. Whether you're a professional, student, content creator, or just someone looking to get things done efficiently, we've got the perfect tool for you.
+                ToolMaster Pro is a comprehensive platform offering 100+ free online tools designed to simplify your daily tasks. Whether you're a developer, designer, student, content creator, marketer, or business professional, we provide instant access to professional-grade web-based utilities. From image editing tools and PDF converters to text processors and calculators, all available directly in your browser.
               </p>
 
-              <h2>Our Mission</h2>
+              <h2>Our Mission: Free Tools for Everyone</h2>
               <p>
-                We believe that powerful tools shouldn't come with a price tag. Our mission is to democratize access to professional-grade utilities, making productivity tools available to everyone, everywhere, completely free of charge.
+                We believe that powerful online tools shouldn't come with a price tag or require lengthy sign-up processes. Our mission is to democratize access to professional-grade web utilities, making productivity tools and converters available to everyone, everywhere, completely free of charge. No credit card required, no trial periods, no limitations.
               </p>
 
-              <h2>What We Offer</h2>
+              <h2>What We Offer - 100+ Free Web-Based Tools</h2>
               <p>
-                Our extensive collection includes tools for image editing, PDF manipulation, text processing, code formatting, calculators, converters, generators, and much more. All tools are:
+                Our extensive collection includes free online tools for image editing, PDF manipulation, file conversion, text processing, code formatting, SEO optimization, calculators, converters, generators, and much more. All browser-based tools are:
               </p>
               <ul>
-                <li>100% free to use with no hidden charges</li>
-                <li>No registration or signup required</li>
+                <li>100% free to use with no hidden charges or premium upsells</li>
+                <li>No registration, signup, or download required - instant access</li>
                 <li>Privacy-focused with client-side processing when possible</li>
-                <li>Mobile-friendly and responsive</li>
-                <li>Regularly updated with new features</li>
+                <li>Mobile-friendly and responsive - works on any device</li>
+                <li>Regularly updated with new features and tools based on user feedback</li>
+                <li>Fast and efficient - optimized for quick processing</li>
               </ul>
             </div>
 
