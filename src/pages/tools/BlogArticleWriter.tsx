@@ -196,177 +196,157 @@ const BlogArticleWriter = () => {
         description="Generate engaging, SEO-optimized blog articles with AI. Perfect for bloggers, marketers, and content creators."
         category="AI & Content"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="hidden lg:block lg:col-span-2">
-            <div className="sticky top-4">
-              <LazyAdSpace type="display" slot="2918331088" position="sidebar-left" />
-            </div>
-          </div>
-
-          <div className="lg:col-span-8">
-            <div className="mb-6">
-              <LazyAdSpace type="display" slot="4402803148" position="top" />
-            </div>
-
-            <div className="bg-card rounded-lg border p-6 space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="topic">Blog Topic *</Label>
-                  <Input
-                    id="topic"
-                    value={formData.topic}
-                    onChange={(e) => setFormData({...formData, topic: e.target.value})}
-                    placeholder="Enter your blog topic..."
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="blogType">Blog Type *</Label>
-                  <Select value={formData.blogType} onValueChange={(value) => setFormData({...formData, blogType: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select blog type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="how-to">How-to Guide</SelectItem>
-                      <SelectItem value="listicle">Listicle</SelectItem>
-                      <SelectItem value="tutorial">Tutorial</SelectItem>
-                      <SelectItem value="review">Review</SelectItem>
-                      <SelectItem value="comparison">Comparison</SelectItem>
-                      <SelectItem value="news">News/Update</SelectItem>
-                      <SelectItem value="opinion">Opinion Piece</SelectItem>
-                      <SelectItem value="case-study">Case Study</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="wordCount">Word Count *</Label>
-                  <Select value={formData.wordCount} onValueChange={(value) => setFormData({...formData, wordCount: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select word count" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="500">500 words</SelectItem>
-                      <SelectItem value="750">750 words</SelectItem>
-                      <SelectItem value="1000">1000 words</SelectItem>
-                      <SelectItem value="1500">1500 words</SelectItem>
-                      <SelectItem value="2000">2000 words</SelectItem>
-                      <SelectItem value="2500">2500 words</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="targetAudience">Target Audience *</Label>
-                  <Select value={formData.targetAudience} onValueChange={(value) => setFormData({...formData, targetAudience: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select target audience" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="beginners">Beginners</SelectItem>
-                      <SelectItem value="intermediate">Intermediate Users</SelectItem>
-                      <SelectItem value="experts">Experts/Professionals</SelectItem>
-                      <SelectItem value="general">General Audience</SelectItem>
-                      <SelectItem value="business">Business Professionals</SelectItem>
-                      <SelectItem value="students">Students</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="tone">Writing Tone *</Label>
-                  <Select value={formData.tone} onValueChange={(value) => setFormData({...formData, tone: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select tone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="conversational">Conversational</SelectItem>
-                      <SelectItem value="professional">Professional</SelectItem>
-                      <SelectItem value="friendly">Friendly</SelectItem>
-                      <SelectItem value="authoritative">Authoritative</SelectItem>
-                      <SelectItem value="enthusiastic">Enthusiastic</SelectItem>
-                      <SelectItem value="informative">Informative</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="keywords">SEO Keywords (Optional)</Label>
-                  <Input
-                    id="keywords"
-                    value={formData.keywords}
-                    onChange={(e) => setFormData({...formData, keywords: e.target.value})}
-                    placeholder="Enter keywords separated by commas..."
-                  />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="includeImages"
-                    checked={formData.includeImages}
-                    onCheckedChange={(checked) => setFormData({...formData, includeImages: checked as boolean})}
-                  />
-                  <Label htmlFor="includeImages" className="cursor-pointer">
-                    Include image placeholders
-                  </Label>
-                </div>
-
-                <div>
-                  <Label htmlFor="additionalNotes">Additional Notes (Optional)</Label>
-                  <Textarea
-                    id="additionalNotes"
-                    value={formData.additionalNotes}
-                    onChange={(e) => setFormData({...formData, additionalNotes: e.target.value})}
-                    placeholder="Any specific requirements, examples to include, or special instructions..."
-                    rows={4}
-                  />
-                </div>
-
-                <Button onClick={generateBlog} disabled={loading} className="w-full">
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating Blog Article...
-                    </>
-                  ) : (
-                    "Generate Blog Article"
-                  )}
-                </Button>
+        <div className="bg-card rounded-lg border p-6 space-y-6">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="topic">Blog Topic *</Label>
+                <Input
+                  id="topic"
+                  value={formData.topic}
+                  onChange={(e) => setFormData({...formData, topic: e.target.value})}
+                  placeholder="Enter your blog topic..."
+                />
               </div>
 
-              {blog && (
-                <div className="mt-6 space-y-4">
-                  <div className="flex gap-2">
-                    <Button onClick={copyToClipboard} variant="outline" size="sm">
-                      <Copy className="mr-2 h-4 w-4" />
-                      Copy
-                    </Button>
-                    <Button onClick={downloadBlog} variant="outline" size="sm">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
-                    </Button>
-                  </div>
-                  
-                  <div className="bg-muted p-6 rounded-lg">
-                    <h3 className="font-semibold mb-4 text-lg">Generated Blog Article:</h3>
-                    <div className="prose prose-sm max-w-none">
-                      {renderContentWithAds(blog)}
-                    </div>
-                  </div>
-                </div>
+              <div>
+                <Label htmlFor="blogType">Blog Type *</Label>
+                <Select value={formData.blogType} onValueChange={(value) => setFormData({...formData, blogType: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select blog type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="how-to">How-to Guide</SelectItem>
+                    <SelectItem value="listicle">Listicle</SelectItem>
+                    <SelectItem value="tutorial">Tutorial</SelectItem>
+                    <SelectItem value="review">Review</SelectItem>
+                    <SelectItem value="comparison">Comparison</SelectItem>
+                    <SelectItem value="news">News/Update</SelectItem>
+                    <SelectItem value="opinion">Opinion Piece</SelectItem>
+                    <SelectItem value="case-study">Case Study</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="wordCount">Word Count *</Label>
+                <Select value={formData.wordCount} onValueChange={(value) => setFormData({...formData, wordCount: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select word count" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="500">500 words</SelectItem>
+                    <SelectItem value="750">750 words</SelectItem>
+                    <SelectItem value="1000">1000 words</SelectItem>
+                    <SelectItem value="1500">1500 words</SelectItem>
+                    <SelectItem value="2000">2000 words</SelectItem>
+                    <SelectItem value="2500">2500 words</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="targetAudience">Target Audience *</Label>
+                <Select value={formData.targetAudience} onValueChange={(value) => setFormData({...formData, targetAudience: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select target audience" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginners">Beginners</SelectItem>
+                    <SelectItem value="intermediate">Intermediate Users</SelectItem>
+                    <SelectItem value="experts">Experts/Professionals</SelectItem>
+                    <SelectItem value="general">General Audience</SelectItem>
+                    <SelectItem value="business">Business Professionals</SelectItem>
+                    <SelectItem value="students">Students</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="tone">Writing Tone *</Label>
+                <Select value={formData.tone} onValueChange={(value) => setFormData({...formData, tone: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select tone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="conversational">Conversational</SelectItem>
+                    <SelectItem value="professional">Professional</SelectItem>
+                    <SelectItem value="friendly">Friendly</SelectItem>
+                    <SelectItem value="authoritative">Authoritative</SelectItem>
+                    <SelectItem value="enthusiastic">Enthusiastic</SelectItem>
+                    <SelectItem value="informative">Informative</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="keywords">SEO Keywords (Optional)</Label>
+              <Input
+                id="keywords"
+                value={formData.keywords}
+                onChange={(e) => setFormData({...formData, keywords: e.target.value})}
+                placeholder="Enter keywords separated by commas..."
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="includeImages"
+                checked={formData.includeImages}
+                onCheckedChange={(checked) => setFormData({...formData, includeImages: checked as boolean})}
+              />
+              <Label htmlFor="includeImages" className="cursor-pointer">
+                Include image placeholders
+              </Label>
+            </div>
+
+            <div>
+              <Label htmlFor="additionalNotes">Additional Notes (Optional)</Label>
+              <Textarea
+                id="additionalNotes"
+                value={formData.additionalNotes}
+                onChange={(e) => setFormData({...formData, additionalNotes: e.target.value})}
+                placeholder="Any specific requirements, examples to include, or special instructions..."
+                rows={4}
+              />
+            </div>
+
+            <Button onClick={generateBlog} disabled={loading} className="w-full">
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating Blog Article...
+                </>
+              ) : (
+                "Generate Blog Article"
               )}
-            </div>
-
-            <div className="mt-6">
-              <LazyAdSpace type="multiplex" slot="4356563508" position="bottom" />
-            </div>
+            </Button>
           </div>
 
-          <div className="hidden lg:block lg:col-span-2">
-            <div className="sticky top-4">
-              <LazyAdSpace type="display" slot="4402803148" position="sidebar-right" />
+          {blog && (
+            <div className="mt-6 space-y-4">
+              <div className="flex gap-2">
+                <Button onClick={copyToClipboard} variant="outline" size="sm">
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copy
+                </Button>
+                <Button onClick={downloadBlog} variant="outline" size="sm">
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+              </div>
+              
+              <div className="bg-muted p-6 rounded-lg">
+                <h3 className="font-semibold mb-4 text-lg">Generated Blog Article:</h3>
+                <div className="prose prose-sm max-w-none">
+                  {renderContentWithAds(blog)}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </ToolLayout>
       

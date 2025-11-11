@@ -196,157 +196,133 @@ const EssayWriter = () => {
         description="Generate well-structured, academic essays on any topic with AI assistance. Perfect for students and researchers."
         category="AI & Content"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Sidebar Ad */}
-          <div className="hidden lg:block lg:col-span-2">
-            <div className="sticky top-4">
-              <LazyAdSpace type="display" slot="2918331088" position="sidebar-left" />
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="lg:col-span-8">
-            {/* Top Ad */}
-            <div className="mb-6">
-              <LazyAdSpace type="display" slot="4402803148" position="top" />
-            </div>
-
-            <div className="bg-card rounded-lg border p-6 space-y-6">
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="essayType">Essay Type *</Label>
-                  <Select value={formData.essayType} onValueChange={(value) => setFormData({...formData, essayType: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select essay type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="argumentative">Argumentative</SelectItem>
-                      <SelectItem value="persuasive">Persuasive</SelectItem>
-                      <SelectItem value="expository">Expository</SelectItem>
-                      <SelectItem value="descriptive">Descriptive</SelectItem>
-                      <SelectItem value="narrative">Narrative</SelectItem>
-                      <SelectItem value="analytical">Analytical</SelectItem>
-                      <SelectItem value="compare-contrast">Compare and Contrast</SelectItem>
-                      <SelectItem value="cause-effect">Cause and Effect</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="topic">Essay Topic *</Label>
-                  <Input
-                    id="topic"
-                    value={formData.topic}
-                    onChange={(e) => setFormData({...formData, topic: e.target.value})}
-                    placeholder="Enter your essay topic..."
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="wordCount">Word Count *</Label>
-                  <Select value={formData.wordCount} onValueChange={(value) => setFormData({...formData, wordCount: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select word count" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="500">500 words</SelectItem>
-                      <SelectItem value="750">750 words</SelectItem>
-                      <SelectItem value="1000">1000 words</SelectItem>
-                      <SelectItem value="1500">1500 words</SelectItem>
-                      <SelectItem value="2000">2000 words</SelectItem>
-                      <SelectItem value="2500">2500 words</SelectItem>
-                      <SelectItem value="3000">3000 words</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="academicLevel">Academic Level *</Label>
-                  <Select value={formData.academicLevel} onValueChange={(value) => setFormData({...formData, academicLevel: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select academic level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="high-school">High School</SelectItem>
-                      <SelectItem value="undergraduate">Undergraduate</SelectItem>
-                      <SelectItem value="graduate">Graduate</SelectItem>
-                      <SelectItem value="phd">PhD</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="tone">Writing Tone *</Label>
-                  <Select value={formData.tone} onValueChange={(value) => setFormData({...formData, tone: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select tone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="formal">Formal</SelectItem>
-                      <SelectItem value="academic">Academic</SelectItem>
-                      <SelectItem value="casual">Casual</SelectItem>
-                      <SelectItem value="professional">Professional</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="additionalInstructions">Additional Instructions (Optional)</Label>
-                  <Textarea
-                    id="additionalInstructions"
-                    value={formData.additionalInstructions}
-                    onChange={(e) => setFormData({...formData, additionalInstructions: e.target.value})}
-                    placeholder="Any specific requirements, sources to include, or special instructions..."
-                    rows={4}
-                  />
-                </div>
-
-                <Button onClick={generateEssay} disabled={loading} className="w-full">
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating Essay...
-                    </>
-                  ) : (
-                    "Generate Essay"
-                  )}
-                </Button>
+        <div className="bg-card rounded-lg border p-6 space-y-6">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="essayType">Essay Type *</Label>
+                <Select value={formData.essayType} onValueChange={(value) => setFormData({...formData, essayType: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select essay type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="argumentative">Argumentative</SelectItem>
+                    <SelectItem value="persuasive">Persuasive</SelectItem>
+                    <SelectItem value="expository">Expository</SelectItem>
+                    <SelectItem value="descriptive">Descriptive</SelectItem>
+                    <SelectItem value="narrative">Narrative</SelectItem>
+                    <SelectItem value="analytical">Analytical</SelectItem>
+                    <SelectItem value="compare-contrast">Compare and Contrast</SelectItem>
+                    <SelectItem value="cause-effect">Cause and Effect</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              {essay && (
-                <div className="mt-6 space-y-4">
-                  <div className="flex gap-2">
-                    <Button onClick={copyToClipboard} variant="outline" size="sm">
-                      <Copy className="mr-2 h-4 w-4" />
-                      Copy
-                    </Button>
-                    <Button onClick={downloadEssay} variant="outline" size="sm">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
-                    </Button>
-                  </div>
-                  
-                  <div className="bg-muted p-6 rounded-lg">
-                    <h3 className="font-semibold mb-4 text-lg">Generated Essay:</h3>
-                    <div className="prose prose-sm max-w-none">
-                      {renderContentWithAds(essay)}
-                    </div>
-                  </div>
-                </div>
+              <div>
+                <Label htmlFor="topic">Essay Topic *</Label>
+                <Input
+                  id="topic"
+                  value={formData.topic}
+                  onChange={(e) => setFormData({...formData, topic: e.target.value})}
+                  placeholder="Enter your essay topic..."
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="wordCount">Word Count *</Label>
+                <Select value={formData.wordCount} onValueChange={(value) => setFormData({...formData, wordCount: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select word count" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="500">500 words</SelectItem>
+                    <SelectItem value="750">750 words</SelectItem>
+                    <SelectItem value="1000">1000 words</SelectItem>
+                    <SelectItem value="1500">1500 words</SelectItem>
+                    <SelectItem value="2000">2000 words</SelectItem>
+                    <SelectItem value="2500">2500 words</SelectItem>
+                    <SelectItem value="3000">3000 words</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="academicLevel">Academic Level *</Label>
+                <Select value={formData.academicLevel} onValueChange={(value) => setFormData({...formData, academicLevel: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select academic level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high-school">High School</SelectItem>
+                    <SelectItem value="undergraduate">Undergraduate</SelectItem>
+                    <SelectItem value="graduate">Graduate</SelectItem>
+                    <SelectItem value="phd">PhD</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="tone">Writing Tone *</Label>
+                <Select value={formData.tone} onValueChange={(value) => setFormData({...formData, tone: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select tone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="formal">Formal</SelectItem>
+                    <SelectItem value="academic">Academic</SelectItem>
+                    <SelectItem value="casual">Casual</SelectItem>
+                    <SelectItem value="professional">Professional</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="additionalInstructions">Additional Instructions (Optional)</Label>
+              <Textarea
+                id="additionalInstructions"
+                value={formData.additionalInstructions}
+                onChange={(e) => setFormData({...formData, additionalInstructions: e.target.value})}
+                placeholder="Any specific requirements, sources to include, or special instructions..."
+                rows={4}
+              />
+            </div>
+
+            <Button onClick={generateEssay} disabled={loading} className="w-full">
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating Essay...
+                </>
+              ) : (
+                "Generate Essay"
               )}
-            </div>
-
-            <div className="mt-6">
-              <LazyAdSpace type="multiplex" slot="2127993591" position="bottom" />
-            </div>
+            </Button>
           </div>
 
-          {/* Right Sidebar Ad */}
-          <div className="hidden lg:block lg:col-span-2">
-            <div className="sticky top-4">
-              <LazyAdSpace type="display" slot="4402803148" position="sidebar-right" />
+          {essay && (
+            <div className="mt-6 space-y-4">
+              <div className="flex gap-2">
+                <Button onClick={copyToClipboard} variant="outline" size="sm">
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copy
+                </Button>
+                <Button onClick={downloadEssay} variant="outline" size="sm">
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+              </div>
+              
+              <div className="bg-muted p-6 rounded-lg">
+                <h3 className="font-semibold mb-4 text-lg">Generated Essay:</h3>
+                <div className="prose prose-sm max-w-none">
+                  {renderContentWithAds(essay)}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </ToolLayout>
       
