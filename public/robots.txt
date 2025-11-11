@@ -20,7 +20,7 @@ Allow: /tools/
 Allow: /blog/
 
 # Sitemap location
-Sitemap: https://toolmaster.cloud/sitemap.xml
+Sitemap: https://toolmaster.online/sitemap.xml
 
 # Optimal crawl settings for better indexing
-Host: https://toolmaster.cloud
+Host: https://toolmaster.online
