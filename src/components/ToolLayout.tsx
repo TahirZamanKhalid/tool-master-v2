@@ -18,6 +18,7 @@ interface ToolLayoutProps {
   children: ReactNode;
   instructions?: string[];
   relatedTools?: { name: string; path: string }[];
+  layout?: "full-width" | "with-sidebar"; // default: full-width
 }
 
 export const ToolLayout = ({
@@ -27,6 +28,7 @@ export const ToolLayout = ({
   children,
   instructions,
   relatedTools,
+  layout = "full-width",
 }: ToolLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -113,77 +115,140 @@ export const ToolLayout = ({
           ]}
         />
 
-        <div className="flex gap-6 justify-center mt-8">
-          {/* Left Sidebar Ad */}
-          <div className="hidden xl:block flex-shrink-0 w-[300px]">
-            <div className="sticky top-24 w-[300px]">
-              <AdSpace size="skyscraper" className="w-[300px]" />
-            </div>
-          </div>
+        {layout === "full-width" ? (
+          /* Full Width Layout with Row Ads */
+          <div className="mt-8 space-y-8 w-full">
+            {/* Top Row Ad */}
+            <AdSpace size="leaderboard" className="w-full" />
 
-          {/* Main Content */}
-          <div className="flex-1 max-w-4xl space-y-8 overflow-hidden">
-            <div>
-              <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <Badge>{category}</Badge>
-                <h1 className="text-3xl md:text-4xl font-bold break-words">{title}</h1>
-              </div>
-              <p className="text-lg text-muted-foreground mb-4">{description}</p>
-
-              <ShareButtons
-                title={title}
-                description={description}
-                url={`https://toolmaster.cloud${location.pathname}`}
-              />
-            </div>
-
-            <div className="overflow-hidden">
-              {children}
-            </div>
-
-            {instructions && (
-              <div className="bg-muted/30 rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4">How to Use</h2>
-                <ol className="space-y-2 list-decimal list-inside">
-                  {instructions.map((instruction, index) => (
-                    <li key={index} className="text-muted-foreground">
-                      {instruction}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-
-            <ToolRating toolPath={location.pathname} />
-
-            <ToolFAQ toolName={title} />
-
-            {relatedTools && relatedTools.length > 0 && (
+            <div className="space-y-8">
               <div>
-                <h2 className="text-xl font-semibold mb-4">Related Tools</h2>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {relatedTools.map((tool, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      onClick={() => navigate(tool.path)}
-                      className="justify-start"
-                    >
-                      {tool.name}
-                    </Button>
-                  ))}
+                <div className="flex items-center gap-3 mb-4 flex-wrap">
+                  <Badge>{category}</Badge>
+                  <h1 className="text-3xl md:text-4xl font-bold break-words">{title}</h1>
                 </div>
-              </div>
-            )}
-          </div>
+                <p className="text-lg text-muted-foreground mb-4">{description}</p>
 
-          {/* Right Sidebar Ad */}
-          <div className="hidden xl:block flex-shrink-0 w-[300px]">
-            <div className="sticky top-24 w-[300px]">
-              <AdSpace size="skyscraper" className="w-[300px]" />
+                <ShareButtons
+                  title={title}
+                  description={description}
+                  url={`https://toolmaster.cloud${location.pathname}`}
+                />
+              </div>
+
+              <div className="overflow-hidden w-full">
+                {children}
+              </div>
+
+              {instructions && (
+                <div className="bg-muted/30 rounded-lg p-6">
+                  <h2 className="text-xl font-semibold mb-4">How to Use</h2>
+                  <ol className="space-y-2 list-decimal list-inside">
+                    {instructions.map((instruction, index) => (
+                      <li key={index} className="text-muted-foreground">
+                        {instruction}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              <ToolRating toolPath={location.pathname} />
+
+              <ToolFAQ toolName={title} />
+
+              {relatedTools && relatedTools.length > 0 && (
+                <div>
+                  <h2 className="text-xl font-semibold mb-4">Related Tools</h2>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {relatedTools.map((tool, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        onClick={() => navigate(tool.path)}
+                        className="justify-start"
+                      >
+                        {tool.name}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Row Ad */}
+            <AdSpace size="leaderboard" className="w-full" />
+          </div>
+        ) : (
+          /* Sidebar Layout: 10% left, 80% content, 10% right sticky ad */
+          <div className="flex gap-6 mt-8 w-full">
+            {/* Left Spacer */}
+            <div className="hidden xl:block flex-shrink-0" style={{ width: "10%" }} />
+
+            {/* Main Content */}
+            <div className="flex-1 space-y-8 overflow-hidden" style={{ maxWidth: "80%" }}>
+              <div>
+                <div className="flex items-center gap-3 mb-4 flex-wrap">
+                  <Badge>{category}</Badge>
+                  <h1 className="text-3xl md:text-4xl font-bold break-words">{title}</h1>
+                </div>
+                <p className="text-lg text-muted-foreground mb-4">{description}</p>
+
+                <ShareButtons
+                  title={title}
+                  description={description}
+                  url={`https://toolmaster.cloud${location.pathname}`}
+                />
+              </div>
+
+              <div className="overflow-hidden">
+                {children}
+              </div>
+
+              {instructions && (
+                <div className="bg-muted/30 rounded-lg p-6">
+                  <h2 className="text-xl font-semibold mb-4">How to Use</h2>
+                  <ol className="space-y-2 list-decimal list-inside">
+                    {instructions.map((instruction, index) => (
+                      <li key={index} className="text-muted-foreground">
+                        {instruction}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              <ToolRating toolPath={location.pathname} />
+
+              <ToolFAQ toolName={title} />
+
+              {relatedTools && relatedTools.length > 0 && (
+                <div>
+                  <h2 className="text-xl font-semibold mb-4">Related Tools</h2>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {relatedTools.map((tool, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        onClick={() => navigate(tool.path)}
+                        className="justify-start"
+                      >
+                        {tool.name}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Right Sticky Sidebar Ad */}
+            <div className="hidden xl:block flex-shrink-0" style={{ width: "10%" }}>
+              <div className="sticky top-24">
+                <AdSpace size="skyscraper" />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
