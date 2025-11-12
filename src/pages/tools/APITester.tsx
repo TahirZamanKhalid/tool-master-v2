@@ -557,8 +557,8 @@ echo $response;
 
   return (
     <ToolLayout
-      title="API Tester Pro"
-      description="Professional REST API testing tool with authentication, history, code generation, and advanced features"
+      title="Free Online REST API Testing Tool - HTTP Request Tester"
+      description="Professional free online REST API tester and HTTP client. Test APIs with authentication, custom headers, request body, and multiple methods. Best API testing tool for developers with code generation for JavaScript, Python, cURL, and PHP."
       category="Developer Tools"
       instructions={[
         "Enter the API endpoint URL (use {{variable}} for environment variables)",
