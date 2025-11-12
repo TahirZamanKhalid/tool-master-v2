@@ -17,6 +17,7 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
   const [isDrawing, setIsDrawing] = useState(false);
   const [history, setHistory] = useState<ImageData[]>([]);
   const [historyStep, setHistoryStep] = useState(-1);
+  const originalImageRef = useRef<HTMLImageElement | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -25,19 +26,27 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) return;
 
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = processedImage;
+    const processedImg = new Image();
+    processedImg.crossOrigin = "anonymous";
+    processedImg.src = processedImage;
     
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx.drawImage(img, 0, 0);
+    const originalImg = new Image();
+    originalImg.crossOrigin = "anonymous";
+    originalImg.src = originalImage;
+    
+    processedImg.onload = () => {
+      canvas.width = processedImg.width;
+      canvas.height = processedImg.height;
+      ctx.drawImage(processedImg, 0, 0);
       
       // Save initial state
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       setHistory([imageData]);
       setHistoryStep(0);
+    };
+    
+    originalImg.onload = () => {
+      originalImageRef.current = originalImg;
     };
   }, [processedImage]);
 
@@ -61,7 +70,7 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) return;
 
     const newStep = historyStep - 1;
@@ -75,7 +84,7 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) return;
 
     const newStep = historyStep + 1;
@@ -118,15 +127,14 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
       ctx.fill();
     } else {
       // Restore by painting from original image
-      ctx.globalCompositeOperation = "source-over";
-      const img = new Image();
-      img.src = originalImage;
+      if (!originalImageRef.current) return;
       
+      ctx.globalCompositeOperation = "source-over";
       ctx.save();
       ctx.beginPath();
       ctx.arc(x, y, brushSize, 0, Math.PI * 2);
       ctx.clip();
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      ctx.drawImage(originalImageRef.current, 0, 0, canvas.width, canvas.height);
       ctx.restore();
     }
   };
