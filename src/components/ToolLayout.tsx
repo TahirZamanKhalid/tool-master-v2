@@ -68,32 +68,6 @@ export const ToolLayout = ({
     }
   };
 
-  // Breadcrumb structured data
-  const breadcrumbData = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://toolmaster.cloud"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": category,
-        "item": `https://toolmaster.cloud/#${category.toLowerCase().replace(/\s+/g, '-')}`
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": title,
-        "item": `https://toolmaster.cloud${location.pathname}`
-      }
-    ]
-  };
-
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead 
@@ -106,7 +80,6 @@ export const ToolLayout = ({
       
       {/* Structured Data for SEO */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }} />
       <div className="container max-w-[1600px] py-8 px-4">
         <Breadcrumbs
           items={[
