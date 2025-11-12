@@ -1094,48 +1094,56 @@ echo $response;
                 </TabsList>
 
                 <TabsContent value="pretty">
-                  <ScrollArea className="bg-muted p-4 rounded-lg max-h-96">
-                    <pre className="text-sm font-mono whitespace-pre-wrap">
-                      {typeof response.data === "object" ? JSON.stringify(response.data, null, 2) : response.data}
-                    </pre>
+                  <ScrollArea className="h-96 w-full">
+                    <div className="bg-muted p-4 rounded-lg">
+                      <pre className="text-sm font-mono whitespace-pre-wrap">
+                        {typeof response.data === "object" ? JSON.stringify(response.data, null, 2) : response.data}
+                      </pre>
+                    </div>
                   </ScrollArea>
                 </TabsContent>
 
                 <TabsContent value="raw">
-                  <ScrollArea className="bg-muted p-4 rounded-lg max-h-96">
-                    <pre className="text-sm font-mono whitespace-pre-wrap">
-                      {typeof response.data === "object" ? JSON.stringify(response.data) : response.data}
-                    </pre>
+                  <ScrollArea className="h-96 w-full">
+                    <div className="bg-muted p-4 rounded-lg">
+                      <pre className="text-sm font-mono whitespace-pre-wrap">
+                        {typeof response.data === "object" ? JSON.stringify(response.data) : response.data}
+                      </pre>
+                    </div>
                   </ScrollArea>
                 </TabsContent>
 
                 <TabsContent value="preview">
-                  <div className="bg-muted p-4 rounded-lg max-h-96 overflow-auto">
-                    {typeof response.data === "object" ? (
-                      <div className="space-y-2">
-                        {Object.entries(response.data).map(([key, value]) => (
-                          <div key={key} className="border-b pb-2">
-                            <span className="font-semibold text-sm">{key}: </span>
-                            <span className="text-sm">
-                              {typeof value === "object" ? JSON.stringify(value) : String(value)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-sm">{response.data}</p>
-                    )}
-                  </div>
+                  <ScrollArea className="h-96 w-full">
+                    <div className="bg-muted p-4 rounded-lg">
+                      {typeof response.data === "object" ? (
+                        <div className="space-y-2">
+                          {Object.entries(response.data).map(([key, value]) => (
+                            <div key={key} className="border-b pb-2">
+                              <span className="font-semibold text-sm">{key}: </span>
+                              <span className="text-sm">
+                                {typeof value === "object" ? JSON.stringify(value) : String(value)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm">{response.data}</p>
+                      )}
+                    </div>
+                  </ScrollArea>
                 </TabsContent>
 
                 <TabsContent value="headers">
-                  <ScrollArea className="bg-muted p-4 rounded-lg max-h-96">
-                    <div className="space-y-2">
-                      {Object.entries(response.headers).map(([key, value]) => (
-                        <div key={key} className="text-sm font-mono border-b pb-2">
-                          <span className="text-primary font-semibold">{key}:</span> <span>{value}</span>
-                        </div>
-                      ))}
+                  <ScrollArea className="h-96 w-full">
+                    <div className="bg-muted p-4 rounded-lg">
+                      <div className="space-y-2">
+                        {Object.entries(response.headers).map(([key, value]) => (
+                          <div key={key} className="text-sm font-mono border-b pb-2">
+                            <span className="text-primary font-semibold">{key}:</span> <span>{value}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </ScrollArea>
                 </TabsContent>
