@@ -1,26 +1,60 @@
 # ToolMaster Pro - Optimized for Search Engine Crawling
+# All tools are free and public - allow full access to all search engines
+
+# Google Bot Configuration
 User-agent: Googlebot
 Allow: /
+Allow: /tools/
+Allow: /category/
+Allow: /blog/
 Allow: /ads.txt
 Crawl-delay: 0.2
 
+# Bing Bot Configuration
 User-agent: Bingbot
 Allow: /
+Allow: /tools/
+Allow: /category/
+Allow: /blog/
 Crawl-delay: 0.3
 
+# Social Media Bots (for previews and sharing)
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Pinterestbot
+Allow: /
+
+# Other Major Search Engines
+User-agent: Slurp
+Allow: /
+Crawl-delay: 0.5
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+# Allow all other bots
 User-agent: *
 Allow: /
 Allow: /tools/
+Allow: /category/
 Allow: /blog/
+Disallow: /auth/
+Disallow: /admin/
+Disallow: /.git/
+Disallow: /api/private/
 
 # Sitemap location
 Sitemap: https://toolmaster.cloud/sitemap.xml
 
-# Optimal crawl settings for better indexing
+# Host declaration
 Host: https://toolmaster.cloud
