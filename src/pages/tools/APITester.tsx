@@ -104,7 +104,7 @@ const APITester = () => {
   const [showSaved, setShowSaved] = useState(false);
   const [requestName, setRequestName] = useState("");
   const [responseView, setResponseView] = useState<"pretty" | "raw" | "preview">("pretty");
-  const [timeout, setTimeout] = useState(30000);
+  const [requestTimeout, setRequestTimeout] = useState(30000);
   const [followRedirects, setFollowRedirects] = useState(true);
   const { toast } = useToast();
 
@@ -148,7 +148,11 @@ const APITester = () => {
 
   const updateHeader = (index: number, field: "key" | "value" | "enabled", value: string | boolean) => {
     const newHeaders = [...headers];
-    newHeaders[index][field] = value as any;
+    if (field === "enabled") {
+      newHeaders[index][field] = value as boolean;
+    } else {
+      newHeaders[index][field] = value as string;
+    }
     setHeaders(newHeaders);
   };
 
@@ -221,7 +225,7 @@ const APITester = () => {
           method,
           headers: requestHeaders,
           body: ["POST", "PUT", "PATCH"].includes(method) ? processedBody : undefined,
-          timeout,
+          timeout: requestTimeout,
           followRedirects,
         },
       });
@@ -1014,8 +1018,8 @@ echo $response;
                   <Label>Request Timeout (ms)</Label>
                   <Input
                     type="number"
-                    value={timeout}
-                    onChange={(e) => setTimeout(Number(e.target.value))}
+                    value={requestTimeout}
+                    onChange={(e) => setRequestTimeout(Number(e.target.value))}
                     min="1000"
                     max="60000"
                   />
