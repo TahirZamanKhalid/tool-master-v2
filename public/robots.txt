@@ -48,10 +48,11 @@ Allow: /
 Allow: /tools/
 Allow: /category/
 Allow: /blog/
+Allow: /assets/
+Allow: /~api/
 Disallow: /auth/
 Disallow: /admin/
 Disallow: /.git/
-Disallow: /api/private/
 
 # Sitemap location
 Sitemap: https://toolmaster.cloud/sitemap.xml
