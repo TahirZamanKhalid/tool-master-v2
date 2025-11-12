@@ -72,7 +72,7 @@ const CoinFlip = () => {
         {/* Sidebar Ad - Left */}
         <div className="hidden lg:block lg:col-span-2">
           <div className="sticky top-6">
-            <AdSpace size="sidebar" />
+            <AdSpace size="skyscraper" />
           </div>
         </div>
 
@@ -251,7 +251,7 @@ const CoinFlip = () => {
         {/* Sidebar Ad - Right */}
         <div className="hidden lg:block lg:col-span-2">
           <div className="sticky top-6">
-            <AdSpace size="sidebar" />
+            <AdSpace size="skyscraper" />
           </div>
         </div>
       </div>
