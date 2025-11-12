@@ -19,6 +19,7 @@ interface ToolLayoutProps {
   instructions?: string[];
   relatedTools?: { name: string; path: string }[];
   layout?: "full-width" | "with-sidebar"; // default: full-width
+  adRefreshKey?: number; // Optional key to force ad refresh
 }
 
 export const ToolLayout = ({
@@ -29,6 +30,7 @@ export const ToolLayout = ({
   instructions,
   relatedTools,
   layout = "full-width",
+  adRefreshKey,
 }: ToolLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -92,7 +94,7 @@ export const ToolLayout = ({
           /* Full Width Layout with Row Ads */
           <div className="mt-8 space-y-8 w-full">
             {/* Top Row Ad */}
-            <AdSpace size="leaderboard" className="w-full" />
+            <AdSpace key={`top-ad-${adRefreshKey ?? 0}`} size="leaderboard" className="w-full" />
 
             <div className="space-y-8">
               <div>
@@ -163,7 +165,7 @@ export const ToolLayout = ({
             </div>
 
             {/* Bottom Row Ad */}
-            <AdSpace size="leaderboard" className="w-full" />
+            <AdSpace key={`bottom-ad-${adRefreshKey ?? 0}`} size="leaderboard" className="w-full" />
           </div>
         ) : (
           /* Sidebar Layout: 10% left, 80% content, 10% right sticky ad */
@@ -243,7 +245,7 @@ export const ToolLayout = ({
             {/* Right Sticky Sidebar Ad */}
             <div className="hidden xl:block flex-shrink-0" style={{ width: "10%" }}>
               <div className="sticky top-24">
-                <AdSpace size="skyscraper" />
+                <AdSpace key={`sidebar-ad-${adRefreshKey ?? 0}`} size="skyscraper" />
               </div>
             </div>
           </div>

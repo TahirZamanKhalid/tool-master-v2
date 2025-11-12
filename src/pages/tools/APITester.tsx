@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ToolLayout } from "@/components/ToolLayout";
+import { useAdRefresh } from "@/hooks/useAdRefresh";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -86,6 +87,7 @@ interface SavedRequest {
 }
 
 const APITester = () => {
+  const adRefreshKey = useAdRefresh(3); // Refresh ads every 3 minutes
   const [method, setMethod] = useState("GET");
   const [url, setUrl] = useState("");
   const [headers, setHeaders] = useState<Header[]>([{ key: "", value: "", enabled: true }]);
@@ -560,6 +562,7 @@ echo $response;
       title="Online API Tool - Free REST API Tester & HTTP Client"
       description="Professional free online REST API tester and HTTP client. Test APIs with authentication, custom headers, request body, and multiple methods. Best API testing tool for developers with code generation for JavaScript, Python, cURL, and PHP."
       category="Developer Tools"
+      adRefreshKey={adRefreshKey}
       instructions={[
         "Enter the API endpoint URL (use {{variable}} for environment variables)",
         "Select the HTTP method and configure authentication",
