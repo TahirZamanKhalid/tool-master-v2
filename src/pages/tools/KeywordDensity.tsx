@@ -5,7 +5,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Search, TrendingUp } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { SEOSchema } from "@/components/SEOSchema";
 
 interface KeywordData {
   keyword: string;
@@ -95,13 +94,6 @@ const KeywordDensity = () => {
       category="SEO & Marketing"
       instructions={instructions}
     >
-      <SEOSchema
-        type="SoftwareApplication"
-        name="Keyword Density Checker"
-        description="Free SEO tool to analyze keyword frequency and density for content optimization"
-        url="https://toolmaster.cloud/tools/keyword-density"
-      />
-
       <div className="grid gap-6">
         <Card>
           <CardHeader>

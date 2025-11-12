@@ -43,7 +43,7 @@ export const ToolFAQ = ({ toolName, customFAQs = [] }: ToolFAQProps) => {
   // Combine custom and default FAQs
   const allFAQs = [...customFAQs, ...defaultFAQs];
 
-  // Generate FAQ schema for SEO
+  // Generate comprehensive FAQ schema for rich snippets
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",

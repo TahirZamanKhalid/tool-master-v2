@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Zap, ExternalLink, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { SEOSchema } from "@/components/SEOSchema";
 
 const WebsiteSpeedTest = () => {
   const [url, setUrl] = useState("");
@@ -30,13 +29,6 @@ const WebsiteSpeedTest = () => {
       description="Test your website loading speed and performance. Page speed is a crucial SEO ranking factor and directly impacts user experience and conversions."
       category="SEO & Marketing"
     >
-      <SEOSchema
-        type="SoftwareApplication"
-        name="Website Speed Test Tool"
-        description="Free website speed and performance testing tool for SEO optimization"
-        url="https://toolmaster.cloud/tools/website-speed-test"
-      />
-
       <div className="space-y-6">
         <Alert>
           <AlertCircle className="h-4 w-4" />
