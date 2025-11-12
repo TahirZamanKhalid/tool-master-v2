@@ -56,7 +56,7 @@ export const allTools = [
   { icon: FileCode, title: "YAML Formatter", description: "Format and validate YAML files", category: "Developer Tools", path: "/tools/yaml-formatter" },
   { icon: Database, title: "SQL Formatter", description: "Format and beautify SQL queries", category: "Developer Tools", path: "/tools/sql-formatter" },
   { icon: Globe, title: "IP Lookup", description: "Get location and details of any IP", category: "Developer Tools", path: "/tools/ip-lookup" },
-  { icon: Send, title: "Online REST API Testing Tool", description: "Free online REST API tester - Test HTTP requests, APIs with custom headers, authentication, and methods. Best API testing tool for developers", category: "Developer Tools", path: "/tools/api-tester", popular: true },
+  { icon: Send, title: "Online API Tool", description: "Free online REST API tester - Test HTTP requests, APIs with custom headers, authentication, and methods. Best API testing tool for developers", category: "Developer Tools", path: "/tools/api-tester", popular: true },
   { icon: FileJson, title: "JSON to YAML", description: "Convert JSON to YAML format", category: "Developer Tools", path: "/tools/json-to-yaml" },
   { icon: Code, title: "CSS Minifier", description: "Minify CSS code", category: "Developer Tools", path: "/tools/css-minifier" },
   { icon: Code, title: "JavaScript Minifier", description: "Minify JavaScript code", category: "Developer Tools", path: "/tools/javascript-minifier" },

@@ -557,7 +557,7 @@ echo $response;
 
   return (
     <ToolLayout
-      title="Free Online REST API Testing Tool - HTTP Request Tester"
+      title="Online API Tool - Free REST API Tester & HTTP Client"
       description="Professional free online REST API tester and HTTP client. Test APIs with authentication, custom headers, request body, and multiple methods. Best API testing tool for developers with code generation for JavaScript, Python, cURL, and PHP."
       category="Developer Tools"
       instructions={[
