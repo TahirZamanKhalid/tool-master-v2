@@ -115,7 +115,8 @@ export const ToolLayout = ({
 
               {instructions && (
                 <div className="bg-muted/30 rounded-lg p-6">
-                  <h2 className="text-xl font-semibold mb-4">How to Use</h2>
+                  <h2 className="text-2xl font-bold mb-2">How to Use This {category} Tool</h2>
+                  <h3 className="text-lg font-semibold text-muted-foreground mb-4">Step-by-Step Guide for {title}</h3>
                   <ol className="space-y-2 list-decimal list-inside">
                     {instructions.map((instruction, index) => (
                       <li key={index} className="text-muted-foreground">
@@ -125,6 +126,18 @@ export const ToolLayout = ({
                   </ol>
                 </div>
               )}
+
+              <div className="bg-muted/30 rounded-lg p-6">
+                <h2 className="text-2xl font-bold mb-2">Why Use Our {title}?</h2>
+                <h3 className="text-lg font-semibold text-muted-foreground mb-4">Key Features & Benefits</h3>
+                <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+                  <li>100% Free online tool - No signup or registration required</li>
+                  <li>Fast and secure processing - All operations performed in your browser</li>
+                  <li>Works on any device - Desktop, tablet, or mobile</li>
+                  <li>Professional results - Enterprise-grade quality for free</li>
+                  <li>Privacy focused - Your data never leaves your device</li>
+                </ul>
+              </div>
 
               <ToolRating toolPath={location.pathname} />
 
@@ -180,7 +193,8 @@ export const ToolLayout = ({
 
               {instructions && (
                 <div className="bg-muted/30 rounded-lg p-6">
-                  <h2 className="text-xl font-semibold mb-4">How to Use</h2>
+                  <h2 className="text-2xl font-bold mb-2">How to Use This {category} Tool</h2>
+                  <h3 className="text-lg font-semibold text-muted-foreground mb-4">Step-by-Step Guide for {title}</h3>
                   <ol className="space-y-2 list-decimal list-inside">
                     {instructions.map((instruction, index) => (
                       <li key={index} className="text-muted-foreground">
@@ -190,6 +204,18 @@ export const ToolLayout = ({
                   </ol>
                 </div>
               )}
+
+              <div className="bg-muted/30 rounded-lg p-6">
+                <h2 className="text-2xl font-bold mb-2">Why Use Our {title}?</h2>
+                <h3 className="text-lg font-semibold text-muted-foreground mb-4">Key Features & Benefits</h3>
+                <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+                  <li>100% Free online tool - No signup or registration required</li>
+                  <li>Fast and secure processing - All operations performed in your browser</li>
+                  <li>Works on any device - Desktop, tablet, or mobile</li>
+                  <li>Professional results - Enterprise-grade quality for free</li>
+                  <li>Privacy focused - Your data never leaves your device</li>
+                </ul>
+              </div>
 
               <ToolRating toolPath={location.pathname} />
 
