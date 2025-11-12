@@ -275,7 +275,7 @@ const GIFMaker = () => {
           alpha = Math.sin(progress * Math.PI);
           break;
         case "slide":
-          offsetX = (1 - progress) * canvas.width - canvas.width / 2;
+          offsetX = (1 - progress) * ctx.canvas.width - ctx.canvas.width / 2;
           break;
         case "bounce":
           offsetY = Math.abs(Math.sin(progress * Math.PI * 2)) * 20;
