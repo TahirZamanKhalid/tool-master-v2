@@ -93,7 +93,7 @@ const CoinFlip = () => {
                     <div className="text-8xl">🪙</div>
                   ) : result ? (
                     <div>
-                      <p className="text-7xl font-bold text-primary mb-2">{result === "Heads" ? "🪙" : "🪙"}</p>
+                      <p className="text-7xl font-bold text-primary mb-2">{result === "Heads" ? "👑" : "🔄"}</p>
                       <p className="text-4xl font-bold text-primary">{result}</p>
                     </div>
                   ) : (
