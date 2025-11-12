@@ -598,8 +598,8 @@ const AdvancedImageEditor = () => {
         {/* Left Ad Sidebar - 2 columns */}
         <div className="col-span-2 h-full hidden xl:block">
           <div className="sticky top-4 space-y-4">
-            <AdSpace size="sidebar" />
-            <AdSpace size="sidebar" />
+            <AdSpace size="skyscraper" />
+            <AdSpace size="skyscraper" />
           </div>
         </div>
 
@@ -1298,8 +1298,8 @@ const AdvancedImageEditor = () => {
         {/* Right Ad Sidebar - 2 columns */}
         <div className="col-span-2 h-full hidden xl:block">
           <div className="sticky top-4 space-y-4">
-            <AdSpace size="sidebar" />
-            <AdSpace size="sidebar" />
+            <AdSpace size="skyscraper" />
+            <AdSpace size="skyscraper" />
           </div>
         </div>
       </div>
