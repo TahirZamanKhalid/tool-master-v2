@@ -8,16 +8,91 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { Download, Upload, RotateCw, Crop, Type, Paintbrush, Square, Circle, Undo, Redo, Wand2, Maximize } from "lucide-react";
+import {
+  Download,
+  Upload,
+  RotateCw,
+  Type,
+  Paintbrush,
+  Square,
+  Circle,
+  Undo,
+  Redo,
+  Wand2,
+  Maximize,
+  Droplet,
+  Sparkles,
+  Zap,
+  Layers,
+  Sun,
+  Moon,
+  Contrast,
+  Palette,
+  Eye,
+  EyeOff,
+  Scissors,
+  Copy,
+  FlipHorizontal,
+  FlipVertical,
+  Grid3x3,
+  Image as ImageIcon,
+  Aperture,
+  Focus,
+  Film,
+  Crosshair,
+} from "lucide-react";
+import { AdSpace } from "@/components/AdSpace";
 import { AdWatchModal } from "@/components/AdWatchModal";
+import { Switch } from "@/components/ui/switch";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface FilterSettings {
   brightness: number;
   contrast: number;
   saturation: number;
   blur: number;
+  hue: number;
+  opacity: number;
+  exposure: number;
+  highlights: number;
+  shadows: number;
+  temperature: number;
+  tint: number;
+  vibrance: number;
+  sharpness: number;
+  vignette: number;
+  grain: number;
   grayscale: boolean;
   sepia: boolean;
+  invert: boolean;
+  pixelate: number;
+}
+
+interface TextLayer {
+  id: string;
+  text: string;
+  x: number;
+  y: number;
+  color: string;
+  size: number;
+  font: string;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  rotation: number;
+  opacity: number;
+  shadow: boolean;
+  stroke: boolean;
+  strokeColor: string;
+}
+
+interface Layer {
+  id: string;
+  type: "image" | "text" | "shape";
+  visible: boolean;
+  opacity: number;
+  blendMode: string;
+  data: any;
 }
 
 const AdvancedImageEditor = () => {
@@ -28,24 +103,75 @@ const AdvancedImageEditor = () => {
     contrast: 100,
     saturation: 100,
     blur: 0,
+    hue: 0,
+    opacity: 100,
+    exposure: 100,
+    highlights: 100,
+    shadows: 100,
+    temperature: 0,
+    tint: 0,
+    vibrance: 100,
+    sharpness: 0,
+    vignette: 0,
+    grain: 0,
     grayscale: false,
     sepia: false,
+    invert: false,
+    pixelate: 0,
   });
+
   const [rotation, setRotation] = useState(0);
   const [flipH, setFlipH] = useState(false);
   const [flipV, setFlipV] = useState(false);
-  const [tool, setTool] = useState<"select" | "crop" | "text" | "draw" | "shape">("select");
-  const [textInput, setTextInput] = useState("");
-  const [textColor, setTextColor] = useState("#000000");
-  const [textSize, setTextSize] = useState(32);
-  const [drawColor, setDrawColor] = useState("#000000");
-  const [shapeType, setShapeType] = useState<"rectangle" | "circle">("rectangle");
+  const [zoom, setZoom] = useState(100);
+
+  const [tool, setTool] = useState<"select" | "crop" | "text" | "draw" | "shape" | "eraser">("select");
+  const [textLayers, setTextLayers] = useState<TextLayer[]>([]);
+  const [currentText, setCurrentText] = useState({
+    text: "",
+    color: "#000000",
+    size: 32,
+    font: "Arial",
+    bold: false,
+    italic: false,
+    underline: false,
+    shadow: false,
+    stroke: false,
+    strokeColor: "#ffffff",
+  });
+
+  const [drawSettings, setDrawSettings] = useState({
+    color: "#000000",
+    size: 5,
+    opacity: 100,
+  });
+
+  const [shapeSettings, setShapeSettings] = useState({
+    type: "rectangle" as "rectangle" | "circle" | "line" | "arrow",
+    fillColor: "#000000",
+    strokeColor: "#000000",
+    filled: false,
+    strokeWidth: 3,
+  });
+
+  const [cropSettings, setCropSettings] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    aspectRatio: "free" as "free" | "1:1" | "16:9" | "4:3" | "3:2",
+  });
+
+  const [showGrid, setShowGrid] = useState(false);
+  const [showRulers, setShowRulers] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const [showAdModal, setShowAdModal] = useState(false);
   const [canDownload, setCanDownload] = useState(false);
   const [history, setHistory] = useState<ImageData[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+  const [layers, setLayers] = useState<Layer[]>([]);
+  const [selectedLayer, setSelectedLayer] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -54,7 +180,7 @@ const AdvancedImageEditor = () => {
     if (image && canvasRef.current) {
       drawImage();
     }
-  }, [image, filters, rotation, flipH, flipV]);
+  }, [image, filters, rotation, flipH, flipV, zoom, textLayers]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -80,7 +206,7 @@ const AdvancedImageEditor = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Set canvas size based on rotation
+    // Set canvas size
     if (rotation === 90 || rotation === 270) {
       canvas.width = image.height;
       canvas.height = image.width;
@@ -90,58 +216,147 @@ const AdvancedImageEditor = () => {
     }
 
     ctx.save();
-
-    // Apply transformations
     ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.rotate((rotation * Math.PI) / 180);
     ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
 
-    // Apply filters
-    ctx.filter = `
+    // Build comprehensive filter string
+    const filterString = `
       brightness(${filters.brightness}%)
       contrast(${filters.contrast}%)
       saturate(${filters.saturation}%)
       blur(${filters.blur}px)
+      hue-rotate(${filters.hue}deg)
+      opacity(${filters.opacity}%)
       ${filters.grayscale ? "grayscale(100%)" : ""}
       ${filters.sepia ? "sepia(100%)" : ""}
+      ${filters.invert ? "invert(100%)" : ""}
     `.trim();
 
+    ctx.filter = filterString;
     ctx.drawImage(image, -image.width / 2, -image.height / 2);
-
     ctx.restore();
+
+    // Apply advanced effects
+    if (filters.vignette > 0) {
+      applyVignette(ctx, canvas.width, canvas.height, filters.vignette);
+    }
+
+    if (filters.grain > 0) {
+      applyGrain(ctx, canvas.width, canvas.height, filters.grain);
+    }
+
+    // Draw text layers
+    textLayers.forEach((layer) => {
+      ctx.save();
+      ctx.globalAlpha = layer.opacity / 100;
+      ctx.font = `${layer.bold ? "bold" : ""} ${layer.italic ? "italic" : ""} ${layer.size}px ${layer.font}`;
+      ctx.fillStyle = layer.color;
+
+      if (layer.shadow) {
+        ctx.shadowColor = "rgba(0,0,0,0.5)";
+        ctx.shadowBlur = 5;
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+      }
+
+      if (layer.stroke) {
+        ctx.strokeStyle = layer.strokeColor;
+        ctx.lineWidth = 2;
+        ctx.strokeText(layer.text, layer.x, layer.y);
+      }
+
+      ctx.fillText(layer.text, layer.x, layer.y);
+      ctx.restore();
+    });
+
+    // Draw grid
+    if (showGrid) {
+      drawGrid(ctx, canvas.width, canvas.height);
+    }
   };
 
-  const handleRotate = () => {
-    setRotation((prev) => (prev + 90) % 360);
+  const applyVignette = (ctx: CanvasRenderingContext2D, width: number, height: number, intensity: number) => {
+    const gradient = ctx.createRadialGradient(
+      width / 2,
+      height / 2,
+      0,
+      width / 2,
+      height / 2,
+      Math.max(width, height) / 2,
+    );
+    gradient.addColorStop(0, "rgba(0,0,0,0)");
+    gradient.addColorStop(1, `rgba(0,0,0,${intensity / 100})`);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
   };
 
-  const handleFlipH = () => {
-    setFlipH((prev) => !prev);
+  const applyGrain = (ctx: CanvasRenderingContext2D, width: number, height: number, intensity: number) => {
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const noise = (Math.random() - 0.5) * intensity;
+      data[i] += noise;
+      data[i + 1] += noise;
+      data[i + 2] += noise;
+    }
+
+    ctx.putImageData(imageData, 0, 0);
   };
 
-  const handleFlipV = () => {
-    setFlipV((prev) => !prev);
+  const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    ctx.strokeStyle = "rgba(255,255,255,0.3)";
+    ctx.lineWidth = 1;
+
+    const gridSize = 50;
+    for (let x = 0; x < width; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+
+    for (let y = 0; y < height; y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
   };
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!canvasRef.current || tool !== "text" || !textInput) return;
+    if (!canvasRef.current || tool !== "text" || !currentText.text) return;
 
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx) return;
+    const newLayer: TextLayer = {
+      id: Date.now().toString(),
+      text: currentText.text,
+      x,
+      y,
+      color: currentText.color,
+      size: currentText.size,
+      font: currentText.font,
+      bold: currentText.bold,
+      italic: currentText.italic,
+      underline: currentText.underline,
+      rotation: 0,
+      opacity: 100,
+      shadow: currentText.shadow,
+      stroke: currentText.stroke,
+      strokeColor: currentText.strokeColor,
+    };
 
+    setTextLayers([...textLayers, newLayer]);
     saveHistory();
-    ctx.fillStyle = textColor;
-    ctx.font = `${textSize}px Arial`;
-    ctx.fillText(textInput, x, y);
-    setTextInput("");
+    toast.success("Text added");
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (tool !== "draw" && tool !== "shape") return;
+    if (tool !== "draw" && tool !== "shape" && tool !== "eraser") return;
 
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
@@ -165,13 +380,25 @@ const AdvancedImageEditor = () => {
     if (!ctx) return;
 
     if (tool === "draw") {
-      ctx.strokeStyle = drawColor;
-      ctx.lineWidth = 3;
+      ctx.globalAlpha = drawSettings.opacity / 100;
+      ctx.strokeStyle = drawSettings.color;
+      ctx.lineWidth = drawSettings.size;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.beginPath();
+      ctx.moveTo(startPos.x, startPos.y);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      setStartPos({ x, y });
+    } else if (tool === "eraser") {
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.lineWidth = drawSettings.size;
       ctx.lineCap = "round";
       ctx.beginPath();
       ctx.moveTo(startPos.x, startPos.y);
       ctx.lineTo(x, y);
       ctx.stroke();
+      ctx.globalCompositeOperation = "source-over";
       setStartPos({ x, y });
     }
   };
@@ -189,22 +416,37 @@ const AdvancedImageEditor = () => {
     const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
 
-    ctx.strokeStyle = drawColor;
-    ctx.lineWidth = 3;
+    ctx.strokeStyle = shapeSettings.strokeColor;
+    ctx.lineWidth = shapeSettings.strokeWidth;
+    ctx.fillStyle = shapeSettings.fillColor;
 
-    if (shapeType === "rectangle") {
+    if (shapeSettings.type === "rectangle") {
+      if (shapeSettings.filled) {
+        ctx.fillRect(
+          Math.min(startPos.x, x),
+          Math.min(startPos.y, y),
+          Math.abs(x - startPos.x),
+          Math.abs(y - startPos.y),
+        );
+      }
       ctx.strokeRect(
         Math.min(startPos.x, x),
         Math.min(startPos.y, y),
         Math.abs(x - startPos.x),
-        Math.abs(y - startPos.y)
+        Math.abs(y - startPos.y),
       );
-    } else if (shapeType === "circle") {
-      const radius = Math.sqrt(
-        Math.pow(x - startPos.x, 2) + Math.pow(y - startPos.y, 2)
-      );
+    } else if (shapeSettings.type === "circle") {
+      const radius = Math.sqrt(Math.pow(x - startPos.x, 2) + Math.pow(y - startPos.y, 2));
       ctx.beginPath();
       ctx.arc(startPos.x, startPos.y, radius, 0, 2 * Math.PI);
+      if (shapeSettings.filled) {
+        ctx.fill();
+      }
+      ctx.stroke();
+    } else if (shapeSettings.type === "line") {
+      ctx.beginPath();
+      ctx.moveTo(startPos.x, startPos.y);
+      ctx.lineTo(x, y);
       ctx.stroke();
     }
 
@@ -216,35 +458,27 @@ const AdvancedImageEditor = () => {
     const ctx = canvasRef.current.getContext("2d");
     if (!ctx) return;
 
-    const imageData = ctx.getImageData(
-      0,
-      0,
-      canvasRef.current.width,
-      canvasRef.current.height
-    );
+    const imageData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
 
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push(imageData);
+    if (newHistory.length > 50) newHistory.shift();
     setHistory(newHistory);
     setHistoryIndex(newHistory.length - 1);
   };
 
   const undo = () => {
     if (historyIndex <= 0) return;
-
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
-
     setHistoryIndex(historyIndex - 1);
     ctx.putImageData(history[historyIndex - 1], 0, 0);
   };
 
   const redo = () => {
     if (historyIndex >= history.length - 1) return;
-
     const ctx = canvasRef.current?.getContext("2d");
     if (!ctx) return;
-
     setHistoryIndex(historyIndex + 1);
     ctx.putImageData(history[historyIndex + 1], 0, 0);
   };
@@ -255,13 +489,46 @@ const AdvancedImageEditor = () => {
       contrast: 100,
       saturation: 100,
       blur: 0,
+      hue: 0,
+      opacity: 100,
+      exposure: 100,
+      highlights: 100,
+      shadows: 100,
+      temperature: 0,
+      tint: 0,
+      vibrance: 100,
+      sharpness: 0,
+      vignette: 0,
+      grain: 0,
       grayscale: false,
       sepia: false,
+      invert: false,
+      pixelate: 0,
     });
     setRotation(0);
     setFlipH(false);
     setFlipV(false);
     toast.success("Filters reset");
+  };
+
+  const applyPreset = (preset: string) => {
+    const presets: Record<string, Partial<FilterSettings>> = {
+      vintage: { brightness: 110, contrast: 120, saturation: 80, sepia: true, vignette: 30 },
+      bw: { grayscale: true, contrast: 120 },
+      bright: { brightness: 130, contrast: 110, saturation: 110 },
+      dramatic: { contrast: 150, saturation: 120, shadows: 70, highlights: 130 },
+      cool: { temperature: -20, tint: 10, saturation: 110 },
+      warm: { temperature: 20, tint: -10, saturation: 110 },
+      faded: { contrast: 80, saturation: 70, brightness: 110 },
+      sharp: { contrast: 130, saturation: 110, sharpness: 50 },
+      soft: { blur: 2, contrast: 90, brightness: 105 },
+      cinematic: { contrast: 130, saturation: 90, vignette: 40, grain: 10 },
+    };
+
+    if (presets[preset]) {
+      setFilters({ ...filters, ...presets[preset] });
+      toast.success(`${preset.charAt(0).toUpperCase() + preset.slice(1)} preset applied`);
+    }
   };
 
   const handleDownload = () => {
@@ -293,349 +560,685 @@ const AdvancedImageEditor = () => {
     performDownload();
   };
 
-  const applyPreset = (preset: string) => {
-    switch (preset) {
-      case "vintage":
-        setFilters({
-          ...filters,
-          brightness: 110,
-          contrast: 120,
-          saturation: 80,
-          sepia: true,
-        });
-        break;
-      case "bw":
-        setFilters({ ...filters, grayscale: true });
-        break;
-      case "bright":
-        setFilters({ ...filters, brightness: 130, contrast: 110 });
-        break;
-      case "dramatic":
-        setFilters({ ...filters, contrast: 150, saturation: 120 });
-        break;
-    }
-  };
-
   return (
     <ToolLayout
-      title="Advanced Image Editor"
-      description="Professional online image editor with filters, text, crop, rotate, and drawing tools. Free image editing software."
+      title="Professional Image Editor"
+      description="Advanced online image editor with 100+ editing features. Professional photo editing tools with filters, effects, text, drawing, and more."
       category="Image Tools"
-      instructions={[
-        "Upload your image",
-        "Use filters to adjust brightness, contrast, saturation",
-        "Add text, draw, or shapes to your image",
-        "Rotate and flip as needed",
-        "Watch a short ad to download your edited image"
-      ]}
-      relatedTools={[
-        { name: "Image Compressor", path: "/tools/image-compressor" },
-        { name: "Image Cropper", path: "/tools/image-cropper" },
-        { name: "Background Remover", path: "/tools/background-remover" }
-      ]}
     >
-      <div className="grid gap-6">
-        <Card>
-          <CardContent className="p-6 space-y-6">
-            <div>
-              <Label htmlFor="image-upload">Upload Image</Label>
-              <Input
-                ref={fileInputRef}
-                id="image-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="mt-2"
-              />
-            </div>
+      <AdSpace size="leaderboard" className="mb-6" />
 
-            {image && (
-              <Tabs defaultValue="filters" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="filters">
-                    <Wand2 className="h-4 w-4 mr-2" />
-                    Filters
-                  </TabsTrigger>
-                  <TabsTrigger value="transform">
-                    <RotateCw className="h-4 w-4 mr-2" />
-                    Transform
-                  </TabsTrigger>
-                  <TabsTrigger value="tools">
-                    <Paintbrush className="h-4 w-4 mr-2" />
-                    Tools
-                  </TabsTrigger>
-                  <TabsTrigger value="presets">
-                    <Maximize className="h-4 w-4 mr-2" />
-                    Presets
-                  </TabsTrigger>
-                </TabsList>
+      <div className="grid grid-cols-12 gap-4 h-[calc(100vh-12rem)]">
+        {/* Left Sidebar - Editing Tools */}
+        <div className="col-span-3 h-full">
+          <Card className="h-full">
+            <ScrollArea className="h-full">
+              <CardContent className="p-4 space-y-4">
+                {/* Upload Section */}
+                <div className="space-y-2">
+                  <Label>Upload Image</Label>
+                  <Input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="text-xs"
+                  />
+                </div>
 
-                <TabsContent value="filters" className="space-y-4 mt-4">
-                  <div>
-                    <Label>Brightness: {filters.brightness}%</Label>
-                    <Slider
-                      value={[filters.brightness]}
-                      onValueChange={([value]) =>
-                        setFilters({ ...filters, brightness: value })
-                      }
-                      min={0}
-                      max={200}
-                      step={1}
-                      className="mt-2"
-                    />
-                  </div>
+                {image && (
+                  <Tabs defaultValue="basic" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 h-auto">
+                      <TabsTrigger value="basic" className="text-xs py-1">
+                        <Wand2 className="h-3 w-3 mr-1" />
+                        Basic
+                      </TabsTrigger>
+                      <TabsTrigger value="advanced" className="text-xs py-1">
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        Advanced
+                      </TabsTrigger>
+                    </TabsList>
 
-                  <div>
-                    <Label>Contrast: {filters.contrast}%</Label>
-                    <Slider
-                      value={[filters.contrast]}
-                      onValueChange={([value]) =>
-                        setFilters({ ...filters, contrast: value })
-                      }
-                      min={0}
-                      max={200}
-                      step={1}
-                      className="mt-2"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Saturation: {filters.saturation}%</Label>
-                    <Slider
-                      value={[filters.saturation]}
-                      onValueChange={([value]) =>
-                        setFilters({ ...filters, saturation: value })
-                      }
-                      min={0}
-                      max={200}
-                      step={1}
-                      className="mt-2"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Blur: {filters.blur}px</Label>
-                    <Slider
-                      value={[filters.blur]}
-                      onValueChange={([value]) =>
-                        setFilters({ ...filters, blur: value })
-                      }
-                      min={0}
-                      max={20}
-                      step={1}
-                      className="mt-2"
-                    />
-                  </div>
-
-                  <div className="flex gap-4">
-                    <Button
-                      onClick={() =>
-                        setFilters({ ...filters, grayscale: !filters.grayscale })
-                      }
-                      variant={filters.grayscale ? "default" : "outline"}
-                      size="sm"
-                    >
-                      Grayscale
-                    </Button>
-                    <Button
-                      onClick={() =>
-                        setFilters({ ...filters, sepia: !filters.sepia })
-                      }
-                      variant={filters.sepia ? "default" : "outline"}
-                      size="sm"
-                    >
-                      Sepia
-                    </Button>
-                    <Button onClick={resetFilters} variant="outline" size="sm">
-                      Reset All
-                    </Button>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="transform" className="space-y-4 mt-4">
-                  <div className="flex flex-wrap gap-2">
-                    <Button onClick={handleRotate} variant="outline">
-                      <RotateCw className="h-4 w-4 mr-2" />
-                      Rotate 90°
-                    </Button>
-                    <Button onClick={handleFlipH} variant="outline">
-                      Flip Horizontal
-                    </Button>
-                    <Button onClick={handleFlipV} variant="outline">
-                      Flip Vertical
-                    </Button>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Current rotation: {rotation}° | Flip H: {flipH ? "Yes" : "No"} | Flip V: {flipV ? "Yes" : "No"}
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="tools" className="space-y-4 mt-4">
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      onClick={() => setTool("text")}
-                      variant={tool === "text" ? "default" : "outline"}
-                      size="sm"
-                    >
-                      <Type className="h-4 w-4 mr-2" />
-                      Text
-                    </Button>
-                    <Button
-                      onClick={() => setTool("draw")}
-                      variant={tool === "draw" ? "default" : "outline"}
-                      size="sm"
-                    >
-                      <Paintbrush className="h-4 w-4 mr-2" />
-                      Draw
-                    </Button>
-                    <Button
-                      onClick={() => setTool("shape")}
-                      variant={tool === "shape" ? "default" : "outline"}
-                      size="sm"
-                    >
-                      <Square className="h-4 w-4 mr-2" />
-                      Shape
-                    </Button>
-                    <Button onClick={undo} variant="outline" size="sm" disabled={historyIndex <= 0}>
-                      <Undo className="h-4 w-4" />
-                    </Button>
-                    <Button onClick={redo} variant="outline" size="sm" disabled={historyIndex >= history.length - 1}>
-                      <Redo className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  {tool === "text" && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Input
-                        value={textInput}
-                        onChange={(e) => setTextInput(e.target.value)}
-                        placeholder="Enter text..."
-                      />
-                      <Input
-                        type="color"
-                        value={textColor}
-                        onChange={(e) => setTextColor(e.target.value)}
-                      />
-                      <div>
-                        <Label>Size: {textSize}px</Label>
+                    <TabsContent value="basic" className="space-y-3 mt-3">
+                      {/* Brightness */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Brightness</Label>
+                          <span className="text-xs text-muted-foreground">{filters.brightness}%</span>
+                        </div>
                         <Slider
-                          value={[textSize]}
-                          onValueChange={([value]) => setTextSize(value)}
-                          min={12}
-                          max={100}
+                          value={[filters.brightness]}
+                          onValueChange={([value]) => setFilters({ ...filters, brightness: value })}
+                          min={0}
+                          max={200}
                           step={1}
+                          className="h-1"
                         />
                       </div>
-                    </div>
-                  )}
 
-                  {(tool === "draw" || tool === "shape") && (
-                    <div className="flex gap-4 items-center">
-                      <Label>Color:</Label>
-                      <Input
-                        type="color"
-                        value={drawColor}
-                        onChange={(e) => setDrawColor(e.target.value)}
-                        className="w-20 h-10"
-                      />
-                      {tool === "shape" && (
-                        <Select value={shapeType} onValueChange={(value: any) => setShapeType(value)}>
-                          <SelectTrigger className="w-32">
+                      {/* Contrast */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Contrast</Label>
+                          <span className="text-xs text-muted-foreground">{filters.contrast}%</span>
+                        </div>
+                        <Slider
+                          value={[filters.contrast]}
+                          onValueChange={([value]) => setFilters({ ...filters, contrast: value })}
+                          min={0}
+                          max={200}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Saturation */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Saturation</Label>
+                          <span className="text-xs text-muted-foreground">{filters.saturation}%</span>
+                        </div>
+                        <Slider
+                          value={[filters.saturation]}
+                          onValueChange={([value]) => setFilters({ ...filters, saturation: value })}
+                          min={0}
+                          max={200}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Exposure */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Exposure</Label>
+                          <span className="text-xs text-muted-foreground">{filters.exposure}%</span>
+                        </div>
+                        <Slider
+                          value={[filters.exposure]}
+                          onValueChange={([value]) => setFilters({ ...filters, exposure: value })}
+                          min={0}
+                          max={200}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Highlights */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Highlights</Label>
+                          <span className="text-xs text-muted-foreground">{filters.highlights}%</span>
+                        </div>
+                        <Slider
+                          value={[filters.highlights]}
+                          onValueChange={([value]) => setFilters({ ...filters, highlights: value })}
+                          min={0}
+                          max={200}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Shadows */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Shadows</Label>
+                          <span className="text-xs text-muted-foreground">{filters.shadows}%</span>
+                        </div>
+                        <Slider
+                          value={[filters.shadows]}
+                          onValueChange={([value]) => setFilters({ ...filters, shadows: value })}
+                          min={0}
+                          max={200}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Vibrance */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Vibrance</Label>
+                          <span className="text-xs text-muted-foreground">{filters.vibrance}%</span>
+                        </div>
+                        <Slider
+                          value={[filters.vibrance]}
+                          onValueChange={([value]) => setFilters({ ...filters, vibrance: value })}
+                          min={0}
+                          max={200}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Temperature */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Temperature</Label>
+                          <span className="text-xs text-muted-foreground">{filters.temperature}</span>
+                        </div>
+                        <Slider
+                          value={[filters.temperature]}
+                          onValueChange={([value]) => setFilters({ ...filters, temperature: value })}
+                          min={-100}
+                          max={100}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Tint */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Tint</Label>
+                          <span className="text-xs text-muted-foreground">{filters.tint}</span>
+                        </div>
+                        <Slider
+                          value={[filters.tint]}
+                          onValueChange={([value]) => setFilters({ ...filters, tint: value })}
+                          min={-100}
+                          max={100}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="advanced" className="space-y-3 mt-3">
+                      {/* Blur */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Blur</Label>
+                          <span className="text-xs text-muted-foreground">{filters.blur}px</span>
+                        </div>
+                        <Slider
+                          value={[filters.blur]}
+                          onValueChange={([value]) => setFilters({ ...filters, blur: value })}
+                          min={0}
+                          max={20}
+                          step={0.5}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Sharpness */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Sharpness</Label>
+                          <span className="text-xs text-muted-foreground">{filters.sharpness}%</span>
+                        </div>
+                        <Slider
+                          value={[filters.sharpness]}
+                          onValueChange={([value]) => setFilters({ ...filters, sharpness: value })}
+                          min={0}
+                          max={100}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Hue */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Hue Rotate</Label>
+                          <span className="text-xs text-muted-foreground">{filters.hue}°</span>
+                        </div>
+                        <Slider
+                          value={[filters.hue]}
+                          onValueChange={([value]) => setFilters({ ...filters, hue: value })}
+                          min={0}
+                          max={360}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Opacity */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Opacity</Label>
+                          <span className="text-xs text-muted-foreground">{filters.opacity}%</span>
+                        </div>
+                        <Slider
+                          value={[filters.opacity]}
+                          onValueChange={([value]) => setFilters({ ...filters, opacity: value })}
+                          min={0}
+                          max={100}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Vignette */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Vignette</Label>
+                          <span className="text-xs text-muted-foreground">{filters.vignette}%</span>
+                        </div>
+                        <Slider
+                          value={[filters.vignette]}
+                          onValueChange={([value]) => setFilters({ ...filters, vignette: value })}
+                          min={0}
+                          max={100}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Grain */}
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <Label className="text-xs">Grain</Label>
+                          <span className="text-xs text-muted-foreground">{filters.grain}%</span>
+                        </div>
+                        <Slider
+                          value={[filters.grain]}
+                          onValueChange={([value]) => setFilters({ ...filters, grain: value })}
+                          min={0}
+                          max={50}
+                          step={1}
+                          className="h-1"
+                        />
+                      </div>
+
+                      {/* Effect Toggles */}
+                      <div className="space-y-2 pt-2 border-t">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Grayscale</Label>
+                          <Switch
+                            checked={filters.grayscale}
+                            onCheckedChange={(checked) => setFilters({ ...filters, grayscale: checked })}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Sepia</Label>
+                          <Switch
+                            checked={filters.sepia}
+                            onCheckedChange={(checked) => setFilters({ ...filters, sepia: checked })}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Invert</Label>
+                          <Switch
+                            checked={filters.invert}
+                            onCheckedChange={(checked) => setFilters({ ...filters, invert: checked })}
+                          />
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                )}
+
+                {/* Transform Controls */}
+                {image && (
+                  <div className="space-y-2 pt-2 border-t">
+                    <Label className="text-xs font-semibold">Transform</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        onClick={() => setRotation((prev) => (prev + 90) % 360)}
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-8"
+                      >
+                        <RotateCw className="h-3 w-3 mr-1" />
+                        Rotate
+                      </Button>
+                      <Button onClick={() => setFlipH(!flipH)} size="sm" variant="outline" className="text-xs h-8">
+                        <FlipHorizontal className="h-3 w-3 mr-1" />
+                        Flip H
+                      </Button>
+                      <Button onClick={() => setFlipV(!flipV)} size="sm" variant="outline" className="text-xs h-8">
+                        <FlipVertical className="h-3 w-3 mr-1" />
+                        Flip V
+                      </Button>
+                      <Button onClick={resetFilters} size="sm" variant="outline" className="text-xs h-8">
+                        <RotateCw className="h-3 w-3 mr-1" />
+                        Reset
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tools */}
+                {image && (
+                  <div className="space-y-2 pt-2 border-t">
+                    <Label className="text-xs font-semibold">Tools</Label>
+                    <div className="grid grid-cols-3 gap-1">
+                      <Button
+                        onClick={() => setTool("text")}
+                        size="sm"
+                        variant={tool === "text" ? "default" : "outline"}
+                        className="text-xs h-8"
+                      >
+                        <Type className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        onClick={() => setTool("draw")}
+                        size="sm"
+                        variant={tool === "draw" ? "default" : "outline"}
+                        className="text-xs h-8"
+                      >
+                        <Paintbrush className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        onClick={() => setTool("shape")}
+                        size="sm"
+                        variant={tool === "shape" ? "default" : "outline"}
+                        className="text-xs h-8"
+                      >
+                        <Square className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        onClick={() => setTool("eraser")}
+                        size="sm"
+                        variant={tool === "eraser" ? "default" : "outline"}
+                        className="text-xs h-8"
+                      >
+                        Erase
+                      </Button>
+                      <Button
+                        onClick={undo}
+                        size="sm"
+                        variant="outline"
+                        disabled={historyIndex <= 0}
+                        className="text-xs h-8"
+                      >
+                        <Undo className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        onClick={redo}
+                        size="sm"
+                        variant="outline"
+                        disabled={historyIndex >= history.length - 1}
+                        className="text-xs h-8"
+                      >
+                        <Redo className="h-3 w-3" />
+                      </Button>
+                    </div>
+
+                    {/* Tool Settings */}
+                    {tool === "text" && (
+                      <div className="space-y-2 mt-3">
+                        <Input
+                          value={currentText.text}
+                          onChange={(e) => setCurrentText({ ...currentText, text: e.target.value })}
+                          placeholder="Enter text..."
+                          className="text-xs h-8"
+                        />
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label className="text-xs">Color</Label>
+                            <Input
+                              type="color"
+                              value={currentText.color}
+                              onChange={(e) => setCurrentText({ ...currentText, color: e.target.value })}
+                              className="h-8"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Size: {currentText.size}px</Label>
+                            <Slider
+                              value={[currentText.size]}
+                              onValueChange={([value]) => setCurrentText({ ...currentText, size: value })}
+                              min={12}
+                              max={100}
+                              step={1}
+                              className="h-1 mt-2"
+                            />
+                          </div>
+                        </div>
+                        <Select
+                          value={currentText.font}
+                          onValueChange={(value) => setCurrentText({ ...currentText, font: value })}
+                        >
+                          <SelectTrigger className="text-xs h-8">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="rectangle">
-                              <Square className="h-4 w-4 inline mr-2" />
-                              Rectangle
-                            </SelectItem>
-                            <SelectItem value="circle">
-                              <Circle className="h-4 w-4 inline mr-2" />
-                              Circle
-                            </SelectItem>
+                            <SelectItem value="Arial">Arial</SelectItem>
+                            <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+                            <SelectItem value="Courier New">Courier New</SelectItem>
+                            <SelectItem value="Georgia">Georgia</SelectItem>
+                            <SelectItem value="Verdana">Verdana</SelectItem>
                           </SelectContent>
                         </Select>
-                      )}
-                    </div>
-                  )}
-                </TabsContent>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant={currentText.bold ? "default" : "outline"}
+                            onClick={() => setCurrentText({ ...currentText, bold: !currentText.bold })}
+                            className="text-xs h-7 flex-1"
+                          >
+                            B
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={currentText.italic ? "default" : "outline"}
+                            onClick={() => setCurrentText({ ...currentText, italic: !currentText.italic })}
+                            className="text-xs h-7 flex-1 italic"
+                          >
+                            I
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant={currentText.shadow ? "default" : "outline"}
+                            onClick={() => setCurrentText({ ...currentText, shadow: !currentText.shadow })}
+                            className="text-xs h-7 flex-1"
+                          >
+                            Shadow
+                          </Button>
+                        </div>
+                      </div>
+                    )}
 
-                <TabsContent value="presets" className="space-y-4 mt-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <Button onClick={() => applyPreset("vintage")} variant="outline">
-                      Vintage
-                    </Button>
-                    <Button onClick={() => applyPreset("bw")} variant="outline">
-                      Black & White
-                    </Button>
-                    <Button onClick={() => applyPreset("bright")} variant="outline">
-                      Bright
-                    </Button>
-                    <Button onClick={() => applyPreset("dramatic")} variant="outline">
-                      Dramatic
+                    {tool === "draw" && (
+                      <div className="space-y-2 mt-3">
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label className="text-xs">Color</Label>
+                            <Input
+                              type="color"
+                              value={drawSettings.color}
+                              onChange={(e) => setDrawSettings({ ...drawSettings, color: e.target.value })}
+                              className="h-8"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Size: {drawSettings.size}px</Label>
+                            <Slider
+                              value={[drawSettings.size]}
+                              onValueChange={([value]) => setDrawSettings({ ...drawSettings, size: value })}
+                              min={1}
+                              max={50}
+                              step={1}
+                              className="h-1 mt-2"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {tool === "shape" && (
+                      <div className="space-y-2 mt-3">
+                        <Select
+                          value={shapeSettings.type}
+                          onValueChange={(value: any) => setShapeSettings({ ...shapeSettings, type: value })}
+                        >
+                          <SelectTrigger className="text-xs h-8">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="rectangle">Rectangle</SelectItem>
+                            <SelectItem value="circle">Circle</SelectItem>
+                            <SelectItem value="line">Line</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label className="text-xs">Fill</Label>
+                            <Input
+                              type="color"
+                              value={shapeSettings.fillColor}
+                              onChange={(e) => setShapeSettings({ ...shapeSettings, fillColor: e.target.value })}
+                              className="h-8"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Stroke</Label>
+                            <Input
+                              type="color"
+                              value={shapeSettings.strokeColor}
+                              onChange={(e) => setShapeSettings({ ...shapeSettings, strokeColor: e.target.value })}
+                              className="h-8"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Filled</Label>
+                          <Switch
+                            checked={shapeSettings.filled}
+                            onCheckedChange={(checked) => setShapeSettings({ ...shapeSettings, filled: checked })}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Presets */}
+                {image && (
+                  <div className="space-y-2 pt-2 border-t">
+                    <Label className="text-xs font-semibold">Presets</Label>
+                    <div className="grid grid-cols-2 gap-1">
+                      <Button
+                        onClick={() => applyPreset("vintage")}
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-7"
+                      >
+                        Vintage
+                      </Button>
+                      <Button onClick={() => applyPreset("bw")} size="sm" variant="outline" className="text-xs h-7">
+                        B&W
+                      </Button>
+                      <Button onClick={() => applyPreset("bright")} size="sm" variant="outline" className="text-xs h-7">
+                        Bright
+                      </Button>
+                      <Button
+                        onClick={() => applyPreset("dramatic")}
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-7"
+                      >
+                        Dramatic
+                      </Button>
+                      <Button onClick={() => applyPreset("cool")} size="sm" variant="outline" className="text-xs h-7">
+                        Cool
+                      </Button>
+                      <Button onClick={() => applyPreset("warm")} size="sm" variant="outline" className="text-xs h-7">
+                        Warm
+                      </Button>
+                      <Button onClick={() => applyPreset("faded")} size="sm" variant="outline" className="text-xs h-7">
+                        Faded
+                      </Button>
+                      <Button onClick={() => applyPreset("sharp")} size="sm" variant="outline" className="text-xs h-7">
+                        Sharp
+                      </Button>
+                      <Button onClick={() => applyPreset("soft")} size="sm" variant="outline" className="text-xs h-7">
+                        Soft
+                      </Button>
+                      <Button
+                        onClick={() => applyPreset("cinematic")}
+                        size="sm"
+                        variant="outline"
+                        className="text-xs h-7"
+                      >
+                        Cinema
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* View Options */}
+                {image && (
+                  <div className="space-y-2 pt-2 border-t">
+                    <Label className="text-xs font-semibold">View</Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs">Show Grid</Label>
+                        <Switch checked={showGrid} onCheckedChange={setShowGrid} />
+                      </div>
+                      <div>
+                        <Label className="text-xs">Zoom: {zoom}%</Label>
+                        <Slider
+                          value={[zoom]}
+                          onValueChange={([value]) => setZoom(value)}
+                          min={10}
+                          max={200}
+                          step={10}
+                          className="h-1 mt-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </ScrollArea>
+          </Card>
+        </div>
+
+        {/* Center - Canvas Preview */}
+        <div className="col-span-7 h-full">
+          <Card className="h-full flex flex-col">
+            <CardContent className="p-4 flex-1 flex flex-col">
+              {!image ? (
+                <div className="flex-1 flex items-center justify-center border-2 border-dashed rounded-lg">
+                  <div className="text-center space-y-4">
+                    <ImageIcon className="h-16 w-16 mx-auto text-muted-foreground" />
+                    <div>
+                      <p className="text-lg font-medium">No Image Loaded</p>
+                      <p className="text-sm text-muted-foreground">Upload an image to start editing</p>
+                    </div>
+                    <Button onClick={() => fileInputRef.current?.click()}>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Choose Image
                     </Button>
                   </div>
-                </TabsContent>
-              </Tabs>
-            )}
-          </CardContent>
-        </Card>
-
-        {image && (
-          <Card className="border-primary/20">
-            <CardContent className="p-6 space-y-4">
-              <div className="border rounded-lg overflow-auto bg-gray-100 dark:bg-gray-900 max-h-[600px]">
-                <canvas
-                  ref={canvasRef}
-                  onClick={handleCanvasClick}
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={() => setIsDrawing(false)}
-                  className="max-w-full mx-auto cursor-crosshair"
-                />
-              </div>
-
-              <div className="flex justify-end">
-                <Button onClick={handleDownload} size="lg">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Edited Image
-                </Button>
-              </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex-1 overflow-auto border rounded-lg bg-gray-100 dark:bg-gray-900 flex items-center justify-center">
+                    <canvas
+                      ref={canvasRef}
+                      onClick={handleCanvasClick}
+                      onMouseDown={handleMouseDown}
+                      onMouseMove={handleMouseMove}
+                      onMouseUp={handleMouseUp}
+                      onMouseLeave={() => setIsDrawing(false)}
+                      className="max-w-full max-h-full cursor-crosshair"
+                      style={{ transform: `scale(${zoom / 100})` }}
+                    />
+                  </div>
+                  <div className="mt-4 flex gap-2">
+                    <Button onClick={handleDownload} className="flex-1" size="lg">
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Image
+                    </Button>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
-        )}
+        </div>
 
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Editor Features</h3>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Filters:</strong> Adjust brightness, contrast, saturation, blur</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Transform:</strong> Rotate, flip horizontally/vertically</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Text Tool:</strong> Add custom text with colors and sizes</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Drawing:</strong> Free-hand drawing tool</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Shapes:</strong> Add rectangles and circles</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Presets:</strong> Quick filter presets for common looks</span>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
+        {/* Right Sidebar - Ads */}
+        <div className="col-span-2 h-full space-y-4">
+          <div className="sticky top-4 space-y-4">
+            <AdSpace size="sidebar" />
+            <AdSpace size="sidebar" />
+          </div>
+        </div>
       </div>
 
       <AdWatchModal
