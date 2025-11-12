@@ -1095,6 +1095,7 @@ const GIFMaker = () => {
         title="Professional GIF Maker"
         description="Create stunning animated GIFs with advanced features: text overlays, filters, effects, frame editing, and more"
         category="Image Tools"
+        layout="with-sidebar"
         instructions={[
           "Upload 2 or more images to create your animation",
           "Customize frame duration, add text overlays and filters",
