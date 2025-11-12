@@ -16,6 +16,7 @@ const ALLOWED_DOMAINS = [
   'api.ipify.org',
   'api.frankfurter.app',
   'ip-api.com',  // For IP lookup
+  'ajk.pakdhis2.org',  // DHIS2 API
 ];
 
 // SECURITY: Validate URL to prevent SSRF attacks
