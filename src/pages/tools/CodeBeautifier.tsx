@@ -36,10 +36,35 @@ interface ValidationError {
   type: "error" | "warning";
 }
 
+// Google AdSense Component
+const GoogleAd = ({ slot, width, height }: { slot: string; width: number; height: number }) => {
+  useEffect(() => {
+    try {
+      // @ts-ignore
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (err) {
+      console.error("AdSense error:", err);
+    }
+  }, []);
+
+  return (
+    <div className="w-full flex justify-center">
+      <ins
+        className="adsbygoogle"
+        style={{ display: "inline-block", width: `${width}px`, height: `${height}px` }}
+        data-ad-client="ca-pub-7382531001943020"
+        data-ad-slot={slot}
+      />
+    </div>
+  );
+};
+
 const CodeBeautifier = () => {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-  const [language, setLanguage] = useState<"json" | "html" | "css" | "javascript" | "xml">("json");
+  const [language, setLanguage] = useState<
+    "json" | "html" | "css" | "javascript" | "xml" | "react" | "typescript" | "python" | "dart" | "php" | "sql"
+  >("json");
   const [indentSize, setIndentSize] = useState(2);
   const [indentType, setIndentType] = useState<"spaces" | "tabs">("spaces");
   const [errors, setErrors] = useState<ValidationError[]>([]);
@@ -53,7 +78,19 @@ const CodeBeautifier = () => {
   const [removeComments, setRemoveComments] = useState(false);
   const [addLineNumbers, setAddLineNumbers] = useState(false);
   const [wrapLines, setWrapLines] = useState(false);
-  const [colorScheme, setColorScheme] = useState("default");
+
+  // Load AdSense script
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7382531001943020";
+    script.async = true;
+    script.crossOrigin = "anonymous";
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
 
   // Calculate stats
   useEffect(() => {
@@ -73,27 +110,6 @@ const CodeBeautifier = () => {
     return indentType === "tabs" ? "\t" : " ".repeat(indentSize);
   };
 
-  const beautifyJSON = (code: string) => {
-    try {
-      let parsed = JSON.parse(code);
-
-      if (sortKeys) {
-        parsed = sortObjectKeys(parsed);
-      }
-
-      const indent = getIndent();
-      const indentCount = indentType === "tabs" ? 1 : indentSize;
-      return JSON.stringify(parsed, null, indentCount).replace(/\t/g, indent);
-    } catch (error) {
-      const err = error as Error;
-      const match = err.message.match(/position (\d+)/);
-      throw {
-        message: err.message,
-        position: match ? parseInt(match[1]) : undefined,
-      };
-    }
-  };
-
   const sortObjectKeys = (obj: any): any => {
     if (Array.isArray(obj)) {
       return obj.map((item) => sortObjectKeys(item));
@@ -108,13 +124,29 @@ const CodeBeautifier = () => {
     return obj;
   };
 
+  const beautifyJSON = (code: string) => {
+    try {
+      let parsed = JSON.parse(code);
+
+      if (sortKeys) {
+        parsed = sortObjectKeys(parsed);
+      }
+
+      const indent = getIndent();
+      const indentCount = indentType === "tabs" ? 1 : indentSize;
+      return JSON.stringify(parsed, null, indentCount).replace(/\t/g, indent);
+    } catch (error) {
+      const err = error as Error;
+      throw new Error(err.message);
+    }
+  };
+
   const beautifyHTML = (code: string) => {
     let formatted = code;
     let indent = 0;
     const lines: string[] = [];
     const indentStr = getIndent();
 
-    // Remove comments if option is enabled
     if (removeComments) {
       formatted = formatted.replace(/<!--[\s\S]*?-->/g, "");
     }
@@ -148,12 +180,10 @@ const CodeBeautifier = () => {
     let formatted = code;
     const indentStr = getIndent();
 
-    // Remove comments if option is enabled
     if (removeComments) {
       formatted = formatted.replace(/\/\*[\s\S]*?\*\//g, "");
     }
 
-    // Format CSS
     formatted = formatted.replace(/\s*{\s*/g, " {\n" + indentStr);
     formatted = formatted.replace(/\s*}\s*/g, "\n}\n\n");
     formatted = formatted.replace(/\s*;\s*/g, ";\n" + indentStr);
@@ -168,35 +198,47 @@ const CodeBeautifier = () => {
     const lines: string[] = [];
     const indentStr = getIndent();
 
-    // Remove comments if option is enabled
     if (removeComments) {
       formatted = formatted.replace(/\/\/.*$/gm, "");
       formatted = formatted.replace(/\/\*[\s\S]*?\*\//g, "");
     }
 
-    // Basic JavaScript formatting
-    const tokens = formatted.split(/([{}();,]|\n)/);
+    const tokens = formatted.split(/([{}();,\n])/);
+    let currentLine = "";
 
     tokens.forEach((token) => {
       const trimmed = token.trim();
       if (!trimmed) return;
 
       if (trimmed === "{") {
-        lines.push(indentStr.repeat(indent) + trimmed);
+        currentLine += " " + trimmed;
+        lines.push(indentStr.repeat(indent) + currentLine.trim());
+        currentLine = "";
         indent++;
       } else if (trimmed === "}") {
+        if (currentLine.trim()) {
+          lines.push(indentStr.repeat(indent) + currentLine.trim());
+          currentLine = "";
+        }
         indent = Math.max(0, indent - 1);
         lines.push(indentStr.repeat(indent) + trimmed);
       } else if (trimmed === ";") {
-        if (lines.length > 0) {
-          lines[lines.length - 1] += trimmed;
-        }
+        currentLine += trimmed;
+        lines.push(indentStr.repeat(indent) + currentLine.trim());
+        currentLine = "";
       } else {
-        lines.push(indentStr.repeat(indent) + trimmed);
+        currentLine += " " + trimmed;
       }
     });
 
-    return lines.join("\n").trim();
+    if (currentLine.trim()) {
+      lines.push(indentStr.repeat(indent) + currentLine.trim());
+    }
+
+    return lines
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
   };
 
   const beautifyXML = (code: string) => {
@@ -232,6 +274,118 @@ const CodeBeautifier = () => {
     return lines.join("\n").trim();
   };
 
+  const beautifyReact = (code: string) => {
+    // React/JSX uses similar formatting to JavaScript
+    return beautifyJavaScript(code);
+  };
+
+  const beautifyTypeScript = (code: string) => {
+    // TypeScript uses similar formatting to JavaScript
+    return beautifyJavaScript(code);
+  };
+
+  const beautifyPython = (code: string) => {
+    let formatted = code;
+    const indentStr = getIndent();
+
+    if (removeComments) {
+      formatted = formatted.replace(/#.*$/gm, "");
+    }
+
+    const lines = formatted.split("\n");
+    let indent = 0;
+    const result: string[] = [];
+
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+
+      // Decrease indent for lines starting with keywords that close blocks
+      if (trimmed.match(/^(elif|else|except|finally)[\s:]/)) {
+        indent = Math.max(0, indent - 1);
+      }
+
+      result.push(indentStr.repeat(indent) + trimmed);
+
+      // Increase indent after lines ending with :
+      if (trimmed.endsWith(":")) {
+        indent++;
+      }
+
+      // Decrease indent after return, break, continue, pass
+      if (trimmed.match(/^(return|break|continue|pass)(\s|$)/)) {
+        // Keep current indent for next line
+      }
+    });
+
+    return result.join("\n").trim();
+  };
+
+  const beautifyDart = (code: string) => {
+    // Dart/Flutter uses similar C-style formatting
+    return beautifyJavaScript(code);
+  };
+
+  const beautifyPHP = (code: string) => {
+    let formatted = code;
+
+    if (removeComments) {
+      formatted = formatted.replace(/\/\/.*$/gm, "");
+      formatted = formatted.replace(/\/\*[\s\S]*?\*\//g, "");
+      formatted = formatted.replace(/#.*$/gm, "");
+    }
+
+    return beautifyJavaScript(formatted);
+  };
+
+  const beautifySQL = (code: string) => {
+    let formatted = code;
+    const indentStr = getIndent();
+
+    if (removeComments) {
+      formatted = formatted.replace(/--.*$/gm, "");
+      formatted = formatted.replace(/\/\*[\s\S]*?\*\//g, "");
+    }
+
+    // SQL keywords to uppercase
+    const keywords = [
+      "SELECT",
+      "FROM",
+      "WHERE",
+      "JOIN",
+      "LEFT",
+      "RIGHT",
+      "INNER",
+      "OUTER",
+      "ON",
+      "AND",
+      "OR",
+      "ORDER BY",
+      "GROUP BY",
+      "HAVING",
+      "INSERT",
+      "UPDATE",
+      "DELETE",
+      "CREATE",
+      "ALTER",
+      "DROP",
+      "TABLE",
+      "DATABASE",
+      "INDEX",
+    ];
+
+    keywords.forEach((keyword) => {
+      const regex = new RegExp(`\\b${keyword}\\b`, "gi");
+      formatted = formatted.replace(regex, keyword);
+    });
+
+    // Add newlines for major clauses
+    formatted = formatted.replace(/\s+(SELECT|FROM|WHERE|JOIN|ORDER BY|GROUP BY|HAVING)\s+/gi, "\n$1 ");
+    formatted = formatted.replace(/\s*,\s*/g, ",\n" + indentStr);
+
+    return formatted.trim();
+  };
+
   const validateCode = (code: string, lang: string): ValidationError[] => {
     const errors: ValidationError[] = [];
 
@@ -239,41 +393,60 @@ const CodeBeautifier = () => {
       if (lang === "json") {
         JSON.parse(code);
       } else if (lang === "html" || lang === "xml") {
-        // Basic HTML/XML validation
+        // Basic HTML/XML validation - skip React/JSX components (PascalCase)
         const openTags: string[] = [];
         const tagRegex = /<\/?([a-zA-Z][a-zA-Z0-9]*)[^>]*>/g;
         let match;
 
         while ((match = tagRegex.exec(code)) !== null) {
+          const tagName = match[1];
+
+          // Skip React components (PascalCase like MyComponent)
+          if (/^[A-Z]/.test(tagName)) continue;
+
           const isClosing = match[0].startsWith("</");
-          const tagName = match[1].toLowerCase();
+          const tagNameLower = tagName.toLowerCase();
           const isSelfClosing =
-            match[0].endsWith("/>") || ["br", "hr", "img", "input", "meta", "link"].includes(tagName);
+            match[0].endsWith("/>") ||
+            [
+              "br",
+              "hr",
+              "img",
+              "input",
+              "meta",
+              "link",
+              "area",
+              "base",
+              "col",
+              "embed",
+              "source",
+              "track",
+              "wbr",
+            ].includes(tagNameLower);
 
           if (isSelfClosing) continue;
 
           if (isClosing) {
-            if (openTags.length === 0 || openTags[openTags.length - 1] !== tagName) {
+            if (openTags.length === 0 || openTags[openTags.length - 1] !== tagNameLower) {
               errors.push({
-                message: `Mismatched closing tag: </${tagName}>`,
+                message: `Mismatched closing tag: </${tagNameLower}>`,
                 type: "error",
               });
             } else {
               openTags.pop();
             }
           } else {
-            openTags.push(tagName);
+            openTags.push(tagNameLower);
           }
         }
 
-        if (openTags.length > 0) {
+        if (openTags.length > 0 && openTags.length < 10) {
           errors.push({
             message: `Unclosed tags: ${openTags.join(", ")}`,
             type: "warning",
           });
         }
       } else if (lang === "css") {
-        // Basic CSS validation
         const braceCount = (code.match(/{/g) || []).length - (code.match(/}/g) || []).length;
         if (braceCount !== 0) {
           errors.push({
@@ -281,6 +454,40 @@ const CodeBeautifier = () => {
             type: "error",
           });
         }
+      } else if (
+        lang === "javascript" ||
+        lang === "typescript" ||
+        lang === "react" ||
+        lang === "dart" ||
+        lang === "php"
+      ) {
+        const braceCount = (code.match(/{/g) || []).length - (code.match(/}/g) || []).length;
+        const parenCount = (code.match(/\(/g) || []).length - (code.match(/\)/g) || []).length;
+        const bracketCount = (code.match(/\[/g) || []).length - (code.match(/\]/g) || []).length;
+
+        if (braceCount !== 0) {
+          errors.push({
+            message: `Unmatched braces: ${Math.abs(braceCount)} ${braceCount > 0 ? "opening" : "closing"}`,
+            type: "error",
+          });
+        }
+        if (parenCount !== 0) {
+          errors.push({
+            message: `Unmatched parentheses: ${Math.abs(parenCount)} ${parenCount > 0 ? "opening" : "closing"}`,
+            type: "warning",
+          });
+        }
+        if (bracketCount !== 0) {
+          errors.push({
+            message: `Unmatched brackets: ${Math.abs(bracketCount)} ${bracketCount > 0 ? "opening" : "closing"}`,
+            type: "warning",
+          });
+        }
+      } else if (lang === "python") {
+        // Basic Python validation - check indentation consistency
+        const lines = code.split("\n").filter((l) => l.trim());
+        const indentPattern = lines[0]?.match(/^\s*/)?.[0];
+        // Just do basic checks
       }
     } catch (error) {
       const err = error as any;
@@ -301,14 +508,12 @@ const CodeBeautifier = () => {
 
     setIsProcessing(true);
 
-    // Simulate processing for animation
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     try {
-      // Validate first
       const validationErrors = validateCode(input, language);
       setErrors(validationErrors);
-      setIsValid(validationErrors.length === 0);
+      setIsValid(validationErrors.filter((e) => e.type === "error").length === 0);
 
       let result = "";
 
@@ -328,19 +533,37 @@ const CodeBeautifier = () => {
         case "xml":
           result = beautifyXML(input);
           break;
+        case "react":
+          result = beautifyReact(input);
+          break;
+        case "typescript":
+          result = beautifyTypeScript(input);
+          break;
+        case "python":
+          result = beautifyPython(input);
+          break;
+        case "dart":
+          result = beautifyDart(input);
+          break;
+        case "php":
+          result = beautifyPHP(input);
+          break;
+        case "sql":
+          result = beautifySQL(input);
+          break;
       }
 
       if (addLineNumbers) {
         const lines = result.split("\n");
-        result = lines.map((line, i) => `${String(i + 1).padStart(4, " ")} | ${line}`).join("\n");
+        const maxDigits = String(lines.length).length;
+        result = lines.map((line, i) => `${String(i + 1).padStart(maxDigits, " ")} | ${line}`).join("\n");
       }
 
       setOutput(result);
       toast.success(validationErrors.length === 0 ? "Code beautified successfully!" : "Code beautified with warnings");
     } catch (error: any) {
-      const err = error as any;
       setIsValid(false);
-      setErrors([{ message: err.message || "Invalid code format", type: "error" }]);
+      setErrors([{ message: error.message || "Invalid code format", type: "error" }]);
       toast.error("Failed to beautify code");
     } finally {
       setIsProcessing(false);
@@ -369,11 +592,25 @@ const CodeBeautifier = () => {
           .replace(/\s+/g, " ")
           .replace(/\s*([{}:;,])\s*/g, "$1")
           .trim();
-      } else if (language === "javascript") {
+      } else if (
+        language === "javascript" ||
+        language === "typescript" ||
+        language === "react" ||
+        language === "dart" ||
+        language === "php"
+      ) {
         result = input
           .replace(/\s+/g, " ")
           .replace(/\s*([{}();,])\s*/g, "$1")
           .trim();
+      } else if (language === "python") {
+        result = input
+          .split("\n")
+          .map((line) => line.trim())
+          .filter((line) => line)
+          .join("\n");
+      } else if (language === "sql") {
+        result = input.replace(/\s+/g, " ").trim();
       }
 
       setOutput(result);
@@ -395,6 +632,12 @@ const CodeBeautifier = () => {
       css: "css",
       javascript: "js",
       xml: "xml",
+      react: "jsx",
+      typescript: "ts",
+      python: "py",
+      dart: "dart",
+      php: "php",
+      sql: "sql",
     };
 
     const blob = new Blob([output], { type: "text/plain" });
@@ -431,7 +674,7 @@ const CodeBeautifier = () => {
   return (
     <ToolLayout
       title="Advanced Code Beautifier & Formatter"
-      description="Professional code formatter with syntax validation, minification, and advanced formatting options for JSON, HTML, CSS, JavaScript, and XML"
+      description="Professional code formatter with syntax validation, minification, and advanced formatting options for JSON, HTML, CSS, JavaScript, TypeScript, React, Python, Flutter/Dart, PHP, SQL, and XML"
       category="Developer Tools"
       relatedTools={[
         { name: "JSON Formatter", path: "/tools/json-formatter" },
@@ -448,7 +691,7 @@ const CodeBeautifier = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <FileCode className="h-5 w-5 text-primary" />
-                  <Label className="text-lg font-semibold">Language</Label>
+                  <Label className="text-lg font-semibold">Select Language</Label>
                 </div>
                 <RadioGroup
                   value={language}
@@ -457,23 +700,29 @@ const CodeBeautifier = () => {
                     setErrors([]);
                     setIsValid(null);
                   }}
-                  className="grid grid-cols-2 md:grid-cols-5 gap-3"
+                  className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3"
                 >
                   {[
                     { value: "json", label: "JSON", icon: "{ }" },
                     { value: "html", label: "HTML", icon: "<>" },
                     { value: "css", label: "CSS", icon: "{;}" },
                     { value: "javascript", label: "JavaScript", icon: "JS" },
+                    { value: "react", label: "React/JSX", icon: "⚛" },
+                    { value: "typescript", label: "TypeScript", icon: "TS" },
+                    { value: "python", label: "Python", icon: "🐍" },
+                    { value: "dart", label: "Flutter/Dart", icon: "🎯" },
+                    { value: "php", label: "PHP", icon: "🐘" },
+                    { value: "sql", label: "SQL", icon: "🗄" },
                     { value: "xml", label: "XML", icon: "<?>" },
                   ].map((lang) => (
                     <div key={lang.value} className="relative">
                       <RadioGroupItem value={lang.value} id={lang.value} className="peer sr-only" />
                       <Label
                         htmlFor={lang.value}
-                        className="flex flex-col items-center justify-center p-4 bg-background border-2 rounded-lg cursor-pointer transition-all hover:bg-accent peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 peer-data-[state=checked]:shadow-lg"
+                        className="flex flex-col items-center justify-center p-3 bg-background border-2 rounded-lg cursor-pointer transition-all hover:bg-accent hover:scale-105 peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 peer-data-[state=checked]:shadow-lg peer-data-[state=checked]:scale-105"
                       >
-                        <span className="text-2xl font-mono mb-2">{lang.icon}</span>
-                        <span className="font-medium">{lang.label}</span>
+                        <span className="text-2xl mb-1">{lang.icon}</span>
+                        <span className="font-medium text-xs text-center">{lang.label}</span>
                       </Label>
                     </div>
                   ))}
@@ -515,7 +764,9 @@ const CodeBeautifier = () => {
                     </div>
 
                     <div className="space-y-3">
-                      <Label>Indent Size: {indentSize}</Label>
+                      <Label>
+                        Indent Size: {indentSize} {indentType === "spaces" ? "spaces" : "tab"}
+                      </Label>
                       <Slider
                         value={[indentSize]}
                         onValueChange={(v) => setIndentSize(v[0])}
@@ -531,30 +782,32 @@ const CodeBeautifier = () => {
                   {/* Toggle Options */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {language === "json" && (
-                      <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg">
-                        <Label htmlFor="sort-keys" className="cursor-pointer">
+                      <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg hover:bg-accent transition-colors">
+                        <Label htmlFor="sort-keys" className="cursor-pointer font-medium">
                           Sort Object Keys
                         </Label>
                         <Switch id="sort-keys" checked={sortKeys} onCheckedChange={setSortKeys} />
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg">
-                      <Label htmlFor="remove-comments" className="cursor-pointer">
-                        Remove Comments
-                      </Label>
-                      <Switch id="remove-comments" checked={removeComments} onCheckedChange={setRemoveComments} />
-                    </div>
+                    {!["sql"].includes(language) && (
+                      <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg hover:bg-accent transition-colors">
+                        <Label htmlFor="remove-comments" className="cursor-pointer font-medium">
+                          Remove Comments
+                        </Label>
+                        <Switch id="remove-comments" checked={removeComments} onCheckedChange={setRemoveComments} />
+                      </div>
+                    )}
 
-                    <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg">
-                      <Label htmlFor="line-numbers" className="cursor-pointer">
+                    <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg hover:bg-accent transition-colors">
+                      <Label htmlFor="line-numbers" className="cursor-pointer font-medium">
                         Add Line Numbers
                       </Label>
                       <Switch id="line-numbers" checked={addLineNumbers} onCheckedChange={setAddLineNumbers} />
                     </div>
 
-                    <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg">
-                      <Label htmlFor="wrap-lines" className="cursor-pointer">
+                    <div className="flex items-center justify-between p-3 bg-accent/50 rounded-lg hover:bg-accent transition-colors">
+                      <Label htmlFor="wrap-lines" className="cursor-pointer font-medium">
                         Wrap Long Lines
                       </Label>
                       <Switch id="wrap-lines" checked={wrapLines} onCheckedChange={setWrapLines} />
@@ -581,7 +834,7 @@ const CodeBeautifier = () => {
                     <input
                       id="file-upload"
                       type="file"
-                      accept=".json,.html,.css,.js,.xml"
+                      accept=".json,.html,.css,.js,.jsx,.ts,.tsx,.py,.dart,.php,.sql,.xml"
                       onChange={handleFileUpload}
                       className="hidden"
                     />
@@ -655,7 +908,7 @@ const CodeBeautifier = () => {
                   )}
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg mb-2">
-                      {isValid ? "Validation Passed" : "Validation Issues Found"}
+                      {isValid ? "✅ Validation Passed" : "⚠️ Validation Issues Found"}
                     </h3>
                     {errors.length > 0 && (
                       <ul className="space-y-1">
@@ -724,12 +977,15 @@ const CodeBeautifier = () => {
               <div className="flex items-start gap-3">
                 <Info className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div className="text-sm space-y-2">
-                  <p className="font-semibold">Pro Tips:</p>
+                  <p className="font-semibold">🚀 Pro Tips:</p>
                   <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                    <li>Use the advanced options to customize formatting to your coding style</li>
-                    <li>Validation runs automatically when you beautify your code</li>
-                    <li>Minify option reduces file size by removing unnecessary whitespace</li>
-                    <li>Upload files directly or paste code for quick formatting</li>
+                    <li>
+                      Supports 11 languages: JSON, HTML, CSS, JS, React, TypeScript, Python, Flutter/Dart, PHP, SQL, XML
+                    </li>
+                    <li>Use advanced options to customize formatting (indentation, comments, line numbers)</li>
+                    <li>Automatic syntax validation with detailed error messages</li>
+                    <li>Minify option reduces file size for production</li>
+                    <li>Upload files directly or paste code for instant formatting</li>
                     <li>Download formatted code with proper file extensions</li>
                   </ul>
                 </div>
@@ -738,45 +994,27 @@ const CodeBeautifier = () => {
           </Card>
         </div>
 
-        {/* Sticky Sidebar Ads */}
+        {/* Sticky Sidebar with Google Ads */}
         <div className="lg:col-span-3">
           <div className="sticky top-6 space-y-6">
-            {/* Ad Slot 1 - Flexible size */}
-            <Card className="border-2 border-dashed border-muted-foreground/20 overflow-hidden">
+            {/* Ad Slot 1 - 300x250 */}
+            <Card className="border-2 overflow-hidden">
               <CardContent className="p-0">
-                <div className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 aspect-[300/250] flex items-center justify-center">
-                  <div className="text-center p-4">
-                    <Palette className="h-12 w-12 mx-auto mb-2 text-purple-600" />
-                    <p className="text-sm font-semibold text-muted-foreground">Ad Space</p>
-                    <p className="text-xs text-muted-foreground">300x250</p>
-                  </div>
-                </div>
+                <GoogleAd slot="7713152297" width={300} height={250} />
               </CardContent>
             </Card>
 
-            {/* Ad Slot 2 - Flexible size */}
-            <Card className="border-2 border-dashed border-muted-foreground/20 overflow-hidden">
+            {/* Ad Slot 2 - 300x600 */}
+            <Card className="border-2 overflow-hidden">
               <CardContent className="p-0">
-                <div className="bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900 dark:to-cyan-900 aspect-[300/600] flex items-center justify-center">
-                  <div className="text-center p-4">
-                    <Code className="h-12 w-12 mx-auto mb-2 text-blue-600" />
-                    <p className="text-sm font-semibold text-muted-foreground">Ad Space</p>
-                    <p className="text-xs text-muted-foreground">300x600</p>
-                  </div>
-                </div>
+                <GoogleAd slot="7110517063" width={300} height={600} />
               </CardContent>
             </Card>
 
-            {/* Ad Slot 3 - Square */}
-            <Card className="border-2 border-dashed border-muted-foreground/20 overflow-hidden">
+            {/* Ad Slot 3 - 300x300 */}
+            <Card className="border-2 overflow-hidden">
               <CardContent className="p-0">
-                <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 aspect-square flex items-center justify-center">
-                  <div className="text-center p-4">
-                    <Wand2 className="h-12 w-12 mx-auto mb-2 text-green-600" />
-                    <p className="text-sm font-semibold text-muted-foreground">Ad Space</p>
-                    <p className="text-xs text-muted-foreground">300x300</p>
-                  </div>
-                </div>
+                <GoogleAd slot="4153181237" width={300} height={300} />
               </CardContent>
             </Card>
           </div>
