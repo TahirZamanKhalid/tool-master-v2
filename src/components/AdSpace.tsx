@@ -95,15 +95,31 @@ export const AdSpace = (props: AdSpaceProps) => {
   }, [actualSlot, adClient, type, position, isInitialized]);
 
   const getAdStyle = () => {
+    // Get max dimensions for fixed-size ads
+    const getMaxDimensions = () => {
+      if (slot.includes("300x250") || actualSlot === "7713152297") {
+        return { maxWidth: "300px", maxHeight: "250px" };
+      }
+      if (slot.includes("300x600") || actualSlot === "7110517063") {
+        return { maxWidth: "300px", maxHeight: "600px" };
+      }
+      if (slot.includes("300x300") || actualSlot === "4153181237") {
+        return { maxWidth: "300px", maxHeight: "300px" };
+      }
+      return {};
+    };
+
+    const maxDimensions = getMaxDimensions();
+
     switch (type) {
       case "display":
-        return { display: "block", width: "100%", minHeight: "90px" };
+        return { display: "block", width: "100%", minHeight: "90px", ...maxDimensions };
       case "multiplex":
-        return { display: "block", width: "100%", minHeight: "250px" };
+        return { display: "block", width: "100%", minHeight: "250px", ...maxDimensions };
       case "infeed":
-        return { display: "block", width: "100%", minHeight: "280px" };
+        return { display: "block", width: "100%", minHeight: "280px", ...maxDimensions };
       default:
-        return { display: "block", width: "100%", minHeight: "90px" };
+        return { display: "block", width: "100%", minHeight: "90px", ...maxDimensions };
     }
   };
 
@@ -113,7 +129,12 @@ export const AdSpace = (props: AdSpaceProps) => {
       <ins
         ref={adRef}
         className="adsbygoogle"
-        style={getAdStyle()}
+        style={{
+          ...getAdStyle(),
+          backgroundColor: "transparent",
+          border: "none",
+          outline: "none"
+        }}
         data-ad-client={adClient}
         data-ad-slot={actualSlot}
         data-ad-format={type === "infeed" ? "fluid" : "auto"}
