@@ -8,8 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowRightLeft, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const CurrencyConverter = () => {
+  const adRefreshKey = useAdRefresh(3);
   const [amount, setAmount] = useState("1");
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("PKR");
@@ -120,6 +122,7 @@ const CurrencyConverter = () => {
         title="Currency Converter"
         description="Convert between 40+ world currencies with live exchange rates updated daily"
         category="Calculators"
+        adRefreshKey={adRefreshKey}
         instructions={[
           "Enter the amount you want to convert",
           "Select the source and target currencies",

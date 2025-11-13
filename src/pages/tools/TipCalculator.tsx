@@ -6,8 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { DollarSign, Users } from "lucide-react";
+import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const TipCalculator = () => {
+  const adRefreshKey = useAdRefresh(3);
   const [billAmount, setBillAmount] = useState<string>("");
   const [tipPercent, setTipPercent] = useState<number>(15);
   const [splitCount, setSplitCount] = useState<number>(1);
@@ -25,6 +27,7 @@ const TipCalculator = () => {
       title="Tip Calculator"
       description="Calculate tips and split bills easily. Perfect for restaurants, delivery, and service payments. Free tip calculator with bill splitting."
       category="Calculators"
+      adRefreshKey={adRefreshKey}
       instructions={[
         "Enter the total bill amount",
         "Select or adjust tip percentage",

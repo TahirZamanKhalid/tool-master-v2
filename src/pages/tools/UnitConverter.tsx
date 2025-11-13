@@ -5,8 +5,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
+import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const UnitConverter = () => {
+  const adRefreshKey = useAdRefresh(3);
   const [category, setCategory] = useState("length");
   const [fromUnit, setFromUnit] = useState("meter");
   const [toUnit, setToUnit] = useState("kilometer");
@@ -75,6 +77,7 @@ const UnitConverter = () => {
       title="Unit Converter"
       description="Convert between different units of measurement"
       category="Calculators"
+      adRefreshKey={adRefreshKey}
       relatedTools={[
         { name: "Currency Converter", path: "/tools/currency-converter" },
         { name: "Timestamp Converter", path: "/tools/timestamp-converter" },
