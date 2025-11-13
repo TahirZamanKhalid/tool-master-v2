@@ -6,19 +6,6 @@
 All colors MUST be HSL.
 */
 
-/* Hide empty ad containers with no content */
-.adsbygoogle:empty,
-.adsbygoogle[data-ad-status="unfilled"] {
-  display: none !important;
-  min-height: 0 !important;
-  height: 0 !important;
-}
-
-/* Make ad containers transparent when empty */
-.ad-container:has(.adsbygoogle:empty) {
-  display: none;
-}
-
 @layer base {
   :root {
     --background: 248 100% 98%;
