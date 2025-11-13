@@ -28,6 +28,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { AdSpace } from "@/components/AdSpace";
 
 interface ValidationError {
   line?: number;
@@ -35,29 +36,6 @@ interface ValidationError {
   message: string;
   type: "error" | "warning";
 }
-
-// Google AdSense Component
-const GoogleAd = ({ slot, width, height }: { slot: string; width: number; height: number }) => {
-  useEffect(() => {
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (err) {
-      console.error("AdSense error:", err);
-    }
-  }, []);
-
-  return (
-    <div className="w-full flex justify-center">
-      <ins
-        className="adsbygoogle"
-        style={{ display: "inline-block", width: `${width}px`, height: `${height}px` }}
-        data-ad-client="ca-pub-7382531001943020"
-        data-ad-slot={slot}
-      />
-    </div>
-  );
-};
 
 const CodeBeautifier = () => {
   const [input, setInput] = useState("");
@@ -79,19 +57,6 @@ const CodeBeautifier = () => {
   const [addLineNumbers, setAddLineNumbers] = useState(false);
   const [wrapLines, setWrapLines] = useState(false);
 
-  // Load AdSense script
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7382531001943020";
-    script.async = true;
-    script.crossOrigin = "anonymous";
-    document.head.appendChild(script);
-
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, []);
-
   // Calculate stats
   useEffect(() => {
     const lines = output.split("\n").length;
@@ -105,86 +70,6 @@ const CodeBeautifier = () => {
           : `${(bytes / 1048576).toFixed(2)} MB`;
     setStats({ lines, chars, size });
   }, [output]);
-
-  // Live preview with validation
-  useEffect(() => {
-    if (!input.trim()) {
-      setOutput("");
-      setErrors([]);
-      setIsValid(null);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      try {
-        // First validate the code
-        const validationErrors = validateCode(input, language);
-        setErrors(validationErrors);
-        
-        // Check if there are critical errors
-        const hasErrors = validationErrors.filter((e) => e.type === "error").length > 0;
-        setIsValid(!hasErrors);
-
-        // If there are critical errors, don't beautify
-        if (hasErrors) {
-          setOutput("");
-          return;
-        }
-
-        // Beautify the code
-        let result = "";
-        switch (language) {
-          case "json":
-            result = beautifyJSON(input);
-            break;
-          case "html":
-            result = beautifyHTML(input);
-            break;
-          case "css":
-            result = beautifyCSS(input);
-            break;
-          case "javascript":
-            result = beautifyJavaScript(input);
-            break;
-          case "xml":
-            result = beautifyXML(input);
-            break;
-          case "react":
-            result = beautifyReact(input);
-            break;
-          case "typescript":
-            result = beautifyTypeScript(input);
-            break;
-          case "python":
-            result = beautifyPython(input);
-            break;
-          case "dart":
-            result = beautifyDart(input);
-            break;
-          case "php":
-            result = beautifyPHP(input);
-            break;
-          case "sql":
-            result = beautifySQL(input);
-            break;
-        }
-
-        if (addLineNumbers) {
-          const lines = result.split("\n");
-          const maxDigits = String(lines.length).length;
-          result = lines.map((line, i) => `${String(i + 1).padStart(maxDigits, " ")} | ${line}`).join("\n");
-        }
-
-        setOutput(result);
-      } catch (error: any) {
-        setIsValid(false);
-        setErrors([{ message: error.message || "Invalid code format", type: "error" }]);
-        setOutput("");
-      }
-    }, 500); // Debounce for 500ms
-
-    return () => clearTimeout(timer);
-  }, [input, language, indentSize, indentType, sortKeys, removeComments, addLineNumbers, wrapLines]);
 
   const getIndent = () => {
     return indentType === "tabs" ? "\t" : " ".repeat(indentSize);
@@ -586,15 +471,67 @@ const CodeBeautifier = () => {
       return;
     }
 
-    // Validation and beautification is now handled by the live preview useEffect
-    // This function is kept for manual trigger if needed
-    if (errors.filter((e) => e.type === "error").length > 0) {
-      toast.error("Please fix the errors before beautifying");
-      return;
-    }
-    
-    if (output) {
-      toast.success("Code beautified successfully!");
+    setIsProcessing(true);
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    try {
+      const validationErrors = validateCode(input, language);
+      setErrors(validationErrors);
+      setIsValid(validationErrors.filter((e) => e.type === "error").length === 0);
+
+      let result = "";
+
+      switch (language) {
+        case "json":
+          result = beautifyJSON(input);
+          break;
+        case "html":
+          result = beautifyHTML(input);
+          break;
+        case "css":
+          result = beautifyCSS(input);
+          break;
+        case "javascript":
+          result = beautifyJavaScript(input);
+          break;
+        case "xml":
+          result = beautifyXML(input);
+          break;
+        case "react":
+          result = beautifyReact(input);
+          break;
+        case "typescript":
+          result = beautifyTypeScript(input);
+          break;
+        case "python":
+          result = beautifyPython(input);
+          break;
+        case "dart":
+          result = beautifyDart(input);
+          break;
+        case "php":
+          result = beautifyPHP(input);
+          break;
+        case "sql":
+          result = beautifySQL(input);
+          break;
+      }
+
+      if (addLineNumbers) {
+        const lines = result.split("\n");
+        const maxDigits = String(lines.length).length;
+        result = lines.map((line, i) => `${String(i + 1).padStart(maxDigits, " ")} | ${line}`).join("\n");
+      }
+
+      setOutput(result);
+      toast.success(validationErrors.length === 0 ? "Code beautified successfully!" : "Code beautified with warnings");
+    } catch (error: any) {
+      setIsValid(false);
+      setErrors([{ message: error.message || "Invalid code format", type: "error" }]);
+      toast.error("Failed to beautify code");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -919,50 +856,37 @@ const CodeBeautifier = () => {
           </div>
 
           {/* Validation Results */}
-          {(errors.length > 0 || isValid !== null) && (
+          {isValid !== null && (
             <Card
               className={`border-2 animate-in fade-in slide-in-from-top-4 duration-500 ${
-                isValid === false
-                  ? "border-red-500 bg-red-50 dark:bg-red-950/30"
-                  : errors.length > 0
-                    ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30"
-                    : "border-green-500 bg-green-50 dark:bg-green-950/30"
+                isValid
+                  ? "border-green-500 bg-green-50 dark:bg-green-950"
+                  : "border-amber-500 bg-amber-50 dark:bg-amber-950"
               }`}
             >
               <CardContent className="pt-6">
                 <div className="flex items-start gap-3">
-                  {isValid === false ? (
-                    <AlertCircle className="h-6 w-6 text-red-600 mt-0.5 flex-shrink-0" />
-                  ) : errors.length > 0 ? (
-                    <AlertCircle className="h-6 w-6 text-amber-600 mt-0.5 flex-shrink-0" />
-                  ) : (
+                  {isValid ? (
                     <CheckCircle2 className="h-6 w-6 text-green-600 mt-0.5 flex-shrink-0" />
+                  ) : (
+                    <AlertCircle className="h-6 w-6 text-amber-600 mt-0.5 flex-shrink-0" />
                   )}
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg mb-2">
-                      {isValid === false
-                        ? "❌ Syntax Errors Detected"
-                        : errors.length > 0
-                          ? "⚠️ Validation Warnings"
-                          : "✅ Validation Passed"}
+                      {isValid ? "✅ Validation Passed" : "⚠️ Validation Issues Found"}
                     </h3>
                     {errors.length > 0 && (
-                      <ul className="space-y-2">
+                      <ul className="space-y-1">
                         {errors.map((error, i) => (
                           <li key={i} className="text-sm flex items-start gap-2">
                             <Badge variant={error.type === "error" ? "destructive" : "secondary"} className="mt-0.5">
                               {error.type}
                             </Badge>
-                            <span className="flex-1">{error.message}</span>
+                            <span>{error.message}</span>
                           </li>
                         ))}
                       </ul>
                     )}
-                    {isValid === false && errors.length === 0 && (
-                      <p className="text-sm text-muted-foreground">
-                        Please fix the syntax errors to see the beautified code.
-                      </p>
-                     )}
                   </div>
                 </div>
               </CardContent>
@@ -1020,12 +944,11 @@ const CodeBeautifier = () => {
                 <div className="text-sm space-y-2">
                   <p className="font-semibold">🚀 Pro Tips:</p>
                   <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                    <li>✨ Live preview - see formatted code as you type (with 500ms delay)</li>
                     <li>
                       Supports 11 languages: JSON, HTML, CSS, JS, React, TypeScript, Python, Flutter/Dart, PHP, SQL, XML
                     </li>
                     <li>Use advanced options to customize formatting (indentation, comments, line numbers)</li>
-                    <li>🔍 Automatic syntax validation with detailed error messages</li>
+                    <li>Automatic syntax validation with detailed error messages</li>
                     <li>Minify option reduces file size for production</li>
                     <li>Upload files directly or paste code for instant formatting</li>
                     <li>Download formatted code with proper file extensions</li>
@@ -1041,22 +964,22 @@ const CodeBeautifier = () => {
           <div className="sticky top-6 space-y-6">
             {/* Ad Slot 1 - 300x250 */}
             <Card className="border-2 overflow-hidden">
-              <CardContent className="p-0">
-                <GoogleAd slot="7713152297" width={300} height={250} />
+              <CardContent className="p-4">
+                <AdSpace type="display" slot="7713152297" position="sidebar-right" className="w-full" />
               </CardContent>
             </Card>
 
             {/* Ad Slot 2 - 300x600 */}
             <Card className="border-2 overflow-hidden">
-              <CardContent className="p-0">
-                <GoogleAd slot="7110517063" width={300} height={600} />
+              <CardContent className="p-4">
+                <AdSpace type="display" slot="7110517063" position="sidebar-right" className="w-full" />
               </CardContent>
             </Card>
 
             {/* Ad Slot 3 - 300x300 */}
             <Card className="border-2 overflow-hidden">
-              <CardContent className="p-0">
-                <GoogleAd slot="4153181237" width={300} height={300} />
+              <CardContent className="p-4">
+                <AdSpace type="display" slot="4153181237" position="sidebar-right" className="w-full" />
               </CardContent>
             </Card>
           </div>
