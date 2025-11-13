@@ -26,6 +26,7 @@ import {
 import { SEOHead } from "@/components/SEOHead";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { LazyAdSpace } from "@/components/LazyAdSpace";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -189,7 +190,19 @@ const VideoTrimmer = () => {
       const speedValue = 1 / settings.speed;
       filters.push(`setpts=${speedValue}*PTS`);
       if (!settings.removeAudio) {
-        filters.push(`atempo=${settings.speed}`);
+        // Handle atempo (must be between 0.5 and 2.0, chain if needed)
+        let tempoValue = settings.speed;
+        while (tempoValue > 2.0) {
+          filters.push(`atempo=2.0`);
+          tempoValue /= 2.0;
+        }
+        while (tempoValue < 0.5) {
+          filters.push(`atempo=0.5`);
+          tempoValue /= 0.5;
+        }
+        if (tempoValue !== 1.0) {
+          filters.push(`atempo=${tempoValue}`);
+        }
       }
     }
 
@@ -921,12 +934,11 @@ const VideoTrimmer = () => {
             {/* Ad Space 1 */}
             <Card className="sticky top-6">
               <CardContent className="p-6">
-                <div className="bg-muted rounded-lg p-8 text-center min-h-[250px] flex items-center justify-center">
-                  <div className="text-muted-foreground">
-                    <p className="text-sm mb-2">Advertisement</p>
-                    <p className="text-xs">300x250</p>
-                  </div>
-                </div>
+                <LazyAdSpace
+                  type="display"
+                  slot="8364314011"
+                  className="min-h-[250px]"
+                />
               </CardContent>
             </Card>
 
@@ -985,12 +997,11 @@ const VideoTrimmer = () => {
             {/* Ad Space 2 */}
             <Card>
               <CardContent className="p-6">
-                <div className="bg-muted rounded-lg p-8 text-center min-h-[250px] flex items-center justify-center">
-                  <div className="text-muted-foreground">
-                    <p className="text-sm mb-2">Advertisement</p>
-                    <p className="text-xs">300x250</p>
-                  </div>
-                </div>
+                <LazyAdSpace
+                  type="display"
+                  slot="5105501959"
+                  className="min-h-[250px]"
+                />
               </CardContent>
             </Card>
 
