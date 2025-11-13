@@ -91,11 +91,16 @@ export const ToolLayout = ({
         />
 
         {layout === "full-width" ? (
-          /* Full Width Layout with Sticky Ads */
+          /* Full Width Layout with Maximum Ads */
           <div className="mt-8 space-y-8 w-full">
-            {/* Top Sticky Ad - Desktop */}
-            <div className="hidden md:block sticky top-16 z-10 bg-background/95 backdrop-blur-sm py-2">
-              <AdSpace key={`top-ad-${adRefreshKey ?? 0}`} size="leaderboard" className="w-full" />
+            {/* Top Ad Row - 3 Display Ads */}
+            <div className="w-full">
+              <div className="text-center text-xs text-muted-foreground mb-3">Advertisement</div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <AdSpace key={`top-ad-1-${adRefreshKey ?? 0}`} size="rectangle" className="w-full" />
+                <AdSpace key={`top-ad-2-${adRefreshKey ?? 0}`} size="rectangle" className="w-full" />
+                <AdSpace key={`top-ad-3-${adRefreshKey ?? 0}`} size="rectangle" className="w-full" />
+              </div>
             </div>
 
             <div className="space-y-8">
@@ -115,6 +120,15 @@ export const ToolLayout = ({
 
               <div className="overflow-hidden w-full">
                 {children}
+              </div>
+
+              {/* Mid-Content Ad Break */}
+              <div className="my-8">
+                <div className="text-center text-xs text-muted-foreground mb-3">Advertisement</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <AdSpace key={`mid-ad-1-${adRefreshKey ?? 0}`} size="rectangle" className="w-full" />
+                  <AdSpace key={`mid-ad-2-${adRefreshKey ?? 0}`} size="rectangle" className="w-full" />
+                </div>
               </div>
 
               {instructions && (
@@ -171,9 +185,19 @@ export const ToolLayout = ({
               <AdSpace key={`mobile-ad-${adRefreshKey ?? 0}`} size="banner" className="w-full" />
             </div>
             
-            {/* Desktop Bottom Ad */}
-            <div className="hidden md:block">
-              <AdSpace key={`bottom-ad-${adRefreshKey ?? 0}`} size="leaderboard" className="w-full" />
+            {/* Desktop Bottom Ad Row - 3 Ads */}
+            <div className="hidden md:block my-8">
+              <div className="text-center text-xs text-muted-foreground mb-3">Advertisement</div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <AdSpace key={`bottom-ad-1-${adRefreshKey ?? 0}`} size="rectangle" className="w-full" />
+                <AdSpace key={`bottom-ad-2-${adRefreshKey ?? 0}`} size="rectangle" className="w-full" />
+                <AdSpace key={`bottom-ad-3-${adRefreshKey ?? 0}`} size="rectangle" className="w-full" />
+              </div>
+            </div>
+
+            {/* Sticky Bottom Leaderboard - Always Visible */}
+            <div className="sticky bottom-0 z-10 bg-background/95 backdrop-blur-sm border-t py-2 -mx-4 px-4 md:mx-0 md:px-0">
+              <AdSpace key={`sticky-bottom-${adRefreshKey ?? 0}`} size="leaderboard" className="w-full" />
             </div>
           </div>
         ) : (

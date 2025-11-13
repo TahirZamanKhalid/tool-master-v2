@@ -252,6 +252,17 @@ const Index = () => {
 
       <OptimizedHero searchQuery={searchQuery} onSearch={handleButtonSearch} />
 
+      {/* Top Ad Row - 3 Display Ads */}
+      <section className="py-6 container px-4">
+        <div className="text-center text-xs text-muted-foreground mb-3">Advertisement</div>
+        <AdRow type="display" count={3} position="top" />
+      </section>
+
+      {/* Second Ad Row - 2 Multiplex Ads */}
+      <section className="py-4 container px-4">
+        <AdRow type="multiplex" count={2} position="top" />
+      </section>
+
       {/* Categories Section */}
       <section className="py-16 container w-full overflow-hidden px-4">
         <div className="text-center mb-12">
@@ -324,6 +335,17 @@ const Index = () => {
       </section>
 
       {!searchQuery && !selectedCategory && <HowItWorks />}
+
+      {/* Mid-Page Ad Section - 3 Display Ads */}
+      <section className="py-6 container px-4">
+        <div className="text-center text-xs text-muted-foreground mb-3">Advertisement</div>
+        <AdRow type="display" count={3} position="content" />
+      </section>
+
+      {/* Additional Mid-Page Ads - 3 Multiplex */}
+      <section className="py-4 container px-4">
+        <AdRow type="multiplex" count={3} position="content" />
+      </section>
 
       {/* Popular Tools Section */}
       <section id="tools-section" className="py-16 container">
@@ -452,6 +474,22 @@ const Index = () => {
 
       {/* FAQ Section */}
       <FAQ />
+
+      {/* Pre-Footer Ad Section - 3 Display Ads */}
+      <section className="py-6 container px-4">
+        <div className="text-center text-xs text-muted-foreground mb-3">Advertisement</div>
+        <AdRow type="display" count={3} position="content" />
+      </section>
+
+      {/* Bottom Ad Section - 3 More Display Ads */}
+      <section className="py-4 container px-4">
+        <AdRow type="display" count={3} position="bottom" />
+      </section>
+
+      {/* Final Bottom Ads - 2 Infeed */}
+      <section className="py-4 container px-4">
+        <AdRow type="infeed" count={2} position="bottom" />
+      </section>
 
       <Footer />
     </div>
