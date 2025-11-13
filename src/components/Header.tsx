@@ -1,121 +1,55 @@
-import { Moon, Sun, Menu, X } from "lucide-react";
-import { Button } from "./ui/button";
-import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const Header = () => {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useState(() => {
-    const saved = localStorage.getItem("theme");
-    return saved === "dark";
+    // Check localStorage for saved preference
+    const saved = localStorage.getItem('theme');
+    if (saved) return saved === 'dark';
+    // Default to light mode
+    return false;
   });
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
+    const root = window.document.documentElement;
     if (isDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
+      root.classList.add("dark");
+      localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
+      root.classList.remove("dark");
+      localStorage.setItem('theme', 'light');
     }
   }, [isDark]);
 
-  const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "All Tools", path: "/tools" },
-    { name: "Categories", path: "/categories" },
-    { name: "Blog", path: "/blog" },
-    { name: "About", path: "/about" },
-  ];
-
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="container flex h-16 items-center justify-between">
-        <div className="flex items-center gap-8">
-          <h1
-            className="text-xl font-bold cursor-pointer bg-gradient-primary bg-clip-text text-transparent hover:opacity-80 transition-opacity"
-            onClick={() => navigate("/")}
-          >
-            ToolMaster Pro™
-          </h1>
-          
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-6">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors relative group"
-              >
-                {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-primary group-hover:w-full transition-all duration-300" />
-              </Link>
-            ))}
-          </nav>
+    <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+      <div className="container flex h-16 items-center justify-between gap-2 sm:gap-4 px-4">
+        <div className="flex items-center gap-2 min-w-0 flex-shrink cursor-pointer" onClick={() => navigate("/")}>
+          <div className="gradient-primary h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex-shrink-0 flex items-center justify-center shadow-card">
+            <span className="text-white font-black text-lg sm:text-xl tracking-tight">TM</span>
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl font-bold truncate bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              ToolMaster Pro
+            </h1>
+            <p className="text-xs text-muted-foreground hidden sm:block">100+ Free Tools</p>
+          </div>
         </div>
 
-        {/* Desktop Actions */}
-        <div className="hidden lg:flex items-center gap-2">
+        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsDark(!isDark)}
-            className="hover:bg-accent"
+            className="rounded-lg flex-shrink-0"
           >
-            {isDark ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
-          </Button>
-        </div>
-
-        {/* Mobile Menu Button */}
-        <div className="flex lg:hidden items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsDark(!isDark)}
-            className="hover:bg-accent"
-          >
-            {isDark ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
         </div>
       </div>
-
-      {/* Mobile Navigation */}
-      {isMobileMenuOpen && (
-        <nav className="lg:hidden border-t bg-background/98 backdrop-blur animate-fade-in">
-          <div className="container py-4 flex flex-col gap-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="px-4 py-2 rounded-md text-sm font-medium text-foreground/80 hover:text-primary hover:bg-accent transition-colors"
-              >
-                {link.name}
-              </Link>
-            ))}
-          </div>
-        </nav>
-      )}
     </header>
   );
 };
