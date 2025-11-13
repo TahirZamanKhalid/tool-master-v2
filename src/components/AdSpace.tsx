@@ -51,10 +51,8 @@ export const AdSpace = (props: AdSpaceProps) => {
   const position = props.position;
 
   const actualSlot = slotConfig[slot] || slot;
-  const isTestMode = typeof window !== "undefined" && (
-    window.location.hostname.includes("localhost") ||
-    window.location.hostname.endsWith(".lovable.app")
-  );
+  // Always use production mode for real ads
+  const isTestMode = false;
 
   useEffect(() => {
     // Prevent double initialization
