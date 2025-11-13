@@ -136,6 +136,7 @@ import ThesisWriter from "./pages/tools/ThesisWriter";
 import BlogArticleWriter from "./pages/tools/BlogArticleWriter";
 import AllTools from "./pages/AllTools";
 import CategoryTools from "./pages/CategoryTools";
+import Categories from "./pages/Categories";
 import IPDetector from "./pages/tools/IPDetector";
 import ScreenDetector from "./pages/tools/ScreenDetector";
 import WordScrambler from "./pages/tools/WordScrambler";
@@ -198,6 +199,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/tools" element={<AllTools />} />
+          <Route path="/categories" element={<Categories />} />
           <Route path="/category/:category" element={<CategoryTools />} />
         <Route path="/tools/background-remover" element={<BackgroundRemover />} />
         <Route path="/tools/qr-code-generator" element={<QRCodeGenerator />} />

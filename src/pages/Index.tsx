@@ -1,15 +1,12 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { OptimizedHero } from "@/components/OptimizedHero";
 import { CategoryCard } from "@/components/CategoryCard";
 import { ToolCard } from "@/components/ToolCard";
 import { HowItWorks } from "@/components/HowItWorks";
 import { FAQ } from "@/components/FAQ";
-import { LazyAdSpace } from "@/components/LazyAdSpace";
-import { AdSpace } from "@/components/AdSpace";
-import { AdRow } from "@/components/AdRow";
 import { SEOHead } from "@/components/SEOHead";
+import { Button } from "@/components/ui/button";
 import { trackSearch } from "@/hooks/useToolAnalytics";
 import { useState, useEffect, useMemo } from "react";
 import { allTools } from "@/data/allTools";
@@ -240,218 +237,157 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden">
-      <SEOHead
-        title="ToolMaster Pro - 100+ Free Online Tools | No Registration Required"
-        description="Access 100+ free online tools instantly. Background remover, PDF merger, image compressor, QR generator, text tools, calculators & more. No signup, browser-based, secure."
-        keywords="free online tools, web tools, browser tools, no registration, PDF tools, image tools, text converters, calculators, developer tools, online utilities, free web apps"
-        canonical="https://toolmaster.cloud"
+    <div className="min-h-screen flex flex-col bg-gradient-hero">
+      <SEOHead 
+        title="Free Online Tools - ToolMaster Pro | 100+ Free Utilities" 
+        description="Access 100+ free online tools for developers, designers, and content creators. Image editors, PDF tools, calculators, converters, and more - no signup required."
+        keywords="free online tools, web tools, developer tools, image editor, PDF tools, text tools, calculators, converters"
       />
       <Header />
-
-
-      <OptimizedHero searchQuery={searchQuery} onSearch={handleButtonSearch} />
-
-      {/* Categories Section */}
-      <section className="py-16 container w-full overflow-hidden px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 break-words">Browse Free Online Tools by Category</h2>
-          <p className="text-muted-foreground text-base sm:text-lg break-words">
-            Explore our comprehensive collection of free web-based tools and utilities. No registration required, instant access to 100+ professional-grade online tools.
-          </p>
-        </div>
-
-        {/* Categories Grid - Full width */}
-        <div className="max-w-6xl mx-auto">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {categories.map((category, index) => {
-            // Create URL-friendly slugs
-            const categorySlug: Record<string, string> = {
-              "AI & Content": "ai-content",
-              "Image Tools": "image-tools",
-              "Developer Tools": "developer-tools",
-              "QR & Barcodes": "qr-barcodes",
-              "PDF Tools": "pdf-tools",
-              "Text Tools": "text-tools",
-              "Video Tools": "video-tools",
-              "SEO & Marketing": "seo-marketing",
-              "Calculators": "calculators",
-              "Security Tools": "security-tools",
-              "Utilities": "utilities",
-              "File Converters": "file-converters",
-              "Business Tools": "business-tools",
-              "Social Media": "social-media",
-              "Generators": "generators"
-            };
-            
-            return (
-              <div
-                key={index}
-                className="animate-scale-in cursor-pointer"
-                style={{ animationDelay: `${index * 0.05}s` }}
-                onClick={() => navigate(`/category/${categorySlug[category.title]}`)}
-              >
-                <CategoryCard 
-                  {...category}
-                  toolCount={category.toolCount}
-                  isSelected={false}
-                  comingSoon={false}
-                />
+      
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="py-20 lg:py-32 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-5" style={{
+            backgroundImage: 'radial-gradient(circle at 2px 2px, hsl(var(--primary)) 1px, transparent 0)',
+            backgroundSize: '40px 40px'
+          }} />
+          <div className="container relative z-10">
+            <div className="max-w-4xl mx-auto text-center space-y-8 animate-fade-in">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight">
+                <span className="bg-gradient-primary bg-clip-text text-transparent">
+                  100+ Free Online Tools
+                </span>
+                <br />
+                <span className="text-foreground">At Your Fingertips</span>
+              </h1>
+              <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+                Professional tools for developers, designers, and content creators. No signup required, completely free forever.
+              </p>
+              
+              {/* Search Bar */}
+              <div className="max-w-2xl mx-auto">
+                <div className="relative group">
+                  <input
+                    type="text"
+                    placeholder="Search for tools..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleButtonSearch(searchQuery)}
+                    className="w-full px-6 py-4 text-lg rounded-full border-2 border-border bg-background/80 backdrop-blur focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all outline-none shadow-lg group-hover:shadow-glow"
+                  />
+                  <Button
+                    onClick={() => handleButtonSearch(searchQuery)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-gradient-primary hover:opacity-90 transition-opacity shadow-md"
+                  >
+                    Search
+                  </Button>
+                </div>
               </div>
-            );
-          })}
-            </div>
 
-          {selectedCategory && (
-            <div className="text-center mb-8">
-              <p className="text-lg text-muted-foreground">
-                Showing tools in <span className="font-semibold text-foreground">{selectedCategory}</span>
-                <button
-                  onClick={() => handleCategoryFilter("")}
-                  className="ml-2 text-primary hover:underline"
-                >
-                  Clear filter
-                </button>
+              {/* Quick Stats */}
+              <div className="flex flex-wrap justify-center gap-8 pt-8">
+                <div className="text-center">
+                  <div className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">100+</div>
+                  <div className="text-sm text-muted-foreground">Free Tools</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold bg-gradient-secondary bg-clip-text text-transparent">1M+</div>
+                  <div className="text-sm text-muted-foreground">Monthly Users</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold bg-gradient-accent bg-clip-text text-transparent">100%</div>
+                  <div className="text-sm text-muted-foreground">Free Forever</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* Categories Section */}
+        <section className="py-16 bg-background">
+          <div className="container">
+            <div className="text-center mb-12 animate-fade-in">
+              <h2 className="text-3xl lg:text-4xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
+                Browse by Category
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Choose from our extensive collection of professional tools organized by category
               </p>
             </div>
-          )}
-        </div>
 
-        {/* Single ad in center after categories */}
-        <div className="mt-12 flex justify-center">
-          <AdSpace type="display" slot="1212397554" position="content" />
-        </div>
-      </section>
-
-      {!searchQuery && !selectedCategory && <HowItWorks />}
-
-      {/* Popular Tools Section */}
-      <section id="tools-section" className="py-16 container">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            {searchQuery || selectedCategory ? "Search Results" : "Most Popular Free Online Tools"}
-          </h2>
-          <p className="text-muted-foreground text-lg mb-4">
-            {searchQuery || selectedCategory 
-              ? `Found ${filteredTools.length} tool${filteredTools.length !== 1 ? 's' : ''} - All free, no signup required`
-              : "Trusted by thousands of developers, designers, and content creators worldwide"
-            }
-          </p>
-          {!searchQuery && !selectedCategory && (
-            <button
-              onClick={() => navigate("/tools")}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all font-semibold"
-            >
-              View All Tools
-            </button>
-          )}
-        </div>
-
-        {filteredTools.length > 0 ? (
-          <>
-            {/* Tools Grid - Full width */}
-            <div className="max-w-6xl mx-auto">
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredTools.map((tool, index) => {
-              // Insert ad after every 8 tools
-              const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
-              
-              return (
-                <>
-                  <div
-                    key={index}
-                    className="animate-fade-in"
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                    onClick={() => handleToolClick(tool.path)}
-                  >
-                    <ToolCard {...tool} />
-                  </div>
-                  
-                  {/* Insert in-feed ad after every 8 tools */}
-                  {showAdAfter && (
-                    <div className="col-span-full my-4">
-                      <LazyAdSpace 
-                        type="infeed" 
-                        slot="4739066253" 
-                        layoutKey="-gk-24+14-4r+ke"
-                        position="content" 
-                        className="mx-auto" 
-                      />
-                    </div>
-                  )}
-                </>
-              );
-            })}
-              </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {categories.slice(0, 8).map((category, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleCategoryFilter(category.title)}
+                  className="cursor-pointer transform transition-transform hover:scale-105 animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <CategoryCard 
+                    icon={category.icon}
+                    title={category.title}
+                    description={category.description}
+                    toolCount={category.toolCount}
+                    color={category.color}
+                  />
+                </div>
+              ))}
             </div>
-          </>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-xl text-muted-foreground mb-4">No tools found matching your search</p>
-            <button
-              onClick={() => {
-                handleSearch("");
-                handleCategoryFilter("");
-              }}
-              className="text-primary hover:underline"
-            >
-              Clear all filters
-            </button>
-          </div>
-        )}
 
-        {/* Single ad at bottom */}
-        <div className="mt-12 flex justify-center">
-          <AdSpace type="display" slot="2918331088" position="bottom" />
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container px-4">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold mb-2">Why Choose Our Free Online Tools?</h2>
-            <p className="text-muted-foreground">Trusted by professionals worldwide for fast, secure, and reliable results</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
-            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth">
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  100+
-                </span>
-              </div>
-              <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Tools</p>
-            </div>
-            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.1s" }}>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  1M+
-                </span>
-              </div>
-              <p className="text-sm sm:text-base text-muted-foreground font-medium">Monthly Users</p>
-            </div>
-            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.2s" }}>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  10M+
-                </span>
-              </div>
-              <p className="text-sm sm:text-base text-muted-foreground font-medium">Files Processed</p>
-            </div>
-            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.3s" }}>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  100%
-                </span>
-              </div>
-              <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Forever</p>
+            <div className="text-center mt-8">
+              <Button
+                onClick={() => navigate("/categories")}
+                variant="outline"
+                size="lg"
+                className="hover:bg-accent"
+              >
+                View All Categories
+              </Button>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* FAQ Section */}
-      <FAQ />
+        {/* Featured Tools Section */}
+        <section className="py-16 bg-muted/30">
+          <div className="container">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl lg:text-4xl font-bold mb-4">
+                Featured Tools
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Our most popular and powerful tools, loved by millions of users worldwide
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {filteredTools.slice(0, 8).map((tool, index) => (
+                <div 
+                  key={index} 
+                  onClick={() => handleToolClick(tool.path)}
+                  className="transform transition-transform hover:scale-105 animate-fade-in cursor-pointer"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <ToolCard {...tool} />
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center">
+              <Button
+                onClick={() => navigate("/tools")}
+                size="lg"
+                className="bg-gradient-primary hover:opacity-90 transition-opacity shadow-lg hover:shadow-glow"
+              >
+                View All {allTools.length} Tools
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        <HowItWorks />
+        <FAQ />
+      </main>
 
       <Footer />
     </div>

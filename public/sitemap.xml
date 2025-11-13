@@ -11,12 +11,20 @@
   <!-- All Tools Page -->
   <url>
     <loc>https://toolmaster.cloud/tools</loc>
-    <lastmod>2025-11-12</lastmod>
+    <lastmod>2025-01-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <!-- Categories -->
+  <!-- Categories Page -->
+  <url>
+    <loc>https://toolmaster.cloud/categories</loc>
+    <lastmod>2025-01-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Individual Categories -->
   <url>
     <loc>https://toolmaster.cloud/category/ai-content</loc>
     <lastmod>2025-11-12</lastmod>
