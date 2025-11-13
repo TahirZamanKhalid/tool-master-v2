@@ -128,18 +128,6 @@ export const AdSpace = (props: AdSpaceProps) => {
   // Always render the ad container - don't hide or remove it
   return (
     <div className={`ad-container relative ${className}`} style={{ minWidth: "250px" }}>
-      {/* Loading animation */}
-      {isLoading && (
-        <div 
-          className="absolute inset-0 bg-muted/5 rounded-lg animate-pulse"
-          style={getAdStyle()}
-        >
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-xs text-muted-foreground/50">Loading ad...</div>
-          </div>
-        </div>
-      )}
-      
       <ins
         ref={adRef}
         className="adsbygoogle"
@@ -147,9 +135,7 @@ export const AdSpace = (props: AdSpaceProps) => {
           ...getAdStyle(),
           backgroundColor: "transparent",
           border: "none",
-          outline: "none",
-          opacity: isLoading ? 0 : 1,
-          transition: "opacity 0.3s ease-in-out"
+          outline: "none"
         }}
         data-ad-client={adClient}
         data-ad-slot={actualSlot}
