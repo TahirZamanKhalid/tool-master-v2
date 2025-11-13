@@ -30,6 +30,10 @@ const slotConfig: Record<string, string> = {
   display_ad_slot_3: "4402803148", // Display ad 3
   infeed_ad_slot_1: "4739066253", // In-feed ad
   multiplex_ad_slot_1: "2127993591", // Multiplex ad
+  // Code Beautifier specific slots
+  code_beautifier_300x250: "7713152297", // Code beautifier 300x250
+  code_beautifier_300x600: "7110517063", // Code beautifier 300x600
+  code_beautifier_300x300: "4153181237", // Code Beautifier 300x300
 };
 
 export const AdSpace = (props: AdSpaceProps) => {
