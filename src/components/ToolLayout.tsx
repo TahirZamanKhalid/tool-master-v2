@@ -91,10 +91,12 @@ export const ToolLayout = ({
         />
 
         {layout === "full-width" ? (
-          /* Full Width Layout with Row Ads */
+          /* Full Width Layout with Sticky Ads */
           <div className="mt-8 space-y-8 w-full">
-            {/* Top Row Ad */}
-            <AdSpace key={`top-ad-${adRefreshKey ?? 0}`} size="leaderboard" className="w-full" />
+            {/* Top Sticky Ad - Desktop */}
+            <div className="hidden md:block sticky top-16 z-10 bg-background/95 backdrop-blur-sm py-2">
+              <AdSpace key={`top-ad-${adRefreshKey ?? 0}`} size="leaderboard" className="w-full" />
+            </div>
 
             <div className="space-y-8">
               <div>
@@ -164,8 +166,15 @@ export const ToolLayout = ({
               )}
             </div>
 
-            {/* Bottom Row Ad */}
-            <AdSpace key={`bottom-ad-${adRefreshKey ?? 0}`} size="leaderboard" className="w-full" />
+            {/* Mobile Sticky Bottom Ad */}
+            <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm p-2 border-t border-border">
+              <AdSpace key={`mobile-ad-${adRefreshKey ?? 0}`} size="banner" className="w-full" />
+            </div>
+            
+            {/* Desktop Bottom Ad */}
+            <div className="hidden md:block">
+              <AdSpace key={`bottom-ad-${adRefreshKey ?? 0}`} size="leaderboard" className="w-full" />
+            </div>
           </div>
         ) : (
           /* Sidebar Layout: 10% left, 80% content, 10% right sticky ad */
