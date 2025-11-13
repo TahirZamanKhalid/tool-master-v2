@@ -9,8 +9,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Key, RefreshCw, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const PasswordGenerator = () => {
+  const adRefreshKey = useAdRefresh(3);
   const [password, setPassword] = useState("");
   const [length, setLength] = useState([16]);
   const [includeUppercase, setIncludeUppercase] = useState(true);
@@ -83,6 +85,7 @@ const PasswordGenerator = () => {
         title="Password Generator"
         description="Create secure, random passwords instantly"
         category="Security Tools"
+        adRefreshKey={adRefreshKey}
         instructions={[
           "Set password length and character types",
           "Click 'Generate Password'",

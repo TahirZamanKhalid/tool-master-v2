@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { FileText, Copy } from "lucide-react";
+import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const LoremIpsumGenerator = () => {
+  const adRefreshKey = useAdRefresh(3);
   const [count, setCount] = useState(3);
   const [type, setType] = useState<"paragraphs" | "words" | "sentences">("paragraphs");
   const [output, setOutput] = useState("");
@@ -79,6 +81,7 @@ const LoremIpsumGenerator = () => {
       title="Lorem Ipsum Generator"
       description="Generate placeholder text for your designs"
       category="Text Tools"
+      adRefreshKey={adRefreshKey}
       relatedTools={[
         { name: "Word Counter", path: "/tools/word-counter" },
         { name: "Case Converter", path: "/tools/case-converter" },

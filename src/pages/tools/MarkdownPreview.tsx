@@ -5,8 +5,10 @@ import { Card } from "@/components/ui/card";
 import { FileText } from "lucide-react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
+import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const MarkdownPreview = () => {
+  const adRefreshKey = useAdRefresh(3);
   const [markdown, setMarkdown] = useState("# Hello World\n\nThis is **bold** and this is *italic*.\n\n- List item 1\n- List item 2\n\n```javascript\nconst hello = 'world';\n```");
 
   const convertToHTML = (md: string) => {
@@ -28,6 +30,7 @@ const MarkdownPreview = () => {
       title="Markdown Preview"
       description="Write and preview markdown in real-time"
       category="Text Tools"
+      adRefreshKey={adRefreshKey}
       relatedTools={[
         { name: "JSON Formatter", path: "/tools/json-formatter" },
         { name: "HTML Encoder", path: "/tools/html-encoder" },

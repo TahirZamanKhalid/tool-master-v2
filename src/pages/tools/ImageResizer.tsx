@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const ImageResizer = () => {
+  const adRefreshKey = useAdRefresh(3);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [width, setWidth] = useState("");
   const [height, setHeight] = useState("");
@@ -54,6 +56,7 @@ const ImageResizer = () => {
       title="Image Resizer"
       description="Resize images to custom dimensions"
       category="Image Tools"
+      adRefreshKey={adRefreshKey}
     >
       <Card>
         <CardContent className="p-6 space-y-4">

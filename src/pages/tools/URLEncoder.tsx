@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Copy, Link } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdWatchModal } from "@/components/AdWatchModal";
+import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const URLEncoder = () => {
+  const adRefreshKey = useAdRefresh(3);
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [showAdModal, setShowAdModal] = useState(false);
@@ -70,6 +72,7 @@ const URLEncoder = () => {
       title="URL Encoder/Decoder"
       description="Encode or decode URLs for safe transmission"
       category="Developer Tools"
+      adRefreshKey={adRefreshKey}
       instructions={[
         "Enter or paste your URL or text",
         "Click 'Encode' to make it URL-safe or 'Decode' to reverse",
