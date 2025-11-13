@@ -111,7 +111,7 @@ const VideoTrimmer = () => {
   const loadFFmpeg = async () => {
     try {
       const ffmpeg = ffmpegRef.current;
-      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd";
+      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
 
       ffmpeg.on("log", ({ message }) => {
         console.log(message);
@@ -124,7 +124,6 @@ const VideoTrimmer = () => {
       await ffmpeg.load({
         coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, "text/javascript"),
       });
 
       setFfmpegLoaded(true);
@@ -865,7 +864,7 @@ const VideoTrimmer = () => {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         onClick={processVideo}
-                        disabled={isProcessing || !ffmpegLoaded}
+                        disabled={isProcessing}
                         className="flex-1"
                         size="lg"
                       >
