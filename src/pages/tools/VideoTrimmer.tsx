@@ -91,12 +91,48 @@ const VideoTrimmer = () => {
   });
 
   const videoRef = useRef<HTMLVideoElement>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
   const ffmpegRef = useRef(new FFmpeg());
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadFFmpeg();
   }, []);
+
+  // Live preview effect
+  useEffect(() => {
+    if (!videoRef.current || !previewCanvasRef.current) return;
+
+    const video = videoRef.current;
+    const canvas = previewCanvasRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const applyFilters = () => {
+      if (video.paused && currentTime === 0) return;
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      // Draw the current video frame
+      ctx.filter = `brightness(${1 + settings.brightness / 100}) contrast(${1 + settings.contrast / 100}) saturate(${1 + settings.saturation / 100}) blur(${settings.blur}px)`;
+      if (settings.grayscale) {
+        ctx.filter += ' grayscale(100%)';
+      }
+
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    };
+
+    const intervalId = setInterval(applyFilters, 100);
+    video.addEventListener('play', applyFilters);
+    video.addEventListener('seeked', applyFilters);
+
+    return () => {
+      clearInterval(intervalId);
+      video.removeEventListener('play', applyFilters);
+      video.removeEventListener('seeked', applyFilters);
+    };
+  }, [settings.brightness, settings.contrast, settings.saturation, settings.blur, settings.grayscale, currentTime]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -453,10 +489,14 @@ const VideoTrimmer = () => {
                       <video
                         ref={videoRef}
                         src={videoUrl}
-                        className="w-full max-h-[500px]"
+                        className="w-full max-h-[500px] hidden"
                         onLoadedMetadata={handleLoadedMetadata}
                         onPlay={() => setIsPlaying(true)}
                         onPause={() => setIsPlaying(false)}
+                      />
+                      <canvas
+                        ref={previewCanvasRef}
+                        className="w-full max-h-[500px]"
                       />
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
                         <div className="flex items-center gap-3 mb-2">
@@ -929,9 +969,9 @@ const VideoTrimmer = () => {
           </div>
 
           {/* Sidebar for Ads - 4 columns */}
-          <div className="lg:col-span-4 space-y-6">
+          <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-6 lg:self-start">
             {/* Ad Space 1 */}
-            <Card className="sticky top-6">
+            <Card>
               <CardContent className="p-6">
                 <LazyAdSpace
                   type="display"
