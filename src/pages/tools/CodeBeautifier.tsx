@@ -29,6 +29,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AdSpace } from "@/components/AdSpace";
+import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 interface ValidationError {
   line?: number;
@@ -38,6 +39,9 @@ interface ValidationError {
 }
 
 const CodeBeautifier = () => {
+  // Ad refresh every 3 minutes
+  const adRefreshKey = useAdRefresh(3);
+  
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [language, setLanguage] = useState<
@@ -641,6 +645,7 @@ const CodeBeautifier = () => {
       title="Advanced Code Beautifier & Formatter"
       description="Professional code formatter with syntax validation, minification, and advanced formatting options for JSON, HTML, CSS, JavaScript, TypeScript, React, Python, Flutter/Dart, PHP, SQL, and XML"
       category="Developer Tools"
+      adRefreshKey={adRefreshKey}
       relatedTools={[
         { name: "JSON Formatter", path: "/tools/json-formatter" },
         { name: "HTML Encoder", path: "/tools/html-encoder" },
@@ -965,21 +970,39 @@ const CodeBeautifier = () => {
             {/* Ad Slot 1 - 300x250 */}
             <Card className="border-2 overflow-hidden">
               <CardContent className="p-4">
-                <AdSpace type="display" slot="7713152297" position="sidebar-right" className="w-full" />
+                <AdSpace 
+                  key={`sidebar-ad-1-${adRefreshKey}`}
+                  type="display" 
+                  slot="7713152297" 
+                  position="sidebar-right" 
+                  className="w-full" 
+                />
               </CardContent>
             </Card>
 
             {/* Ad Slot 2 - 300x600 */}
             <Card className="border-2 overflow-hidden">
               <CardContent className="p-4">
-                <AdSpace type="display" slot="7110517063" position="sidebar-right" className="w-full" />
+                <AdSpace 
+                  key={`sidebar-ad-2-${adRefreshKey}`}
+                  type="display" 
+                  slot="7110517063" 
+                  position="sidebar-right" 
+                  className="w-full" 
+                />
               </CardContent>
             </Card>
 
             {/* Ad Slot 3 - 300x300 */}
             <Card className="border-2 overflow-hidden">
               <CardContent className="p-4">
-                <AdSpace type="display" slot="4153181237" position="sidebar-right" className="w-full" />
+                <AdSpace 
+                  key={`sidebar-ad-3-${adRefreshKey}`}
+                  type="display" 
+                  slot="4153181237" 
+                  position="sidebar-right" 
+                  className="w-full" 
+                />
               </CardContent>
             </Card>
           </div>
