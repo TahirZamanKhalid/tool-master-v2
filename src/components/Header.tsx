@@ -164,13 +164,13 @@ export const Header = () => {
             </div>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
+          {/* Categories Button - Always Visible */}
+          <div className="flex items-center gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2 font-semibold">
+                <Button variant="outline" className="gap-2 font-semibold border-primary/30 hover:bg-primary/10">
                   <Zap className="h-4 w-4" />
-                  Categories
+                  <span className="hidden sm:inline">Categories</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" className="w-64 p-3 grid grid-cols-2 gap-2">
@@ -234,10 +234,10 @@ export const Header = () => {
               ></div>
             </Button>
 
-            {/* Mobile Menu */}
+            {/* Mobile Menu - Only on very small screens */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden rounded-xl">
+                <Button variant="ghost" size="icon" className="sm:hidden rounded-xl">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
