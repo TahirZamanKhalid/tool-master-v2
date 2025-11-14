@@ -12,7 +12,7 @@ const TrendingButton = memo(({ term, onClick }: { term: string; onClick: (term: 
   <Button 
     variant="outline" 
     size="sm" 
-    className="h-7 sm:h-8 text-xs sm:text-sm px-2 sm:px-3 border-primary/30 hover:bg-primary/10 hover:border-primary transition-smooth rounded-lg"
+    className="h-7 sm:h-8 text-xs sm:text-sm px-2 sm:px-3"
     onClick={() => onClick(term)}
   >
     {term}
@@ -47,22 +47,40 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
   const trendingTerms = ["Background Remover", "QR Generator", "PDF Merger", "AI Chat"];
 
   return (
-    <section className="relative overflow-hidden w-full bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM4ODg4ODgiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE2YzAtNC40MTggMy41ODItOCA4LThzOCAzLjU4MiA4IDgtMy41ODIgOC04IDgtOC0zLjU4Mi04LTh6TTAgMTZjMC00LjQxOCAzLjU4Mi04IDgtOHM4IDMuNTgyIDggOC0zLjU4MiA4LTggOC04LTMuNTgyLTgtOHptMCA0MGMwLTQuNDE4IDMuNTgyLTggOC04czggMy41ODIgOCA4LTMuNTgyIDgtOCA4LTgtMy41ODItOC04em0zNiAwYzAtNC40MTggMy41ODItOCA4LThzOCAzLjU4MiA4IDgtMy41ODIgOC04IDgtOC0zLjU4Mi04LTh6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-30"></div>
-      
-      <div className="container py-16 md:py-24 px-4 relative">
+    <section className="relative overflow-hidden w-full">
+      <div className="gradient-hero absolute inset-0 -z-10"></div>
+      <div className="container py-16 md:py-24 px-4">
         <div className="mx-auto max-w-4xl text-center space-y-8 animate-fade-in">
-          <div className="space-y-4">
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight break-words bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent animate-scale-in">
-              100+ Free AI-Powered Tools
-            </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground break-words">
-              Instant Access, No Signup Required ✨
-            </p>
-          </div>
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight break-words">
+            100+ Free AI-Powered Tools
+          </h1>
+          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground break-words">
+            Instant Access, No Signup Required
+          </p>
+          
+          <form onSubmit={handleSearchSubmit} className="mx-auto max-w-2xl w-full px-2">
+            <div className="relative flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                <Input
+                  placeholder="Search tools..."
+                  className="h-12 sm:h-14 pl-10 sm:pl-12 pr-2 text-sm sm:text-base shadow-card-hover border-2 w-full"
+                  value={localSearch}
+                  onChange={handleSearchChange}
+                />
+              </div>
+              <Button 
+                type="submit"
+                size="lg" 
+                className="gradient-primary border-0 h-12 sm:h-14 px-4 sm:px-6 whitespace-nowrap"
+              >
+                Search
+              </Button>
+            </div>
+          </form>
 
           <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm text-muted-foreground px-2">
-            <span className="self-center font-medium">Trending:</span>
+            <span className="self-center">Trending:</span>
             {trendingTerms.map((term) => (
               <TrendingButton key={term} term={term} onClick={handleTrendingClick} />
             ))}
