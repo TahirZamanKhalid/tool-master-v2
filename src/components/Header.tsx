@@ -54,26 +54,31 @@ export const Header = () => {
   }, [isDark]);
 
   const toolCategories = [
-    { name: "Calculators", path: "/category/calculators", icon: "🧮", color: "from-blue-500 to-cyan-500" },
-    { name: "Converters", path: "/category/converters", icon: "🔄", color: "from-green-500 to-emerald-500" },
-    { name: "Generators", path: "/category/generators", icon: "⚡", color: "from-purple-500 to-pink-500" },
-    { name: "Formatters", path: "/category/formatters", icon: "📝", color: "from-orange-500 to-red-500" },
-    { name: "Development", path: "/category/development", icon: "💻", color: "from-indigo-500 to-purple-500" },
-    { name: "Design", path: "/category/design", icon: "🎨", color: "from-pink-500 to-rose-500" },
+    { name: "AI & Content", path: "/category/ai-content", icon: "✨", color: "from-blue-500 to-purple-600" },
+    { name: "Image Tools", path: "/category/image-tools", icon: "🖼️", color: "from-pink-500 to-rose-600" },
+    { name: "Developer Tools", path: "/category/developer-tools", icon: "💻", color: "from-green-500 to-emerald-600" },
+    { name: "PDF Tools", path: "/category/pdf-tools", icon: "📄", color: "from-orange-500 to-red-600" },
+    { name: "Text Tools", path: "/category/text-tools", icon: "📝", color: "from-indigo-500 to-blue-600" },
+    { name: "Video Tools", path: "/category/video-tools", icon: "🎥", color: "from-purple-500 to-indigo-600" },
+    { name: "SEO & Marketing", path: "/category/seo-marketing", icon: "📈", color: "from-violet-500 to-purple-600" },
+    { name: "Calculators", path: "/category/calculators", icon: "🧮", color: "from-cyan-500 to-blue-600" },
+    { name: "Security Tools", path: "/category/security-tools", icon: "🔒", color: "from-red-500 to-orange-600" },
+    { name: "File Converters", path: "/category/file-converters", icon: "🔄", color: "from-amber-500 to-orange-600" },
+    { name: "QR & Barcodes", path: "/category/qr-barcodes", icon: "📱", color: "from-emerald-500 to-teal-600" },
   ];
 
   const popularTools = [
-    { name: "Currency Converter", path: "/tools/currency-converter" },
-    { name: "PDF Converter", path: "/tools/pdf-converter" },
-    { name: "Code Formatter", path: "/tools/code-formatter" },
+    { name: "AI Chat", path: "/tools/ai-chat" },
+    { name: "Background Remover", path: "/tools/background-remover" },
     { name: "Image Compressor", path: "/tools/image-compressor" },
+    { name: "QR Code Generator", path: "/tools/qr-code-generator" },
     { name: "Password Generator", path: "/tools/password-generator" },
   ];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      navigate(`/?q=${encodeURIComponent(searchQuery)}`);
       setShowSearch(false);
       setSearchQuery("");
     }

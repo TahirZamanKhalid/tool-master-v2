@@ -60,27 +60,6 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
               Instant Access, No Signup Required ✨
             </p>
           </div>
-          
-          <form onSubmit={handleSearchSubmit} className="mx-auto max-w-2xl w-full px-2">
-            <div className="relative flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                <Input
-                  placeholder="Search tools..."
-                  className="h-12 sm:h-14 pl-10 sm:pl-12 pr-2 text-sm sm:text-base shadow-card-hover border-2 border-primary/20 focus:border-primary w-full rounded-xl glass"
-                  value={localSearch}
-                  onChange={handleSearchChange}
-                />
-              </div>
-              <Button 
-                type="submit"
-                size="lg" 
-                className="gradient-primary border-0 h-12 sm:h-14 px-4 sm:px-6 whitespace-nowrap rounded-xl shadow-glow hover:shadow-card-hover transition-smooth"
-              >
-                Search
-              </Button>
-            </div>
-          </form>
 
           <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm text-muted-foreground px-2">
             <span className="self-center font-medium">Trending:</span>
