@@ -9,9 +9,9 @@ interface HeroProps {
 }
 
 const TrendingButton = memo(({ term, onClick }: { term: string; onClick: (term: string) => void }) => (
-  <Button
-    variant="outline"
-    size="sm"
+  <Button 
+    variant="outline" 
+    size="sm" 
     className="h-7 sm:h-8 text-xs sm:text-sm px-2 sm:px-3"
     onClick={() => onClick(term)}
   >
@@ -44,6 +44,8 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
     onSearch?.(term.toLowerCase());
   };
 
+  const trendingTerms = ["Background Remover", "QR Generator", "PDF Merger", "AI Chat"];
+
   return (
     <section className="relative overflow-hidden w-full">
       <div className="gradient-hero absolute inset-0 -z-10"></div>
@@ -55,7 +57,7 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
           <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground break-words">
             Instant Access, No Signup Required
           </p>
-
+          
           <form onSubmit={handleSearchSubmit} className="mx-auto max-w-2xl w-full px-2">
             <div className="relative flex items-center gap-2">
               <div className="relative flex-1">
@@ -67,9 +69,9 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
                   onChange={handleSearchChange}
                 />
               </div>
-              <Button
+              <Button 
                 type="submit"
-                size="lg"
+                size="lg" 
                 className="gradient-primary border-0 h-12 sm:h-14 px-4 sm:px-6 whitespace-nowrap"
               >
                 Search

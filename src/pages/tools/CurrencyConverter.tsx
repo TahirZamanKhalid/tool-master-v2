@@ -8,8 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowRightLeft, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const CurrencyConverter = () => {
+  const adRefreshKey = useAdRefresh(3);
   const [amount, setAmount] = useState("1");
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("PKR");
@@ -91,13 +93,13 @@ const CurrencyConverter = () => {
   const convertCurrency = () => {
     const amountNum = parseFloat(amount);
     if (isNaN(amountNum) || !exchangeRates[fromCurrency] || !exchangeRates[toCurrency]) return "0.00";
-
+    
     const fromRate = exchangeRates[fromCurrency];
     const toRate = exchangeRates[toCurrency];
-
+    
     const inUSD = amountNum / fromRate;
     const result = inUSD * toRate;
-
+    
     return result.toFixed(2);
   };
 
@@ -107,12 +109,11 @@ const CurrencyConverter = () => {
   };
 
   const result = convertCurrency();
-  const fromSymbol = currencies.find((c) => c.code === fromCurrency)?.symbol || "";
-  const toSymbol = currencies.find((c) => c.code === toCurrency)?.symbol || "";
-  const exchangeRate =
-    exchangeRates[toCurrency] && exchangeRates[fromCurrency]
-      ? (exchangeRates[toCurrency] / exchangeRates[fromCurrency]).toFixed(4)
-      : "0.0000";
+  const fromSymbol = currencies.find(c => c.code === fromCurrency)?.symbol || "";
+  const toSymbol = currencies.find(c => c.code === toCurrency)?.symbol || "";
+  const exchangeRate = exchangeRates[toCurrency] && exchangeRates[fromCurrency] 
+    ? (exchangeRates[toCurrency] / exchangeRates[fromCurrency]).toFixed(4) 
+    : "0.0000";
 
   return (
     <>
@@ -121,6 +122,7 @@ const CurrencyConverter = () => {
         title="Currency Converter"
         description="Convert between 40+ world currencies with live exchange rates updated daily"
         category="Calculators"
+        adRefreshKey={adRefreshKey}
         instructions={[
           "Enter the amount you want to convert",
           "Select the source and target currencies",
@@ -155,7 +157,7 @@ const CurrencyConverter = () => {
                 className="ml-4 mt-8"
                 title="Refresh exchange rates"
               >
-                <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               </Button>
             </div>
 
@@ -176,7 +178,13 @@ const CurrencyConverter = () => {
                 </Select>
               </div>
 
-              <Button variant="outline" size="icon" onClick={swapCurrencies} className="mb-0.5" disabled={loading}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={swapCurrencies}
+                className="mb-0.5"
+                disabled={loading}
+              >
                 <ArrowRightLeft className="h-4 w-4" />
               </Button>
 
@@ -204,17 +212,19 @@ const CurrencyConverter = () => {
                   {loading ? "Loading..." : `${toSymbol}${result} ${toCurrency}`}
                 </p>
                 <p className="text-sm text-muted-foreground mt-4">
-                  {fromSymbol}1 {fromCurrency} = {toSymbol}
-                  {exchangeRate} {toCurrency}
+                  {fromSymbol}1 {fromCurrency} = {toSymbol}{exchangeRate} {toCurrency}
                 </p>
-                {lastUpdated && <p className="text-xs text-muted-foreground mt-2">Last updated: {lastUpdated}</p>}
+                {lastUpdated && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Last updated: {lastUpdated}
+                  </p>
+                )}
               </div>
             </div>
 
             <div className="bg-muted/50 p-4 rounded-lg">
               <p className="text-xs text-muted-foreground text-center">
-                💡 Live exchange rates powered by ExchangeRate-API. Rates are updated daily from global financial
-                markets. For exact rates, please check with your bank or financial institution.
+                💡 Live exchange rates powered by ExchangeRate-API. Rates are updated daily from global financial markets. For exact rates, please check with your bank or financial institution.
               </p>
             </div>
           </div>
