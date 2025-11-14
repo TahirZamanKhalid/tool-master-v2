@@ -105,11 +105,16 @@ All colors MUST be HSL.
   }
 }
 
-/* Prevent horizontal scroll */
+/* Prevent horizontal scroll and add fade-in animation */
 html,
 body {
   overflow-x: hidden;
   max-width: 100vw;
+}
+
+body {
+  animation: fade-in 0.3s ease-out;
+  opacity: 1;
 }
 
 * {
