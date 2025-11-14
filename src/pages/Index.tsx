@@ -240,22 +240,26 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden">
-      <SEOHead
-        title="ToolMaster Pro - 100+ Free Online Tools | No Registration Required"
-        description="Access 100+ free online tools instantly. Background remover, PDF merger, image compressor, QR generator, text tools, calculators & more. No signup, browser-based, secure."
-        keywords="free online tools, web tools, browser tools, no registration, PDF tools, image tools, text converters, calculators, developer tools, online utilities, free web apps"
-        canonical="https://toolmaster.cloud"
-      />
-      <Header />
+    <div className="min-h-screen w-full overflow-x-hidden relative">
+      {/* Animated background mesh */}
+      <div className="fixed inset-0 gradient-mesh pointer-events-none" />
+      
+      <div className="relative z-10">
+        <SEOHead
+          title="ToolMaster Pro - 100+ Free Online Tools | No Registration Required"
+          description="Access 100+ free online tools instantly. Background remover, PDF merger, image compressor, QR generator, text tools, calculators & more. No signup, browser-based, secure."
+          keywords="free online tools, web tools, browser tools, no registration, PDF tools, image tools, text converters, calculators, developer tools, online utilities, free web apps"
+          canonical="https://toolmaster.cloud"
+        />
+        <Header />
 
       <OptimizedHero searchQuery={searchQuery} onSearch={handleButtonSearch} />
 
       {/* Categories Section */}
-      <section className="py-16 container w-full overflow-hidden px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 break-words">Browse Free Online Tools by Category</h2>
-          <p className="text-muted-foreground text-base sm:text-lg break-words">
+      <section className="py-20 container w-full overflow-hidden px-4">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 break-words bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">Browse Free Online Tools by Category</h2>
+          <p className="text-muted-foreground text-base sm:text-lg break-words max-w-3xl mx-auto leading-relaxed">
             Explore our comprehensive collection of free web-based tools and utilities. No registration required, instant access to 100+ professional-grade online tools.
           </p>
         </div>
@@ -321,13 +325,12 @@ const Index = () => {
       {!searchQuery && !selectedCategory && <HowItWorks />}
 
       {/* Popular Tools Section */}
-      <section id="tools-section" className="py-16 container">
+      <section id="tools-section" className="py-20 container">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
             {searchQuery || selectedCategory ? "Search Results" : "Most Popular Free Online Tools"}
           </h2>
-          <p className="text-muted-foreground text-lg mb-4">
-            {searchQuery || selectedCategory 
+          <p className="text-muted-foreground text-lg mb-4 max-w-2xl mx-auto">{searchQuery || selectedCategory 
               ? `Found ${filteredTools.length} tool${filteredTools.length !== 1 ? 's' : ''} - All free, no signup required`
               : "Trusted by thousands of developers, designers, and content creators worldwide"
             }
@@ -335,9 +338,9 @@ const Index = () => {
           {!searchQuery && !selectedCategory && (
             <button
               onClick={() => navigate("/tools")}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all font-semibold"
+              className="inline-flex items-center gap-2 px-8 py-4 gradient-primary text-white rounded-xl shadow-glow hover:shadow-card-hover transition-smooth font-bold text-lg"
             >
-              View All Tools
+              View All Tools →
             </button>
           )}
         </div>
@@ -384,44 +387,45 @@ const Index = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-muted/30">
-        <div className="container px-4">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-bold mb-2">Why Choose Our Free Online Tools?</h2>
-            <p className="text-muted-foreground">Trusted by professionals worldwide for fast, secure, and reliable results</p>
+      <section className="py-20 bg-gradient-to-br from-primary/5 via-secondary/5 to-accent/5 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiM4ODg4ODgiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDE2YzAtNC40MTggMy41ODItOCA4LThzOCAzLjU4MiA4IDgtMy41ODIgOC04IDgtOC0zLjU4Mi04LTh6TTAgMTZjMC00LjQxOCAzLjU4Mi04IDgtOHM4IDMuNTgyIDggOC0zLjU4MiA4LTggOC04LTMuNTgyLTgtOHptMCA0MGMwLTQuNDE4IDMuNTgyLTggOC04czggMy41ODIgOCA4LTMuNTgyIDgtOCA4LTgtMy41ODItOC04em0zNiAwYzAtNC40MTggMy41ODItOCA4LThzOCAzLjU4MiA4IDgtMy41ODIgOC04IDgtOC0zLjU4Mi04LTh6Ii8+PC9nPjwvZz48L3N2Zz4=')] opacity-50"></div>
+        <div className="container px-4 relative">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">Why Choose Our Free Online Tools?</h2>
+            <p className="text-muted-foreground text-lg">Trusted by professionals worldwide for fast, secure, and reliable results</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
-            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth">
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <div className="animate-fade-in p-8 rounded-2xl glass shadow-card hover-lift border-2 border-primary/20">
+              <div className="text-4xl sm:text-5xl md:text-6xl font-bold mb-3">
+                <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                   100+
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Tools</p>
+              <p className="text-sm sm:text-base text-muted-foreground font-semibold">Free Tools</p>
             </div>
-            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.1s" }}>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <div className="animate-fade-in p-8 rounded-2xl glass shadow-card hover-lift border-2 border-secondary/20" style={{ animationDelay: "0.1s" }}>
+              <div className="text-4xl sm:text-5xl md:text-6xl font-bold mb-3">
+                <span className="bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">
                   1M+
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-muted-foreground font-medium">Monthly Users</p>
+              <p className="text-sm sm:text-base text-muted-foreground font-semibold">Monthly Users</p>
             </div>
-            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.2s" }}>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <div className="animate-fade-in p-8 rounded-2xl glass shadow-card hover-lift border-2 border-accent/20" style={{ animationDelay: "0.2s" }}>
+              <div className="text-4xl sm:text-5xl md:text-6xl font-bold mb-3">
+                <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
                   10M+
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-muted-foreground font-medium">Files Processed</p>
+              <p className="text-sm sm:text-base text-muted-foreground font-semibold">Files Processed</p>
             </div>
-            <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.3s" }}>
-              <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            <div className="animate-fade-in p-8 rounded-2xl glass shadow-card hover-lift border-2 border-success/20" style={{ animationDelay: "0.3s" }}>
+              <div className="text-4xl sm:text-5xl md:text-6xl font-bold mb-3">
+                <span className="bg-gradient-to-r from-success to-secondary bg-clip-text text-transparent">
                   100%
                 </span>
               </div>
-              <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Forever</p>
+              <p className="text-sm sm:text-base text-muted-foreground font-semibold">Free Forever</p>
             </div>
           </div>
         </div>
@@ -431,6 +435,7 @@ const Index = () => {
       <FAQ />
 
       <Footer />
+      </div>
     </div>
   );
 };
