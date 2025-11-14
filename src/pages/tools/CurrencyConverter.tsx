@@ -87,15 +87,39 @@ const CurrencyConverter = () => {
   const fetchExchangeRates = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
+      const response = await fetch("https://api.exchangerate-api.com/v4/latest/USD", {
+        cache: 'no-cache'
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch rates');
+      }
+      
       const data = await response.json();
       setExchangeRates(data.rates);
-      setLastUpdated(new Date(data.time_last_updated * 1000).toLocaleString());
+      setLastUpdated(new Date().toLocaleString());
+      
+      // Store in localStorage with timestamp
+      localStorage.setItem('exchangeRates', JSON.stringify({
+        rates: data.rates,
+        timestamp: Date.now()
+      }));
+      
       toast({
         title: "Exchange rates updated",
         description: "Live rates have been fetched successfully",
       });
     } catch (error) {
+      console.error('Exchange rate fetch error:', error);
+      
+      // Try to load from localStorage
+      const cached = localStorage.getItem('exchangeRates');
+      if (cached) {
+        const { rates, timestamp } = JSON.parse(cached);
+        setExchangeRates(rates);
+        setLastUpdated(new Date(timestamp).toLocaleString());
+      }
+      
       toast({
         title: "Failed to fetch rates",
         description: "Using cached rates. Please try again later.",
@@ -107,7 +131,15 @@ const CurrencyConverter = () => {
   };
 
   useEffect(() => {
+    // Initial fetch
     fetchExchangeRates();
+    
+    // Set up auto-refresh every 5 hours (18000000 ms)
+    const interval = setInterval(() => {
+      fetchExchangeRates();
+    }, 5 * 60 * 60 * 1000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const convertCurrency = () => {
