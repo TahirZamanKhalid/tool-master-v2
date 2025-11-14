@@ -4,10 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Calculator } from "lucide-react";
-import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const PercentageCalculator = () => {
-  const adRefreshKey = useAdRefresh(3);
   const [num1, setNum1] = useState("50");
   const [num2, setNum2] = useState("100");
   const [percentage, setPercentage] = useState("10");
@@ -46,7 +44,6 @@ const PercentageCalculator = () => {
       title="Percentage Calculator"
       description="Calculate percentages and percentage changes"
       category="Calculators"
-      adRefreshKey={adRefreshKey}
       relatedTools={[
         { name: "Currency Converter", path: "/tools/currency-converter" },
         { name: "Unit Converter", path: "/tools/unit-converter" },

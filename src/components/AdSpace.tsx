@@ -39,7 +39,6 @@ const slotConfig: Record<string, string> = {
 export const AdSpace = (props: AdSpaceProps) => {
   const adRef = useRef<any>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const adClient = "ca-pub-7382531001943020";
 
   // Handle both old and new prop formats
@@ -51,8 +50,10 @@ export const AdSpace = (props: AdSpaceProps) => {
   const position = props.position;
 
   const actualSlot = slotConfig[slot] || slot;
-  // Always use production mode for real ads
-  const isTestMode = false;
+  const isTestMode = typeof window !== "undefined" && (
+    window.location.hostname.includes("localhost") ||
+    window.location.hostname.endsWith(".lovable.app")
+  );
 
   useEffect(() => {
     // Prevent double initialization
@@ -76,8 +77,6 @@ export const AdSpace = (props: AdSpaceProps) => {
           console.log("[AdSense] Initializing ad:", { type, slot: actualSlot, position });
           (window.adsbygoogle = window.adsbygoogle || []).push({});
           setIsInitialized(true);
-          // Hide loading animation after ad initializes
-          setTimeout(() => setIsLoading(false), 1000);
         } else {
           // Retry if adsbygoogle not ready yet
           setTimeout(initializeAd, 200);
@@ -86,7 +85,6 @@ export const AdSpace = (props: AdSpaceProps) => {
         console.error("[AdSense] Error initializing ad:", error);
         // Don't retry on error, but keep the container visible
         setIsInitialized(true);
-        setIsLoading(false);
       }
     };
 
@@ -125,13 +123,9 @@ export const AdSpace = (props: AdSpaceProps) => {
     }
   };
 
-  // Render ad container only after it's been initialized to avoid empty space
-  if (!isInitialized && isLoading) {
-    return null;
-  }
-
+  // Always render the ad container - don't hide or remove it
   return (
-    <div className={`ad-container relative ${className}`}>
+    <div className={`ad-container ${className}`} style={{ minWidth: "250px" }}>
       <ins
         ref={adRef}
         className="adsbygoogle"

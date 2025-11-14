@@ -9,10 +9,8 @@ import { PDFDocument } from "pdf-lib";
 import { FileText, Download, Upload, Scissors } from "lucide-react";
 import { AdSpace } from "@/components/AdSpace";
 import { AdWatchModal } from "@/components/AdWatchModal";
-import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const PDFSplitter = () => {
-  const adRefreshKey = useAdRefresh(3);
   const [file, setFile] = useState<File | null>(null);
   const [pageRanges, setPageRanges] = useState("");
   const [processing, setProcessing] = useState(false);
@@ -124,7 +122,6 @@ const PDFSplitter = () => {
       title="PDF Splitter"
       description="Extract specific pages from PDF documents"
       category="PDF Tools"
-      adRefreshKey={adRefreshKey}
       instructions={[
         "Upload your PDF file",
         "Enter page ranges (e.g., 1-5, 10, 15-20)",

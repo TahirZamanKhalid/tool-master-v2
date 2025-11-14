@@ -9,7 +9,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { useAdRefresh } from "@/hooks/useAdRefresh";
 import {
   Activity,
   TrendingUp,
@@ -49,8 +48,6 @@ import {
 } from "recharts";
 
 const EnhancedBMICalculator = () => {
-  const adRefreshKey = useAdRefresh(3);
-  
   // Basic inputs
   const [weight, setWeight] = useState("70");
   const [height, setHeight] = useState("170");
@@ -409,7 +406,6 @@ const EnhancedBMICalculator = () => {
       title="Advanced BMI Calculator"
       description="Comprehensive Body Mass Index calculator with health metrics, goals tracking, and detailed insights"
       category="Calculators"
-      adRefreshKey={adRefreshKey}
       relatedTools={[
         { name: "Percentage Calculator", path: "/tools/percentage-calculator" },
         { name: "Unit Converter", path: "/tools/unit-converter" },

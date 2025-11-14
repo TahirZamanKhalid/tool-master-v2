@@ -4,10 +4,8 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText } from "lucide-react";
-import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const WordCounter = () => {
-  const adRefreshKey = useAdRefresh(3);
   const [text, setText] = useState("");
 
   const words = text.trim() === "" ? 0 : text.trim().split(/\s+/).length;
@@ -24,7 +22,6 @@ const WordCounter = () => {
         title="Word Counter"
         description="Count words, characters, sentences, and reading time instantly"
         category="Text Tools"
-        adRefreshKey={adRefreshKey}
         instructions={[
           "Type or paste your text in the text area",
           "Statistics update automatically in real-time",

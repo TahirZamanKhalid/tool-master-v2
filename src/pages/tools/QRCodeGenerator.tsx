@@ -10,10 +10,8 @@ import { Download, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import QRCodeLib from "qrcode";
 import { AdSpace } from "@/components/AdSpace";
-import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const QRCodeGenerator = () => {
-  const adRefreshKey = useAdRefresh(3);
   const [text, setText] = useState("");
   const [qrCode, setQrCode] = useState("");
   const [color, setColor] = useState("#000000");
@@ -81,7 +79,6 @@ const QRCodeGenerator = () => {
         title="QR Code Generator"
         description="Advanced QR code generator with real-time preview and customization"
         category="QR & Barcodes"
-        adRefreshKey={adRefreshKey}
         instructions={[
           "Enter your text, URL, or any content",
           "QR code generates automatically as you type",

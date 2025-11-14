@@ -249,6 +249,7 @@ const Index = () => {
       />
       <Header />
 
+
       <OptimizedHero searchQuery={searchQuery} onSearch={handleButtonSearch} />
 
       {/* Categories Section */}
@@ -316,6 +317,10 @@ const Index = () => {
           )}
         </div>
 
+        {/* Single ad in center after categories */}
+        <div className="mt-12 flex justify-center">
+          <AdSpace type="display" slot="1212397554" position="content" />
+        </div>
       </section>
 
       {!searchQuery && !selectedCategory && <HowItWorks />}
@@ -361,6 +366,19 @@ const Index = () => {
                   >
                     <ToolCard {...tool} />
                   </div>
+                  
+                  {/* Insert in-feed ad after every 8 tools */}
+                  {showAdAfter && (
+                    <div className="col-span-full my-4">
+                      <LazyAdSpace 
+                        type="infeed" 
+                        slot="4739066253" 
+                        layoutKey="-gk-24+14-4r+ke"
+                        position="content" 
+                        className="mx-auto" 
+                      />
+                    </div>
+                  )}
                 </>
               );
             })}
@@ -381,6 +399,11 @@ const Index = () => {
             </button>
           </div>
         )}
+
+        {/* Single ad at bottom */}
+        <div className="mt-12 flex justify-center">
+          <AdSpace type="display" slot="2918331088" position="bottom" />
+        </div>
       </section>
 
       {/* Stats Section */}

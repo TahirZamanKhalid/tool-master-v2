@@ -9,10 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { PDFDocument } from "pdf-lib";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { AdSpace } from "@/components/AdSpace";
-import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const PDFMerger = () => {
-  const adRefreshKey = useAdRefresh(3);
   const [files, setFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -118,7 +116,6 @@ const PDFMerger = () => {
         title="PDF Merger"
         description="Combine multiple PDF files into a single document"
         category="PDF Tools"
-        adRefreshKey={adRefreshKey}
         instructions={[
           "Upload 2 or more PDF files",
           "Arrange files in desired order",

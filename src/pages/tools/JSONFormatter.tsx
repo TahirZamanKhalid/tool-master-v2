@@ -6,10 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, Download, FileText } from "lucide-react";
-import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const JSONFormatter = () => {
-  const adRefreshKey = useAdRefresh(3);
   const [input, setInput] = useState("");
   const [formatted, setFormatted] = useState("");
   const [error, setError] = useState("");
@@ -72,7 +70,6 @@ const JSONFormatter = () => {
         title="JSON Formatter"
         description="Format, validate, and minify JSON data instantly"
         category="Developer Tools"
-        adRefreshKey={adRefreshKey}
         instructions={[
           "Paste your JSON data in the input area",
           "Click Format to beautify or Minify to compress",

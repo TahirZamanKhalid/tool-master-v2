@@ -8,10 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Copy, ArrowDown, ArrowUp } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdWatchModal } from "@/components/AdWatchModal";
-import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const Base64Encoder = () => {
-  const adRefreshKey = useAdRefresh(3);
   const [textInput, setTextInput] = useState("");
   const [encodedOutput, setEncodedOutput] = useState("");
   const [decodedOutput, setDecodedOutput] = useState("");
@@ -77,7 +75,6 @@ const Base64Encoder = () => {
         title="Base64 Encoder/Decoder"
         description="Encode text to Base64 or decode Base64 strings instantly"
         category="Developer Tools"
-        adRefreshKey={adRefreshKey}
         instructions={[
           "Enter your text or Base64 string",
           "Choose encode or decode operation",

@@ -6,10 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Copy } from "lucide-react";
-import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const ColorPicker = () => {
-  const adRefreshKey = useAdRefresh(3);
   const [color, setColor] = useState("#3b82f6");
   const { toast } = useToast();
 
@@ -95,7 +93,6 @@ const ColorPicker = () => {
         title="Color Picker"
         description="Pick colors and generate color palettes with HEX, RGB, and HSL values"
         category="Developer Tools"
-        adRefreshKey={adRefreshKey}
         instructions={[
           "Use the color picker to select your desired color",
           "Copy color values in different formats (HEX, RGB, HSL)",

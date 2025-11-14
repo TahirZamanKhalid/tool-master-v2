@@ -8,10 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Upload, Download, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAdRefresh } from "@/hooks/useAdRefresh";
 
 const ImageCompressor = () => {
-  const adRefreshKey = useAdRefresh(3);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [compressedImage, setCompressedImage] = useState<string | null>(null);
   const [quality, setQuality] = useState([80]);
@@ -125,7 +123,6 @@ const ImageCompressor = () => {
         title="Image Compressor"
         description="Reduce image file size while maintaining quality"
         category="Image Tools"
-        adRefreshKey={adRefreshKey}
         instructions={[
           "Upload your image (PNG, JPG, WebP)",
           "Adjust quality slider (lower = smaller file)",

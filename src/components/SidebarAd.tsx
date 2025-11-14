@@ -21,44 +21,34 @@ export const SidebarAd = ({ position, className = "" }: SidebarAdProps) => {
     <div
       className={`fixed ${
         position === "left" ? "left-4" : "right-4"
-      } top-32 hidden xl:block ${className} max-h-[calc(100vh-140px)] overflow-y-auto`}
-      style={{ width: "300px" }}
+      } top-24 hidden xl:block ${className}`}
+      style={{ width: "160px" }}
     >
-      <div className="space-y-6 sticky top-32">
-        <Card className="p-3 bg-muted/50 border-2">
-          <div className="text-[10px] text-muted-foreground text-center mb-2">Advertisement</div>
-          <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center text-center p-4" style={{ minHeight: "250px" }}>
+      <Card className="p-2 bg-muted/50 border-2 border-dashed border-muted-foreground/20">
+        <div className="space-y-4">
+          {/* Skyscraper Ad (160x600) */}
+          <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center text-center p-4" style={{ height: "600px" }}>
             <div className="text-xs text-muted-foreground">
               <p className="font-semibold mb-2">Ad Space</p>
-              <p>300x250</p>
+              <p>160x600</p>
+              <p className="mt-2 text-[10px]">Sidebar Ad</p>
             </div>
           </div>
-        </Card>
 
-        <Card className="p-3 bg-muted/50 border-2">
-          <div className="text-[10px] text-muted-foreground text-center mb-2">Advertisement</div>
-          <div className="bg-gradient-to-br from-accent/10 to-primary/10 rounded-lg flex items-center justify-center text-center p-4" style={{ minHeight: "600px" }}>
+          {/* Wide Skyscraper Ad (160x600) - Second slot */}
+          <div className="bg-gradient-to-br from-accent/10 to-primary/10 rounded-lg flex items-center justify-center text-center p-4" style={{ height: "600px" }}>
             <div className="text-xs text-muted-foreground">
               <p className="font-semibold mb-2">Ad Space</p>
-              <p>300x600</p>
+              <p>160x600</p>
+              <p className="mt-2 text-[10px]">Sidebar Ad #2</p>
             </div>
           </div>
-        </Card>
+        </div>
+      </Card>
 
-        <Card className="p-3 bg-muted/50 border-2">
-          <div className="text-[10px] text-muted-foreground text-center mb-2">Advertisement</div>
-          <div className="bg-gradient-to-br from-secondary/10 to-accent/10 rounded-lg flex items-center justify-center text-center p-4" style={{ minHeight: "250px" }}>
-            <div className="text-xs text-muted-foreground">
-              <p className="font-semibold mb-2">Ad Space</p>
-              <p>300x250</p>
-            </div>
-          </div>
-        </Card>
-
-        <p className="text-[10px] text-muted-foreground text-center mt-2">
-          Ads help keep tools free
-        </p>
-      </div>
+      <p className="text-[10px] text-muted-foreground text-center mt-2">
+        Ads help keep tools free
+      </p>
     </div>
   );
 };
