@@ -125,9 +125,13 @@ export const AdSpace = (props: AdSpaceProps) => {
     }
   };
 
-  // Always render the ad container - don't hide or remove it
+  // Render ad container only after it's been initialized to avoid empty space
+  if (!isInitialized && isLoading) {
+    return null;
+  }
+
   return (
-    <div className={`ad-container relative ${className}`} style={{ minWidth: "250px" }}>
+    <div className={`ad-container relative ${className}`}>
       <ins
         ref={adRef}
         className="adsbygoogle"
