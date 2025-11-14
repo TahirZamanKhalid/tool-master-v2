@@ -1,4 +1,4 @@
-import { Moon, Sun, Sparkles, Search, Menu, X, Zap, Tool } from "lucide-react";
+import { Moon, Sun, Sparkles, Search, Menu, X, Zap, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -125,7 +125,7 @@ export const Header = () => {
           >
             <div className="relative">
               <div className="gradient-primary h-12 w-12 sm:h-14 sm:w-14 rounded-2xl flex-shrink-0 flex items-center justify-center shadow-2xl shadow-primary/20 group-hover:shadow-primary/30 transition-all duration-300 group-hover:scale-105">
-                <Tool className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
+                <Wrench className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                 <div className="absolute -top-1 -right-1">
                   <div className="relative">
                     <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-75"></div>
@@ -238,7 +238,7 @@ export const Header = () => {
                 <div className="flex flex-col h-full">
                   <div className="flex items-center gap-3 mb-8">
                     <div className="gradient-primary h-12 w-12 rounded-xl flex items-center justify-center">
-                      <Tool className="h-6 w-6 text-white" />
+                      <Wrench className="h-6 w-6 text-white" />
                     </div>
                     <div>
                       <h2 className="text-lg font-bold">ToolMaster Pro</h2>
@@ -354,7 +354,7 @@ export const Header = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes float-1 {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-20px) rotate(180deg); }
