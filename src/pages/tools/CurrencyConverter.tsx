@@ -5,12 +5,13 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowRightLeft, RefreshCw, Star, TrendingUp, History, Calculator, Download } from "lucide-react";
+import { ArrowRightLeft, RefreshCw, Star, TrendingUp, History, Calculator, Download, Wifi, WifiOff, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
+import { fetchExchangeRatesWithFallback, getCachedRates, setCachedRates, isRatesStale } from "@/utils/exchangeRateApis";
 
 interface Currency {
   code: string;
@@ -27,6 +28,8 @@ const CurrencyConverter = () => {
   const [exchangeRates, setExchangeRates] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string>("");
+  const [rateSource, setRateSource] = useState<string>("");
+  const [isLive, setIsLive] = useState<boolean>(false);
   const [favorites, setFavorites] = useState<string[]>(["USD", "EUR", "GBP", "JPY", "PKR", "INR"]);
   const [showFavorites, setShowFavorites] = useState(true);
   const [conversionHistory, setConversionHistory] = useState<
@@ -87,44 +90,46 @@ const CurrencyConverter = () => {
   const fetchExchangeRates = async () => {
     try {
       setLoading(true);
-      const response = await fetch("https://api.exchangerate-api.com/v4/latest/USD", {
-        cache: 'no-cache'
-      });
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch rates');
-      }
+      // Try to fetch from APIs with fallback
+      const result = await fetchExchangeRatesWithFallback();
       
-      const data = await response.json();
-      setExchangeRates(data.rates);
-      setLastUpdated(new Date().toLocaleString());
+      setExchangeRates(result.rates);
+      setLastUpdated(new Date(result.timestamp).toLocaleString());
+      setRateSource(result.source);
+      setIsLive(true);
       
-      // Store in localStorage with timestamp
-      localStorage.setItem('exchangeRates', JSON.stringify({
-        rates: data.rates,
-        timestamp: Date.now()
-      }));
+      // Cache the results
+      setCachedRates(result);
       
       toast({
         title: "Exchange rates updated",
-        description: "Live rates have been fetched successfully",
+        description: `Live rates from ${result.source}`,
       });
     } catch (error) {
-      console.error('Exchange rate fetch error:', error);
+      console.error('All exchange rate APIs failed:', error);
       
-      // Try to load from localStorage
-      const cached = localStorage.getItem('exchangeRates');
+      // Try to load from cache
+      const cached = getCachedRates();
       if (cached) {
-        const { rates, timestamp } = JSON.parse(cached);
-        setExchangeRates(rates);
-        setLastUpdated(new Date(timestamp).toLocaleString());
+        setExchangeRates(cached.rates);
+        setLastUpdated(new Date(cached.timestamp).toLocaleString());
+        setRateSource(cached.source);
+        setIsLive(false);
+        
+        const age = Math.round((Date.now() - cached.timestamp) / (1000 * 60 * 60));
+        toast({
+          title: "Using cached rates",
+          description: `Live rates unavailable. Using ${age}h old data from ${cached.source}`,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Failed to fetch rates",
+          description: "No internet connection and no cached data available",
+          variant: "destructive",
+        });
       }
-      
-      toast({
-        title: "Failed to fetch rates",
-        description: "Using cached rates. Please try again later.",
-        variant: "destructive",
-      });
     } finally {
       setLoading(false);
     }
@@ -242,17 +247,42 @@ const CurrencyConverter = () => {
           {/* Main Converter Card */}
           <Card className="p-8 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-blue-950 border-blue-200 dark:border-blue-800">
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-2">
                   <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                     Live Currency Converter
                   </h2>
-                  <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
-                    <TrendingUp className="w-3 h-3 mr-1" />
-                    Live Rates
+                  <Badge 
+                    variant="secondary" 
+                    className={isLive 
+                      ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800" 
+                      : "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800"
+                    }
+                  >
+                    {isLive ? (
+                      <>
+                        <Wifi className="w-3 h-3 mr-1" />
+                        Live
+                      </>
+                    ) : (
+                      <>
+                        <WifiOff className="w-3 h-3 mr-1" />
+                        Cached
+                      </>
+                    )}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="w-4 h-4" />
+                    <span className="hidden sm:inline">Updated:</span>
+                    <span className="font-medium">{lastUpdated || "Loading..."}</span>
+                  </div>
+                  {rateSource && (
+                    <Badge variant="outline" className="text-xs">
+                      {rateSource}
+                    </Badge>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"
