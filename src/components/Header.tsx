@@ -26,6 +26,13 @@ export const Header = () => {
 
   useEffect(() => {
     setMounted(true);
+    
+    // Apply dark theme immediately if no preference is saved
+    const saved = localStorage.getItem("theme");
+    if (!saved) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    }
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
