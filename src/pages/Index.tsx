@@ -6,9 +6,6 @@ import { CategoryCard } from "@/components/CategoryCard";
 import { ToolCard } from "@/components/ToolCard";
 import { HowItWorks } from "@/components/HowItWorks";
 import { FAQ } from "@/components/FAQ";
-import { LazyAdSpace } from "@/components/LazyAdSpace";
-import { AdSpace } from "@/components/AdSpace";
-import { AdRow } from "@/components/AdRow";
 import { SEOHead } from "@/components/SEOHead";
 import { trackSearch } from "@/hooks/useToolAnalytics";
 import { useState, useEffect, useMemo } from "react";
@@ -350,12 +347,7 @@ const Index = () => {
             {/* Tools Grid - Full width */}
             <div className="max-w-6xl mx-auto">
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredTools.map((tool, index) => {
-              // Insert ad after every 8 tools
-              const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
-              
-              return (
-                <>
+            {filteredTools.map((tool, index) => (
                   <div
                     key={index}
                     className="animate-fade-in"
@@ -364,9 +356,7 @@ const Index = () => {
                   >
                     <ToolCard {...tool} />
                   </div>
-                </>
-              );
-            })}
+            ))}
               </div>
             </div>
           </>
