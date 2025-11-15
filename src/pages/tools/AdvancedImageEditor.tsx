@@ -753,13 +753,13 @@ const AdvancedImageEditor = () => {
 
       <div className="space-y-4">
         {/* Main Editor Area - Compact Design */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[600px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[500px]">
           {/* Left Panel - Tools (3 columns) */}
-          <div className="lg:col-span-3 h-full">
-            <Card className="h-full">
-              <CardContent className="p-3 h-full flex flex-col">
-                <ScrollArea className="h-full flex-1">
-                  <div className="space-y-3 pr-3">
+          <div className="lg:col-span-3 h-full overflow-hidden">
+            <Card className="h-full flex flex-col">
+              <CardContent className="p-3 flex-1 overflow-hidden">
+                <ScrollArea className="h-full">
+                  <div className="space-y-3 pr-3 pb-3">
                     {/* Upload Section */}
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold">UPLOAD IMAGE</Label>
