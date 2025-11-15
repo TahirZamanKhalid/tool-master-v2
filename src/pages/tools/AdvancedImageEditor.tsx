@@ -103,7 +103,7 @@ const AdvancedImageEditor = () => {
   const [currentText, setCurrentText] = useState({
     text: "",
     color: "#000000",
-    size: 32,
+    size: 24,
     font: "Arial",
     bold: false,
     italic: false,
@@ -114,7 +114,7 @@ const AdvancedImageEditor = () => {
 
   const [drawSettings, setDrawSettings] = useState({
     color: "#000000",
-    size: 5,
+    size: 3,
     opacity: 100,
   });
 
@@ -123,7 +123,7 @@ const AdvancedImageEditor = () => {
     fillColor: "#000000",
     strokeColor: "#000000",
     filled: false,
-    strokeWidth: 3,
+    strokeWidth: 2,
   });
 
   const [showGrid, setShowGrid] = useState(false);
@@ -148,6 +148,7 @@ const AdvancedImageEditor = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
+  const toolsScrollRef = useRef<HTMLDivElement>(null);
 
   // Keyboard shortcuts and mouse wheel zoom
   useEffect(() => {
@@ -747,69 +748,81 @@ const AdvancedImageEditor = () => {
       category="Image Tools"
     >
       {/* Top Ad */}
-      <div className="mb-6">
+      <div className="mb-4">
         <AdSpace size="leaderboard" />
       </div>
 
-      <div className="space-y-6">
-        {/* Main Editor Area - Full Width */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-200px)] min-h-[700px]">
-          {/* Left Panel - Collapsible Controls (3 columns) */}
+      <div className="space-y-4">
+        {/* Main Editor Area - Compact Design */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[600px]">
+          {/* Left Panel - Tools (3 columns) */}
           <div className="lg:col-span-3 h-full">
             <Card className="h-full">
-              <CardContent className="p-4 h-full">
-                <ScrollArea className="h-full pr-4">
+              <CardContent className="p-3 h-full">
+                <ScrollArea className="h-full" ref={toolsScrollRef}>
                   <div className="space-y-3">
                     {/* Upload Section */}
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold">Upload Image</Label>
+                      <Label className="text-xs font-semibold">UPLOAD IMAGE</Label>
                       <Input
                         ref={fileInputRef}
                         type="file"
                         accept="image/*"
                         onChange={handleFileChange}
-                        className="cursor-pointer text-xs"
+                        className="cursor-pointer text-xs h-8"
                       />
                     </div>
 
                     {image && (
                       <>
                         {/* Quick Actions */}
-                        <div className="space-y-2 pt-3 border-t">
-                          <Label className="text-sm font-semibold">Quick Actions</Label>
-                          <div className="grid grid-cols-2 gap-2">
-                            <Button onClick={undo} disabled={historyIndex <= 0} variant="outline" size="sm">
-                              <Undo className="h-3 w-3 mr-1" />
-                              Undo
+                        <div className="space-y-2 pt-2 border-t">
+                          <Label className="text-xs font-semibold">QUICK ACTIONS</Label>
+                          <div className="grid grid-cols-3 gap-1">
+                            <Button
+                              onClick={undo}
+                              disabled={historyIndex <= 0}
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs"
+                            >
+                              <Undo className="h-3 w-3" />
                             </Button>
                             <Button
                               onClick={redo}
                               disabled={historyIndex >= history.length - 1}
                               variant="outline"
                               size="sm"
+                              className="h-7 text-xs"
                             >
-                              <Redo className="h-3 w-3 mr-1" />
-                              Redo
+                              <Redo className="h-3 w-3" />
                             </Button>
                             <Button
                               onClick={() => setRotation((prev) => (prev + 90) % 360)}
                               variant="outline"
                               size="sm"
+                              className="h-7 text-xs"
                             >
-                              <RotateCw className="h-3 w-3 mr-1" />
-                              Rotate
+                              <RotateCw className="h-3 w-3" />
                             </Button>
-                            <Button onClick={resetFilters} variant="outline" size="sm">
-                              <RefreshCw className="h-3 w-3 mr-1" />
-                              Reset
+                            <Button onClick={resetFilters} variant="outline" size="sm" className="h-7 text-xs">
+                              <RefreshCw className="h-3 w-3" />
                             </Button>
-                            <Button onClick={() => setFlipH(!flipH)} variant="outline" size="sm">
-                              <FlipHorizontal className="h-3 w-3 mr-1" />
-                              Flip H
+                            <Button
+                              onClick={() => setFlipH(!flipH)}
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs"
+                            >
+                              <FlipHorizontal className="h-3 w-3" />
                             </Button>
-                            <Button onClick={() => setFlipV(!flipV)} variant="outline" size="sm">
-                              <FlipVertical className="h-3 w-3 mr-1" />
-                              Flip V
+                            <Button
+                              onClick={() => setFlipV(!flipV)}
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs"
+                            >
+                              <FlipVertical className="h-3 w-3" />
                             </Button>
                           </div>
                         </div>
@@ -818,106 +831,45 @@ const AdvancedImageEditor = () => {
                         <Collapsible
                           open={openSections.basicAdjustments}
                           onOpenChange={() => toggleSection("basicAdjustments")}
-                          className="border rounded-lg"
+                          className="border rounded-md"
                         >
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-accent rounded-lg">
-                            <Label className="text-sm font-semibold cursor-pointer">Basic Adjustments</Label>
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-accent rounded-md">
+                            <Label className="text-xs font-semibold cursor-pointer">BASIC ADJUSTMENTS</Label>
                             {openSections.basicAdjustments ? (
-                              <ChevronUp className="h-4 w-4" />
+                              <ChevronUp className="h-3 w-3" />
                             ) : (
-                              <ChevronDown className="h-4 w-4" />
+                              <ChevronDown className="h-3 w-3" />
                             )}
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="p-3 pt-0 space-y-3">
-                            {/* Brightness */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between">
-                                <Label className="text-xs">Brightness</Label>
-                                <span className="text-xs font-medium">{filters.brightness}%</span>
+                          <CollapsibleContent className="p-2 pt-0 space-y-2">
+                            {[
+                              { label: "Brightness", value: filters.brightness, min: 0, max: 200, unit: "%" },
+                              { label: "Contrast", value: filters.contrast, min: 0, max: 200, unit: "%" },
+                              { label: "Saturation", value: filters.saturation, min: 0, max: 200, unit: "%" },
+                              { label: "Exposure", value: filters.exposure, min: 0, max: 200, unit: "%" },
+                              { label: "Temperature", value: filters.temperature, min: -100, max: 100, unit: "" },
+                              { label: "Vibrance", value: filters.vibrance, min: 0, max: 200, unit: "%" },
+                            ].map((setting) => (
+                              <div key={setting.label} className="space-y-1">
+                                <div className="flex justify-between">
+                                  <Label className="text-xs">{setting.label}</Label>
+                                  <span className="text-xs font-medium">
+                                    {setting.value}
+                                    {setting.unit}
+                                  </span>
+                                </div>
+                                <Slider
+                                  value={[setting.value]}
+                                  onValueChange={([value]) =>
+                                    setFilters({ ...filters, [setting.label.toLowerCase()]: value })
+                                  }
+                                  min={setting.min}
+                                  max={setting.max}
+                                  step={1}
+                                  className="my-1"
+                                />
                               </div>
-                              <Slider
-                                value={[filters.brightness]}
-                                onValueChange={([value]) => setFilters({ ...filters, brightness: value })}
-                                min={0}
-                                max={200}
-                                step={1}
-                              />
-                            </div>
-
-                            {/* Contrast */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between">
-                                <Label className="text-xs">Contrast</Label>
-                                <span className="text-xs font-medium">{filters.contrast}%</span>
-                              </div>
-                              <Slider
-                                value={[filters.contrast]}
-                                onValueChange={([value]) => setFilters({ ...filters, contrast: value })}
-                                min={0}
-                                max={200}
-                                step={1}
-                              />
-                            </div>
-
-                            {/* Saturation */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between">
-                                <Label className="text-xs">Saturation</Label>
-                                <span className="text-xs font-medium">{filters.saturation}%</span>
-                              </div>
-                              <Slider
-                                value={[filters.saturation]}
-                                onValueChange={([value]) => setFilters({ ...filters, saturation: value })}
-                                min={0}
-                                max={200}
-                                step={1}
-                              />
-                            </div>
-
-                            {/* Exposure */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between">
-                                <Label className="text-xs">Exposure</Label>
-                                <span className="text-xs font-medium">{filters.exposure}%</span>
-                              </div>
-                              <Slider
-                                value={[filters.exposure]}
-                                onValueChange={([value]) => setFilters({ ...filters, exposure: value })}
-                                min={0}
-                                max={200}
-                                step={1}
-                              />
-                            </div>
-
-                            {/* Temperature */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between">
-                                <Label className="text-xs">Temperature</Label>
-                                <span className="text-xs font-medium">{filters.temperature}</span>
-                              </div>
-                              <Slider
-                                value={[filters.temperature]}
-                                onValueChange={([value]) => setFilters({ ...filters, temperature: value })}
-                                min={-100}
-                                max={100}
-                                step={1}
-                              />
-                            </div>
-
-                            {/* Vibrance */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between">
-                                <Label className="text-xs">Vibrance</Label>
-                                <span className="text-xs font-medium">{filters.vibrance}%</span>
-                              </div>
-                              <Slider
-                                value={[filters.vibrance]}
-                                onValueChange={([value]) => setFilters({ ...filters, vibrance: value })}
-                                min={0}
-                                max={200}
-                                step={1}
-                              />
-                            </div>
+                            ))}
                           </CollapsibleContent>
                         </Collapsible>
 
@@ -925,115 +877,61 @@ const AdvancedImageEditor = () => {
                         <Collapsible
                           open={openSections.advancedEffects}
                           onOpenChange={() => toggleSection("advancedEffects")}
-                          className="border rounded-lg"
+                          className="border rounded-md"
                         >
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-accent rounded-lg">
-                            <Label className="text-sm font-semibold cursor-pointer">Advanced Effects</Label>
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-accent rounded-md">
+                            <Label className="text-xs font-semibold cursor-pointer">ADVANCED EFFECTS</Label>
                             {openSections.advancedEffects ? (
-                              <ChevronUp className="h-4 w-4" />
+                              <ChevronUp className="h-3 w-3" />
                             ) : (
-                              <ChevronDown className="h-4 w-4" />
+                              <ChevronDown className="h-3 w-3" />
                             )}
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="p-3 pt-0 space-y-3">
-                            {/* Blur */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between">
-                                <Label className="text-xs">Blur</Label>
-                                <span className="text-xs font-medium">{filters.blur}px</span>
+                          <CollapsibleContent className="p-2 pt-0 space-y-2">
+                            {[
+                              { label: "Blur", value: filters.blur, min: 0, max: 20, unit: "px", step: 0.5 },
+                              { label: "Sharpness", value: filters.sharpness, min: 0, max: 100, unit: "%" },
+                              { label: "Vignette", value: filters.vignette, min: 0, max: 100, unit: "%" },
+                              { label: "Grain", value: filters.grain, min: 0, max: 50, unit: "%" },
+                              { label: "Hue", value: filters.hue, min: -180, max: 180, unit: "°" },
+                            ].map((setting) => (
+                              <div key={setting.label} className="space-y-1">
+                                <div className="flex justify-between">
+                                  <Label className="text-xs">{setting.label}</Label>
+                                  <span className="text-xs font-medium">
+                                    {setting.value}
+                                    {setting.unit}
+                                  </span>
+                                </div>
+                                <Slider
+                                  value={[setting.value]}
+                                  onValueChange={([value]) =>
+                                    setFilters({ ...filters, [setting.label.toLowerCase()]: value })
+                                  }
+                                  min={setting.min}
+                                  max={setting.max}
+                                  step={setting.step || 1}
+                                  className="my-1"
+                                />
                               </div>
-                              <Slider
-                                value={[filters.blur]}
-                                onValueChange={([value]) => setFilters({ ...filters, blur: value })}
-                                min={0}
-                                max={20}
-                                step={0.5}
-                              />
-                            </div>
-
-                            {/* Sharpness */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between">
-                                <Label className="text-xs">Sharpness</Label>
-                                <span className="text-xs font-medium">{filters.sharpness}%</span>
-                              </div>
-                              <Slider
-                                value={[filters.sharpness]}
-                                onValueChange={([value]) => setFilters({ ...filters, sharpness: value })}
-                                min={0}
-                                max={100}
-                                step={1}
-                              />
-                            </div>
-
-                            {/* Vignette */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between">
-                                <Label className="text-xs">Vignette</Label>
-                                <span className="text-xs font-medium">{filters.vignette}%</span>
-                              </div>
-                              <Slider
-                                value={[filters.vignette]}
-                                onValueChange={([value]) => setFilters({ ...filters, vignette: value })}
-                                min={0}
-                                max={100}
-                                step={1}
-                              />
-                            </div>
-
-                            {/* Grain */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between">
-                                <Label className="text-xs">Film Grain</Label>
-                                <span className="text-xs font-medium">{filters.grain}%</span>
-                              </div>
-                              <Slider
-                                value={[filters.grain]}
-                                onValueChange={([value]) => setFilters({ ...filters, grain: value })}
-                                min={0}
-                                max={50}
-                                step={1}
-                              />
-                            </div>
-
-                            {/* Hue */}
-                            <div className="space-y-1">
-                              <div className="flex justify-between">
-                                <Label className="text-xs">Hue</Label>
-                                <span className="text-xs font-medium">{filters.hue}°</span>
-                              </div>
-                              <Slider
-                                value={[filters.hue]}
-                                onValueChange={([value]) => setFilters({ ...filters, hue: value })}
-                                min={-180}
-                                max={180}
-                                step={1}
-                              />
-                            </div>
+                            ))}
 
                             {/* Effect Toggles */}
-                            <div className="space-y-2">
-                              <div className="flex items-center justify-between p-2 rounded border">
-                                <Label className="text-xs">Grayscale</Label>
-                                <Switch
-                                  checked={filters.grayscale}
-                                  onCheckedChange={(checked) => setFilters({ ...filters, grayscale: checked })}
-                                />
-                              </div>
-                              <div className="flex items-center justify-between p-2 rounded border">
-                                <Label className="text-xs">Sepia</Label>
-                                <Switch
-                                  checked={filters.sepia}
-                                  onCheckedChange={(checked) => setFilters({ ...filters, sepia: checked })}
-                                />
-                              </div>
-                              <div className="flex items-center justify-between p-2 rounded border">
-                                <Label className="text-xs">Invert</Label>
-                                <Switch
-                                  checked={filters.invert}
-                                  onCheckedChange={(checked) => setFilters({ ...filters, invert: checked })}
-                                />
-                              </div>
+                            <div className="space-y-1 pt-1">
+                              {[
+                                { label: "Grayscale", checked: filters.grayscale, key: "grayscale" },
+                                { label: "Sepia", checked: filters.sepia, key: "sepia" },
+                                { label: "Invert", checked: filters.invert, key: "invert" },
+                              ].map((toggle) => (
+                                <div key={toggle.key} className="flex items-center justify-between p-1 rounded border">
+                                  <Label className="text-xs">{toggle.label}</Label>
+                                  <Switch
+                                    checked={toggle.checked}
+                                    onCheckedChange={(checked) => setFilters({ ...filters, [toggle.key]: checked })}
+                                    className="scale-75"
+                                  />
+                                </div>
+                              ))}
                             </div>
                           </CollapsibleContent>
                         </Collapsible>
@@ -1042,74 +940,31 @@ const AdvancedImageEditor = () => {
                         <Collapsible
                           open={openSections.presets}
                           onOpenChange={() => toggleSection("presets")}
-                          className="border rounded-lg"
+                          className="border rounded-md"
                         >
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-accent rounded-lg">
-                            <Label className="text-sm font-semibold cursor-pointer">Quick Presets</Label>
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-accent rounded-md">
+                            <Label className="text-xs font-semibold cursor-pointer">QUICK PRESETS</Label>
                             {openSections.presets ? (
-                              <ChevronUp className="h-4 w-4" />
+                              <ChevronUp className="h-3 w-3" />
                             ) : (
-                              <ChevronDown className="h-4 w-4" />
+                              <ChevronDown className="h-3 w-3" />
                             )}
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="p-3 pt-0">
-                            <div className="grid grid-cols-2 gap-2">
-                              <Button
-                                onClick={() => applyPreset("none")}
-                                size="sm"
-                                variant={activePreset === null ? "default" : "outline"}
-                              >
-                                None
-                              </Button>
-                              <Button
-                                onClick={() => applyPreset("vintage")}
-                                size="sm"
-                                variant={activePreset === "vintage" ? "default" : "outline"}
-                              >
-                                Vintage
-                              </Button>
-                              <Button
-                                onClick={() => applyPreset("bw")}
-                                size="sm"
-                                variant={activePreset === "bw" ? "default" : "outline"}
-                              >
-                                B&W
-                              </Button>
-                              <Button
-                                onClick={() => applyPreset("bright")}
-                                size="sm"
-                                variant={activePreset === "bright" ? "default" : "outline"}
-                              >
-                                Bright
-                              </Button>
-                              <Button
-                                onClick={() => applyPreset("dramatic")}
-                                size="sm"
-                                variant={activePreset === "dramatic" ? "default" : "outline"}
-                              >
-                                Dramatic
-                              </Button>
-                              <Button
-                                onClick={() => applyPreset("cool")}
-                                size="sm"
-                                variant={activePreset === "cool" ? "default" : "outline"}
-                              >
-                                Cool
-                              </Button>
-                              <Button
-                                onClick={() => applyPreset("warm")}
-                                size="sm"
-                                variant={activePreset === "warm" ? "default" : "outline"}
-                              >
-                                Warm
-                              </Button>
-                              <Button
-                                onClick={() => applyPreset("cinematic")}
-                                size="sm"
-                                variant={activePreset === "cinematic" ? "default" : "outline"}
-                              >
-                                Cinematic
-                              </Button>
+                          <CollapsibleContent className="p-2 pt-0">
+                            <div className="grid grid-cols-2 gap-1">
+                              {["none", "vintage", "bw", "bright", "dramatic", "cool", "warm", "cinematic"].map(
+                                (preset) => (
+                                  <Button
+                                    key={preset}
+                                    onClick={() => applyPreset(preset)}
+                                    size="sm"
+                                    variant={activePreset === preset ? "default" : "outline"}
+                                    className="h-6 text-xs"
+                                  >
+                                    {preset === "bw" ? "B&W" : preset.charAt(0).toUpperCase() + preset.slice(1)}
+                                  </Button>
+                                ),
+                              )}
                             </div>
                           </CollapsibleContent>
                         </Collapsible>
@@ -1118,60 +973,55 @@ const AdvancedImageEditor = () => {
                         <Collapsible
                           open={openSections.tools}
                           onOpenChange={() => toggleSection("tools")}
-                          className="border rounded-lg"
+                          className="border rounded-md"
                         >
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-accent rounded-lg">
-                            <Label className="text-sm font-semibold cursor-pointer">Drawing Tools</Label>
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-accent rounded-md">
+                            <Label className="text-xs font-semibold cursor-pointer">DRAWING TOOLS</Label>
                             {openSections.tools ? (
-                              <ChevronUp className="h-4 w-4" />
+                              <ChevronUp className="h-3 w-3" />
                             ) : (
-                              <ChevronDown className="h-4 w-4" />
+                              <ChevronDown className="h-3 w-3" />
                             )}
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="p-3 pt-0 space-y-2">
-                            <div className="space-y-1">
+                          <CollapsibleContent className="p-2 pt-0 space-y-2">
+                            <div className="grid grid-cols-2 gap-1">
                               <Button
                                 onClick={() => setTool("select")}
                                 variant={tool === "select" ? "default" : "outline"}
-                                className="w-full justify-start"
-                                size="sm"
+                                className="h-7 text-xs"
                               >
-                                Select / Move
+                                Select
                               </Button>
                               <Button
                                 onClick={() => setTool("text")}
                                 variant={tool === "text" ? "default" : "outline"}
-                                className="w-full justify-start"
-                                size="sm"
+                                className="h-7 text-xs"
                               >
-                                <Type className="h-3 w-3 mr-2" />
-                                Add Text
+                                <Type className="h-3 w-3 mr-1" />
+                                Text
                               </Button>
                               <Button
                                 onClick={() => setTool("draw")}
                                 variant={tool === "draw" ? "default" : "outline"}
-                                className="w-full justify-start"
-                                size="sm"
+                                className="h-7 text-xs"
                               >
-                                <Paintbrush className="h-3 w-3 mr-2" />
+                                <Paintbrush className="h-3 w-3 mr-1" />
                                 Draw
                               </Button>
                               <Button
                                 onClick={() => setTool("shape")}
                                 variant={tool === "shape" ? "default" : "outline"}
-                                className="w-full justify-start"
-                                size="sm"
+                                className="h-7 text-xs"
                               >
-                                <Square className="h-3 w-3 mr-2" />
+                                <Square className="h-3 w-3 mr-1" />
                                 Shapes
                               </Button>
                               <Button
                                 onClick={() => setTool("eraser")}
                                 variant={tool === "eraser" ? "default" : "outline"}
-                                className="w-full justify-start"
-                                size="sm"
+                                className="h-7 text-xs"
                               >
-                                <Eraser className="h-3 w-3 mr-2" />
+                                <Eraser className="h-3 w-3 mr-1" />
                                 Eraser
                               </Button>
                             </div>
@@ -1183,16 +1033,16 @@ const AdvancedImageEditor = () => {
                                   value={currentText.text}
                                   onChange={(e) => setCurrentText({ ...currentText, text: e.target.value })}
                                   placeholder="Enter text..."
-                                  className="text-xs"
+                                  className="text-xs h-7"
                                 />
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="grid grid-cols-2 gap-1">
                                   <div>
                                     <Label className="text-xs">Color</Label>
                                     <Input
                                       type="color"
                                       value={currentText.color}
                                       onChange={(e) => setCurrentText({ ...currentText, color: e.target.value })}
-                                      className="h-8 mt-1"
+                                      className="h-6 mt-1"
                                     />
                                   </div>
                                   <div>
@@ -1201,26 +1051,10 @@ const AdvancedImageEditor = () => {
                                       value={[currentText.size]}
                                       onValueChange={([value]) => setCurrentText({ ...currentText, size: value })}
                                       min={12}
-                                      max={100}
+                                      max={72}
                                       step={1}
-                                      className="mt-2"
+                                      className="mt-1"
                                     />
-                                  </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div className="flex items-center space-x-2">
-                                    <Switch
-                                      checked={currentText.bold}
-                                      onCheckedChange={(checked) => setCurrentText({ ...currentText, bold: checked })}
-                                    />
-                                    <Label className="text-xs">Bold</Label>
-                                  </div>
-                                  <div className="flex items-center space-x-2">
-                                    <Switch
-                                      checked={currentText.italic}
-                                      onCheckedChange={(checked) => setCurrentText({ ...currentText, italic: checked })}
-                                    />
-                                    <Label className="text-xs">Italic</Label>
                                   </div>
                                 </div>
                               </div>
@@ -1228,14 +1062,14 @@ const AdvancedImageEditor = () => {
 
                             {tool === "draw" && (
                               <div className="space-y-2 pt-2 border-t">
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="grid grid-cols-2 gap-1">
                                   <div>
                                     <Label className="text-xs">Color</Label>
                                     <Input
                                       type="color"
                                       value={drawSettings.color}
                                       onChange={(e) => setDrawSettings({ ...drawSettings, color: e.target.value })}
-                                      className="h-8 mt-1"
+                                      className="h-6 mt-1"
                                     />
                                   </div>
                                   <div>
@@ -1244,49 +1078,11 @@ const AdvancedImageEditor = () => {
                                       value={[drawSettings.size]}
                                       onValueChange={([value]) => setDrawSettings({ ...drawSettings, size: value })}
                                       min={1}
-                                      max={50}
+                                      max={20}
                                       step={1}
-                                      className="mt-2"
+                                      className="mt-1"
                                     />
                                   </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {tool === "shape" && (
-                              <div className="space-y-2 pt-2 border-t">
-                                <div className="grid grid-cols-2 gap-2">
-                                  <div>
-                                    <Label className="text-xs">Stroke Color</Label>
-                                    <Input
-                                      type="color"
-                                      value={shapeSettings.strokeColor}
-                                      onChange={(e) =>
-                                        setShapeSettings({ ...shapeSettings, strokeColor: e.target.value })
-                                      }
-                                      className="h-8 mt-1"
-                                    />
-                                  </div>
-                                  <div>
-                                    <Label className="text-xs">Fill Color</Label>
-                                    <Input
-                                      type="color"
-                                      value={shapeSettings.fillColor}
-                                      onChange={(e) =>
-                                        setShapeSettings({ ...shapeSettings, fillColor: e.target.value })
-                                      }
-                                      className="h-8 mt-1"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <Switch
-                                    checked={shapeSettings.filled}
-                                    onCheckedChange={(checked) =>
-                                      setShapeSettings({ ...shapeSettings, filled: checked })
-                                    }
-                                  />
-                                  <Label className="text-xs">Filled</Label>
                                 </div>
                               </div>
                             )}
@@ -1294,24 +1090,11 @@ const AdvancedImageEditor = () => {
                         </Collapsible>
 
                         {/* View Options */}
-                        <div className="space-y-2 pt-3 border-t">
-                          <div className="flex items-center justify-between p-2 rounded border">
-                            <Label className="text-sm">Show Grid</Label>
-                            <Switch checked={showGrid} onCheckedChange={setShowGrid} />
+                        <div className="space-y-1 pt-2 border-t">
+                          <div className="flex items-center justify-between p-1 rounded border">
+                            <Label className="text-xs">Show Grid</Label>
+                            <Switch checked={showGrid} onCheckedChange={setShowGrid} className="scale-75" />
                           </div>
-                        </div>
-
-                        {/* Keyboard Shortcuts Info */}
-                        <div className="pt-3 border-t">
-                          <p className="text-xs text-muted-foreground">
-                            <strong>Keyboard Shortcuts:</strong>
-                            <br />
-                            Ctrl + Mouse Wheel = Zoom In/Out
-                            <br />
-                            Ctrl+Z = Undo
-                            <br />
-                            Ctrl+Y = Redo
-                          </p>
                         </div>
                       </>
                     )}
@@ -1321,10 +1104,10 @@ const AdvancedImageEditor = () => {
             </Card>
           </div>
 
-          {/* Center Panel - Large Canvas (9 columns) */}
+          {/* Center Panel - Canvas (9 columns) */}
           <div className="lg:col-span-9 h-full">
             <Card className="h-full">
-              <CardContent className="p-6 h-full flex flex-col">
+              <CardContent className="p-4 h-full flex flex-col">
                 {!image ? (
                   <div
                     ref={dropZoneRef}
@@ -1339,30 +1122,29 @@ const AdvancedImageEditor = () => {
                       ${isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/25"}
                     `}
                   >
-                    <div className="text-center space-y-4 p-8">
-                      <ImageIcon className="h-24 w-24 mx-auto text-muted-foreground" />
+                    <div className="text-center space-y-3 p-6">
+                      <ImageIcon className="h-16 w-16 mx-auto text-muted-foreground" />
                       <div>
-                        <p className="text-2xl font-semibold">Drop Image Here</p>
-                        <p className="text-sm text-muted-foreground mt-2">Or click the button below to upload</p>
+                        <p className="text-lg font-semibold">Drop Image Here</p>
+                        <p className="text-sm text-muted-foreground mt-1">Or click the button below to upload</p>
                       </div>
-                      <Button onClick={() => fileInputRef.current?.click()} size="lg">
-                        <Upload className="h-5 w-5 mr-2" />
+                      <Button onClick={() => fileInputRef.current?.click()} size="sm">
+                        <Upload className="h-4 w-4 mr-2" />
                         Choose Image
                       </Button>
-                      <p className="text-xs text-muted-foreground">Supports: JPG, PNG, GIF, WebP</p>
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-4 flex-1 flex flex-col">
+                  <div className="space-y-3 flex-1 flex flex-col">
                     <div className="flex-1 relative">
                       <div
                         ref={canvasContainerRef}
-                        className="flex items-center justify-center border-2 rounded-lg bg-gray-100 dark:bg-gray-900 p-4 h-full overflow-hidden relative"
+                        className="flex items-center justify-center border rounded-lg bg-gray-100 dark:bg-gray-900 p-3 h-full overflow-hidden relative"
                       >
                         <canvas
                           ref={canvasRef}
-                          width={1200}
-                          height={800}
+                          width={1000}
+                          height={600}
                           onClick={handleCanvasClick}
                           onMouseDown={handleMouseDown}
                           onMouseMove={handleMouseMove}
@@ -1377,12 +1159,12 @@ const AdvancedImageEditor = () => {
                         />
 
                         {/* Vertical Zoom Controls */}
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-2 bg-background/80 backdrop-blur-sm p-3 rounded-lg border">
-                          <Button onClick={zoomIn} size="sm" variant="outline" className="h-8 w-8 p-0">
-                            <ZoomIn className="h-4 w-4" />
+                        <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-1 bg-background/80 backdrop-blur-sm p-2 rounded border">
+                          <Button onClick={zoomIn} size="sm" variant="outline" className="h-6 w-6 p-0">
+                            <ZoomIn className="h-3 w-3" />
                           </Button>
 
-                          <div className="flex flex-col items-center h-32">
+                          <div className="flex flex-col items-center h-20">
                             <Slider
                               value={[canvasScale * 100]}
                               onValueChange={([value]) => setCanvasScale(value / 100)}
@@ -1390,25 +1172,25 @@ const AdvancedImageEditor = () => {
                               max={300}
                               step={1}
                               orientation="vertical"
-                              className="h-24"
+                              className="h-16"
                             />
                           </div>
 
-                          <div className="text-xs font-medium min-w-[40px] text-center">
+                          <div className="text-xs font-medium min-w-[30px] text-center">
                             {Math.round(canvasScale * 100)}%
                           </div>
 
-                          <Button onClick={zoomOut} size="sm" variant="outline" className="h-8 w-8 p-0">
-                            <ZoomOut className="h-4 w-4" />
+                          <Button onClick={zoomOut} size="sm" variant="outline" className="h-6 w-6 p-0">
+                            <ZoomOut className="h-3 w-3" />
                           </Button>
                         </div>
                       </div>
                     </div>
 
                     {/* Bottom Controls */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-4">
-                        <Label className="text-sm font-medium min-w-[80px]">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Label className="text-xs font-medium min-w-[60px]">
                           Zoom: {Math.round(canvasScale * 100)}%
                         </Label>
                         <Slider
@@ -1419,22 +1201,14 @@ const AdvancedImageEditor = () => {
                           step={1}
                           className="flex-1"
                         />
-                        <div className="flex gap-2">
-                          <Button onClick={zoomOut} size="sm" variant="outline">
-                            <ZoomOut className="h-4 w-4" />
-                          </Button>
-                          <Button onClick={zoomIn} size="sm" variant="outline">
-                            <ZoomIn className="h-4 w-4" />
-                          </Button>
-                        </div>
                       </div>
                       <p className="text-xs text-muted-foreground text-center">
-                        Drag the slider to zoom in/out • Use Ctrl+Mouse Wheel for zoom • Drag image to reposition
+                        Ctrl + Mouse Wheel to zoom • Drag image to reposition
                       </p>
                     </div>
 
-                    <Button onClick={handleDownload} className="w-full" size="lg">
-                      <Download className="h-5 w-5 mr-2" />
+                    <Button onClick={handleDownload} className="w-full" size="sm">
+                      <Download className="h-4 w-4 mr-2" />
                       Download Edited Image
                     </Button>
                   </div>
@@ -1445,7 +1219,7 @@ const AdvancedImageEditor = () => {
         </div>
 
         {/* Bottom Ad */}
-        <div className="mt-6">
+        <div className="mt-4">
           <AdSpace size="leaderboard" />
         </div>
       </div>
