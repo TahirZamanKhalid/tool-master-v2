@@ -13,11 +13,53 @@ interface ImageEditorProps {
 export const ImageEditor = ({ originalImage, processedImage, onDownload }: ImageEditorProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [brushSize, setBrushSize] = useState(20);
+  const [opacity, setOpacity] = useState(100);
   const [isErasing, setIsErasing] = useState(true);
   const [isDrawing, setIsDrawing] = useState(false);
   const [history, setHistory] = useState<ImageData[]>([]);
   const [historyStep, setHistoryStep] = useState(-1);
   const originalImageRef = useRef<HTMLImageElement | null>(null);
+  const lastPointRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Prevent shortcuts when typing in input fields
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      switch (e.key.toLowerCase()) {
+        case 'e':
+          setIsErasing(true);
+          break;
+        case 'r':
+          setIsErasing(false);
+          break;
+        case 'z':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            undo();
+          }
+          break;
+        case 'y':
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            redo();
+          }
+          break;
+        case '[':
+          e.preventDefault();
+          setBrushSize(prev => Math.max(5, prev - 5));
+          break;
+        case ']':
+          e.preventDefault();
+          setBrushSize(prev => Math.min(100, prev + 5));
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [historyStep, history]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -48,7 +90,7 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
     originalImg.onload = () => {
       originalImageRef.current = originalImg;
     };
-  }, [processedImage]);
+  }, [processedImage, originalImage]);
 
   const saveState = () => {
     const canvas = canvasRef.current;
@@ -94,6 +136,16 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+    
+    lastPointRef.current = { x, y };
     draw(e);
   };
 
@@ -119,36 +171,55 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
 
-    ctx.globalCompositeOperation = "source-over";
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-    ctx.lineWidth = brushSize;
-
     if (isErasing) {
-      // Erase by removing transparency - sets alpha to 0
+      // Erase by removing transparency
       ctx.globalCompositeOperation = "destination-out";
-      ctx.strokeStyle = `rgba(0, 0, 0, 1)`;
+      ctx.fillStyle = "rgba(0, 0, 0, 1)";
+      
+      if (lastPointRef.current && e.type !== "mousedown") {
+        // Draw line from last point
+        ctx.lineWidth = brushSize;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        ctx.moveTo(lastPointRef.current.x, lastPointRef.current.y);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      } else {
+        // Draw circle for single point
+        ctx.beginPath();
+        ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
     } else {
-      // Draw/restore by painting from original image
+      // Restore by painting from original image with opacity
       if (!originalImageRef.current) return;
       
       ctx.save();
-      ctx.beginPath();
-      ctx.arc(x, y, brushSize, 0, Math.PI * 2);
-      ctx.clip();
+      ctx.globalAlpha = opacity / 100;
+      ctx.globalCompositeOperation = "source-over";
+      
+      if (lastPointRef.current && e.type !== "mousedown") {
+        // Create path for line
+        ctx.lineWidth = brushSize;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        ctx.moveTo(lastPointRef.current.x, lastPointRef.current.y);
+        ctx.lineTo(x, y);
+        ctx.clip();
+      } else {
+        // Create circular clipping path
+        ctx.beginPath();
+        ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
+        ctx.clip();
+      }
+      
       ctx.drawImage(originalImageRef.current, 0, 0, canvas.width, canvas.height);
       ctx.restore();
-      return;
     }
-
-    // Continue drawing line
-    if (e.type === "mousedown") {
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-    } else {
-      ctx.lineTo(x, y);
-      ctx.stroke();
-    }
+    
+    lastPointRef.current = { x, y };
   };
 
   const handleDownload = () => {
@@ -206,18 +277,36 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
         </Button>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">
-          Brush Size: {brushSize}px
-        </label>
-        <Slider
-          value={[brushSize]}
-          onValueChange={(v) => setBrushSize(v[0])}
-          min={5}
-          max={100}
-          step={5}
-          className="w-full"
-        />
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <label className="text-sm font-medium">
+            Brush Size: {brushSize}px
+          </label>
+          <Slider
+            value={[brushSize]}
+            onValueChange={(v) => setBrushSize(v[0])}
+            min={5}
+            max={100}
+            step={5}
+            className="w-full"
+          />
+        </div>
+
+        {!isErasing && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium">
+              Restore Opacity: {opacity}%
+            </label>
+            <Slider
+              value={[opacity]}
+              onValueChange={(v) => setOpacity(v[0])}
+              min={10}
+              max={100}
+              step={10}
+              className="w-full"
+            />
+          </div>
+        )}
       </div>
 
       <div className="relative">
@@ -233,7 +322,9 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
       </div>
 
       <p className="text-sm text-muted-foreground text-center">
-        Use <strong>Erase</strong> to remove parts or <strong>Restore</strong> to bring back areas from the original image
+        Use <strong>Erase (E)</strong> to remove parts or <strong>Restore (R)</strong> to bring back areas from the original image.
+        <br />
+        <span className="text-xs">Shortcuts: E/R to switch tools | Z/Y to undo/redo | [ / ] to adjust brush size</span>
       </p>
     </Card>
   );
