@@ -753,7 +753,7 @@ const AdvancedImageEditor = () => {
 
       <div className="space-y-6">
         {/* Main Editor Area - Compact Design */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[500px] mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[600px] mb-8">
           {/* Left Panel - Tools (5 columns) */}
           <div className="lg:col-span-5 h-full overflow-hidden">
             <Card className="h-full flex flex-col">
