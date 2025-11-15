@@ -754,12 +754,12 @@ const AdvancedImageEditor = () => {
       <div className="space-y-6">
         {/* Main Editor Area - Compact Design */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[500px] mb-8">
-          {/* Left Panel - Tools (4 columns) */}
-          <div className="lg:col-span-4 h-full overflow-hidden">
+          {/* Left Panel - Tools (5 columns) */}
+          <div className="lg:col-span-5 h-full overflow-hidden">
             <Card className="h-full flex flex-col">
               <CardContent className="p-3 flex-1 overflow-hidden">
-                <ScrollArea className="h-full w-full">
-                  <div className="space-y-2 pr-4 pb-4">
+                <ScrollArea className="h-full w-full pr-3">
+                  <div className="space-y-2 pr-2 pb-4">
                     {/* Upload Section */}
                     <div className="space-y-1">
                       <Label className="text-[10px] font-semibold">UPLOAD IMAGE</Label>
@@ -1110,8 +1110,8 @@ const AdvancedImageEditor = () => {
             </Card>
           </div>
 
-          {/* Center Panel - Canvas (8 columns) */}
-          <div className="lg:col-span-8 h-full">
+          {/* Center Panel - Canvas (7 columns) */}
+          <div className="lg:col-span-7 h-full">
             <Card className="h-full">
               <CardContent className="p-4 h-full flex flex-col">
                 {!image ? (
