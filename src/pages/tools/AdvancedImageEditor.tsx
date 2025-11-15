@@ -751,9 +751,9 @@ const AdvancedImageEditor = () => {
         <AdSpace size="leaderboard" />
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* Main Editor Area - Compact Design */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[500px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[500px] mb-8">
           {/* Left Panel - Tools (3 columns) */}
           <div className="lg:col-span-3 h-full overflow-hidden">
             <Card className="h-full flex flex-col">
