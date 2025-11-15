@@ -7,8 +7,20 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
-import { Upload, Download, Type, Image as ImageIcon, Loader2 } from "lucide-react";
+import {
+  Upload,
+  Download,
+  Type,
+  Image as ImageIcon,
+  Loader2,
+  ChevronDown,
+  Settings,
+  MapPin,
+  Palette,
+  RotateCw,
+} from "lucide-react";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { SEOHead } from "@/components/SEOHead";
 
@@ -32,6 +44,14 @@ const WatermarkTool = () => {
   const [canDownload, setCanDownload] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Collapsible states
+  const [openSections, setOpenSections] = useState({
+    watermarkType: true,
+    position: false,
+    appearance: false,
+    rotation: false,
+  });
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const watermarkInputRef = useRef<HTMLInputElement>(null);
@@ -40,7 +60,19 @@ const WatermarkTool = () => {
     if (originalImage) {
       drawWatermarkedImage();
     }
-  }, [originalImage, watermarkType, watermarkText, watermarkImage, position, opacity, fontSize, watermarkSize, rotation, color, fontFamily]);
+  }, [
+    originalImage,
+    watermarkType,
+    watermarkText,
+    watermarkImage,
+    position,
+    opacity,
+    fontSize,
+    watermarkSize,
+    rotation,
+    color,
+    fontFamily,
+  ]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -92,14 +124,10 @@ const WatermarkTool = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Set canvas size to match image
     canvas.width = originalImage.width;
     canvas.height = originalImage.height;
 
-    // Draw original image
     ctx.drawImage(originalImage, 0, 0);
-
-    // Set opacity
     ctx.globalAlpha = opacity[0] / 100;
 
     if (watermarkType === "text") {
@@ -108,7 +136,6 @@ const WatermarkTool = () => {
       drawImageWatermark(ctx, canvas.width, canvas.height);
     }
 
-    // Reset alpha
     ctx.globalAlpha = 1;
   };
 
@@ -223,6 +250,10 @@ const WatermarkTool = () => {
     }, 100);
   };
 
+  const toggleSection = (section: keyof typeof openSections) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
+
   return (
     <>
       <SEOHead
@@ -240,264 +271,364 @@ const WatermarkTool = () => {
           "Choose text or image watermark",
           "Customize position, opacity, size, and rotation",
           "Preview the watermarked image",
-          "Download your protected image"
+          "Download your protected image",
         ]}
         relatedTools={[
           { name: "Image Compressor", path: "/tools/image-compressor" },
           { name: "Advanced Image Editor", path: "/tools/advanced-image-editor" },
-          { name: "Image Resizer", path: "/tools/image-resizer" }
+          { name: "Image Resizer", path: "/tools/image-resizer" },
         ]}
       >
-        <div className="grid lg:grid-cols-2 gap-6">
-          {/* Left Column - Controls */}
-          <div className="space-y-6">
-            <Card>
-              <CardContent className="p-6 space-y-4">
-                <div>
-                  <Label>Upload Image</Label>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                  <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    variant="outline"
-                    className="w-full mt-2"
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    {originalImage ? "Change Image" : "Upload Image"}
-                  </Button>
-                </div>
-
-                {originalImage && (
-                  <>
-                    <div>
-                      <Label>Watermark Type</Label>
-                      <Tabs value={watermarkType} onValueChange={(v) => setWatermarkType(v as WatermarkType)} className="mt-2">
-                        <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger value="text">
-                            <Type className="h-4 w-4 mr-2" />
-                            Text
-                          </TabsTrigger>
-                          <TabsTrigger value="image">
-                            <ImageIcon className="h-4 w-4 mr-2" />
-                            Image
-                          </TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="text" className="space-y-4 mt-4">
-                          <div>
-                            <Label htmlFor="watermark-text">Watermark Text</Label>
-                            <Input
-                              id="watermark-text"
-                              value={watermarkText}
-                              onChange={(e) => setWatermarkText(e.target.value)}
-                              placeholder="© Your Brand"
-                              className="mt-2"
-                            />
-                          </div>
-
-                          <div>
-                            <Label htmlFor="font-size">Font Size: {fontSize[0]}px</Label>
-                            <Slider
-                              id="font-size"
-                              min={12}
-                              max={200}
-                              step={1}
-                              value={fontSize}
-                              onValueChange={setFontSize}
-                              className="mt-2"
-                            />
-                          </div>
-
-                          <div>
-                            <Label htmlFor="font-family">Font Family</Label>
-                            <Select value={fontFamily} onValueChange={setFontFamily}>
-                              <SelectTrigger className="mt-2">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Arial">Arial</SelectItem>
-                                <SelectItem value="Georgia">Georgia</SelectItem>
-                                <SelectItem value="Times New Roman">Times New Roman</SelectItem>
-                                <SelectItem value="Courier New">Courier New</SelectItem>
-                                <SelectItem value="Verdana">Verdana</SelectItem>
-                                <SelectItem value="Impact">Impact</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div>
-                            <Label htmlFor="text-color">Text Color</Label>
-                            <div className="flex gap-2 mt-2">
-                              <Input
-                                id="text-color"
-                                type="color"
-                                value={color}
-                                onChange={(e) => setColor(e.target.value)}
-                                className="w-20 h-10"
-                              />
-                              <Input
-                                value={color}
-                                onChange={(e) => setColor(e.target.value)}
-                                placeholder="#ffffff"
-                                className="flex-1"
-                              />
-                            </div>
-                          </div>
-                        </TabsContent>
-
-                        <TabsContent value="image" className="space-y-4 mt-4">
-                          <div>
-                            <Label>Watermark Image</Label>
-                            <input
-                              ref={watermarkInputRef}
-                              type="file"
-                              accept="image/*"
-                              onChange={handleWatermarkImageUpload}
-                              className="hidden"
-                            />
-                            <Button
-                              onClick={() => watermarkInputRef.current?.click()}
-                              variant="outline"
-                              className="w-full mt-2"
-                            >
-                              <Upload className="h-4 w-4 mr-2" />
-                              {watermarkImage ? "Change Watermark" : "Upload Watermark"}
-                            </Button>
-                          </div>
-
-                          {watermarkImage && (
-                            <div>
-                              <Label htmlFor="watermark-size">Size: {watermarkSize[0]}%</Label>
-                              <Slider
-                                id="watermark-size"
-                                min={10}
-                                max={200}
-                                step={5}
-                                value={watermarkSize}
-                                onValueChange={setWatermarkSize}
-                                className="mt-2"
-                              />
-                            </div>
-                          )}
-                        </TabsContent>
-                      </Tabs>
+        <div className="grid lg:grid-cols-[1fr_2fr_200px] gap-4">
+          {/* Sidebar Ad 1 */}
+          <div className="hidden lg:block">
+            <div className="sticky top-6">
+              <Card className="bg-muted/50">
+                <CardContent className="p-4">
+                  <div className="w-full h-[600px] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg flex items-center justify-center border-2 border-dashed border-primary/20">
+                    <div className="text-center text-muted-foreground">
+                      <p className="text-sm font-medium">Advertisement</p>
+                      <p className="text-xs mt-1">200 x 600</p>
                     </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
 
-                    <div>
-                      <Label htmlFor="position">Position</Label>
-                      <Select value={position} onValueChange={(v) => setPosition(v as Position)}>
-                        <SelectTrigger className="mt-2">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="top-left">Top Left</SelectItem>
-                          <SelectItem value="top-right">Top Right</SelectItem>
-                          <SelectItem value="bottom-left">Bottom Left</SelectItem>
-                          <SelectItem value="bottom-right">Bottom Right</SelectItem>
-                          <SelectItem value="center">Center</SelectItem>
-                          <SelectItem value="tiled">Tiled</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="opacity">Opacity: {opacity[0]}%</Label>
-                      <Slider
-                        id="opacity"
-                        min={10}
-                        max={100}
-                        step={5}
-                        value={opacity}
-                        onValueChange={setOpacity}
-                        className="mt-2"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="rotation">Rotation: {rotation[0]}°</Label>
-                      <Slider
-                        id="rotation"
-                        min={-180}
-                        max={180}
-                        step={5}
-                        value={rotation}
-                        onValueChange={setRotation}
-                        className="mt-2"
-                      />
-                    </div>
-
-                    <Button onClick={handleDownload} className="w-full" size="lg" disabled={isProcessing}>
-                      {isProcessing ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          <Download className="h-4 w-4 mr-2" />
-                          Download Watermarked Image
-                        </>
-                      )}
+          {/* Main Content Area */}
+          <div className="space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              {/* Left Column - Controls */}
+              <Card>
+                <CardContent className="p-4 space-y-3">
+                  {/* Upload Section */}
+                  <div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <Button
+                      onClick={() => fileInputRef.current?.click()}
+                      variant="outline"
+                      className="w-full"
+                      size="sm"
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      {originalImage ? "Change Image" : "Upload Image"}
                     </Button>
-                  </>
-                )}
+                  </div>
+
+                  {originalImage && (
+                    <div className="space-y-2">
+                      {/* Watermark Type Section */}
+                      <Collapsible
+                        open={openSections.watermarkType}
+                        onOpenChange={() => toggleSection("watermarkType")}
+                      >
+                        <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted rounded-md transition-colors">
+                          <div className="flex items-center gap-2">
+                            <Type className="h-4 w-4 text-primary" />
+                            <span className="font-medium text-sm">Watermark Type</span>
+                          </div>
+                          <ChevronDown
+                            className={`h-4 w-4 transition-transform ${openSections.watermarkType ? "rotate-180" : ""}`}
+                          />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="pt-3 pb-2 px-2 space-y-3">
+                          <Tabs value={watermarkType} onValueChange={(v) => setWatermarkType(v as WatermarkType)}>
+                            <TabsList className="grid w-full grid-cols-2 h-8">
+                              <TabsTrigger value="text" className="text-xs">
+                                <Type className="h-3 w-3 mr-1" />
+                                Text
+                              </TabsTrigger>
+                              <TabsTrigger value="image" className="text-xs">
+                                <ImageIcon className="h-3 w-3 mr-1" />
+                                Image
+                              </TabsTrigger>
+                            </TabsList>
+
+                            <TabsContent value="text" className="space-y-3 mt-3">
+                              <div>
+                                <Label htmlFor="watermark-text" className="text-xs">
+                                  Text
+                                </Label>
+                                <Input
+                                  id="watermark-text"
+                                  value={watermarkText}
+                                  onChange={(e) => setWatermarkText(e.target.value)}
+                                  placeholder="© Your Brand"
+                                  className="mt-1 h-8 text-sm"
+                                />
+                              </div>
+
+                              <div>
+                                <Label htmlFor="font-size" className="text-xs">
+                                  Size: {fontSize[0]}px
+                                </Label>
+                                <Slider
+                                  id="font-size"
+                                  min={12}
+                                  max={200}
+                                  step={1}
+                                  value={fontSize}
+                                  onValueChange={setFontSize}
+                                  className="mt-1"
+                                />
+                              </div>
+
+                              <div>
+                                <Label htmlFor="font-family" className="text-xs">
+                                  Font
+                                </Label>
+                                <Select value={fontFamily} onValueChange={setFontFamily}>
+                                  <SelectTrigger className="mt-1 h-8 text-sm">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Arial">Arial</SelectItem>
+                                    <SelectItem value="Georgia">Georgia</SelectItem>
+                                    <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+                                    <SelectItem value="Courier New">Courier New</SelectItem>
+                                    <SelectItem value="Verdana">Verdana</SelectItem>
+                                    <SelectItem value="Impact">Impact</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div>
+                                <Label htmlFor="text-color" className="text-xs">
+                                  Color
+                                </Label>
+                                <div className="flex gap-2 mt-1">
+                                  <Input
+                                    id="text-color"
+                                    type="color"
+                                    value={color}
+                                    onChange={(e) => setColor(e.target.value)}
+                                    className="w-16 h-8"
+                                  />
+                                  <Input
+                                    value={color}
+                                    onChange={(e) => setColor(e.target.value)}
+                                    placeholder="#ffffff"
+                                    className="flex-1 h-8 text-sm"
+                                  />
+                                </div>
+                              </div>
+                            </TabsContent>
+
+                            <TabsContent value="image" className="space-y-3 mt-3">
+                              <div>
+                                <input
+                                  ref={watermarkInputRef}
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleWatermarkImageUpload}
+                                  className="hidden"
+                                />
+                                <Button
+                                  onClick={() => watermarkInputRef.current?.click()}
+                                  variant="outline"
+                                  className="w-full h-8"
+                                  size="sm"
+                                >
+                                  <Upload className="h-3 w-3 mr-2" />
+                                  {watermarkImage ? "Change" : "Upload"}
+                                </Button>
+                              </div>
+
+                              {watermarkImage && (
+                                <div>
+                                  <Label htmlFor="watermark-size" className="text-xs">
+                                    Size: {watermarkSize[0]}%
+                                  </Label>
+                                  <Slider
+                                    id="watermark-size"
+                                    min={10}
+                                    max={200}
+                                    step={5}
+                                    value={watermarkSize}
+                                    onValueChange={setWatermarkSize}
+                                    className="mt-1"
+                                  />
+                                </div>
+                              )}
+                            </TabsContent>
+                          </Tabs>
+                        </CollapsibleContent>
+                      </Collapsible>
+
+                      {/* Position Section */}
+                      <Collapsible open={openSections.position} onOpenChange={() => toggleSection("position")}>
+                        <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted rounded-md transition-colors">
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-primary" />
+                            <span className="font-medium text-sm">Position</span>
+                          </div>
+                          <ChevronDown
+                            className={`h-4 w-4 transition-transform ${openSections.position ? "rotate-180" : ""}`}
+                          />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="pt-3 pb-2 px-2">
+                          <Select value={position} onValueChange={(v) => setPosition(v as Position)}>
+                            <SelectTrigger className="h-8 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="top-left">Top Left</SelectItem>
+                              <SelectItem value="top-right">Top Right</SelectItem>
+                              <SelectItem value="bottom-left">Bottom Left</SelectItem>
+                              <SelectItem value="bottom-right">Bottom Right</SelectItem>
+                              <SelectItem value="center">Center</SelectItem>
+                              <SelectItem value="tiled">Tiled</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </CollapsibleContent>
+                      </Collapsible>
+
+                      {/* Appearance Section */}
+                      <Collapsible open={openSections.appearance} onOpenChange={() => toggleSection("appearance")}>
+                        <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted rounded-md transition-colors">
+                          <div className="flex items-center gap-2">
+                            <Palette className="h-4 w-4 text-primary" />
+                            <span className="font-medium text-sm">Appearance</span>
+                          </div>
+                          <ChevronDown
+                            className={`h-4 w-4 transition-transform ${openSections.appearance ? "rotate-180" : ""}`}
+                          />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="pt-3 pb-2 px-2">
+                          <div>
+                            <Label htmlFor="opacity" className="text-xs">
+                              Opacity: {opacity[0]}%
+                            </Label>
+                            <Slider
+                              id="opacity"
+                              min={10}
+                              max={100}
+                              step={5}
+                              value={opacity}
+                              onValueChange={setOpacity}
+                              className="mt-1"
+                            />
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+
+                      {/* Rotation Section */}
+                      <Collapsible open={openSections.rotation} onOpenChange={() => toggleSection("rotation")}>
+                        <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted rounded-md transition-colors">
+                          <div className="flex items-center gap-2">
+                            <RotateCw className="h-4 w-4 text-primary" />
+                            <span className="font-medium text-sm">Rotation</span>
+                          </div>
+                          <ChevronDown
+                            className={`h-4 w-4 transition-transform ${openSections.rotation ? "rotate-180" : ""}`}
+                          />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="pt-3 pb-2 px-2">
+                          <div>
+                            <Label htmlFor="rotation" className="text-xs">
+                              Angle: {rotation[0]}°
+                            </Label>
+                            <Slider
+                              id="rotation"
+                              min={-180}
+                              max={180}
+                              step={5}
+                              value={rotation}
+                              onValueChange={setRotation}
+                              className="mt-1"
+                            />
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+
+                      {/* Download Button */}
+                      <Button onClick={handleDownload} className="w-full mt-2" size="sm" disabled={isProcessing}>
+                        {isProcessing ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            <Download className="h-4 w-4 mr-2" />
+                            Download
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Right Column - Preview */}
+              <Card className="border-primary/20">
+                <CardContent className="p-4">
+                  <h3 className="text-sm font-semibold mb-2">Preview</h3>
+                  {originalImage ? (
+                    <div className="border rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900">
+                      <canvas ref={canvasRef} className="w-full h-auto max-h-[500px] object-contain" />
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed rounded-lg p-8 text-center">
+                      <ImageIcon className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">Upload an image to preview</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Best Practices */}
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="text-sm font-semibold mb-3">Watermark Best Practices</h3>
+                <div className="grid md:grid-cols-2 gap-3 text-xs text-muted-foreground">
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1.5 text-sm">Text Watermarks:</h4>
+                    <ul className="space-y-0.5">
+                      <li>• Use copyright symbol (©) with your brand</li>
+                      <li>• 30-50% opacity for subtle protection</li>
+                      <li>• Place in corners to minimize distraction</li>
+                      <li>• White text works on dark images</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-1.5 text-sm">Image Watermarks:</h4>
+                    <ul className="space-y-0.5">
+                      <li>• Use PNG with transparent background</li>
+                      <li>• Keep size reasonable (50-100%)</li>
+                      <li>• Tiled pattern provides max protection</li>
+                      <li>• Lower opacity to avoid overpowering</li>
+                    </ul>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Right Column - Preview */}
-          <div className="lg:sticky lg:top-6 lg:self-start">
-            <Card className="border-primary/20">
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Preview</h3>
-                {originalImage ? (
-                  <div className="border rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900">
-                    <canvas
-                      ref={canvasRef}
-                      className="w-full h-auto"
-                    />
+          {/* Sidebar Ad 2 */}
+          <div className="hidden lg:block">
+            <div className="sticky top-6">
+              <Card className="bg-muted/50">
+                <CardContent className="p-4">
+                  <div className="w-full h-[600px] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg flex items-center justify-center border-2 border-dashed border-primary/20">
+                    <div className="text-center text-muted-foreground">
+                      <p className="text-sm font-medium">Advertisement</p>
+                      <p className="text-xs mt-1">200 x 600</p>
+                    </div>
                   </div>
-                ) : (
-                  <div className="border-2 border-dashed rounded-lg p-12 text-center">
-                    <ImageIcon className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground">Upload an image to preview</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
-
-        <Card className="mt-6">
-          <CardContent className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Watermark Best Practices</h3>
-            <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
-              <div>
-                <h4 className="font-semibold text-foreground mb-2">For Text Watermarks:</h4>
-                <ul className="space-y-1">
-                  <li>• Use copyright symbol (©) with your name/brand</li>
-                  <li>• 30-50% opacity for subtle protection</li>
-                  <li>• Place in corners to minimize distraction</li>
-                  <li>• White text works well on dark images</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-foreground mb-2">For Image Watermarks:</h4>
-                <ul className="space-y-1">
-                  <li>• Use PNG with transparent background</li>
-                  <li>• Keep size reasonable (50-100% typically)</li>
-                  <li>• Tiled pattern provides maximum protection</li>
-                  <li>• Lower opacity to avoid overpowering image</li>
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </ToolLayout>
 
       <AdWatchModal
