@@ -1,10 +1,17 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Eraser, Paintbrush, Undo, Redo, Download } from "lucide-react";
+import { Eraser, Paintbrush, Undo, Redo, Download, FileDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { ImageEditorLayerPanel, Layer } from "./ImageEditorLayerPanel";
+import { ImageEditorLayerPanel, Layer, BlendMode } from "./ImageEditorLayerPanel";
 import { ImageEditorColorPicker } from "./ImageEditorColorPicker";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface ImageEditorProps {
   originalImage: string;
@@ -28,7 +35,7 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
   
   // Layer system
   const [layers, setLayers] = useState<Layer[]>([
-    { id: "base", name: "Background", visible: true, imageData: null }
+    { id: "base", name: "Background", visible: true, opacity: 100, blendMode: "normal", imageData: null }
   ]);
   const [activeLayerId, setActiveLayerId] = useState("base");
   
@@ -117,7 +124,7 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
     };
   }, [processedImage, originalImage]);
 
-  // Render all visible layers
+  // Render all visible layers with blend modes
   const renderLayers = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -135,14 +142,32 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
     processedImg.onload = () => {
       ctx.drawImage(processedImg, 0, 0);
       
-      // Draw each visible layer on top
+      // Draw each visible layer on top with blend mode
       layers.forEach(layer => {
         if (layer.visible && layer.imageData) {
+          ctx.globalAlpha = layer.opacity / 100;
+          ctx.globalCompositeOperation = getCompositeOperation(layer.blendMode);
           ctx.putImageData(layer.imageData, 0, 0);
         }
       });
+      
+      // Reset to normal
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
     };
   }, [layers, processedImage]);
+
+  const getCompositeOperation = (blendMode: BlendMode): GlobalCompositeOperation => {
+    const blendMap: Record<BlendMode, GlobalCompositeOperation> = {
+      normal: "source-over",
+      multiply: "multiply",
+      overlay: "overlay",
+      screen: "screen",
+      darken: "darken",
+      lighten: "lighten",
+    };
+    return blendMap[blendMode] || "source-over";
+  };
 
   // Re-render when layers change
   useEffect(() => {
@@ -328,6 +353,47 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
     
     const imageData = canvas.toDataURL("image/png");
     onDownload(imageData);
+    toast.success("Merged image downloaded!");
+  };
+
+  const handleExportLayer = (layerId: string) => {
+    const layer = layers.find(l => l.id === layerId);
+    if (!layer || !layer.imageData) {
+      toast.error("Layer has no content to export");
+      return;
+    }
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = layer.imageData.width;
+    canvas.height = layer.imageData.height;
+    ctx.putImageData(layer.imageData, 0, 0);
+
+    const link = document.createElement("a");
+    link.download = `${layer.name}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+    
+    toast.success(`Layer "${layer.name}" exported!`);
+  };
+
+  const handleExportAllLayers = () => {
+    layers.forEach(layer => {
+      if (layer.imageData) {
+        setTimeout(() => handleExportLayer(layer.id), 100);
+      }
+    });
+    toast.success("All layers exported!");
+  };
+
+  const handleExportVisibleLayers = () => {
+    const visibleLayers = layers.filter(l => l.visible && l.imageData);
+    visibleLayers.forEach((layer, index) => {
+      setTimeout(() => handleExportLayer(layer.id), index * 100);
+    });
+    toast.success("Visible layers exported!");
   };
 
   // Layer management functions
@@ -336,6 +402,8 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
       id: `layer-${Date.now()}`,
       name: `Layer ${layers.length}`,
       visible: true,
+      opacity: 100,
+      blendMode: "normal",
       imageData: null
     };
     setLayers(prev => [...prev, newLayer]);
@@ -359,6 +427,18 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
   const handleLayerRename = (layerId: string, name: string) => {
     setLayers(prev => prev.map(layer =>
       layer.id === layerId ? { ...layer, name } : layer
+    ));
+  };
+
+  const handleLayerOpacityChange = (layerId: string, opacity: number) => {
+    setLayers(prev => prev.map(layer =>
+      layer.id === layerId ? { ...layer, opacity } : layer
+    ));
+  };
+
+  const handleLayerBlendModeChange = (layerId: string, blendMode: BlendMode) => {
+    setLayers(prev => prev.map(layer =>
+      layer.id === layerId ? { ...layer, blendMode } : layer
     ));
   };
 
@@ -417,10 +497,28 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
             </Button>
           </div>
 
-          <Button onClick={handleDownload} variant="secondary">
-            <Download className="h-4 w-4 mr-2" />
-            Download PNG
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleDownload}>
+                <FileDown className="h-4 w-4 mr-2" />
+                Merged Image
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportVisibleLayers}>
+                <FileDown className="h-4 w-4 mr-2" />
+                Visible Layers
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportAllLayers}>
+                <FileDown className="h-4 w-4 mr-2" />
+                All Layers
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         <div className="grid md:grid-cols-[1fr_250px] gap-4">
@@ -493,6 +591,8 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
               onLayerAdd={handleLayerAdd}
               onLayerDelete={handleLayerDelete}
               onLayerRename={handleLayerRename}
+              onLayerOpacityChange={handleLayerOpacityChange}
+              onLayerBlendModeChange={handleLayerBlendModeChange}
             />
           </div>
         </div>
