@@ -27,9 +27,12 @@ import {
   ZoomOut,
 } from "lucide-react";
 import { AdSpace } from "@/components/AdSpace";
+import { SidebarAd } from "@/components/SidebarAd";
+import { AdRow } from "@/components/AdRow";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ImageEditor } from "@/components/ImageEditor";
 
 interface FilterSettings {
   brightness: number;
@@ -71,6 +74,7 @@ interface TextLayer {
 const AdvancedImageEditor = () => {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
+  const [processedImageUrl, setProcessedImageUrl] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterSettings>({
     brightness: 100,
     contrast: 100,
@@ -719,6 +723,7 @@ const AdvancedImageEditor = () => {
     canvasRef.current.toBlob((blob) => {
       if (blob) {
         const url = URL.createObjectURL(blob);
+        setProcessedImageUrl(url);
         const link = document.createElement("a");
         link.href = url;
         link.download = `edited-image-${Date.now()}.png`;
@@ -726,6 +731,14 @@ const AdvancedImageEditor = () => {
         toast.success("Image downloaded successfully!");
       }
     });
+  };
+
+  const handleLayerEditorDownload = (imageData: string) => {
+    const link = document.createElement('a');
+    link.href = imageData;
+    link.download = `layer-edited-${Date.now()}.png`;
+    link.click();
+    toast.success("Layer edited image downloaded!");
   };
 
   const toggleSection = (section: keyof typeof openSections) => {
@@ -751,15 +764,21 @@ const AdvancedImageEditor = () => {
         <AdSpace size="leaderboard" />
       </div>
 
-      <div className="space-y-6">
-        {/* Main Editor Area - Compact Design */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[600px] mb-8">
-          {/* Left Panel - Tools (5 columns) */}
-          <div className="lg:col-span-5 h-full overflow-hidden">
-            <Card className="h-full flex flex-col">
-              <CardContent className="p-3 flex-1 overflow-hidden">
-                <ScrollArea className="h-full w-full pr-3">
-                  <div className="space-y-2 pr-2 pb-4">
+      <div className="flex gap-4">
+        {/* Left Sidebar Ad */}
+        <div className="hidden xl:block w-40 flex-shrink-0">
+          <SidebarAd position="left" />
+        </div>
+
+        <div className="flex-1 space-y-6">
+          {/* Main Editor Area - Compact Design */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[600px] mb-8">
+            {/* Left Panel - Tools (5 columns) */}
+            <div className="lg:col-span-5 h-full overflow-hidden">
+              <Card className="h-full flex flex-col">
+                <CardContent className="p-3 flex-1 overflow-hidden">
+                  <ScrollArea className="h-full w-full pr-3">
+                    <div className="space-y-2 pr-2 pb-4">
                     {/* Upload Section */}
                     <div className="space-y-1">
                       <Label className="text-[10px] font-semibold">UPLOAD IMAGE</Label>
@@ -1224,11 +1243,24 @@ const AdvancedImageEditor = () => {
           </div>
         </div>
 
-        {/* Bottom Ad */}
-        <div>
-          <AdSpace size="leaderboard" />
-        </div>
+        {/* Layer Editor System */}
+        {image && originalImage && processedImageUrl && (
+          <ImageEditor
+            originalImage={originalImage.src}
+            processedImage={processedImageUrl}
+            onDownload={handleLayerEditorDownload}
+          />
+        )}
+
+        {/* Bottom Ad Row */}
+        <AdRow type="display" count={3} position="bottom" />
       </div>
+
+      {/* Right Sidebar Ad */}
+      <div className="hidden xl:block w-40 flex-shrink-0">
+        <SidebarAd position="right" />
+      </div>
+    </div>
     </ToolLayout>
   );
 };
