@@ -23,6 +23,9 @@ import {
 } from "lucide-react";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { SEOHead } from "@/components/SEOHead";
+import { LazyAdSpace } from "@/components/LazyAdSpace";
+import { AdRow } from "@/components/AdRow";
+import { getDisplayAdSlot, getAdIndex } from "@/utils/adSlotRotation";
 
 type WatermarkType = "text" | "image";
 type Position = "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center" | "tiled";
@@ -279,26 +282,25 @@ const WatermarkTool = () => {
           { name: "Image Resizer", path: "/tools/image-resizer" },
         ]}
       >
-        <div className="grid lg:grid-cols-[1fr_2fr_200px] gap-4">
-          {/* Sidebar Ad 1 */}
-          <div className="hidden lg:block">
-            <div className="sticky top-6">
-              <Card className="bg-muted/50">
-                <CardContent className="p-4">
-                  <div className="w-full h-[600px] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg flex items-center justify-center border-2 border-dashed border-primary/20">
-                    <div className="text-center text-muted-foreground">
-                      <p className="text-sm font-medium">Advertisement</p>
-                      <p className="text-xs mt-1">200 x 600</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+        {/* Top Leaderboard Ad */}
+        <div className="mb-6">
+          <LazyAdSpace type="display" slot={getDisplayAdSlot(getAdIndex('top'))} />
+        </div>
+
+        <div className="flex gap-6 relative">
+          {/* Left Sidebar Ad */}
+          <div className="hidden xl:block flex-shrink-0" style={{ width: "160px", maxWidth: "160px" }}>
+            <div className="sticky top-24" style={{ maxHeight: "600px", overflow: "hidden" }}>
+              <LazyAdSpace 
+                type="display" 
+                slot={getDisplayAdSlot(getAdIndex('sidebar-left'))}
+                position="sidebar-left"
+              />
             </div>
           </div>
 
-          {/* Main Content Area */}
-          <div className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+          <div className="flex-1 max-w-7xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-4">
               {/* Left Column - Controls */}
               <Card>
                 <CardContent className="p-4 space-y-3">
@@ -613,21 +615,21 @@ const WatermarkTool = () => {
             </Card>
           </div>
 
-          {/* Sidebar Ad 2 */}
-          <div className="hidden lg:block">
-            <div className="sticky top-6">
-              <Card className="bg-muted/50">
-                <CardContent className="p-4">
-                  <div className="w-full h-[600px] bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg flex items-center justify-center border-2 border-dashed border-primary/20">
-                    <div className="text-center text-muted-foreground">
-                      <p className="text-sm font-medium">Advertisement</p>
-                      <p className="text-xs mt-1">200 x 600</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+          {/* Right Sidebar Ad */}
+          <div className="hidden xl:block flex-shrink-0" style={{ width: "160px", maxWidth: "160px" }}>
+            <div className="sticky top-24" style={{ maxHeight: "600px", overflow: "hidden" }}>
+              <LazyAdSpace 
+                type="display" 
+                slot={getDisplayAdSlot(getAdIndex('sidebar-right'))}
+                position="sidebar-right"
+              />
             </div>
           </div>
+        </div>
+
+        {/* Bottom Ad Row */}
+        <div className="mt-8">
+          <AdRow type="display" count={3} position="bottom" />
         </div>
       </ToolLayout>
 

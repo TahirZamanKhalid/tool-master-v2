@@ -22,12 +22,15 @@ export const SidebarAd = ({ position, className = "" }: SidebarAdProps) => {
       className={`fixed ${
         position === "left" ? "left-4" : "right-4"
       } top-24 hidden xl:block ${className}`}
-      style={{ width: "160px" }}
+      style={{ width: "160px", maxWidth: "160px" }}
     >
       <Card className="p-2 bg-muted/50 border-2 border-dashed border-muted-foreground/20">
-        <div className="space-y-4">
-          {/* Skyscraper Ad (160x600) */}
-          <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center text-center p-4" style={{ height: "600px" }}>
+        <div className="space-y-4" style={{ maxHeight: "600px", overflow: "hidden" }}>
+          {/* Skyscraper Ad (160x600) - enforced max dimensions */}
+          <div 
+            className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center text-center p-4" 
+            style={{ height: "600px", maxHeight: "600px", maxWidth: "160px" }}
+          >
             <div className="text-xs text-muted-foreground">
               <p className="font-semibold mb-2">Ad Space</p>
               <p>160x600</p>
@@ -35,8 +38,11 @@ export const SidebarAd = ({ position, className = "" }: SidebarAdProps) => {
             </div>
           </div>
 
-          {/* Wide Skyscraper Ad (160x600) - Second slot */}
-          <div className="bg-gradient-to-br from-accent/10 to-primary/10 rounded-lg flex items-center justify-center text-center p-4" style={{ height: "600px" }}>
+          {/* Wide Skyscraper Ad (160x600) - Second slot with enforced max dimensions */}
+          <div 
+            className="bg-gradient-to-br from-accent/10 to-primary/10 rounded-lg flex items-center justify-center text-center p-4" 
+            style={{ height: "600px", maxHeight: "600px", maxWidth: "160px" }}
+          >
             <div className="text-xs text-muted-foreground">
               <p className="font-semibold mb-2">Ad Space</p>
               <p>160x600</p>
