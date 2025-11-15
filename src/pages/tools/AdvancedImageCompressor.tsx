@@ -10,12 +10,10 @@ import { toast } from "sonner";
 import { Download, Upload, Image as ImageIcon } from "lucide-react";
 import { SidebarAd } from "@/components/SidebarAd";
 import { AdRow } from "@/components/AdRow";
-import { ImageEditor } from "@/components/ImageEditor";
 
 const AdvancedImageCompressor = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [compressedImage, setCompressedImage] = useState<string | null>(null);
-  const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [quality, setQuality] = useState<number>(80);
   const [format, setFormat] = useState<'jpeg' | 'png' | 'webp'>('jpeg');
@@ -92,7 +90,6 @@ const AdvancedImageCompressor = () => {
             setCompressedSize(blob.size);
             const url = URL.createObjectURL(blob);
             setCompressedImage(url);
-            setProcessedImage(url);
             toast.success("Image compressed successfully!");
           }
         },
@@ -130,14 +127,6 @@ const AdvancedImageCompressor = () => {
     ? ((1 - compressedSize / originalSize) * 100).toFixed(1)
     : '0';
 
-  const handleEditorDownload = (imageData: string) => {
-    const link = document.createElement('a');
-    link.href = imageData;
-    link.download = fileName.replace(/\.[^.]+$/, '-edited.png');
-    link.click();
-    toast.success("Edited image downloaded!");
-  };
-
   return (
     <ToolLayout
       title="Advanced Image Compressor"
@@ -148,7 +137,6 @@ const AdvancedImageCompressor = () => {
         "Choose output format and quality level",
         "Optionally resize by setting max width/height",
         "Click 'Compress Image' to process",
-        "Use the advanced editor to refine your image with layers and color tools",
         "Preview and download the compressed image"
       ]}
       relatedTools={[
@@ -329,15 +317,6 @@ const AdvancedImageCompressor = () => {
           </CardContent>
         </Card>
 
-        {/* Advanced Image Editor */}
-        {selectedImage && processedImage && (
-          <ImageEditor
-            originalImage={selectedImage}
-            processedImage={processedImage}
-            onDownload={handleEditorDownload}
-          />
-        )}
-
         {/* Features */}
         <Card>
           <CardContent className="p-6">
@@ -358,10 +337,6 @@ const AdvancedImageCompressor = () => {
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
                 <span><strong>Live Preview:</strong> See results before downloading</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
-                <span><strong>Advanced Editor:</strong> Layer system, color picker, and blending modes</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
