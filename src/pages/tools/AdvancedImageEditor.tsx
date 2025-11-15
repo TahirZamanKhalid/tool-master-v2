@@ -148,7 +148,6 @@ const AdvancedImageEditor = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
-  const toolsScrollRef = useRef<HTMLDivElement>(null);
 
   // Keyboard shortcuts and mouse wheel zoom
   useEffect(() => {
@@ -758,9 +757,9 @@ const AdvancedImageEditor = () => {
           {/* Left Panel - Tools (3 columns) */}
           <div className="lg:col-span-3 h-full">
             <Card className="h-full">
-              <CardContent className="p-3 h-full">
-                <ScrollArea className="h-full" ref={toolsScrollRef}>
-                  <div className="space-y-3">
+              <CardContent className="p-3 h-full flex flex-col">
+                <ScrollArea className="h-full flex-1">
+                  <div className="space-y-3 pr-3">
                     {/* Upload Section */}
                     <div className="space-y-2">
                       <Label className="text-xs font-semibold">UPLOAD IMAGE</Label>
