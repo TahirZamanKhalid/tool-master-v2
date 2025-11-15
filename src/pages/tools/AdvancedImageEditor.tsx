@@ -27,8 +27,8 @@ import {
   ZoomOut,
 } from "lucide-react";
 import { AdSpace } from "@/components/AdSpace";
-import { SidebarAd } from "@/components/SidebarAd";
 import { AdRow } from "@/components/AdRow";
+import { LazyAdSpace } from "@/components/LazyAdSpace";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -765,18 +765,14 @@ const AdvancedImageEditor = () => {
       </div>
 
       <div className="flex gap-4 w-full">
-        {/* Left Sidebar Ad - Static */}
+        {/* Left Sidebar Ad */}
         <div className="hidden xl:block w-40 flex-shrink-0">
-          <div className="space-y-4">
-            {/* Skyscraper Ad (160x600) */}
-            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center text-center p-4" style={{ height: "600px", width: "160px" }}>
-              <div className="text-xs text-muted-foreground">
-                <p className="font-semibold mb-2">Ad Space</p>
-                <p>160x600</p>
-                <p className="mt-2 text-[10px]">Sidebar Ad</p>
-              </div>
-            </div>
-          </div>
+          <LazyAdSpace 
+            type="display" 
+            slot="1212397554"
+            position="sidebar-left"
+            className="w-full"
+          />
         </div>
 
         <div className="flex-1 space-y-6 min-w-0">
@@ -1269,18 +1265,14 @@ const AdvancedImageEditor = () => {
         </div>
       </div>
 
-      {/* Right Sidebar Ad - Static */}
+      {/* Right Sidebar Ad */}
       <div className="hidden xl:block w-40 flex-shrink-0">
-        <div className="space-y-4">
-          {/* Skyscraper Ad (160x600) */}
-          <div className="bg-gradient-to-br from-accent/10 to-primary/10 rounded-lg flex items-center justify-center text-center p-4" style={{ height: "600px", width: "160px" }}>
-            <div className="text-xs text-muted-foreground">
-              <p className="font-semibold mb-2">Ad Space</p>
-              <p>160x600</p>
-              <p className="mt-2 text-[10px]">Sidebar Ad #2</p>
-            </div>
-          </div>
-        </div>
+        <LazyAdSpace 
+          type="display" 
+          slot="2918331088"
+          position="sidebar-right"
+          className="w-full"
+        />
       </div>
     </div>
     </ToolLayout>
