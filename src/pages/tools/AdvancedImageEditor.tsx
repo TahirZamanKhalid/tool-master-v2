@@ -754,8 +754,8 @@ const AdvancedImageEditor = () => {
       <div className="space-y-6">
         {/* Main Editor Area - Compact Design */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[500px] mb-8">
-          {/* Left Panel - Tools (3 columns) */}
-          <div className="lg:col-span-3 h-full overflow-hidden">
+          {/* Left Panel - Tools (4 columns) */}
+          <div className="lg:col-span-4 h-full overflow-hidden">
             <Card className="h-full flex flex-col">
               <CardContent className="p-3 flex-1 overflow-hidden">
                 <ScrollArea className="h-full w-full">
@@ -777,7 +777,7 @@ const AdvancedImageEditor = () => {
                         {/* Quick Actions */}
                         <div className="space-y-1 pt-1 border-t">
                           <Label className="text-[10px] font-semibold">QUICK ACTIONS</Label>
-                          <div className="grid grid-cols-3 gap-1">
+                          <div className="grid grid-cols-6 gap-1">
                             <Button
                               onClick={undo}
                               disabled={historyIndex <= 0}
@@ -840,35 +840,37 @@ const AdvancedImageEditor = () => {
                               <ChevronDown className="h-3 w-3" />
                             )}
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="p-1.5 pt-0 space-y-1.5">
-                            {[
-                              { label: "Brightness", value: filters.brightness, min: 0, max: 200, unit: "%" },
-                              { label: "Contrast", value: filters.contrast, min: 0, max: 200, unit: "%" },
-                              { label: "Saturation", value: filters.saturation, min: 0, max: 200, unit: "%" },
-                              { label: "Exposure", value: filters.exposure, min: 0, max: 200, unit: "%" },
-                              { label: "Temperature", value: filters.temperature, min: -100, max: 100, unit: "" },
-                              { label: "Vibrance", value: filters.vibrance, min: 0, max: 200, unit: "%" },
-                            ].map((setting) => (
-                              <div key={setting.label} className="space-y-0.5">
-                                <div className="flex justify-between">
-                                  <Label className="text-[10px]">{setting.label}</Label>
-                                  <span className="text-[10px] font-medium">
-                                    {setting.value}
-                                    {setting.unit}
-                                  </span>
+                          <CollapsibleContent className="p-1.5 pt-0">
+                            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+                              {[
+                                { label: "Brightness", value: filters.brightness, min: 0, max: 200, unit: "%" },
+                                { label: "Contrast", value: filters.contrast, min: 0, max: 200, unit: "%" },
+                                { label: "Saturation", value: filters.saturation, min: 0, max: 200, unit: "%" },
+                                { label: "Exposure", value: filters.exposure, min: 0, max: 200, unit: "%" },
+                                { label: "Temperature", value: filters.temperature, min: -100, max: 100, unit: "" },
+                                { label: "Vibrance", value: filters.vibrance, min: 0, max: 200, unit: "%" },
+                              ].map((setting) => (
+                                <div key={setting.label} className="space-y-0.5">
+                                  <div className="flex justify-between">
+                                    <Label className="text-[10px]">{setting.label}</Label>
+                                    <span className="text-[10px] font-medium">
+                                      {setting.value}
+                                      {setting.unit}
+                                    </span>
+                                  </div>
+                                  <Slider
+                                    value={[setting.value]}
+                                    onValueChange={([value]) =>
+                                      setFilters({ ...filters, [setting.label.toLowerCase()]: value })
+                                    }
+                                    min={setting.min}
+                                    max={setting.max}
+                                    step={1}
+                                    className="my-1"
+                                  />
                                 </div>
-                                <Slider
-                                  value={[setting.value]}
-                                  onValueChange={([value]) =>
-                                    setFilters({ ...filters, [setting.label.toLowerCase()]: value })
-                                  }
-                                  min={setting.min}
-                                  max={setting.max}
-                                  step={1}
-                                  className="my-1"
-                                />
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </CollapsibleContent>
                         </Collapsible>
 
@@ -886,37 +888,39 @@ const AdvancedImageEditor = () => {
                               <ChevronDown className="h-3 w-3" />
                             )}
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="p-1.5 pt-0 space-y-1.5">
-                            {[
-                              { label: "Blur", value: filters.blur, min: 0, max: 20, unit: "px", step: 0.5 },
-                              { label: "Sharpness", value: filters.sharpness, min: 0, max: 100, unit: "%" },
-                              { label: "Vignette", value: filters.vignette, min: 0, max: 100, unit: "%" },
-                              { label: "Grain", value: filters.grain, min: 0, max: 50, unit: "%" },
-                              { label: "Hue", value: filters.hue, min: -180, max: 180, unit: "°" },
-                            ].map((setting) => (
-                              <div key={setting.label} className="space-y-0.5">
-                                <div className="flex justify-between">
-                                  <Label className="text-[10px]">{setting.label}</Label>
-                                  <span className="text-[10px] font-medium">
-                                    {setting.value}
-                                    {setting.unit}
-                                  </span>
+                          <CollapsibleContent className="p-1.5 pt-0">
+                            <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+                              {[
+                                { label: "Blur", value: filters.blur, min: 0, max: 20, unit: "px", step: 0.5 },
+                                { label: "Sharpness", value: filters.sharpness, min: 0, max: 100, unit: "%" },
+                                { label: "Vignette", value: filters.vignette, min: 0, max: 100, unit: "%" },
+                                { label: "Grain", value: filters.grain, min: 0, max: 50, unit: "%" },
+                                { label: "Hue", value: filters.hue, min: -180, max: 180, unit: "°" },
+                              ].map((setting) => (
+                                <div key={setting.label} className="space-y-0.5">
+                                  <div className="flex justify-between">
+                                    <Label className="text-[10px]">{setting.label}</Label>
+                                    <span className="text-[10px] font-medium">
+                                      {setting.value}
+                                      {setting.unit}
+                                    </span>
+                                  </div>
+                                  <Slider
+                                    value={[setting.value]}
+                                    onValueChange={([value]) =>
+                                      setFilters({ ...filters, [setting.label.toLowerCase()]: value })
+                                    }
+                                    min={setting.min}
+                                    max={setting.max}
+                                    step={setting.step || 1}
+                                    className="my-1"
+                                  />
                                 </div>
-                                <Slider
-                                  value={[setting.value]}
-                                  onValueChange={([value]) =>
-                                    setFilters({ ...filters, [setting.label.toLowerCase()]: value })
-                                  }
-                                  min={setting.min}
-                                  max={setting.max}
-                                  step={setting.step || 1}
-                                  className="my-1"
-                                />
-                              </div>
-                            ))}
+                              ))}
+                            </div>
 
                             {/* Effect Toggles */}
-                            <div className="space-y-0.5 pt-0.5">
+                            <div className="grid grid-cols-3 gap-0.5 pt-1.5">
                               {[
                                 { label: "Grayscale", checked: filters.grayscale, key: "grayscale" },
                                 { label: "Sepia", checked: filters.sepia, key: "sepia" },
@@ -953,7 +957,7 @@ const AdvancedImageEditor = () => {
                             )}
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-1.5 pt-0">
-                            <div className="grid grid-cols-2 gap-0.5">
+                            <div className="grid grid-cols-4 gap-0.5">
                               {["none", "vintage", "bw", "bright", "dramatic", "cool", "warm", "cinematic"].map(
                                 (preset) => (
                                   <Button
@@ -986,7 +990,7 @@ const AdvancedImageEditor = () => {
                             )}
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-1.5 pt-0 space-y-1.5">
-                            <div className="grid grid-cols-2 gap-0.5">
+                            <div className="grid grid-cols-5 gap-0.5">
                               <Button
                                 onClick={() => setTool("select")}
                                 variant={tool === "select" ? "default" : "outline"}
@@ -1106,8 +1110,8 @@ const AdvancedImageEditor = () => {
             </Card>
           </div>
 
-          {/* Center Panel - Canvas (9 columns) */}
-          <div className="lg:col-span-9 h-full">
+          {/* Center Panel - Canvas (8 columns) */}
+          <div className="lg:col-span-8 h-full">
             <Card className="h-full">
               <CardContent className="p-4 h-full flex flex-col">
                 {!image ? (
