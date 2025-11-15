@@ -52,46 +52,63 @@ export const AdSpace = (props: AdSpaceProps) => {
   const actualSlot = slotConfig[slot] || slot;
   const isTestMode = typeof window !== "undefined" && (
     window.location.hostname.includes("localhost") ||
-    window.location.hostname.endsWith(".lovable.app")
+    window.location.hostname.includes("lovable")
   );
 
   useEffect(() => {
-    // Prevent double initialization
     if (isInitialized) return;
 
     // Load AdSense script if not already loaded
-    if (!document.querySelector('script[src*="googlesyndication.com/pagead/js/adsbygoogle.js"]')) {
-      const script = document.createElement("script");
-      script.async = true;
-      script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`;
-      script.crossOrigin = "anonymous";
-      document.head.appendChild(script);
-    }
+    let script = document.querySelector(
+      'script[src*="googlesyndication.com/pagead/js/adsbygoogle.js"]'
+    ) as HTMLScriptElement | null;
 
-    const initializeAd = () => {
-      if (!adRef.current || isInitialized) return;
-
+    const ensurePush = () => {
       try {
-        // Make sure window.adsbygoogle exists
-        if (typeof window !== "undefined" && window.adsbygoogle) {
-          console.log("[AdSense] Initializing ad:", { type, slot: actualSlot, position });
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-          setIsInitialized(true);
-        } else {
-          // Retry if adsbygoogle not ready yet
-          setTimeout(initializeAd, 200);
-        }
-      } catch (error) {
-        console.error("[AdSense] Error initializing ad:", error);
-        // Don't retry on error, but keep the container visible
+        console.log("[AdSense] Pushing ad queue", { type, slot: actualSlot, position });
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
         setIsInitialized(true);
+      } catch (error) {
+        console.warn("[AdSense] Push failed, will retry", error);
+        setTimeout(ensurePush, 300);
       }
     };
 
-    // Delay initialization slightly to ensure DOM is ready
-    const timer = setTimeout(initializeAd, 100);
+    const onLoad = () => {
+      console.log("[AdSense] Script loaded");
+      ensurePush();
+    };
 
-    return () => clearTimeout(timer);
+    const onError = (e: any) => {
+      console.error("[AdSense] Script failed to load", e);
+      // Try pushing anyway; queue may still be handled later
+      ensurePush();
+    };
+
+    if (!script) {
+      script = document.createElement("script");
+      script.async = true;
+      script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`;
+      script.crossOrigin = "anonymous";
+      script.addEventListener("load", onLoad);
+      script.addEventListener("error", onError);
+      document.head.appendChild(script);
+      console.log("[AdSense] Injected script");
+    } else {
+      // If script tag already exists, attempt push immediately
+      onLoad();
+    }
+
+    // Fallback: Try again shortly in case the DOM wasn't ready
+    const timer = setTimeout(() => {
+      if (!isInitialized) ensurePush();
+    }, 1000);
+
+    return () => {
+      clearTimeout(timer);
+      script?.removeEventListener("load", onLoad);
+      script?.removeEventListener("error", onError);
+    };
   }, [actualSlot, adClient, type, position, isInitialized]);
 
   const getAdStyle = () => {
