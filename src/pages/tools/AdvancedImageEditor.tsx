@@ -759,10 +759,10 @@ const AdvancedImageEditor = () => {
             <Card className="h-full flex flex-col">
               <CardContent className="p-3 flex-1 overflow-hidden">
                 <ScrollArea className="h-full">
-                  <div className="space-y-3 pr-3 pb-3">
+                  <div className="space-y-2 pr-3 pb-3">
                     {/* Upload Section */}
-                    <div className="space-y-2">
-                      <Label className="text-xs font-semibold">UPLOAD IMAGE</Label>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] font-semibold">UPLOAD IMAGE</Label>
                       <Input
                         ref={fileInputRef}
                         type="file"
@@ -775,8 +775,8 @@ const AdvancedImageEditor = () => {
                     {image && (
                       <>
                         {/* Quick Actions */}
-                        <div className="space-y-2 pt-2 border-t">
-                          <Label className="text-xs font-semibold">QUICK ACTIONS</Label>
+                        <div className="space-y-1 pt-1 border-t">
+                          <Label className="text-[10px] font-semibold">QUICK ACTIONS</Label>
                           <div className="grid grid-cols-3 gap-1">
                             <Button
                               onClick={undo}
@@ -832,15 +832,15 @@ const AdvancedImageEditor = () => {
                           onOpenChange={() => toggleSection("basicAdjustments")}
                           className="border rounded-md"
                         >
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-accent rounded-md">
-                            <Label className="text-xs font-semibold cursor-pointer">BASIC ADJUSTMENTS</Label>
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-1.5 hover:bg-accent rounded-md">
+                            <Label className="text-[10px] font-semibold cursor-pointer">BASIC ADJUSTMENTS</Label>
                             {openSections.basicAdjustments ? (
                               <ChevronUp className="h-3 w-3" />
                             ) : (
                               <ChevronDown className="h-3 w-3" />
                             )}
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="p-2 pt-0 space-y-2">
+                          <CollapsibleContent className="p-1.5 pt-0 space-y-1.5">
                             {[
                               { label: "Brightness", value: filters.brightness, min: 0, max: 200, unit: "%" },
                               { label: "Contrast", value: filters.contrast, min: 0, max: 200, unit: "%" },
@@ -849,10 +849,10 @@ const AdvancedImageEditor = () => {
                               { label: "Temperature", value: filters.temperature, min: -100, max: 100, unit: "" },
                               { label: "Vibrance", value: filters.vibrance, min: 0, max: 200, unit: "%" },
                             ].map((setting) => (
-                              <div key={setting.label} className="space-y-1">
+                              <div key={setting.label} className="space-y-0.5">
                                 <div className="flex justify-between">
-                                  <Label className="text-xs">{setting.label}</Label>
-                                  <span className="text-xs font-medium">
+                                  <Label className="text-[10px]">{setting.label}</Label>
+                                  <span className="text-[10px] font-medium">
                                     {setting.value}
                                     {setting.unit}
                                   </span>
@@ -878,15 +878,15 @@ const AdvancedImageEditor = () => {
                           onOpenChange={() => toggleSection("advancedEffects")}
                           className="border rounded-md"
                         >
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-accent rounded-md">
-                            <Label className="text-xs font-semibold cursor-pointer">ADVANCED EFFECTS</Label>
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-1.5 hover:bg-accent rounded-md">
+                            <Label className="text-[10px] font-semibold cursor-pointer">ADVANCED EFFECTS</Label>
                             {openSections.advancedEffects ? (
                               <ChevronUp className="h-3 w-3" />
                             ) : (
                               <ChevronDown className="h-3 w-3" />
                             )}
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="p-2 pt-0 space-y-2">
+                          <CollapsibleContent className="p-1.5 pt-0 space-y-1.5">
                             {[
                               { label: "Blur", value: filters.blur, min: 0, max: 20, unit: "px", step: 0.5 },
                               { label: "Sharpness", value: filters.sharpness, min: 0, max: 100, unit: "%" },
@@ -894,10 +894,10 @@ const AdvancedImageEditor = () => {
                               { label: "Grain", value: filters.grain, min: 0, max: 50, unit: "%" },
                               { label: "Hue", value: filters.hue, min: -180, max: 180, unit: "°" },
                             ].map((setting) => (
-                              <div key={setting.label} className="space-y-1">
+                              <div key={setting.label} className="space-y-0.5">
                                 <div className="flex justify-between">
-                                  <Label className="text-xs">{setting.label}</Label>
-                                  <span className="text-xs font-medium">
+                                  <Label className="text-[10px]">{setting.label}</Label>
+                                  <span className="text-[10px] font-medium">
                                     {setting.value}
                                     {setting.unit}
                                   </span>
@@ -916,14 +916,17 @@ const AdvancedImageEditor = () => {
                             ))}
 
                             {/* Effect Toggles */}
-                            <div className="space-y-1 pt-1">
+                            <div className="space-y-0.5 pt-0.5">
                               {[
                                 { label: "Grayscale", checked: filters.grayscale, key: "grayscale" },
                                 { label: "Sepia", checked: filters.sepia, key: "sepia" },
                                 { label: "Invert", checked: filters.invert, key: "invert" },
                               ].map((toggle) => (
-                                <div key={toggle.key} className="flex items-center justify-between p-1 rounded border">
-                                  <Label className="text-xs">{toggle.label}</Label>
+                                <div
+                                  key={toggle.key}
+                                  className="flex items-center justify-between p-0.5 rounded border"
+                                >
+                                  <Label className="text-[10px]">{toggle.label}</Label>
                                   <Switch
                                     checked={toggle.checked}
                                     onCheckedChange={(checked) => setFilters({ ...filters, [toggle.key]: checked })}
@@ -941,16 +944,16 @@ const AdvancedImageEditor = () => {
                           onOpenChange={() => toggleSection("presets")}
                           className="border rounded-md"
                         >
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-accent rounded-md">
-                            <Label className="text-xs font-semibold cursor-pointer">QUICK PRESETS</Label>
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-1.5 hover:bg-accent rounded-md">
+                            <Label className="text-[10px] font-semibold cursor-pointer">QUICK PRESETS</Label>
                             {openSections.presets ? (
                               <ChevronUp className="h-3 w-3" />
                             ) : (
                               <ChevronDown className="h-3 w-3" />
                             )}
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="p-2 pt-0">
-                            <div className="grid grid-cols-2 gap-1">
+                          <CollapsibleContent className="p-1.5 pt-0">
+                            <div className="grid grid-cols-2 gap-0.5">
                               {["none", "vintage", "bw", "bright", "dramatic", "cool", "warm", "cinematic"].map(
                                 (preset) => (
                                   <Button
@@ -958,7 +961,7 @@ const AdvancedImageEditor = () => {
                                     onClick={() => applyPreset(preset)}
                                     size="sm"
                                     variant={activePreset === preset ? "default" : "outline"}
-                                    className="h-6 text-xs"
+                                    className="h-5 text-[10px] px-1"
                                   >
                                     {preset === "bw" ? "B&W" : preset.charAt(0).toUpperCase() + preset.slice(1)}
                                   </Button>
@@ -974,85 +977,85 @@ const AdvancedImageEditor = () => {
                           onOpenChange={() => toggleSection("tools")}
                           className="border rounded-md"
                         >
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-accent rounded-md">
-                            <Label className="text-xs font-semibold cursor-pointer">DRAWING TOOLS</Label>
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-1.5 hover:bg-accent rounded-md">
+                            <Label className="text-[10px] font-semibold cursor-pointer">DRAWING TOOLS</Label>
                             {openSections.tools ? (
                               <ChevronUp className="h-3 w-3" />
                             ) : (
                               <ChevronDown className="h-3 w-3" />
                             )}
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="p-2 pt-0 space-y-2">
-                            <div className="grid grid-cols-2 gap-1">
+                          <CollapsibleContent className="p-1.5 pt-0 space-y-1.5">
+                            <div className="grid grid-cols-2 gap-0.5">
                               <Button
                                 onClick={() => setTool("select")}
                                 variant={tool === "select" ? "default" : "outline"}
-                                className="h-7 text-xs"
+                                className="h-6 text-[10px] px-1"
                               >
                                 Select
                               </Button>
                               <Button
                                 onClick={() => setTool("text")}
                                 variant={tool === "text" ? "default" : "outline"}
-                                className="h-7 text-xs"
+                                className="h-6 text-[10px] px-1"
                               >
-                                <Type className="h-3 w-3 mr-1" />
+                                <Type className="h-3 w-3 mr-0.5" />
                                 Text
                               </Button>
                               <Button
                                 onClick={() => setTool("draw")}
                                 variant={tool === "draw" ? "default" : "outline"}
-                                className="h-7 text-xs"
+                                className="h-6 text-[10px] px-1"
                               >
-                                <Paintbrush className="h-3 w-3 mr-1" />
+                                <Paintbrush className="h-3 w-3 mr-0.5" />
                                 Draw
                               </Button>
                               <Button
                                 onClick={() => setTool("shape")}
                                 variant={tool === "shape" ? "default" : "outline"}
-                                className="h-7 text-xs"
+                                className="h-6 text-[10px] px-1"
                               >
-                                <Square className="h-3 w-3 mr-1" />
+                                <Square className="h-3 w-3 mr-0.5" />
                                 Shapes
                               </Button>
                               <Button
                                 onClick={() => setTool("eraser")}
                                 variant={tool === "eraser" ? "default" : "outline"}
-                                className="h-7 text-xs"
+                                className="h-6 text-[10px] px-1"
                               >
-                                <Eraser className="h-3 w-3 mr-1" />
+                                <Eraser className="h-3 w-3 mr-0.5" />
                                 Eraser
                               </Button>
                             </div>
 
                             {/* Tool-specific options */}
                             {tool === "text" && (
-                              <div className="space-y-2 pt-2 border-t">
+                              <div className="space-y-1 pt-1 border-t">
                                 <Input
                                   value={currentText.text}
                                   onChange={(e) => setCurrentText({ ...currentText, text: e.target.value })}
                                   placeholder="Enter text..."
-                                  className="text-xs h-7"
+                                  className="text-[10px] h-6"
                                 />
-                                <div className="grid grid-cols-2 gap-1">
+                                <div className="grid grid-cols-2 gap-0.5">
                                   <div>
-                                    <Label className="text-xs">Color</Label>
+                                    <Label className="text-[10px]">Color</Label>
                                     <Input
                                       type="color"
                                       value={currentText.color}
                                       onChange={(e) => setCurrentText({ ...currentText, color: e.target.value })}
-                                      className="h-6 mt-1"
+                                      className="h-5 mt-0.5"
                                     />
                                   </div>
                                   <div>
-                                    <Label className="text-xs">Size: {currentText.size}px</Label>
+                                    <Label className="text-[10px]">Size: {currentText.size}px</Label>
                                     <Slider
                                       value={[currentText.size]}
                                       onValueChange={([value]) => setCurrentText({ ...currentText, size: value })}
                                       min={12}
                                       max={72}
                                       step={1}
-                                      className="mt-1"
+                                      className="mt-0.5"
                                     />
                                   </div>
                                 </div>
@@ -1060,26 +1063,26 @@ const AdvancedImageEditor = () => {
                             )}
 
                             {tool === "draw" && (
-                              <div className="space-y-2 pt-2 border-t">
-                                <div className="grid grid-cols-2 gap-1">
+                              <div className="space-y-1 pt-1 border-t">
+                                <div className="grid grid-cols-2 gap-0.5">
                                   <div>
-                                    <Label className="text-xs">Color</Label>
+                                    <Label className="text-[10px]">Color</Label>
                                     <Input
                                       type="color"
                                       value={drawSettings.color}
                                       onChange={(e) => setDrawSettings({ ...drawSettings, color: e.target.value })}
-                                      className="h-6 mt-1"
+                                      className="h-5 mt-0.5"
                                     />
                                   </div>
                                   <div>
-                                    <Label className="text-xs">Size: {drawSettings.size}px</Label>
+                                    <Label className="text-[10px]">Size: {drawSettings.size}px</Label>
                                     <Slider
                                       value={[drawSettings.size]}
                                       onValueChange={([value]) => setDrawSettings({ ...drawSettings, size: value })}
                                       min={1}
                                       max={20}
                                       step={1}
-                                      className="mt-1"
+                                      className="mt-0.5"
                                     />
                                   </div>
                                 </div>
@@ -1089,9 +1092,9 @@ const AdvancedImageEditor = () => {
                         </Collapsible>
 
                         {/* View Options */}
-                        <div className="space-y-1 pt-2 border-t">
-                          <div className="flex items-center justify-between p-1 rounded border">
-                            <Label className="text-xs">Show Grid</Label>
+                        <div className="space-y-0.5 pt-1 border-t">
+                          <div className="flex items-center justify-between p-0.5 rounded border">
+                            <Label className="text-[10px]">Show Grid</Label>
                             <Switch checked={showGrid} onCheckedChange={setShowGrid} className="scale-75" />
                           </div>
                         </div>
@@ -1218,7 +1221,7 @@ const AdvancedImageEditor = () => {
         </div>
 
         {/* Bottom Ad */}
-        <div className="mt-4">
+        <div>
           <AdSpace size="leaderboard" />
         </div>
       </div>
