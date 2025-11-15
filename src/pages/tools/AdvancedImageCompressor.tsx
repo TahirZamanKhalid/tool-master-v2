@@ -8,10 +8,14 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Download, Upload, Image as ImageIcon } from "lucide-react";
+import { SidebarAd } from "@/components/SidebarAd";
+import { AdRow } from "@/components/AdRow";
+import { ImageEditor } from "@/components/ImageEditor";
 
 const AdvancedImageCompressor = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [compressedImage, setCompressedImage] = useState<string | null>(null);
+  const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string>("");
   const [quality, setQuality] = useState<number>(80);
   const [format, setFormat] = useState<'jpeg' | 'png' | 'webp'>('jpeg');
@@ -88,6 +92,7 @@ const AdvancedImageCompressor = () => {
             setCompressedSize(blob.size);
             const url = URL.createObjectURL(blob);
             setCompressedImage(url);
+            setProcessedImage(url);
             toast.success("Image compressed successfully!");
           }
         },
@@ -125,6 +130,14 @@ const AdvancedImageCompressor = () => {
     ? ((1 - compressedSize / originalSize) * 100).toFixed(1)
     : '0';
 
+  const handleEditorDownload = (imageData: string) => {
+    const link = document.createElement('a');
+    link.href = imageData;
+    link.download = fileName.replace(/\.[^.]+$/, '-edited.png');
+    link.click();
+    toast.success("Edited image downloaded!");
+  };
+
   return (
     <ToolLayout
       title="Advanced Image Compressor"
@@ -135,6 +148,7 @@ const AdvancedImageCompressor = () => {
         "Choose output format and quality level",
         "Optionally resize by setting max width/height",
         "Click 'Compress Image' to process",
+        "Use the advanced editor to refine your image with layers and color tools",
         "Preview and download the compressed image"
       ]}
       relatedTools={[
@@ -143,7 +157,13 @@ const AdvancedImageCompressor = () => {
         { name: "WebP to PNG", path: "/tools/webp-to-png" }
       ]}
     >
-      <div className="grid gap-6">
+      <div className="flex gap-4">
+        {/* Left Sidebar Ad */}
+        <div className="hidden xl:block w-40 flex-shrink-0">
+          <SidebarAd position="left" />
+        </div>
+
+        <div className="flex-1 grid gap-6">
         <Card>
           <CardContent className="p-6 space-y-6">
             {/* Image Upload */}
@@ -309,6 +329,15 @@ const AdvancedImageCompressor = () => {
           </CardContent>
         </Card>
 
+        {/* Advanced Image Editor */}
+        {selectedImage && processedImage && (
+          <ImageEditor
+            originalImage={selectedImage}
+            processedImage={processedImage}
+            onDownload={handleEditorDownload}
+          />
+        )}
+
         {/* Features */}
         <Card>
           <CardContent className="p-6">
@@ -332,12 +361,25 @@ const AdvancedImageCompressor = () => {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">✓</span>
+                <span><strong>Advanced Editor:</strong> Layer system, color picker, and blending modes</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary">✓</span>
                 <span><strong>100% Private:</strong> All processing in your browser</span>
               </li>
             </ul>
           </CardContent>
         </Card>
+
+        {/* Bottom Ad Row */}
+        <AdRow type="display" count={3} position="bottom" />
       </div>
+
+      {/* Right Sidebar Ad */}
+      <div className="hidden xl:block w-40 flex-shrink-0">
+        <SidebarAd position="right" />
+      </div>
+    </div>
     </ToolLayout>
   );
 };
