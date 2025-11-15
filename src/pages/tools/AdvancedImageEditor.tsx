@@ -23,6 +23,8 @@ import {
   RefreshCw,
   ChevronDown,
   ChevronUp,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 import { AdSpace } from "@/components/AdSpace";
 import { Switch } from "@/components/ui/switch";
@@ -147,25 +149,37 @@ const AdvancedImageEditor = () => {
   const dropZoneRef = useRef<HTMLDivElement>(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
 
-  // Keyboard shortcuts
+  // Keyboard shortcuts and mouse wheel zoom
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        if (e.key === "ArrowUp") {
-          e.preventDefault();
-          setCanvasScale((prev) => Math.min(3, prev + 0.1));
-          toast.success("Zoom In");
-        } else if (e.key === "ArrowDown") {
-          e.preventDefault();
-          setCanvasScale((prev) => Math.max(0.1, prev - 0.1));
-          toast.success("Zoom Out");
-        }
+      if ((e.ctrlKey || e.metaKey) && e.key === "z") {
+        e.preventDefault();
+        undo();
+      } else if ((e.ctrlKey || e.metaKey) && e.key === "y") {
+        e.preventDefault();
+        redo();
+      }
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.ctrlKey && image) {
+        e.preventDefault();
+        const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+        setCanvasScale((prev) => {
+          const newScale = prev * zoomFactor;
+          return Math.max(0.1, Math.min(5, newScale));
+        });
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+    window.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("wheel", handleWheel);
+    };
+  }, [image]);
 
   // Live preview - redraw whenever any setting changes
   useEffect(() => {
@@ -234,11 +248,7 @@ const AdvancedImageEditor = () => {
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) return;
 
-    // Set canvas size based on scale
-    const scaledWidth = image.width * canvasScale;
-    const scaledHeight = image.height * canvasScale;
-
-    // Clear canvas with larger size
+    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     ctx.save();
@@ -248,7 +258,11 @@ const AdvancedImageEditor = () => {
     ctx.rotate((rotation * Math.PI) / 180);
     ctx.scale(flipH ? -1 : 1, flipV ? -1 : 1);
 
-    // Build comprehensive filter string with ALL filters
+    // Calculate scaled dimensions
+    const scaledWidth = image.width * canvasScale;
+    const scaledHeight = image.height * canvasScale;
+
+    // Build comprehensive filter string
     const filterParts = [
       `brightness(${filters.brightness}%)`,
       `contrast(${filters.contrast}%)`,
@@ -264,6 +278,7 @@ const AdvancedImageEditor = () => {
 
     ctx.filter = filterParts.join(" ");
 
+    // Draw image based on rotation
     if (rotation === 90 || rotation === 270) {
       ctx.drawImage(image, -scaledHeight / 2, -scaledWidth / 2, scaledHeight, scaledWidth);
     } else {
@@ -272,7 +287,7 @@ const AdvancedImageEditor = () => {
 
     ctx.restore();
 
-    // Apply custom effects that can't be done with CSS filters
+    // Apply custom effects
     if (filters.vignette > 0) {
       applyVignette(ctx, canvas.width, canvas.height, filters.vignette);
     }
@@ -289,12 +304,26 @@ const AdvancedImageEditor = () => {
       applyTint(ctx, canvas.width, canvas.height, filters.tint);
     }
 
+    if (filters.sharpness > 0) {
+      applySharpness(ctx, canvas.width, canvas.height, filters.sharpness);
+    }
+
+    if (filters.exposure !== 100) {
+      applyExposure(ctx, canvas.width, canvas.height, filters.exposure);
+    }
+
+    if (filters.vibrance !== 100) {
+      applyVibrance(ctx, canvas.width, canvas.height, filters.vibrance);
+    }
+
     // Draw text layers
     textLayers.forEach((layer) => {
       ctx.save();
       ctx.globalAlpha = layer.opacity / 100;
       ctx.font = `${layer.bold ? "bold" : ""} ${layer.italic ? "italic" : ""} ${layer.size}px ${layer.font}`;
       ctx.fillStyle = layer.color;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
 
       if (layer.shadow) {
         ctx.shadowColor = "rgba(0,0,0,0.5)";
@@ -331,7 +360,9 @@ const AdvancedImageEditor = () => {
     gradient.addColorStop(0, "rgba(0,0,0,0)");
     gradient.addColorStop(1, `rgba(0,0,0,${intensity / 100})`);
     ctx.fillStyle = gradient;
+    ctx.globalCompositeOperation = "multiply";
     ctx.fillRect(0, 0, width, height);
+    ctx.globalCompositeOperation = "source-over";
   };
 
   const applyGrain = (ctx: CanvasRenderingContext2D, width: number, height: number, intensity: number) => {
@@ -339,10 +370,10 @@ const AdvancedImageEditor = () => {
     const data = imageData.data;
 
     for (let i = 0; i < data.length; i += 4) {
-      const noise = (Math.random() - 0.5) * intensity * 2;
-      data[i] += noise;
-      data[i + 1] += noise;
-      data[i + 2] += noise;
+      const noise = (Math.random() - 0.5) * intensity;
+      data[i] = Math.max(0, Math.min(255, data[i] + noise));
+      data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise));
+      data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise));
     }
 
     ctx.putImageData(imageData, 0, 0);
@@ -353,8 +384,8 @@ const AdvancedImageEditor = () => {
     const data = imageData.data;
 
     for (let i = 0; i < data.length; i += 4) {
-      data[i] += temp * 0.5; // Red channel
-      data[i + 2] -= temp * 0.5; // Blue channel
+      data[i] = Math.max(0, Math.min(255, data[i] + temp * 0.5));
+      data[i + 2] = Math.max(0, Math.min(255, data[i + 2] - temp * 0.5));
     }
 
     ctx.putImageData(imageData, 0, 0);
@@ -365,7 +396,57 @@ const AdvancedImageEditor = () => {
     const data = imageData.data;
 
     for (let i = 0; i < data.length; i += 4) {
-      data[i + 1] += tint * 0.5; // Green channel
+      data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + tint * 0.5));
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+  };
+
+  const applySharpness = (ctx: CanvasRenderingContext2D, width: number, height: number, sharpness: number) => {
+    // Simple sharpening using convolution
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const tempData = new Uint8ClampedArray(imageData.data);
+
+    for (let y = 1; y < height - 1; y++) {
+      for (let x = 1; x < width - 1; x++) {
+        for (let c = 0; c < 3; c++) {
+          const idx = (y * width + x) * 4 + c;
+          const sharpValue =
+            tempData[idx] * (1 + sharpness / 100) -
+            (tempData[idx - 4] + tempData[idx + 4] + tempData[idx - width * 4] + tempData[idx + width * 4]) *
+              (sharpness / 400);
+          imageData.data[idx] = Math.max(0, Math.min(255, sharpValue));
+        }
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+  };
+
+  const applyExposure = (ctx: CanvasRenderingContext2D, width: number, height: number, exposure: number) => {
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    const factor = exposure / 100;
+
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = Math.max(0, Math.min(255, data[i] * factor));
+      data[i + 1] = Math.max(0, Math.min(255, data[i + 1] * factor));
+      data[i + 2] = Math.max(0, Math.min(255, data[i + 2] * factor));
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+  };
+
+  const applyVibrance = (ctx: CanvasRenderingContext2D, width: number, height: number, vibrance: number) => {
+    const imageData = ctx.getImageData(0, 0, width, height);
+    const data = imageData.data;
+    const factor = vibrance / 100;
+
+    for (let i = 0; i < data.length; i += 4) {
+      const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+      data[i] = Math.max(0, Math.min(255, avg + (data[i] - avg) * factor));
+      data[i + 1] = Math.max(0, Math.min(255, avg + (data[i + 1] - avg) * factor));
+      data[i + 2] = Math.max(0, Math.min(255, avg + (data[i + 2] - avg) * factor));
     }
 
     ctx.putImageData(imageData, 0, 0);
@@ -418,12 +499,12 @@ const AdvancedImageEditor = () => {
 
     saveHistory();
     setTextLayers([...textLayers, newLayer]);
+    setCurrentText({ ...currentText, text: "" });
     toast.success("Text added");
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (tool === "select") {
-      // Start dragging image
       setIsDraggingImage(true);
       setDragStart({ x: e.clientX - imagePosition.x, y: e.clientY - imagePosition.y });
       return;
@@ -491,60 +572,15 @@ const AdvancedImageEditor = () => {
     }
   };
 
-  const handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleMouseUp = () => {
     if (isDraggingImage) {
       setIsDraggingImage(false);
       return;
     }
 
-    if (!isDrawing || tool !== "shape" || !canvasRef.current) {
+    if (!isDrawing || tool !== "shape") {
       setIsDrawing(false);
       return;
-    }
-
-    const rect = canvasRef.current.getBoundingClientRect();
-    const scaleX = canvasRef.current.width / rect.width;
-    const scaleY = canvasRef.current.height / rect.height;
-    const x = (e.clientX - rect.left) * scaleX;
-    const y = (e.clientY - rect.top) * scaleY;
-
-    const ctx = canvasRef.current.getContext("2d");
-    if (!ctx) return;
-
-    saveHistory();
-
-    ctx.strokeStyle = shapeSettings.strokeColor;
-    ctx.lineWidth = shapeSettings.strokeWidth;
-    ctx.fillStyle = shapeSettings.fillColor;
-
-    if (shapeSettings.type === "rectangle") {
-      if (shapeSettings.filled) {
-        ctx.fillRect(
-          Math.min(startPos.x, x),
-          Math.min(startPos.y, y),
-          Math.abs(x - startPos.x),
-          Math.abs(y - startPos.y),
-        );
-      }
-      ctx.strokeRect(
-        Math.min(startPos.x, x),
-        Math.min(startPos.y, y),
-        Math.abs(x - startPos.x),
-        Math.abs(y - startPos.y),
-      );
-    } else if (shapeSettings.type === "circle") {
-      const radius = Math.sqrt(Math.pow(x - startPos.x, 2) + Math.pow(y - startPos.y, 2));
-      ctx.beginPath();
-      ctx.arc(startPos.x, startPos.y, radius, 0, 2 * Math.PI);
-      if (shapeSettings.filled) {
-        ctx.fill();
-      }
-      ctx.stroke();
-    } else if (shapeSettings.type === "line") {
-      ctx.beginPath();
-      ctx.moveTo(startPos.x, startPos.y);
-      ctx.lineTo(x, y);
-      ctx.stroke();
     }
 
     setIsDrawing(false);
@@ -574,9 +610,9 @@ const AdvancedImageEditor = () => {
       ctx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
       ctx.drawImage(img, 0, 0);
       setHistoryIndex(historyIndex - 1);
+      toast.success("Undo applied");
     };
     img.src = history[historyIndex - 1];
-    toast.success("Undo applied");
   };
 
   const redo = () => {
@@ -590,9 +626,9 @@ const AdvancedImageEditor = () => {
       ctx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
       ctx.drawImage(img, 0, 0);
       setHistoryIndex(historyIndex + 1);
+      toast.success("Redo applied");
     };
     img.src = history[historyIndex + 1];
-    toast.success("Redo applied");
   };
 
   const resetFilters = () => {
@@ -627,7 +663,6 @@ const AdvancedImageEditor = () => {
   };
 
   const applyPreset = (preset: string) => {
-    // If clicking the same preset, deapply it
     if (activePreset === preset) {
       resetFilters();
       return;
@@ -652,7 +687,6 @@ const AdvancedImageEditor = () => {
     if (preset === "none") {
       resetFilters();
     } else if (presets[preset]) {
-      // Reset to defaults first
       const defaultFilters = {
         brightness: 100,
         contrast: 100,
@@ -698,6 +732,14 @@ const AdvancedImageEditor = () => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
+  const zoomIn = () => {
+    setCanvasScale((prev) => Math.min(5, prev * 1.2));
+  };
+
+  const zoomOut = () => {
+    setCanvasScale((prev) => Math.max(0.1, prev / 1.2));
+  };
+
   return (
     <ToolLayout
       title="Professional Image Editor - Free Online Photo Editor"
@@ -711,12 +753,12 @@ const AdvancedImageEditor = () => {
 
       <div className="space-y-6">
         {/* Main Editor Area - Full Width */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-200px)] min-h-[700px]">
           {/* Left Panel - Collapsible Controls (3 columns) */}
-          <div className="lg:col-span-3">
-            <Card>
-              <CardContent className="p-4">
-                <ScrollArea className="h-[700px] pr-4">
+          <div className="lg:col-span-3 h-full">
+            <Card className="h-full">
+              <CardContent className="p-4 h-full">
+                <ScrollArea className="h-full pr-4">
                   <div className="space-y-3">
                     {/* Upload Section */}
                     <div className="space-y-2">
@@ -832,6 +874,21 @@ const AdvancedImageEditor = () => {
                               />
                             </div>
 
+                            {/* Exposure */}
+                            <div className="space-y-1">
+                              <div className="flex justify-between">
+                                <Label className="text-xs">Exposure</Label>
+                                <span className="text-xs font-medium">{filters.exposure}%</span>
+                              </div>
+                              <Slider
+                                value={[filters.exposure]}
+                                onValueChange={([value]) => setFilters({ ...filters, exposure: value })}
+                                min={0}
+                                max={200}
+                                step={1}
+                              />
+                            </div>
+
                             {/* Temperature */}
                             <div className="space-y-1">
                               <div className="flex justify-between">
@@ -843,6 +900,21 @@ const AdvancedImageEditor = () => {
                                 onValueChange={([value]) => setFilters({ ...filters, temperature: value })}
                                 min={-100}
                                 max={100}
+                                step={1}
+                              />
+                            </div>
+
+                            {/* Vibrance */}
+                            <div className="space-y-1">
+                              <div className="flex justify-between">
+                                <Label className="text-xs">Vibrance</Label>
+                                <span className="text-xs font-medium">{filters.vibrance}%</span>
+                              </div>
+                              <Slider
+                                value={[filters.vibrance]}
+                                onValueChange={([value]) => setFilters({ ...filters, vibrance: value })}
+                                min={0}
+                                max={200}
                                 step={1}
                               />
                             </div>
@@ -879,6 +951,21 @@ const AdvancedImageEditor = () => {
                               />
                             </div>
 
+                            {/* Sharpness */}
+                            <div className="space-y-1">
+                              <div className="flex justify-between">
+                                <Label className="text-xs">Sharpness</Label>
+                                <span className="text-xs font-medium">{filters.sharpness}%</span>
+                              </div>
+                              <Slider
+                                value={[filters.sharpness]}
+                                onValueChange={([value]) => setFilters({ ...filters, sharpness: value })}
+                                min={0}
+                                max={100}
+                                step={1}
+                              />
+                            </div>
+
                             {/* Vignette */}
                             <div className="space-y-1">
                               <div className="flex justify-between">
@@ -905,6 +992,21 @@ const AdvancedImageEditor = () => {
                                 onValueChange={([value]) => setFilters({ ...filters, grain: value })}
                                 min={0}
                                 max={50}
+                                step={1}
+                              />
+                            </div>
+
+                            {/* Hue */}
+                            <div className="space-y-1">
+                              <div className="flex justify-between">
+                                <Label className="text-xs">Hue</Label>
+                                <span className="text-xs font-medium">{filters.hue}°</span>
+                              </div>
+                              <Slider
+                                value={[filters.hue]}
+                                onValueChange={([value]) => setFilters({ ...filters, hue: value })}
+                                min={-180}
+                                max={180}
                                 step={1}
                               />
                             </div>
@@ -1105,6 +1207,22 @@ const AdvancedImageEditor = () => {
                                     />
                                   </div>
                                 </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      checked={currentText.bold}
+                                      onCheckedChange={(checked) => setCurrentText({ ...currentText, bold: checked })}
+                                    />
+                                    <Label className="text-xs">Bold</Label>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <Switch
+                                      checked={currentText.italic}
+                                      onCheckedChange={(checked) => setCurrentText({ ...currentText, italic: checked })}
+                                    />
+                                    <Label className="text-xs">Italic</Label>
+                                  </div>
+                                </div>
                               </div>
                             )}
 
@@ -1134,6 +1252,44 @@ const AdvancedImageEditor = () => {
                                 </div>
                               </div>
                             )}
+
+                            {tool === "shape" && (
+                              <div className="space-y-2 pt-2 border-t">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <Label className="text-xs">Stroke Color</Label>
+                                    <Input
+                                      type="color"
+                                      value={shapeSettings.strokeColor}
+                                      onChange={(e) =>
+                                        setShapeSettings({ ...shapeSettings, strokeColor: e.target.value })
+                                      }
+                                      className="h-8 mt-1"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label className="text-xs">Fill Color</Label>
+                                    <Input
+                                      type="color"
+                                      value={shapeSettings.fillColor}
+                                      onChange={(e) =>
+                                        setShapeSettings({ ...shapeSettings, fillColor: e.target.value })
+                                      }
+                                      className="h-8 mt-1"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <Switch
+                                    checked={shapeSettings.filled}
+                                    onCheckedChange={(checked) =>
+                                      setShapeSettings({ ...shapeSettings, filled: checked })
+                                    }
+                                  />
+                                  <Label className="text-xs">Filled</Label>
+                                </div>
+                              </div>
+                            )}
                           </CollapsibleContent>
                         </Collapsible>
 
@@ -1150,9 +1306,11 @@ const AdvancedImageEditor = () => {
                           <p className="text-xs text-muted-foreground">
                             <strong>Keyboard Shortcuts:</strong>
                             <br />
-                            Ctrl+↑ = Zoom In
+                            Ctrl + Mouse Wheel = Zoom In/Out
                             <br />
-                            Ctrl+↓ = Zoom Out
+                            Ctrl+Z = Undo
+                            <br />
+                            Ctrl+Y = Redo
                           </p>
                         </div>
                       </>
@@ -1164,9 +1322,9 @@ const AdvancedImageEditor = () => {
           </div>
 
           {/* Center Panel - Large Canvas (9 columns) */}
-          <div className="lg:col-span-9">
-            <Card>
-              <CardContent className="p-6">
+          <div className="lg:col-span-9 h-full">
+            <Card className="h-full">
+              <CardContent className="p-6 h-full flex flex-col">
                 {!image ? (
                   <div
                     ref={dropZoneRef}
@@ -1176,7 +1334,7 @@ const AdvancedImageEditor = () => {
                     className={`
                       flex items-center justify-center
                       border-2 border-dashed rounded-lg
-                      min-h-[700px]
+                      flex-1
                       transition-colors
                       ${isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/25"}
                     `}
@@ -1195,30 +1353,59 @@ const AdvancedImageEditor = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-4">
-                    <div
-                      ref={canvasContainerRef}
-                      className="flex items-center justify-center border-2 rounded-lg bg-gray-100 dark:bg-gray-900 p-4 min-h-[650px] overflow-hidden"
-                    >
-                      <canvas
-                        ref={canvasRef}
-                        width={1200}
-                        height={800}
-                        onClick={handleCanvasClick}
-                        onMouseDown={handleMouseDown}
-                        onMouseMove={handleMouseMove}
-                        onMouseUp={handleMouseUp}
-                        onMouseLeave={() => {
-                          setIsDrawing(false);
-                          setIsDraggingImage(false);
-                        }}
-                        className={`border border-gray-300 dark:border-gray-700 ${
-                          tool === "select" ? "cursor-move" : "cursor-crosshair"
-                        }`}
-                      />
+                  <div className="space-y-4 flex-1 flex flex-col">
+                    <div className="flex-1 relative">
+                      <div
+                        ref={canvasContainerRef}
+                        className="flex items-center justify-center border-2 rounded-lg bg-gray-100 dark:bg-gray-900 p-4 h-full overflow-hidden relative"
+                      >
+                        <canvas
+                          ref={canvasRef}
+                          width={1200}
+                          height={800}
+                          onClick={handleCanvasClick}
+                          onMouseDown={handleMouseDown}
+                          onMouseMove={handleMouseMove}
+                          onMouseUp={handleMouseUp}
+                          onMouseLeave={() => {
+                            setIsDrawing(false);
+                            setIsDraggingImage(false);
+                          }}
+                          className={`border border-gray-300 dark:border-gray-700 ${
+                            tool === "select" ? "cursor-move" : "cursor-crosshair"
+                          }`}
+                        />
+
+                        {/* Vertical Zoom Controls */}
+                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex flex-col items-center space-y-2 bg-background/80 backdrop-blur-sm p-3 rounded-lg border">
+                          <Button onClick={zoomIn} size="sm" variant="outline" className="h-8 w-8 p-0">
+                            <ZoomIn className="h-4 w-4" />
+                          </Button>
+
+                          <div className="flex flex-col items-center h-32">
+                            <Slider
+                              value={[canvasScale * 100]}
+                              onValueChange={([value]) => setCanvasScale(value / 100)}
+                              min={10}
+                              max={300}
+                              step={1}
+                              orientation="vertical"
+                              className="h-24"
+                            />
+                          </div>
+
+                          <div className="text-xs font-medium min-w-[40px] text-center">
+                            {Math.round(canvasScale * 100)}%
+                          </div>
+
+                          <Button onClick={zoomOut} size="sm" variant="outline" className="h-8 w-8 p-0">
+                            <ZoomOut className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Zoom Slider Bar */}
+                    {/* Bottom Controls */}
                     <div className="space-y-2">
                       <div className="flex items-center gap-4">
                         <Label className="text-sm font-medium min-w-[80px]">
@@ -1232,9 +1419,17 @@ const AdvancedImageEditor = () => {
                           step={1}
                           className="flex-1"
                         />
+                        <div className="flex gap-2">
+                          <Button onClick={zoomOut} size="sm" variant="outline">
+                            <ZoomOut className="h-4 w-4" />
+                          </Button>
+                          <Button onClick={zoomIn} size="sm" variant="outline">
+                            <ZoomIn className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                       <p className="text-xs text-muted-foreground text-center">
-                        Drag the slider to zoom in/out • Use Ctrl+↑↓ for keyboard control • Drag image to reposition
+                        Drag the slider to zoom in/out • Use Ctrl+Mouse Wheel for zoom • Drag image to reposition
                       </p>
                     </div>
 
