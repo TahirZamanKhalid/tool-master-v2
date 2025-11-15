@@ -119,23 +119,35 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
     const x = (e.clientX - rect.left) * scaleX;
     const y = (e.clientY - rect.top) * scaleY;
 
+    ctx.globalCompositeOperation = "source-over";
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.lineWidth = brushSize;
+
     if (isErasing) {
-      // Erase by setting alpha to 0
+      // Erase by removing transparency - sets alpha to 0
       ctx.globalCompositeOperation = "destination-out";
-      ctx.beginPath();
-      ctx.arc(x, y, brushSize, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.strokeStyle = `rgba(0, 0, 0, 1)`;
     } else {
-      // Restore by painting from original image
+      // Draw/restore by painting from original image
       if (!originalImageRef.current) return;
       
-      ctx.globalCompositeOperation = "source-over";
       ctx.save();
       ctx.beginPath();
       ctx.arc(x, y, brushSize, 0, Math.PI * 2);
       ctx.clip();
       ctx.drawImage(originalImageRef.current, 0, 0, canvas.width, canvas.height);
       ctx.restore();
+      return;
+    }
+
+    // Continue drawing line
+    if (e.type === "mousedown") {
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+      ctx.stroke();
     }
   };
 

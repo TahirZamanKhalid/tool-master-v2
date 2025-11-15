@@ -175,18 +175,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      cleanup_old_caption_cache: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_old_rate_limits: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_old_subtitle_limits: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_old_caption_cache: { Args: never; Returns: undefined }
+      cleanup_old_rate_limits: { Args: never; Returns: undefined }
+      cleanup_old_subtitle_limits: { Args: never; Returns: undefined }
       get_popular_searches: {
         Args: { limit_count?: number }
         Returns: {
