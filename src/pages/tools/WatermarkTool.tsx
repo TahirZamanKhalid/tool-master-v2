@@ -290,7 +290,7 @@ const WatermarkTool = () => {
         <div className="flex gap-6 relative">
           {/* Left Sidebar Ad */}
           <div className="hidden xl:block flex-shrink-0" style={{ width: "160px", maxWidth: "160px" }}>
-            <div className="sticky top-24" style={{ maxHeight: "600px", overflow: "hidden" }}>
+            <div style={{ maxHeight: "600px", overflow: "hidden" }}>
               <LazyAdSpace 
                 type="display" 
                 slot={getDisplayAdSlot(getAdIndex('sidebar-left'))}
@@ -617,7 +617,7 @@ const WatermarkTool = () => {
 
           {/* Right Sidebar Ad */}
           <div className="hidden xl:block flex-shrink-0" style={{ width: "160px", maxWidth: "160px" }}>
-            <div className="sticky top-24" style={{ maxHeight: "600px", overflow: "hidden" }}>
+            <div style={{ maxHeight: "600px", overflow: "hidden" }}>
               <LazyAdSpace 
                 type="display" 
                 slot={getDisplayAdSlot(getAdIndex('sidebar-right'))}

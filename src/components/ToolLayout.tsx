@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AdSpace } from "@/components/AdSpace";
+import { LazyAdSpace } from "@/components/LazyAdSpace";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ToolRating } from "@/components/ToolRating";
@@ -10,6 +11,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ToolFAQ } from "@/components/ToolFAQ";
 import { useToolAnalytics } from "@/hooks/useToolAnalytics";
+import { getDisplayAdSlot, getAdIndex } from "@/utils/adSlotRotation";
 
 interface ToolLayoutProps {
   title: string;
@@ -94,8 +96,8 @@ export const ToolLayout = ({
           /* Full Width Layout with Sticky Ads */
           <div className="mt-8 space-y-8 w-full">
             {/* Top Sticky Ad - Desktop */}
-            <div className="hidden md:block sticky top-16 z-10 bg-background/95 backdrop-blur-sm py-2">
-              <AdSpace key={`top-ad-${adRefreshKey ?? 0}`} size="leaderboard" className="w-full" />
+            <div className="hidden md:block my-2">
+              <LazyAdSpace type="display" slot={getDisplayAdSlot(getAdIndex('top'))} className="w-full" />
             </div>
 
             <div className="space-y-8">
@@ -165,22 +167,30 @@ export const ToolLayout = ({
                 </div>
               )}
             </div>
-
-            {/* Mobile Sticky Bottom Ad */}
-            <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm p-2 border-t border-border">
-              <AdSpace key={`mobile-ad-${adRefreshKey ?? 0}`} size="banner" className="w-full" />
+            {/* Mobile Bottom Ad */}
+            <div className="md:hidden my-4">
+              <LazyAdSpace type="display" slot={getDisplayAdSlot(getAdIndex('bottom'))} className="w-full" />
             </div>
             
             {/* Desktop Bottom Ad */}
-            <div className="hidden md:block">
-              <AdSpace key={`bottom-ad-${adRefreshKey ?? 0}`} size="leaderboard" className="w-full" />
+            <div className="hidden md:block my-4">
+              <LazyAdSpace type="display" slot={getDisplayAdSlot(getAdIndex('bottom'))} className="w-full" />
             </div>
           </div>
         ) : (
           /* Sidebar Layout: 10% left, 80% content, 10% right sticky ad */
           <div className="flex gap-6 mt-8 w-full">
-            {/* Left Spacer */}
-            <div className="hidden xl:block flex-shrink-0" style={{ width: "10%" }} />
+            {/* Left Sidebar Ad */}
+            <div className="hidden xl:block flex-shrink-0" style={{ width: "160px", maxWidth: "160px" }}>
+              <div style={{ maxHeight: "600px", overflow: "hidden" }}>
+                <LazyAdSpace 
+                  type="display" 
+                  slot={getDisplayAdSlot(getAdIndex('sidebar-left'))}
+                  position="sidebar-left"
+                  className="w-full"
+                />
+              </div>
+            </div>
 
             {/* Main Content */}
             <div className="flex-1 space-y-8 overflow-hidden" style={{ maxWidth: "80%" }}>
@@ -251,10 +261,15 @@ export const ToolLayout = ({
               )}
             </div>
 
-            {/* Right Sticky Sidebar Ad */}
-            <div className="hidden xl:block flex-shrink-0" style={{ width: "10%" }}>
-              <div className="sticky top-24">
-                <AdSpace key={`sidebar-ad-${adRefreshKey ?? 0}`} size="skyscraper" />
+            {/* Right Sidebar Ad */}
+            <div className="hidden xl:block flex-shrink-0" style={{ width: "160px", maxWidth: "160px" }}>
+              <div style={{ maxHeight: "600px", overflow: "hidden" }}>
+                <LazyAdSpace 
+                  type="display" 
+                  slot={getDisplayAdSlot(getAdIndex('sidebar-right'))}
+                  position="sidebar-right"
+                  className="w-full"
+                />
               </div>
             </div>
           </div>
