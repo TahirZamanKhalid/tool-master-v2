@@ -764,13 +764,22 @@ const AdvancedImageEditor = () => {
         <AdSpace size="leaderboard" />
       </div>
 
-      <div className="flex gap-4">
-        {/* Left Sidebar Ad */}
+      <div className="flex gap-4 w-full">
+        {/* Left Sidebar Ad - Static */}
         <div className="hidden xl:block w-40 flex-shrink-0">
-          <SidebarAd position="left" />
+          <div className="space-y-4">
+            {/* Skyscraper Ad (160x600) */}
+            <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-lg flex items-center justify-center text-center p-4" style={{ height: "600px", width: "160px" }}>
+              <div className="text-xs text-muted-foreground">
+                <p className="font-semibold mb-2">Ad Space</p>
+                <p>160x600</p>
+                <p className="mt-2 text-[10px]">Sidebar Ad</p>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="flex-1 space-y-6">
+        <div className="flex-1 space-y-6 min-w-0">
           {/* Main Editor Area - Compact Design */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[600px] mb-8">
             {/* Left Panel - Tools (5 columns) */}
@@ -1230,7 +1239,7 @@ const AdvancedImageEditor = () => {
                       <p className="text-xs text-muted-foreground text-center">
                         Ctrl + Mouse Wheel to zoom • Drag image to reposition
                       </p>
-                    </div>
+                     </div>
 
                     <Button onClick={handleDownload} className="w-full flex-shrink-0" size="sm">
                       <Download className="h-4 w-4 mr-2" />
@@ -1245,20 +1254,33 @@ const AdvancedImageEditor = () => {
 
         {/* Layer Editor System */}
         {image && originalImage && processedImageUrl && (
-          <ImageEditor
-            originalImage={originalImage.src}
-            processedImage={processedImageUrl}
-            onDownload={handleLayerEditorDownload}
-          />
+          <div className="mt-6">
+            <ImageEditor
+              originalImage={originalImage.src}
+              processedImage={processedImageUrl}
+              onDownload={handleLayerEditorDownload}
+            />
+          </div>
         )}
 
         {/* Bottom Ad Row */}
-        <AdRow type="display" count={3} position="bottom" />
+        <div className="mt-6">
+          <AdRow type="display" count={3} position="bottom" />
+        </div>
       </div>
 
-      {/* Right Sidebar Ad */}
+      {/* Right Sidebar Ad - Static */}
       <div className="hidden xl:block w-40 flex-shrink-0">
-        <SidebarAd position="right" />
+        <div className="space-y-4">
+          {/* Skyscraper Ad (160x600) */}
+          <div className="bg-gradient-to-br from-accent/10 to-primary/10 rounded-lg flex items-center justify-center text-center p-4" style={{ height: "600px", width: "160px" }}>
+            <div className="text-xs text-muted-foreground">
+              <p className="font-semibold mb-2">Ad Space</p>
+              <p>160x600</p>
+              <p className="mt-2 text-[10px]">Sidebar Ad #2</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     </ToolLayout>
