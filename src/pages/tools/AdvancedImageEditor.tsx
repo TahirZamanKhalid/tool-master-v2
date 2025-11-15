@@ -758,8 +758,8 @@ const AdvancedImageEditor = () => {
           <div className="lg:col-span-3 h-full overflow-hidden">
             <Card className="h-full flex flex-col">
               <CardContent className="p-3 flex-1 overflow-hidden">
-                <ScrollArea className="h-full">
-                  <div className="space-y-2 pr-3 pb-3">
+                <ScrollArea className="h-full w-full">
+                  <div className="space-y-2 pr-4 pb-4">
                     {/* Upload Section */}
                     <div className="space-y-1">
                       <Label className="text-[10px] font-semibold">UPLOAD IMAGE</Label>
