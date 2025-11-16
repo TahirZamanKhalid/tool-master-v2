@@ -39,6 +39,10 @@ const slotConfig: Record<string, string> = {
 export const AdSpace = (props: AdSpaceProps) => {
   const adRef = useRef<any>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [hasFilled, setHasFilled] = useState(false);
+  const [shouldHide, setShouldHide] = useState(false);
+  const [hasPushed, setHasPushed] = useState(false);
+  const [inView, setInView] = useState(false);
   const adClient = "ca-pub-7382531001943020";
 
   // Handle both old and new prop formats
@@ -55,61 +59,87 @@ export const AdSpace = (props: AdSpaceProps) => {
     window.location.hostname.includes("lovable")
   );
 
+  // Viewport-based loading to avoid pushing ads off-screen
   useEffect(() => {
-    if (isInitialized) return;
+    if (!adRef.current) return;
+    const el = adRef.current as HTMLElement;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => setInView(e.isIntersecting));
+      },
+      { rootMargin: '200px 0px', threshold: 0.1 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
-    // Load AdSense script if not already loaded
-    let script = document.querySelector(
-      'script[src*="googlesyndication.com/pagead/js/adsbygoogle.js"]'
-    ) as HTMLScriptElement | null;
+  // Load AdSense script once and push when visible
+  useEffect(() => {
+    if (!inView || hasPushed || shouldHide) return;
 
-    const ensurePush = () => {
+    let cancelled = false;
+
+    const ensureScript = (): Promise<void> => {
+      return new Promise((resolve) => {
+        let script = document.querySelector(
+          'script[src*="googlesyndication.com/pagead/js/adsbygoogle.js"]'
+        ) as HTMLScriptElement | null;
+
+        const onLoad = () => !cancelled && resolve();
+        const onError = () => !cancelled && resolve(); // resolve anyway; push will retry
+
+        if (!script) {
+          script = document.createElement('script');
+          script.async = true;
+          script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`;
+          script.crossOrigin = 'anonymous';
+          script.addEventListener('load', onLoad);
+          script.addEventListener('error', onError);
+          document.head.appendChild(script);
+        } else {
+          onLoad();
+        }
+      });
+    };
+
+    const tryPush = () => {
       try {
-        console.log("[AdSense] Pushing ad queue", { type, slot: actualSlot, position });
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-        setIsInitialized(true);
-      } catch (error) {
-        console.warn("[AdSense] Push failed, will retry", error);
-        setTimeout(ensurePush, 300);
+        if (!cancelled) {
+          setHasPushed(true);
+          setIsInitialized(true);
+        }
+      } catch {
+        // retry shortly if the queue isn't ready yet
+        setTimeout(() => {
+          if (!cancelled && !hasPushed) tryPush();
+        }, 300);
       }
     };
 
-    const onLoad = () => {
-      console.log("[AdSense] Script loaded");
-      ensurePush();
-    };
+    // Observe for fill (iframe injected) and collapse on no-fill
+    const mo = new MutationObserver(() => {
+      const hasIframe = !!adRef.current?.querySelector('iframe');
+      if (hasIframe) {
+        setHasFilled(true);
+        mo.disconnect();
+      }
+    });
+    if (adRef.current) mo.observe(adRef.current, { childList: true, subtree: true });
 
-    const onError = (e: any) => {
-      console.error("[AdSense] Script failed to load", e);
-      // Try pushing anyway; queue may still be handled later
-      ensurePush();
-    };
+    // Start flow
+    ensureScript().then(tryPush);
 
-    if (!script) {
-      script = document.createElement("script");
-      script.async = true;
-      script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`;
-      script.crossOrigin = "anonymous";
-      script.addEventListener("load", onLoad);
-      script.addEventListener("error", onError);
-      document.head.appendChild(script);
-      console.log("[AdSense] Injected script");
-    } else {
-      // If script tag already exists, attempt push immediately
-      onLoad();
-    }
-
-    // Fallback: Try again shortly in case the DOM wasn't ready
-    const timer = setTimeout(() => {
-      if (!isInitialized) ensurePush();
-    }, 1000);
+    const collapseTimer = window.setTimeout(() => {
+      if (!hasFilled) setShouldHide(true);
+    }, 6000);
 
     return () => {
-      clearTimeout(timer);
-      script?.removeEventListener("load", onLoad);
-      script?.removeEventListener("error", onError);
+      cancelled = true;
+      mo.disconnect();
+      window.clearTimeout(collapseTimer);
     };
-  }, [actualSlot, adClient, type, position, isInitialized]);
+  }, [inView, hasPushed, shouldHide, hasFilled, actualSlot, type, position, adClient]);
 
   const getAdStyle = () => {
     // Get max dimensions for fixed-size ads
@@ -140,7 +170,9 @@ export const AdSpace = (props: AdSpaceProps) => {
     }
   };
 
-  // Always render the ad container - don't hide or remove it
+  // Hide completely if not filled or explicitly collapsed
+  if (shouldHide) return null;
+
   return (
     <div className={`ad-container ${className}`} style={{ minWidth: "250px" }}>
       <ins
