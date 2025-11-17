@@ -39,8 +39,6 @@ const slotConfig: Record<string, string> = {
 export const AdSpace = (props: AdSpaceProps) => {
   const adRef = useRef<any>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [hasFilled, setHasFilled] = useState(false);
-  const [shouldHide, setShouldHide] = useState(false);
   const [hasPushed, setHasPushed] = useState(false);
   const [inView, setInView] = useState(false);
   const adClient = "ca-pub-7382531001943020";
@@ -74,7 +72,7 @@ export const AdSpace = (props: AdSpaceProps) => {
 
   // Load AdSense script once and push when visible
   useEffect(() => {
-    if (!inView || hasPushed || shouldHide) return;
+    if (!inView || hasPushed) return;
 
     let cancelled = false;
 
@@ -116,29 +114,13 @@ export const AdSpace = (props: AdSpaceProps) => {
       }
     };
 
-    // Observe for fill (iframe injected) and collapse on no-fill
-    const mo = new MutationObserver(() => {
-      const hasIframe = !!adRef.current?.querySelector('iframe');
-      if (hasIframe) {
-        setHasFilled(true);
-        mo.disconnect();
-      }
-    });
-    if (adRef.current) mo.observe(adRef.current, { childList: true, subtree: true });
-
     // Start flow
     ensureScript().then(tryPush);
 
-    const collapseTimer = window.setTimeout(() => {
-      if (!hasFilled) setShouldHide(true);
-    }, 6000);
-
     return () => {
       cancelled = true;
-      mo.disconnect();
-      window.clearTimeout(collapseTimer);
     };
-  }, [inView, hasPushed, shouldHide, hasFilled, actualSlot, type, position, adClient]);
+  }, [inView, hasPushed, actualSlot, type, position, adClient]);
 
   const getAdStyle = () => {
     // Get max dimensions for fixed-size ads
@@ -168,9 +150,6 @@ export const AdSpace = (props: AdSpaceProps) => {
         return { display: "block", width: "100%", minHeight: "90px", ...maxDimensions };
     }
   };
-
-  // Hide completely if not filled or explicitly collapsed
-  if (shouldHide) return null;
 
   return (
     <div className={`ad-container ${className}`}>
