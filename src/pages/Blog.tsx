@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
 import { BlogPostCard } from "@/components/BlogPostCard";
 import { blogPosts } from "@/data/blogPosts";
-import { AdRow } from "@/components/AdRow"; // Add this import
+
 
 const Blog = () => {
   const navigate = useNavigate();
@@ -25,22 +25,17 @@ const Blog = () => {
       <Header />
 
       <main className="flex-1">
-        <div className="container py-12 px-4">
+        <div className="container py-12 px-4 max-w-[1200px] mx-auto">
           <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Button>
 
-          <div className="max-w-6xl mx-auto">
+          <div className="mx-auto">
             {/* Page Header */}
             <div className="text-center mb-12">
               <h1 className="text-4xl md:text-5xl font-bold mb-4">ToolMaster Pro Blog</h1>
               <p className="text-xl text-muted-foreground">Tips, tutorials, and insights about our tools</p>
-            </div>
-
-            {/* Top Ad */}
-            <div className="mb-12">
-              <AdRow type="display" count={1} position="top" />
             </div>
 
             {/* Featured Posts */}
@@ -56,11 +51,6 @@ const Blog = () => {
               </div>
             </section>
 
-            {/* Three Column Ads */}
-            <div className="my-16">
-              <AdRow type="display" count={3} position="content" />
-            </div>
-
             {/* All Posts */}
             <section className="mb-16">
               <h2 className="text-3xl font-bold mb-8 text-center">All Articles</h2>
@@ -70,11 +60,6 @@ const Blog = () => {
                 ))}
               </div>
             </section>
-
-            {/* Bottom Display Ads */}
-            <div className="mt-16">
-              <AdRow type="display" count={3} position="bottom" />
-            </div>
           </div>
         </div>
       </main>

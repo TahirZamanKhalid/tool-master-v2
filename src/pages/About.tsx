@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
 import { Card } from "@/components/ui/card";
-import { LazyAdSpace } from "@/components/LazyAdSpace";
+
 
 const About = () => {
   const navigate = useNavigate();
