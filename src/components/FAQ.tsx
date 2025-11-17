@@ -5,7 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { faqData } from "@/data/faqData";
-import { LazyAdSpace } from "./LazyAdSpace";
+
 
 export const FAQ = () => {
   return (
@@ -20,10 +20,6 @@ export const FAQ = () => {
           </p>
         </div>
         
-        {/* Ad before FAQ */}
-        <div className="mb-8">
-          <LazyAdSpace size="leaderboard" />
-        </div>
         
         <Accordion type="single" collapsible className="w-full">
           {faqData.map((faq, index) => (
@@ -38,10 +34,6 @@ export const FAQ = () => {
           ))}
         </Accordion>
         
-        {/* Ad after FAQ */}
-        <div className="mt-8">
-          <LazyAdSpace size="leaderboard" />
-        </div>
         
         <script
           type="application/ld+json"
