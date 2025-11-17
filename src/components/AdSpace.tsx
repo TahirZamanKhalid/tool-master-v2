@@ -55,8 +55,7 @@ export const AdSpace = (props: AdSpaceProps) => {
 
   const actualSlot = slotConfig[slot] || slot;
   const isTestMode = typeof window !== "undefined" && (
-    window.location.hostname.includes("localhost") ||
-    window.location.hostname.includes("lovable")
+    window.location.hostname.includes("localhost")
   );
 
   // Viewport-based loading to avoid pushing ads off-screen
@@ -174,7 +173,7 @@ export const AdSpace = (props: AdSpaceProps) => {
   if (shouldHide) return null;
 
   return (
-    <div className={`ad-container ${className}`} style={{ minWidth: "250px" }}>
+    <div className={`ad-container ${className}`}>
       <ins
         ref={adRef}
         className="adsbygoogle"
@@ -186,7 +185,7 @@ export const AdSpace = (props: AdSpaceProps) => {
         }}
         data-ad-client={adClient}
         data-ad-slot={actualSlot}
-        data-ad-format={type === "infeed" ? "fluid" : "auto"}
+        data-ad-format={type === "infeed" ? "fluid" : type === "multiplex" ? "autorelaxed" : "auto"}
         data-ad-layout-key={type === "infeed" ? layoutKey : undefined}
         data-full-width-responsive="true"
         data-adtest={isTestMode ? "on" : undefined}
