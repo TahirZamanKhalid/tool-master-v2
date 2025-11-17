@@ -12,12 +12,14 @@ type AdSpacePropsNew = {
   slot: string;
   layoutKey?: string;
   className?: string;
+  style?: React.CSSProperties;
   position?: "top" | "bottom" | "sidebar-left" | "sidebar-right" | "content";
 };
 
 type AdSpacePropsOld = {
   size: "banner" | "leaderboard" | "rectangle" | "skyscraper";
   className?: string;
+  style?: React.CSSProperties;
   position?: "top" | "bottom" | "sidebar-left" | "sidebar-right" | "content";
 };
 
@@ -49,6 +51,7 @@ export const AdSpace = (props: AdSpaceProps) => {
   const slot = isNewFormat ? props.slot : 'display_ad_slot_1';
   const layoutKey = isNewFormat ? props.layoutKey : undefined;
   const className = props.className || '';
+  const style = props.style || {};
   const position = props.position;
 
   const actualSlot = slotConfig[slot] || slot;
@@ -152,7 +155,7 @@ export const AdSpace = (props: AdSpaceProps) => {
   };
 
   return (
-    <div className={`ad-container ${className}`}>
+    <div className={`ad-container ${className}`} style={style}>
       <ins
         ref={adRef}
         className="adsbygoogle"
