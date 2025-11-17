@@ -51,11 +51,7 @@ const CategoryTools = () => {
                 type="display"
                 slot={getDisplayAdSlot(getAdIndex("sidebar-left"))}
                 position="sidebar-left"
-                style={{
-                  width: "160px",
-                  height: "600px",
-                  display: "block",
-                }}
+                className="w-full"
               />
             </div>
           </div>
@@ -72,7 +68,6 @@ const CategoryTools = () => {
                 type="display"
                 slot={getDisplayAdSlot(getAdIndex("top"))}
                 className="w-full"
-                style={{ minHeight: "90px" }}
               />
             </div>
 
@@ -96,11 +91,7 @@ const CategoryTools = () => {
                 type="display"
                 slot={getDisplayAdSlot(getAdIndex("sidebar-right"))}
                 position="sidebar-right"
-                style={{
-                  width: "160px",
-                  height: "600px",
-                  display: "block",
-                }}
+                className="w-full"
               />
             </div>
           </div>
