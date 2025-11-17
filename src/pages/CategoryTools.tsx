@@ -22,13 +22,13 @@ const CategoryTools = () => {
     "text-tools": "Text Tools",
     "video-tools": "Video Tools",
     "seo-marketing": "SEO & Marketing",
-    "calculators": "Calculators",
+    calculators: "Calculators",
     "security-tools": "Security Tools",
-    "utilities": "Utilities",
+    utilities: "Utilities",
     "file-converters": "File Converters",
     "business-tools": "Business Tools",
     "social-media": "Social Media",
-    "generators": "Generators"
+    generators: "Generators",
   };
 
   const decodedCategory = categoryMap[category || ""] || "";
@@ -45,13 +45,17 @@ const CategoryTools = () => {
       <main className="flex-1 py-12 container">
         <div className="flex gap-6">
           {/* Left Sidebar Ad */}
-          <div className="hidden xl:block flex-shrink-0" style={{ width: "160px", maxWidth: "160px" }}>
-            <div style={{ maxHeight: "600px", overflow: "hidden" }}>
-              <LazyAdSpace 
-                type="display" 
-                slot={getDisplayAdSlot(getAdIndex('sidebar-left'))}
+          <div className="hidden xl:block flex-shrink-0" style={{ width: "160px" }}>
+            <div className="sticky top-4">
+              <LazyAdSpace
+                type="display"
+                slot={getDisplayAdSlot(getAdIndex("sidebar-left"))}
                 position="sidebar-left"
-                className="w-full"
+                style={{
+                  width: "160px",
+                  height: "600px",
+                  display: "block",
+                }}
               />
             </div>
           </div>
@@ -64,12 +68,17 @@ const CategoryTools = () => {
             </div>
 
             <div className="mb-8">
-              <LazyAdSpace type="display" slot={getDisplayAdSlot(getAdIndex('top'))} className="w-full" />
+              <LazyAdSpace
+                type="display"
+                slot={getDisplayAdSlot(getAdIndex("top"))}
+                className="w-full"
+                style={{ minHeight: "90px" }}
+              />
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {categoryTools.map((tool, index) => (
-                <div key={index} onClick={() => navigate(tool.path)}>
+                <div key={index} onClick={() => navigate(tool.path)} className="cursor-pointer">
                   <ToolCard {...tool} />
                 </div>
               ))}
@@ -81,13 +90,17 @@ const CategoryTools = () => {
           </div>
 
           {/* Right Sidebar Ad */}
-          <div className="hidden xl:block flex-shrink-0" style={{ width: "160px", maxWidth: "160px" }}>
-            <div style={{ maxHeight: "600px", overflow: "hidden" }}>
-              <LazyAdSpace 
-                type="display" 
-                slot={getDisplayAdSlot(getAdIndex('sidebar-right'))}
+          <div className="hidden xl:block flex-shrink-0" style={{ width: "160px" }}>
+            <div className="sticky top-4">
+              <LazyAdSpace
+                type="display"
+                slot={getDisplayAdSlot(getAdIndex("sidebar-right"))}
                 position="sidebar-right"
-                className="w-full"
+                style={{
+                  width: "160px",
+                  height: "600px",
+                  display: "block",
+                }}
               />
             </div>
           </div>
