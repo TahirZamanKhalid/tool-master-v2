@@ -20,44 +20,313 @@ import {
   MapPin,
   Palette,
   RotateCw,
+  Save,
+  FolderOpen,
+  Trash2,
+  Copy,
+  RefreshCw,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Grid3x3,
+  Layers,
+  FileImage,
+  Package,
+  Undo,
+  Redo,
+  Eye,
+  EyeOff,
+  Star,
+  ImagePlus,
 } from "lucide-react";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { SEOHead } from "@/components/SEOHead";
 import { LazyAdSpace } from "@/components/LazyAdSpace";
 import { AdRow } from "@/components/AdRow";
 import { getDisplayAdSlot, getAdIndex } from "@/utils/adSlotRotation";
+import JSZip from "jszip";
 
-type WatermarkType = "text" | "image";
-type Position = "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center" | "tiled";
+type WatermarkType = "text" | "image" | "qrcode";
+type Position = "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center" | "tiled" | "custom";
+type ExportFormat = "png" | "jpg" | "webp";
+type TextAlign = "left" | "center" | "right";
+
+interface WatermarkConfig {
+  type: WatermarkType;
+  text: string;
+  position: Position;
+  customX: number;
+  customY: number;
+  opacity: number;
+  fontSize: number;
+  watermarkSize: number;
+  rotation: number;
+  color: string;
+  fontFamily: string;
+  textShadow: boolean;
+  textShadowColor: string;
+  textShadowBlur: number;
+  textOutline: boolean;
+  outlineColor: string;
+  outlineWidth: number;
+  background: boolean;
+  backgroundColor: string;
+  backgroundPadding: number;
+  textAlign: TextAlign;
+  multiline: boolean;
+  scaleWithImage: boolean;
+  tileSpacingX: number;
+  tileSpacingY: number;
+}
+
+interface Preset {
+  id: string;
+  name: string;
+  config: WatermarkConfig;
+}
+
+interface ImageFile {
+  id: string;
+  file: File;
+  preview: string;
+  processed: boolean;
+}
+
+const DEFAULT_CONFIG: WatermarkConfig = {
+  type: "text",
+  text: "© Your Brand",
+  position: "bottom-right",
+  customX: 50,
+  customY: 50,
+  opacity: 70,
+  fontSize: 48,
+  watermarkSize: 100,
+  rotation: 0,
+  color: "#ffffff",
+  fontFamily: "Arial",
+  textShadow: false,
+  textShadowColor: "#000000",
+  textShadowBlur: 4,
+  textOutline: false,
+  outlineColor: "#000000",
+  outlineWidth: 2,
+  background: false,
+  backgroundColor: "#000000",
+  backgroundPadding: 10,
+  textAlign: "center",
+  multiline: false,
+  scaleWithImage: true,
+  tileSpacingX: 100,
+  tileSpacingY: 100,
+};
+
+const PRESET_TEMPLATES: Preset[] = [
+  {
+    id: "photographer",
+    name: "Photographer",
+    config: {
+      ...DEFAULT_CONFIG,
+      text: "© Photo by You",
+      position: "bottom-right",
+      opacity: 40,
+      fontSize: 36,
+      color: "#ffffff",
+      textShadow: true,
+      textShadowColor: "#000000",
+      textShadowBlur: 6,
+    },
+  },
+  {
+    id: "business",
+    name: "Business",
+    config: {
+      ...DEFAULT_CONFIG,
+      text: "Your Company™",
+      position: "bottom-center",
+      opacity: 60,
+      fontSize: 42,
+      color: "#ffffff",
+      background: true,
+      backgroundColor: "#000000",
+      backgroundPadding: 15,
+    },
+  },
+  {
+    id: "subtle",
+    name: "Subtle",
+    config: {
+      ...DEFAULT_CONFIG,
+      text: "©",
+      position: "bottom-right",
+      opacity: 25,
+      fontSize: 28,
+      color: "#ffffff",
+    },
+  },
+  {
+    id: "bold",
+    name: "Bold",
+    config: {
+      ...DEFAULT_CONFIG,
+      text: "CONFIDENTIAL",
+      position: "center",
+      opacity: 30,
+      fontSize: 72,
+      color: "#ff0000",
+      rotation: -45,
+    },
+  },
+  {
+    id: "tiled-security",
+    name: "Tiled Security",
+    config: {
+      ...DEFAULT_CONFIG,
+      text: "©",
+      position: "tiled",
+      opacity: 15,
+      fontSize: 48,
+      color: "#ffffff",
+      rotation: -45,
+      tileSpacingX: 150,
+      tileSpacingY: 150,
+    },
+  },
+];
 
 const WatermarkTool = () => {
+  // Image management
+  const [images, setImages] = useState<ImageFile[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [originalImage, setOriginalImage] = useState<HTMLImageElement | null>(null);
-  const [originalImageUrl, setOriginalImageUrl] = useState("");
-  const [watermarkType, setWatermarkType] = useState<WatermarkType>("text");
-  const [watermarkText, setWatermarkText] = useState("© Your Brand");
   const [watermarkImage, setWatermarkImage] = useState<HTMLImageElement | null>(null);
-  const [position, setPosition] = useState<Position>("bottom-right");
-  const [opacity, setOpacity] = useState([70]);
-  const [fontSize, setFontSize] = useState([48]);
-  const [watermarkSize, setWatermarkSize] = useState([100]);
-  const [rotation, setRotation] = useState([0]);
-  const [color, setColor] = useState("#ffffff");
-  const [fontFamily, setFontFamily] = useState("Arial");
+
+  // Watermark configuration
+  const [config, setConfig] = useState<WatermarkConfig>(DEFAULT_CONFIG);
+
+  // UI states
   const [showAdModal, setShowAdModal] = useState(false);
   const [canDownload, setCanDownload] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isBatchProcessing, setIsBatchProcessing] = useState(false);
+
+  // Preview states
+  const [zoom, setZoom] = useState(1);
+  const [showGrid, setShowGrid] = useState(false);
+  const [showComparison, setShowComparison] = useState(false);
+  const [comparisonSlider, setComparisonSlider] = useState(50);
+  const [fullScreen, setFullScreen] = useState(false);
+
+  // Export options
+  const [exportFormat, setExportFormat] = useState<ExportFormat>("png");
+  const [exportQuality, setExportQuality] = useState([95]);
+  const [maintainDimensions, setMaintainDimensions] = useState(true);
+  const [removeExif, setRemoveExif] = useState(false);
+
+  // Presets
+  const [presets, setPresets] = useState<Preset[]>([...PRESET_TEMPLATES]);
+  const [showPresetDialog, setShowPresetDialog] = useState(false);
+  const [presetName, setPresetName] = useState("");
+
+  // Drag and drop
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [watermarkBounds, setWatermarkBounds] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [resizeHandle, setResizeHandle] = useState<string>("");
+
+  // History
+  const [history, setHistory] = useState<WatermarkConfig[]>([DEFAULT_CONFIG]);
+  const [historyIndex, setHistoryIndex] = useState(0);
 
   // Collapsible states
   const [openSections, setOpenSections] = useState({
     watermarkType: true,
+    textEffects: false,
     position: false,
     appearance: false,
     rotation: false,
+    advanced: false,
+    export: false,
+    batch: false,
   });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  const comparisonCanvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const watermarkInputRef = useRef<HTMLInputElement>(null);
+  const batchInputRef = useRef<HTMLInputElement>(null);
+
+  // Update config with history
+  const updateConfig = (newConfig: Partial<WatermarkConfig>) => {
+    const updated = { ...config, ...newConfig };
+    setConfig(updated);
+    
+    // Add to history
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(updated);
+    setHistory(newHistory);
+    setHistoryIndex(newHistory.length - 1);
+  };
+
+  // Undo/Redo
+  const undo = () => {
+    if (historyIndex > 0) {
+      setHistoryIndex(historyIndex - 1);
+      setConfig(history[historyIndex - 1]);
+    }
+  };
+
+  const redo = () => {
+    if (historyIndex < history.length - 1) {
+      setHistoryIndex(historyIndex + 1);
+      setConfig(history[historyIndex + 1]);
+    }
+  };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === "z") {
+          e.preventDefault();
+          undo();
+        } else if (e.key === "y") {
+          e.preventDefault();
+          redo();
+        } else if (e.key === "s") {
+          e.preventDefault();
+          handleDownload();
+        }
+      }
+      
+      // Arrow keys for fine positioning
+      if (config.position === "custom" && originalImage) {
+        let moved = false;
+        const step = e.shiftKey ? 10 : 1;
+        
+        if (e.key === "ArrowLeft") {
+          updateConfig({ customX: Math.max(0, config.customX - step) });
+          moved = true;
+        } else if (e.key === "ArrowRight") {
+          updateConfig({ customX: Math.min(100, config.customX + step) });
+          moved = true;
+        } else if (e.key === "ArrowUp") {
+          updateConfig({ customY: Math.max(0, config.customY - step) });
+          moved = true;
+        } else if (e.key === "ArrowDown") {
+          updateConfig({ customY: Math.min(100, config.customY + step) });
+          moved = true;
+        }
+        
+        if (moved) e.preventDefault();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [config, historyIndex, originalImage]);
 
   useEffect(() => {
     if (originalImage) {
@@ -65,17 +334,24 @@ const WatermarkTool = () => {
     }
   }, [
     originalImage,
-    watermarkType,
-    watermarkText,
     watermarkImage,
-    position,
-    opacity,
-    fontSize,
-    watermarkSize,
-    rotation,
-    color,
-    fontFamily,
+    config,
+    zoom,
+    showGrid,
+    showComparison,
+    comparisonSlider,
   ]);
+
+  // Load current image
+  useEffect(() => {
+    if (images.length > 0 && images[currentImageIndex]) {
+      const img = new Image();
+      img.onload = () => {
+        setOriginalImage(img);
+      };
+      img.src = images[currentImageIndex].preview;
+    }
+  }, [currentImageIndex, images]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -90,13 +366,54 @@ const WatermarkTool = () => {
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
+        const newImage: ImageFile = {
+          id: Date.now().toString(),
+          file,
+          preview: event.target?.result as string,
+          processed: false,
+        };
+        setImages([newImage]);
+        setCurrentImageIndex(0);
         setOriginalImage(img);
-        setOriginalImageUrl(event.target?.result as string);
         toast.success("Image loaded!");
       };
       img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleBatchUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+    if (imageFiles.length === 0) {
+      toast.error("No valid image files found");
+      return;
+    }
+
+    const newImages: ImageFile[] = [];
+    let loaded = 0;
+
+    imageFiles.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        newImages.push({
+          id: `${Date.now()}-${Math.random()}`,
+          file,
+          preview: event.target?.result as string,
+          processed: false,
+        });
+        loaded++;
+
+        if (loaded === imageFiles.length) {
+          setImages(newImages);
+          setCurrentImageIndex(0);
+          toast.success(`${imageFiles.length} images loaded!`);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleWatermarkImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,80 +447,212 @@ const WatermarkTool = () => {
     canvas.width = originalImage.width;
     canvas.height = originalImage.height;
 
+    // Draw original image
     ctx.drawImage(originalImage, 0, 0);
-    ctx.globalAlpha = opacity[0] / 100;
 
-    if (watermarkType === "text") {
-      drawTextWatermark(ctx, canvas.width, canvas.height);
-    } else if (watermarkType === "image" && watermarkImage) {
-      drawImageWatermark(ctx, canvas.width, canvas.height);
+    // Draw comparison if enabled
+    if (showComparison && comparisonCanvasRef.current) {
+      const compCanvas = comparisonCanvasRef.current;
+      const compCtx = compCanvas.getContext("2d");
+      if (compCtx) {
+        compCanvas.width = originalImage.width;
+        compCanvas.height = originalImage.height;
+        compCtx.drawImage(originalImage, 0, 0);
+      }
     }
 
-    ctx.globalAlpha = 1;
+    // Save context for watermark
+    ctx.save();
+    ctx.globalAlpha = config.opacity / 100;
+
+    if (config.type === "text") {
+      drawTextWatermark(ctx, canvas.width, canvas.height);
+    } else if (config.type === "image" && watermarkImage) {
+      drawImageWatermark(ctx, canvas.width, canvas.height);
+    } else if (config.type === "qrcode") {
+      drawQRCodeWatermark(ctx, canvas.width, canvas.height);
+    }
+
+    ctx.restore();
+
+    // Draw grid if enabled
+    if (showGrid) {
+      drawGrid(ctx, canvas.width, canvas.height);
+    }
+
+    // Draw to preview canvas with zoom
+    if (previewCanvasRef.current) {
+      const previewCanvas = previewCanvasRef.current;
+      const previewCtx = previewCanvas.getContext("2d");
+      if (previewCtx) {
+        previewCanvas.width = canvas.width * zoom;
+        previewCanvas.height = canvas.height * zoom;
+        previewCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
+      }
+    }
   };
 
   const drawTextWatermark = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    ctx.font = `${fontSize[0]}px ${fontFamily}`;
-    ctx.fillStyle = color;
+    // Scale font size if needed
+    const fontSize = config.scaleWithImage 
+      ? (config.fontSize * Math.min(width, height)) / 1000 
+      : config.fontSize;
+
+    ctx.font = `${fontSize}px ${config.fontFamily}`;
+    ctx.textAlign = config.textAlign;
     ctx.textBaseline = "middle";
 
-    const text = watermarkText || "Watermark";
-    const textWidth = ctx.measureText(text).width;
-    const textHeight = fontSize[0];
+    const lines = config.multiline ? config.text.split("\n") : [config.text];
+    const lineHeight = fontSize * 1.2;
 
-    if (position === "tiled") {
-      const spacing = 100;
-      for (let y = 0; y < height + spacing; y += fontSize[0] + spacing) {
-        for (let x = 0; x < width + spacing; x += textWidth + spacing) {
-          ctx.save();
-          ctx.translate(x + textWidth / 2, y + textHeight / 2);
-          ctx.rotate((rotation[0] * Math.PI) / 180);
-          ctx.fillText(text, -textWidth / 2, 0);
-          ctx.restore();
+    lines.forEach((line, index) => {
+      const text = line || "Watermark";
+      const textWidth = ctx.measureText(text).width;
+      const textHeight = fontSize;
+
+      if (config.position === "tiled") {
+        for (let y = 0; y < height + config.tileSpacingY; y += lineHeight + config.tileSpacingY) {
+          for (let x = 0; x < width + config.tileSpacingX; x += textWidth + config.tileSpacingX) {
+            drawSingleText(ctx, text, x, y + index * lineHeight, textWidth, textHeight);
+          }
         }
+      } else {
+        const pos = getPosition(width, height, textWidth, textHeight * lines.length);
+        drawSingleText(ctx, text, pos.x, pos.y + index * lineHeight, textWidth, textHeight);
       }
-    } else {
-      const pos = getPosition(width, height, textWidth, textHeight);
-      ctx.save();
-      ctx.translate(pos.x + textWidth / 2, pos.y + textHeight / 2);
-      ctx.rotate((rotation[0] * Math.PI) / 180);
-      ctx.fillText(text, -textWidth / 2, 0);
-      ctx.restore();
+    });
+  };
+
+  const drawSingleText = (
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ) => {
+    ctx.save();
+    ctx.translate(x + width / 2, y + height / 2);
+    ctx.rotate((config.rotation * Math.PI) / 180);
+
+    // Draw background
+    if (config.background) {
+      ctx.fillStyle = config.backgroundColor;
+      ctx.globalAlpha = (config.opacity / 100) * 0.8;
+      const padding = config.backgroundPadding;
+      ctx.fillRect(
+        -width / 2 - padding,
+        -height / 2 - padding,
+        width + padding * 2,
+        height + padding * 2
+      );
+      ctx.globalAlpha = config.opacity / 100;
     }
+
+    // Draw text shadow
+    if (config.textShadow) {
+      ctx.shadowColor = config.textShadowColor;
+      ctx.shadowBlur = config.textShadowBlur;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+    }
+
+    // Draw text outline
+    if (config.textOutline) {
+      ctx.strokeStyle = config.outlineColor;
+      ctx.lineWidth = config.outlineWidth;
+      ctx.strokeText(text, -width / 2, 0);
+    }
+
+    // Draw text
+    ctx.fillStyle = config.color;
+    ctx.fillText(text, -width / 2, 0);
+
+    ctx.restore();
   };
 
   const drawImageWatermark = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     if (!watermarkImage) return;
 
-    const scale = watermarkSize[0] / 100;
+    const scale = config.scaleWithImage
+      ? (config.watermarkSize / 100) * Math.min(width, height) / Math.max(watermarkImage.width, watermarkImage.height)
+      : config.watermarkSize / 100;
+
     const wmWidth = watermarkImage.width * scale;
     const wmHeight = watermarkImage.height * scale;
 
-    if (position === "tiled") {
-      const spacing = 50;
-      for (let y = 0; y < height + spacing; y += wmHeight + spacing) {
-        for (let x = 0; x < width + spacing; x += wmWidth + spacing) {
-          ctx.save();
-          ctx.translate(x + wmWidth / 2, y + wmHeight / 2);
-          ctx.rotate((rotation[0] * Math.PI) / 180);
-          ctx.drawImage(watermarkImage, -wmWidth / 2, -wmHeight / 2, wmWidth, wmHeight);
-          ctx.restore();
+    if (config.position === "tiled") {
+      for (let y = 0; y < height + config.tileSpacingY; y += wmHeight + config.tileSpacingY) {
+        for (let x = 0; x < width + config.tileSpacingX; x += wmWidth + config.tileSpacingX) {
+          drawSingleImage(ctx, x, y, wmWidth, wmHeight);
         }
       }
     } else {
       const pos = getPosition(width, height, wmWidth, wmHeight);
-      ctx.save();
-      ctx.translate(pos.x + wmWidth / 2, pos.y + wmHeight / 2);
-      ctx.rotate((rotation[0] * Math.PI) / 180);
-      ctx.drawImage(watermarkImage, -wmWidth / 2, -wmHeight / 2, wmWidth, wmHeight);
-      ctx.restore();
+      drawSingleImage(ctx, pos.x, pos.y, wmWidth, wmHeight);
     }
+  };
+
+  const drawSingleImage = (ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number) => {
+    if (!watermarkImage) return;
+
+    ctx.save();
+    ctx.translate(x + width / 2, y + height / 2);
+    ctx.rotate((config.rotation * Math.PI) / 180);
+    ctx.drawImage(watermarkImage, -width / 2, -height / 2, width, height);
+    ctx.restore();
+  };
+
+  const drawQRCodeWatermark = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    // This would require a QR code library like qrcode
+    // For now, we'll draw a placeholder
+    const size = config.watermarkSize;
+    const pos = getPosition(width, height, size, size);
+
+    ctx.save();
+    ctx.translate(pos.x + size / 2, pos.y + size / 2);
+    ctx.rotate((config.rotation * Math.PI) / 180);
+
+    ctx.fillStyle = config.color;
+    ctx.fillRect(-size / 2, -size / 2, size, size);
+
+    ctx.fillStyle = config.backgroundColor;
+    ctx.font = `${size / 4}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("QR", 0, 0);
+
+    ctx.restore();
+  };
+
+  const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    ctx.save();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+    ctx.lineWidth = 1;
+
+    // Draw vertical lines
+    for (let x = 0; x <= width; x += width / 3) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+
+    // Draw horizontal lines
+    for (let y = 0; y <= height; y += height / 3) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+
+    ctx.restore();
   };
 
   const getPosition = (canvasWidth: number, canvasHeight: number, watermarkWidth: number, watermarkHeight: number) => {
     const padding = 20;
 
-    switch (position) {
+    switch (config.position) {
       case "top-left":
         return { x: padding, y: padding };
       case "top-right":
@@ -211,12 +660,64 @@ const WatermarkTool = () => {
       case "bottom-left":
         return { x: padding, y: canvasHeight - watermarkHeight - padding };
       case "bottom-right":
-        return { x: canvasWidth - watermarkWidth - padding, y: canvasHeight - watermarkHeight - padding };
+        return {
+          x: canvasWidth - watermarkWidth - padding,
+          y: canvasHeight - watermarkHeight - padding,
+        };
       case "center":
-        return { x: (canvasWidth - watermarkWidth) / 2, y: (canvasHeight - watermarkHeight) / 2 };
+        return {
+          x: (canvasWidth - watermarkWidth) / 2,
+          y: (canvasHeight - watermarkHeight) / 2,
+        };
+      case "custom":
+        return {
+          x: (config.customX / 100) * canvasWidth,
+          y: (config.customY / 100) * canvasHeight,
+        };
       default:
         return { x: padding, y: padding };
     }
+  };
+
+  // Canvas interaction handlers
+  const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!originalImage || config.position !== "custom") return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * canvas.width;
+    const y = ((e.clientY - rect.top) / rect.height) * canvas.height;
+
+    setIsDragging(true);
+    setDragStart({ x, y });
+  };
+
+  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDragging || !originalImage) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * canvas.width;
+    const y = ((e.clientY - rect.top) / rect.height) * canvas.height;
+
+    const deltaX = x - dragStart.x;
+    const deltaY = y - dragStart.y;
+
+    const newX = Math.max(0, Math.min(100, config.customX + (deltaX / canvas.width) * 100));
+    const newY = Math.max(0, Math.min(100, config.customY + (deltaY / canvas.height) * 100));
+
+    updateConfig({ customX: newX, customY: newY });
+    setDragStart({ x, y });
+  };
+
+  const handleCanvasMouseUp = () => {
+    setIsDragging(false);
+    setIsResizing(false);
+    setIsRotating(false);
   };
 
   const handleDownload = () => {
@@ -230,253 +731,723 @@ const WatermarkTool = () => {
       return;
     }
 
-    downloadWatermarkedImage();
+    if (images.length > 1) {
+      handleBatchDownload();
+    } else {
+      downloadSingleImage();
+    }
   };
 
-  const downloadWatermarkedImage = () => {
+  const downloadSingleImage = () => {
     if (!canvasRef.current) return;
 
     setIsProcessing(true);
     setTimeout(() => {
-      canvasRef.current?.toBlob((blob) => {
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = `watermarked-${Date.now()}.png`;
-          link.click();
-          URL.revokeObjectURL(url);
-          toast.success("Image downloaded!");
-        }
-        setIsProcessing(false);
-      }, "image/png");
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const mimeType = exportFormat === "jpg" ? "image/jpeg" : `image/${exportFormat}`;
+      const quality = exportFormat === "png" ? undefined : exportQuality[0] / 100;
+
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `watermarked-${Date.now()}.${exportFormat}`;
+            link.click();
+            URL.revokeObjectURL(url);
+            toast.success("Image downloaded!");
+          }
+          setIsProcessing(false);
+        },
+        mimeType,
+        quality
+      );
     }, 100);
   };
 
+  const handleBatchDownload = async () => {
+    if (images.length === 0) return;
+
+    setIsBatchProcessing(true);
+    const zip = new JSZip();
+    const folder = zip.folder("watermarked-images");
+
+    for (let i = 0; i < images.length; i++) {
+      const imageFile = images[i];
+      
+      // Load image
+      const img = new Image();
+      await new Promise((resolve) => {
+        img.onload = resolve;
+        img.src = imageFile.preview;
+      });
+
+      // Create temporary canvas
+      const tempCanvas = document.createElement("canvas");
+      const tempCtx = tempCanvas.getContext("2d");
+      if (!tempCtx) continue;
+
+      tempCanvas.width = img.width;
+      tempCanvas.height = img.height;
+
+      // Draw watermarked image
+      tempCtx.drawImage(img, 0, 0);
+      tempCtx.save();
+      tempCtx.globalAlpha = config.opacity / 100;
+
+      if (config.type === "text") {
+        drawTextWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
+      } else if (config.type === "image" && watermarkImage) {
+        drawImageWatermark(tempCtx, tempCanvas.width, tempCanvas.height);
+      }
+
+      tempCtx.restore();
+
+      // Get blob
+      const blob = await new Promise<Blob>((resolve) => {
+        const mimeType = exportFormat === "jpg" ? "image/jpeg" : `image/${exportFormat}`;
+        const quality = exportFormat === "png" ? undefined : exportQuality[0] / 100;
+        
+        tempCanvas.toBlob(
+          (b) => resolve(b!),
+          mimeType,
+          quality
+        );
+      });
+
+      // Add to zip
+      const filename = `watermarked-${i + 1}.${exportFormat}`;
+      folder?.file(filename, blob);
+
+      // Update progress
+      const processed = i + 1;
+      toast.loading(`Processing ${processed}/${images.length}...`, { id: "batch" });
+    }
+
+    // Generate and download zip
+    const content = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(content);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `watermarked-batch-${Date.now()}.zip`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    toast.success(`${images.length} images processed!`, { id: "batch" });
+    setIsBatchProcessing(false);
+  };
+
+  const savePreset = () => {
+    if (!presetName.trim()) {
+      toast.error("Please enter a preset name");
+      return;
+    }
+
+    const newPreset: Preset = {
+      id: Date.now().toString(),
+      name: presetName,
+      config: { ...config },
+    };
+
+    setPresets([...presets, newPreset]);
+    setPresetName("");
+    setShowPresetDialog(false);
+    toast.success("Preset saved!");
+  };
+
+  const loadPreset = (preset: Preset) => {
+    setConfig(preset.config);
+    toast.success(`Loaded preset: ${preset.name}`);
+  };
+
+  const deletePreset = (id: string) => {
+    setPresets(presets.filter((p) => p.id !== id));
+    toast.success("Preset deleted");
+  };
+
+  const copySettings = () => {
+    const settings = JSON.stringify(config, null, 2);
+    navigator.clipboard.writeText(settings);
+    toast.success("Settings copied to clipboard!");
+  };
+
+  const resetSettings = () => {
+    setConfig(DEFAULT_CONFIG);
+    toast.success("Settings reset!");
+  };
+
   const toggleSection = (section: keyof typeof openSections) => {
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
   };
 
   return (
     <>
       <SEOHead
-        title="Watermark Tool - Add Watermarks to Images Online"
-        description="Add text or image watermarks to your photos online. Free watermark tool with position, opacity, rotation controls."
-        keywords="watermark tool, add watermark, photo watermark, image watermark, copyright protection"
-        canonical="https://toolmaster.cloud/tools/watermark-tool"
+        title="Free Online Watermark Tool - Add Watermarks to Images | ToolMaster.cloud"
+        description="Professional watermark tool to protect your images. Add text or logo watermarks, batch process multiple images, drag & drop positioning, custom presets, and export in PNG/JPG/WebP. Free online watermarking software."
+        keywords="watermark tool, add watermark to image, image watermark, photo watermark, bulk watermark, batch watermark images, watermark maker, online watermark tool, free watermark software, logo watermark, text watermark, protect images, copyright images, image protection, watermark generator, custom watermark, transparent watermark, watermark app, watermark creator, add logo to photo, brand protection, image security, batch image processing, watermark multiple images, professional watermark, photography watermark"
+        canonicalUrl="https://toolmaster.cloud/tools/watermark"
+        ogImage="https://toolmaster.cloud/og-watermark-tool.jpg"
       />
-      <ToolLayout
-        title="Watermark Tool"
-        description="Add custom text or image watermarks to protect your photos and images"
-        category="Image Tools"
-        instructions={[
-          "Upload your image",
-          "Choose text or image watermark",
-          "Customize position, opacity, size, and rotation",
-          "Preview the watermarked image",
-          "Download your protected image",
-        ]}
-        relatedTools={[
-          { name: "Image Compressor", path: "/tools/image-compressor" },
-          { name: "Advanced Image Editor", path: "/tools/advanced-image-editor" },
-          { name: "Image Resizer", path: "/tools/image-resizer" },
-        ]}
-      >
-        {/* Top Leaderboard Ad */}
-        <div className="mb-6">
-          <LazyAdSpace type="display" slot={getDisplayAdSlot(getAdIndex('top'))} />
-        </div>
 
-        <div className="flex gap-6 relative">
-          {/* Left Sidebar Ad */}
-          <div className="hidden xl:block flex-shrink-0" style={{ width: "160px", maxWidth: "160px" }}>
-            <div style={{ maxHeight: "600px", overflow: "hidden" }}>
-              <LazyAdSpace 
-                type="display" 
-                slot={getDisplayAdSlot(getAdIndex('sidebar-left'))}
-                position="sidebar-left"
-              />
-            </div>
+      <ToolLayout
+        title="Advanced Watermark Tool"
+        description="Add professional watermarks to protect your images. Supports text, logo, batch processing, and custom positioning."
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
+          {/* Top Leaderboard Ad */}
+          <div className="lg:col-span-2">
+            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex())} format="horizontal" />
           </div>
 
-          <div className="flex-1 max-w-7xl mx-auto">
-        <div className="grid md:grid-cols-2 gap-4">
-              {/* Left Column - Controls */}
-              <Card>
-                <CardContent className="p-4 space-y-3">
-                  {/* Upload Section */}
-                  <div>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
+          {/* Left Sidebar Ad */}
+          <div className="hidden xl:block fixed left-4 top-24 w-[160px]">
+            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex() + 1)} format="vertical" />
+          </div>
+
+          {/* Left Column - Controls */}
+          <div className="space-y-4">
+            <Card>
+              <CardContent className="p-4 space-y-4">
+                {/* Upload Section */}
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Image Upload</Label>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <input
+                    type="file"
+                    ref={batchInputRef}
+                    onChange={handleBatchUpload}
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                  />
+                  <div className="grid grid-cols-2 gap-2">
                     <Button
                       onClick={() => fileInputRef.current?.click()}
                       variant="outline"
                       className="w-full"
                       size="sm"
                     >
-                      <Upload className="h-4 w-4 mr-2" />
-                      {originalImage ? "Change Image" : "Upload Image"}
+                      <Upload className="w-4 h-4 mr-2" />
+                      {originalImage ? "Change" : "Upload"}
+                    </Button>
+                    <Button
+                      onClick={() => batchInputRef.current?.click()}
+                      variant="outline"
+                      className="w-full"
+                      size="sm"
+                    >
+                      <Package className="w-4 h-4 mr-2" />
+                      Batch
                     </Button>
                   </div>
+                  {images.length > 1 && (
+                    <div className="text-xs text-muted-foreground text-center">
+                      {images.length} images loaded • Image {currentImageIndex + 1}/{images.length}
+                    </div>
+                  )}
+                </div>
 
-                  {originalImage && (
-                    <div className="space-y-2">
-                      {/* Watermark Type Section */}
-                      <Collapsible
-                        open={openSections.watermarkType}
-                        onOpenChange={() => toggleSection("watermarkType")}
+                {originalImage && (
+                  <>
+                    {/* Quick Actions */}
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={undo}
+                        variant="ghost"
+                        size="sm"
+                        disabled={historyIndex === 0}
+                        title="Undo (Ctrl+Z)"
                       >
-                        <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted rounded-md transition-colors">
-                          <div className="flex items-center gap-2">
-                            <Type className="h-4 w-4 text-primary" />
-                            <span className="font-medium text-sm">Watermark Type</span>
-                          </div>
-                          <ChevronDown
-                            className={`h-4 w-4 transition-transform ${openSections.watermarkType ? "rotate-180" : ""}`}
+                        <Undo className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        onClick={redo}
+                        variant="ghost"
+                        size="sm"
+                        disabled={historyIndex === history.length - 1}
+                        title="Redo (Ctrl+Y)"
+                      >
+                        <Redo className="w-4 h-4" />
+                      </Button>
+                      <Button onClick={copySettings} variant="ghost" size="sm" title="Copy Settings">
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                      <Button onClick={resetSettings} variant="ghost" size="sm" title="Reset">
+                        <RefreshCw className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    {/* Presets */}
+                    <Collapsible>
+                      <CollapsibleTrigger asChild>
+                        <Button variant="outline" className="w-full justify-between" size="sm">
+                          <span className="flex items-center gap-2">
+                            <Star className="w-4 h-4" />
+                            Presets
+                          </span>
+                          <ChevronDown className="w-4 h-4" />
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-2 space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
+                          {presets.map((preset) => (
+                            <div key={preset.id} className="flex gap-1">
+                              <Button
+                                onClick={() => loadPreset(preset)}
+                                variant="outline"
+                                size="sm"
+                                className="flex-1 text-xs"
+                              >
+                                {preset.name}
+                              </Button>
+                              {!PRESET_TEMPLATES.find((p) => p.id === preset.id) && (
+                                <Button
+                                  onClick={() => deletePreset(preset.id)}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="px-2"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex gap-2">
+                          <Input
+                            value={presetName}
+                            onChange={(e) => setPresetName(e.target.value)}
+                            placeholder="Preset name"
+                            className="h-8 text-sm"
                           />
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="pt-3 pb-2 px-2 space-y-3">
-                          <Tabs value={watermarkType} onValueChange={(v) => setWatermarkType(v as WatermarkType)}>
-                            <TabsList className="grid w-full grid-cols-2 h-8">
-                              <TabsTrigger value="text" className="text-xs">
-                                <Type className="h-3 w-3 mr-1" />
-                                Text
-                              </TabsTrigger>
-                              <TabsTrigger value="image" className="text-xs">
-                                <ImageIcon className="h-3 w-3 mr-1" />
-                                Image
-                              </TabsTrigger>
-                            </TabsList>
+                          <Button onClick={savePreset} size="sm" className="whitespace-nowrap">
+                            <Save className="w-4 h-4 mr-1" />
+                            Save
+                          </Button>
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
 
-                            <TabsContent value="text" className="space-y-3 mt-3">
-                              <div>
-                                <Label htmlFor="watermark-text" className="text-xs">
+                    <Tabs defaultValue="watermark" className="w-full">
+                      <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="watermark">Watermark</TabsTrigger>
+                        <TabsTrigger value="position">Position</TabsTrigger>
+                        <TabsTrigger value="export">Export</TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="watermark" className="space-y-3 mt-4">
+                        {/* Watermark Type */}
+                        <div className="space-y-2">
+                          <Label className="text-sm">Type</Label>
+                          <Select
+                            value={config.type}
+                            onValueChange={(v) => updateConfig({ type: v as WatermarkType })}
+                          >
+                            <SelectTrigger className="h-8 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="text">
+                                <div className="flex items-center gap-2">
+                                  <Type className="w-4 h-4" />
                                   Text
-                                </Label>
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="image">
+                                <div className="flex items-center gap-2">
+                                  <ImageIcon className="w-4 h-4" />
+                                  Image/Logo
+                                </div>
+                              </SelectItem>
+                              <SelectItem value="qrcode">
+                                <div className="flex items-center gap-2">
+                                  <Grid3x3 className="w-4 h-4" />
+                                  QR Code
+                                </div>
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {config.type === "text" && (
+                          <>
+                            <div className="space-y-2">
+                              <Label className="text-sm">Text</Label>
+                              <div className="space-y-2">
                                 <Input
-                                  id="watermark-text"
-                                  value={watermarkText}
-                                  onChange={(e) => setWatermarkText(e.target.value)}
+                                  value={config.text}
+                                  onChange={(e) => updateConfig({ text: e.target.value })}
                                   placeholder="© Your Brand"
-                                  className="mt-1 h-8 text-sm"
+                                  className="h-8 text-sm"
                                 />
-                              </div>
-
-                              <div>
-                                <Label htmlFor="font-size" className="text-xs">
-                                  Size: {fontSize[0]}px
-                                </Label>
-                                <Slider
-                                  id="font-size"
-                                  min={12}
-                                  max={200}
-                                  step={1}
-                                  value={fontSize}
-                                  onValueChange={setFontSize}
-                                  className="mt-1"
-                                />
-                              </div>
-
-                              <div>
-                                <Label htmlFor="font-family" className="text-xs">
-                                  Font
-                                </Label>
-                                <Select value={fontFamily} onValueChange={setFontFamily}>
-                                  <SelectTrigger className="mt-1 h-8 text-sm">
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="Arial">Arial</SelectItem>
-                                    <SelectItem value="Georgia">Georgia</SelectItem>
-                                    <SelectItem value="Times New Roman">Times New Roman</SelectItem>
-                                    <SelectItem value="Courier New">Courier New</SelectItem>
-                                    <SelectItem value="Verdana">Verdana</SelectItem>
-                                    <SelectItem value="Impact">Impact</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-
-                              <div>
-                                <Label htmlFor="text-color" className="text-xs">
-                                  Color
-                                </Label>
-                                <div className="flex gap-2 mt-1">
-                                  <Input
-                                    id="text-color"
-                                    type="color"
-                                    value={color}
-                                    onChange={(e) => setColor(e.target.value)}
-                                    className="w-16 h-8"
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    id="multiline"
+                                    checked={config.multiline}
+                                    onChange={(e) => updateConfig({ multiline: e.target.checked })}
+                                    className="rounded"
                                   />
-                                  <Input
-                                    value={color}
-                                    onChange={(e) => setColor(e.target.value)}
-                                    placeholder="#ffffff"
-                                    className="flex-1 h-8 text-sm"
-                                  />
+                                  <Label htmlFor="multiline" className="text-xs cursor-pointer">
+                                    Multi-line
+                                  </Label>
                                 </div>
                               </div>
-                            </TabsContent>
+                            </div>
 
-                            <TabsContent value="image" className="space-y-3 mt-3">
-                              <div>
+                            <div className="space-y-2">
+                              <Label className="text-sm">Font Size: {config.fontSize}px</Label>
+                              <Slider
+                                value={[config.fontSize]}
+                                onValueChange={(v) => updateConfig({ fontSize: v[0] })}
+                                min={12}
+                                max={200}
+                                step={1}
+                                className="w-full"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-sm">Font Family</Label>
+                              <Select
+                                value={config.fontFamily}
+                                onValueChange={(v) => updateConfig({ fontFamily: v })}
+                              >
+                                <SelectTrigger className="h-8 text-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Arial">Arial</SelectItem>
+                                  <SelectItem value="Georgia">Georgia</SelectItem>
+                                  <SelectItem value="Times New Roman">Times New Roman</SelectItem>
+                                  <SelectItem value="Courier New">Courier New</SelectItem>
+                                  <SelectItem value="Verdana">Verdana</SelectItem>
+                                  <SelectItem value="Impact">Impact</SelectItem>
+                                  <SelectItem value="Comic Sans MS">Comic Sans MS</SelectItem>
+                                  <SelectItem value="Trebuchet MS">Trebuchet MS</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-sm">Text Align</Label>
+                              <Select
+                                value={config.textAlign}
+                                onValueChange={(v) => updateConfig({ textAlign: v as TextAlign })}
+                              >
+                                <SelectTrigger className="h-8 text-sm">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="left">Left</SelectItem>
+                                  <SelectItem value="center">Center</SelectItem>
+                                  <SelectItem value="right">Right</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-sm">Color</Label>
+                              <div className="flex gap-2">
                                 <input
-                                  ref={watermarkInputRef}
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={handleWatermarkImageUpload}
-                                  className="hidden"
+                                  type="color"
+                                  value={config.color}
+                                  onChange={(e) => updateConfig({ color: e.target.value })}
+                                  className="w-16 h-8 rounded cursor-pointer"
                                 />
-                                <Button
-                                  onClick={() => watermarkInputRef.current?.click()}
-                                  variant="outline"
-                                  className="w-full h-8"
-                                  size="sm"
-                                >
-                                  <Upload className="h-3 w-3 mr-2" />
-                                  {watermarkImage ? "Change" : "Upload"}
-                                </Button>
+                                <Input
+                                  value={config.color}
+                                  onChange={(e) => updateConfig({ color: e.target.value })}
+                                  placeholder="#ffffff"
+                                  className="flex-1 h-8 text-sm"
+                                />
                               </div>
+                            </div>
 
+                            {/* Text Effects */}
+                            <Collapsible
+                              open={openSections.textEffects}
+                              onOpenChange={() => toggleSection("textEffects")}
+                            >
+                              <CollapsibleTrigger asChild>
+                                <Button variant="outline" className="w-full justify-between" size="sm">
+                                  <span className="flex items-center gap-2">
+                                    <Palette className="w-4 h-4" />
+                                    Text Effects
+                                  </span>
+                                  <ChevronDown
+                                    className={`w-4 h-4 transition-transform ${
+                                      openSections.textEffects ? "rotate-180" : ""
+                                    }`}
+                                  />
+                                </Button>
+                              </CollapsibleTrigger>
+                              <CollapsibleContent className="mt-2 space-y-3">
+                                {/* Text Shadow */}
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      id="textShadow"
+                                      checked={config.textShadow}
+                                      onChange={(e) => updateConfig({ textShadow: e.target.checked })}
+                                      className="rounded"
+                                    />
+                                    <Label htmlFor="textShadow" className="text-xs cursor-pointer">
+                                      Text Shadow
+                                    </Label>
+                                  </div>
+                                  {config.textShadow && (
+                                    <div className="space-y-2 pl-4">
+                                      <div className="flex gap-2">
+                                        <input
+                                          type="color"
+                                          value={config.textShadowColor}
+                                          onChange={(e) => updateConfig({ textShadowColor: e.target.value })}
+                                          className="w-12 h-7 rounded cursor-pointer"
+                                        />
+                                        <Input
+                                          value={config.textShadowColor}
+                                          onChange={(e) => updateConfig({ textShadowColor: e.target.value })}
+                                          className="flex-1 h-7 text-xs"
+                                        />
+                                      </div>
+                                      <div>
+                                        <Label className="text-xs">Blur: {config.textShadowBlur}px</Label>
+                                        <Slider
+                                          value={[config.textShadowBlur]}
+                                          onValueChange={(v) => updateConfig({ textShadowBlur: v[0] })}
+                                          min={0}
+                                          max={20}
+                                          step={1}
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Text Outline */}
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      id="textOutline"
+                                      checked={config.textOutline}
+                                      onChange={(e) => updateConfig({ textOutline: e.target.checked })}
+                                      className="rounded"
+                                    />
+                                    <Label htmlFor="textOutline" className="text-xs cursor-pointer">
+                                      Text Outline
+                                    </Label>
+                                  </div>
+                                  {config.textOutline && (
+                                    <div className="space-y-2 pl-4">
+                                      <div className="flex gap-2">
+                                        <input
+                                          type="color"
+                                          value={config.outlineColor}
+                                          onChange={(e) => updateConfig({ outlineColor: e.target.value })}
+                                          className="w-12 h-7 rounded cursor-pointer"
+                                        />
+                                        <Input
+                                          value={config.outlineColor}
+                                          onChange={(e) => updateConfig({ outlineColor: e.target.value })}
+                                          className="flex-1 h-7 text-xs"
+                                        />
+                                      </div>
+                                      <div>
+                                        <Label className="text-xs">Width: {config.outlineWidth}px</Label>
+                                        <Slider
+                                          value={[config.outlineWidth]}
+                                          onValueChange={(v) => updateConfig({ outlineWidth: v[0] })}
+                                          min={1}
+                                          max={10}
+                                          step={1}
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Background */}
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      id="background"
+                                      checked={config.background}
+                                      onChange={(e) => updateConfig({ background: e.target.checked })}
+                                      className="rounded"
+                                    />
+                                    <Label htmlFor="background" className="text-xs cursor-pointer">
+                                      Background
+                                    </Label>
+                                  </div>
+                                  {config.background && (
+                                    <div className="space-y-2 pl-4">
+                                      <div className="flex gap-2">
+                                        <input
+                                          type="color"
+                                          value={config.backgroundColor}
+                                          onChange={(e) => updateConfig({ backgroundColor: e.target.value })}
+                                          className="w-12 h-7 rounded cursor-pointer"
+                                        />
+                                        <Input
+                                          value={config.backgroundColor}
+                                          onChange={(e) => updateConfig({ backgroundColor: e.target.value })}
+                                          className="flex-1 h-7 text-xs"
+                                        />
+                                      </div>
+                                      <div>
+                                        <Label className="text-xs">Padding: {config.backgroundPadding}px</Label>
+                                        <Slider
+                                          value={[config.backgroundPadding]}
+                                          onValueChange={(v) => updateConfig({ backgroundPadding: v[0] })}
+                                          min={0}
+                                          max={50}
+                                          step={1}
+                                        />
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </CollapsibleContent>
+                            </Collapsible>
+                          </>
+                        )}
+
+                        {config.type === "image" && (
+                          <>
+                            <div className="space-y-2">
+                              <Label className="text-sm">Watermark Image</Label>
+                              <input
+                                type="file"
+                                ref={watermarkInputRef}
+                                onChange={handleWatermarkImageUpload}
+                                accept="image/*"
+                                className="hidden"
+                              />
+                              <Button
+                                onClick={() => watermarkInputRef.current?.click()}
+                                variant="outline"
+                                className="w-full h-8"
+                                size="sm"
+                              >
+                                <ImagePlus className="w-4 h-4 mr-2" />
+                                {watermarkImage ? "Change Image" : "Upload Image"}
+                              </Button>
                               {watermarkImage && (
-                                <div>
-                                  <Label htmlFor="watermark-size" className="text-xs">
-                                    Size: {watermarkSize[0]}%
-                                  </Label>
-                                  <Slider
-                                    id="watermark-size"
-                                    min={10}
-                                    max={200}
-                                    step={5}
-                                    value={watermarkSize}
-                                    onValueChange={setWatermarkSize}
-                                    className="mt-1"
+                                <div className="relative w-full h-20 bg-muted rounded overflow-hidden">
+                                  <img
+                                    src={watermarkImage.src}
+                                    alt="Watermark"
+                                    className="w-full h-full object-contain"
                                   />
                                 </div>
                               )}
-                            </TabsContent>
-                          </Tabs>
-                        </CollapsibleContent>
-                      </Collapsible>
+                            </div>
 
-                      {/* Position Section */}
-                      <Collapsible open={openSections.position} onOpenChange={() => toggleSection("position")}>
-                        <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted rounded-md transition-colors">
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-primary" />
-                            <span className="font-medium text-sm">Position</span>
-                          </div>
-                          <ChevronDown
-                            className={`h-4 w-4 transition-transform ${openSections.position ? "rotate-180" : ""}`}
+                            <div className="space-y-2">
+                              <Label className="text-sm">Size: {config.watermarkSize}%</Label>
+                              <Slider
+                                value={[config.watermarkSize]}
+                                onValueChange={(v) => updateConfig({ watermarkSize: v[0] })}
+                                min={10}
+                                max={200}
+                                step={1}
+                                className="w-full"
+                              />
+                            </div>
+                          </>
+                        )}
+
+                        {config.type === "qrcode" && (
+                          <>
+                            <div className="space-y-2">
+                              <Label className="text-sm">QR Code URL</Label>
+                              <Input
+                                value={config.text}
+                                onChange={(e) => updateConfig({ text: e.target.value })}
+                                placeholder="https://toolmaster.cloud"
+                                className="h-8 text-sm"
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label className="text-sm">Size: {config.watermarkSize}px</Label>
+                              <Slider
+                                value={[config.watermarkSize]}
+                                onValueChange={(v) => updateConfig({ watermarkSize: v[0] })}
+                                min={50}
+                                max={300}
+                                step={1}
+                                className="w-full"
+                              />
+                            </div>
+                          </>
+                        )}
+
+                        {/* Opacity */}
+                        <div className="space-y-2">
+                          <Label className="text-sm">Opacity: {config.opacity}%</Label>
+                          <Slider
+                            value={[config.opacity]}
+                            onValueChange={(v) => updateConfig({ opacity: v[0] })}
+                            min={0}
+                            max={100}
+                            step={1}
+                            className="w-full"
                           />
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="pt-3 pb-2 px-2">
-                          <Select value={position} onValueChange={(v) => setPosition(v as Position)}>
+                        </div>
+
+                        {/* Rotation */}
+                        <div className="space-y-2">
+                          <Label className="text-sm">Rotation: {config.rotation}°</Label>
+                          <Slider
+                            value={[config.rotation]}
+                            onValueChange={(v) => updateConfig({ rotation: v[0] })}
+                            min={-180}
+                            max={180}
+                            step={1}
+                            className="w-full"
+                          />
+                        </div>
+
+                        {/* Scale with Image */}
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id="scaleWithImage"
+                            checked={config.scaleWithImage}
+                            onChange={(e) => updateConfig({ scaleWithImage: e.target.checked })}
+                            className="rounded"
+                          />
+                          <Label htmlFor="scaleWithImage" className="text-xs cursor-pointer">
+                            Scale with image size
+                          </Label>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="position" className="space-y-3 mt-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm">Position</Label>
+                          <Select
+                            value={config.position}
+                            onValueChange={(v) => updateConfig({ position: v as Position })}
+                          >
                             <SelectTrigger className="h-8 text-sm">
                               <SelectValue />
                             </SelectTrigger>
@@ -487,159 +1458,670 @@ const WatermarkTool = () => {
                               <SelectItem value="bottom-right">Bottom Right</SelectItem>
                               <SelectItem value="center">Center</SelectItem>
                               <SelectItem value="tiled">Tiled</SelectItem>
+                              <SelectItem value="custom">Custom (Drag)</SelectItem>
                             </SelectContent>
                           </Select>
-                        </CollapsibleContent>
-                      </Collapsible>
+                        </div>
 
-                      {/* Appearance Section */}
-                      <Collapsible open={openSections.appearance} onOpenChange={() => toggleSection("appearance")}>
-                        <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted rounded-md transition-colors">
-                          <div className="flex items-center gap-2">
-                            <Palette className="h-4 w-4 text-primary" />
-                            <span className="font-medium text-sm">Appearance</span>
+                        {config.position === "custom" && (
+                          <div className="p-3 bg-muted/50 rounded-lg space-y-2">
+                            <p className="text-xs text-muted-foreground">
+                              Click and drag on the preview to position the watermark. Use arrow keys for fine
+                              adjustment (Shift + Arrow for larger steps).
+                            </p>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <Label className="text-xs">X: {config.customX.toFixed(1)}%</Label>
+                                <Slider
+                                  value={[config.customX]}
+                                  onValueChange={(v) => updateConfig({ customX: v[0] })}
+                                  min={0}
+                                  max={100}
+                                  step={0.1}
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs">Y: {config.customY.toFixed(1)}%</Label>
+                                <Slider
+                                  value={[config.customY]}
+                                  onValueChange={(v) => updateConfig({ customY: v[0] })}
+                                  min={0}
+                                  max={100}
+                                  step={0.1}
+                                />
+                              </div>
+                            </div>
                           </div>
-                          <ChevronDown
-                            className={`h-4 w-4 transition-transform ${openSections.appearance ? "rotate-180" : ""}`}
-                          />
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="pt-3 pb-2 px-2">
-                          <div>
-                            <Label htmlFor="opacity" className="text-xs">
-                              Opacity: {opacity[0]}%
-                            </Label>
-                            <Slider
-                              id="opacity"
-                              min={10}
-                              max={100}
-                              step={5}
-                              value={opacity}
-                              onValueChange={setOpacity}
-                              className="mt-1"
-                            />
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
+                        )}
 
-                      {/* Rotation Section */}
-                      <Collapsible open={openSections.rotation} onOpenChange={() => toggleSection("rotation")}>
-                        <CollapsibleTrigger className="flex items-center justify-between w-full p-2 hover:bg-muted rounded-md transition-colors">
-                          <div className="flex items-center gap-2">
-                            <RotateCw className="h-4 w-4 text-primary" />
-                            <span className="font-medium text-sm">Rotation</span>
-                          </div>
-                          <ChevronDown
-                            className={`h-4 w-4 transition-transform ${openSections.rotation ? "rotate-180" : ""}`}
-                          />
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="pt-3 pb-2 px-2">
-                          <div>
-                            <Label htmlFor="rotation" className="text-xs">
-                              Angle: {rotation[0]}°
-                            </Label>
-                            <Slider
-                              id="rotation"
-                              min={-180}
-                              max={180}
-                              step={5}
-                              value={rotation}
-                              onValueChange={setRotation}
-                              className="mt-1"
-                            />
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-
-                      {/* Download Button */}
-                      <Button onClick={handleDownload} className="w-full mt-2" size="sm" disabled={isProcessing}>
-                        {isProcessing ? (
+                        {config.position === "tiled" && (
                           <>
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                            Processing...
-                          </>
-                        ) : (
-                          <>
-                            <Download className="h-4 w-4 mr-2" />
-                            Download
+                            <div className="space-y-2">
+                              <Label className="text-sm">Horizontal Spacing: {config.tileSpacingX}px</Label>
+                              <Slider
+                                value={[config.tileSpacingX]}
+                                onValueChange={(v) => updateConfig({ tileSpacingX: v[0] })}
+                                min={0}
+                                max={500}
+                                step={10}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-sm">Vertical Spacing: {config.tileSpacingY}px</Label>
+                              <Slider
+                                value={[config.tileSpacingY]}
+                                onValueChange={(v) => updateConfig({ tileSpacingY: v[0] })}
+                                min={0}
+                                max={500}
+                                step={10}
+                              />
+                            </div>
                           </>
                         )}
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                      </TabsContent>
 
-              {/* Right Column - Preview */}
-              <Card className="border-primary/20">
-                <CardContent className="p-4">
-                  <h3 className="text-sm font-semibold mb-2">Preview</h3>
-                  {originalImage ? (
-                    <div className="border rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900">
-                      <canvas ref={canvasRef} className="w-full h-auto max-h-[500px] object-contain" />
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                      <ImageIcon className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">Upload an image to preview</p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+                      <TabsContent value="export" className="space-y-3 mt-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm">Format</Label>
+                          <Select
+                            value={exportFormat}
+                            onValueChange={(v) => setExportFormat(v as ExportFormat)}
+                          >
+                            <SelectTrigger className="h-8 text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="png">PNG (Lossless)</SelectItem>
+                              <SelectItem value="jpg">JPG (Compressed)</SelectItem>
+                              <SelectItem value="webp">WebP (Modern)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {(exportFormat === "jpg" || exportFormat === "webp") && (
+                          <div className="space-y-2">
+                            <Label className="text-sm">Quality: {exportQuality[0]}%</Label>
+                            <Slider
+                              value={exportQuality}
+                              onValueChange={setExportQuality}
+                              min={1}
+                              max={100}
+                              step={1}
+                              className="w-full"
+                            />
+                          </div>
+                        )}
+
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="maintainDimensions"
+                              checked={maintainDimensions}
+                              onChange={(e) => setMaintainDimensions(e.target.checked)}
+                              className="rounded"
+                            />
+                            <Label htmlFor="maintainDimensions" className="text-xs cursor-pointer">
+                              Maintain original dimensions
+                            </Label>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              id="removeExif"
+                              checked={removeExif}
+                              onChange={(e) => setRemoveExif(e.target.checked)}
+                              className="rounded"
+                            />
+                            <Label htmlFor="removeExif" className="text-xs cursor-pointer">
+                              Remove EXIF data
+                            </Label>
+                          </div>
+                        </div>
+
+                        {images.length > 1 && (
+                          <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                            <p className="text-xs text-blue-600 dark:text-blue-400">
+                              Batch mode: {images.length} images will be processed and downloaded as a ZIP file.
+                            </p>
+                          </div>
+                        )}
+                      </TabsContent>
+                    </Tabs>
+
+                    {/* Download Button */}
+                    <Button
+                      onClick={handleDownload}
+                      className="w-full"
+                      size="lg"
+                      disabled={isProcessing || isBatchProcessing}
+                    >
+                      {isProcessing || isBatchProcessing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-4 h-4 mr-2" />
+                          Download {images.length > 1 ? `(${images.length} images)` : ""}
+                        </>
+                      )}
+                    </Button>
+                  </>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Best Practices */}
             <Card>
               <CardContent className="p-4">
-                <h3 className="text-sm font-semibold mb-3">Watermark Best Practices</h3>
-                <div className="grid md:grid-cols-2 gap-3 text-xs text-muted-foreground">
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-1.5 text-sm">Text Watermarks:</h4>
-                    <ul className="space-y-0.5">
-                      <li>• Use copyright symbol (©) with your brand</li>
-                      <li>• 30-50% opacity for subtle protection</li>
-                      <li>• Place in corners to minimize distraction</li>
-                      <li>• White text works on dark images</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-1.5 text-sm">Image Watermarks:</h4>
-                    <ul className="space-y-0.5">
-                      <li>• Use PNG with transparent background</li>
-                      <li>• Keep size reasonable (50-100%)</li>
-                      <li>• Tiled pattern provides max protection</li>
-                      <li>• Lower opacity to avoid overpowering</li>
-                    </ul>
-                  </div>
+                <h3 className="text-sm font-semibold mb-2">💡 Pro Tips</h3>
+                <div className="space-y-2 text-xs text-muted-foreground">
+                  <p>
+                    <strong>Text Watermarks:</strong> Use 30-50% opacity for subtle protection. Add shadow
+                    for better visibility on varied backgrounds.
+                  </p>
+                  <p>
+                    <strong>Logo Watermarks:</strong> Upload PNG with transparency. Keep size 50-100% for
+                    best results.
+                  </p>
+                  <p>
+                    <strong>Tiled Pattern:</strong> Provides maximum protection but can be distracting. Use
+                    lower opacity (15-25%).
+                  </p>
+                  <p>
+                    <strong>Batch Processing:</strong> Upload multiple images and apply the same watermark to
+                    all. Great for photographers!
+                  </p>
+                  <p>
+                    <strong>Shortcuts:</strong> Ctrl+Z (Undo), Ctrl+Y (Redo), Ctrl+S (Download), Arrow keys
+                    (Move in custom mode)
+                  </p>
                 </div>
               </CardContent>
             </Card>
           </div>
 
+          {/* Right Column - Preview */}
+          <div className="space-y-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-semibold">Preview</h3>
+                  <div className="flex gap-1">
+                    <Button
+                      onClick={() => setShowGrid(!showGrid)}
+                      variant="ghost"
+                      size="sm"
+                      title="Toggle Grid"
+                    >
+                      <Grid3x3 className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      onClick={() => setShowComparison(!showComparison)}
+                      variant="ghost"
+                      size="sm"
+                      title="Before/After"
+                    >
+                      {showComparison ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                    </Button>
+                    <Button
+                      onClick={() => setZoom(Math.max(0.25, zoom - 0.25))}
+                      variant="ghost"
+                      size="sm"
+                      title="Zoom Out"
+                      disabled={zoom <= 0.25}
+                    >
+                      <ZoomOut className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      onClick={() => setZoom(Math.min(3, zoom + 0.25))}
+                      variant="ghost"
+                      size="sm"
+                      title="Zoom In"
+                      disabled={zoom >= 3}
+                    >
+                      <ZoomIn className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      onClick={() => setFullScreen(!fullScreen)}
+                      variant="ghost"
+                      size="sm"
+                      title="Fullscreen"
+                    >
+                      <Maximize2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                <div
+                  className={`relative bg-muted rounded overflow-auto ${
+                    fullScreen ? "fixed inset-0 z-50 p-8" : "min-h-[400px] max-h-[70vh]"
+                  }`}
+                >
+                  {originalImage ? (
+                    <>
+                      {showComparison ? (
+                        <div className="relative inline-block">
+                          <div className="relative" style={{ width: `${originalImage.width * zoom}px` }}>
+                            <canvas
+                              ref={comparisonCanvasRef}
+                              className="absolute top-0 left-0"
+                              style={{
+                                clipPath: `inset(0 ${100 - comparisonSlider}% 0 0)`,
+                              }}
+                            />
+                            <canvas ref={previewCanvasRef} />
+                            <div
+                              className="absolute top-0 bottom-0 w-1 bg-white shadow-lg cursor-ew-resize"
+                              style={{ left: `${comparisonSlider}%` }}
+                              onMouseDown={(e) => {
+                                const handleMove = (e: MouseEvent) => {
+                                  const rect = e.currentTarget?.parentElement?.getBoundingClientRect();
+                                  if (rect) {
+                                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                                    setComparisonSlider(Math.max(0, Math.min(100, x)));
+                                  }
+                                };
+                                const handleUp = () => {
+                                  document.removeEventListener("mousemove", handleMove as any);
+                                  document.removeEventListener("mouseup", handleUp);
+                                };
+                                document.addEventListener("mousemove", handleMove as any);
+                                document.addEventListener("mouseup", handleUp);
+                              }}
+                            >
+                              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-lg">
+                                <svg width="20" height="20" viewBox="0 0 20 20">
+                                  <path d="M7 10L3 10M3 10L6 7M3 10L6 13M13 10L17 10M17 10L14 7M17 10L14 13" 
+                                    stroke="currentColor" 
+                                    strokeWidth="2" 
+                                    fill="none"
+                                  />
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                            Before
+                          </div>
+                          <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                            After
+                          </div>
+                        </div>
+                      ) : (
+                        <canvas
+                          ref={previewCanvasRef}
+                          className="inline-block cursor-move"
+                          onMouseDown={handleCanvasMouseDown}
+                          onMouseMove={handleCanvasMouseMove}
+                          onMouseUp={handleCanvasMouseUp}
+                          onMouseLeave={handleCanvasMouseUp}
+                        />
+                      )}
+                      <canvas ref={canvasRef} className="hidden" />
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground">
+                      <ImageIcon className="w-16 h-16 mb-4 opacity-20" />
+                      <p className="text-sm">Upload an image to preview</p>
+                    </div>
+                  )}
+                </div>
+
+                {originalImage && (
+                  <div className="mt-2 text-xs text-muted-foreground text-center">
+                    {originalImage.width} × {originalImage.height} • Zoom: {(zoom * 100).toFixed(0)}%
+                    {config.position === "custom" && " • Drag to position"}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Batch Preview */}
+            {images.length > 1 && (
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="text-sm font-semibold mb-3">Batch Images ({images.length})</h3>
+                  <div className="grid grid-cols-4 gap-2">
+                    {images.slice(0, 12).map((img, index) => (
+                      <div
+                        key={img.id}
+                        onClick={() => setCurrentImageIndex(index)}
+                        className={`relative cursor-pointer rounded overflow-hidden border-2 transition-all ${
+                          index === currentImageIndex
+                            ? "border-primary ring-2 ring-primary/20"
+                            : "border-transparent hover:border-muted-foreground/20"
+                        }`}
+                      >
+                        <img src={img.preview} alt={`Image ${index + 1}`} className="w-full h-20 object-cover" />
+                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs px-1 py-0.5 text-center">
+                          {index + 1}
+                        </div>
+                        {img.processed && (
+                          <div className="absolute top-1 right-1 bg-green-500 text-white rounded-full p-1">
+                            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {images.length > 12 && (
+                      <div className="flex items-center justify-center bg-muted rounded text-xs text-muted-foreground">
+                        +{images.length - 12} more
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
           {/* Right Sidebar Ad */}
-          <div className="hidden xl:block flex-shrink-0" style={{ width: "160px", maxWidth: "160px" }}>
-            <div style={{ maxHeight: "600px", overflow: "hidden" }}>
-              <LazyAdSpace 
-                type="display" 
-                slot={getDisplayAdSlot(getAdIndex('sidebar-right'))}
-                position="sidebar-right"
-              />
-            </div>
+          <div className="hidden xl:block fixed right-4 top-24 w-[160px]">
+            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex() + 2)} format="vertical" />
+          </div>
+
+          {/* Bottom Ad Row */}
+          <div className="lg:col-span-2">
+            <AdRow />
           </div>
         </div>
 
-        {/* Bottom Ad Row */}
-        <div className="mt-8">
-          <AdRow type="display" count={3} position="bottom" />
+        {/* Feature Cards */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <Type className="w-8 h-8 mb-2 text-primary" />
+              <h3 className="font-semibold mb-1">Text & Logo</h3>
+              <p className="text-xs text-muted-foreground">
+                Add custom text or upload your logo. Support for multiple fonts, colors, and effects.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <Package className="w-8 h-8 mb-2 text-primary" />
+              <h3 className="font-semibold mb-1">Batch Processing</h3>
+              <p className="text-xs text-muted-foreground">
+                Upload and watermark multiple images at once. Download as a ZIP file.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <MapPin className="w-8 h-8 mb-2 text-primary" />
+              <h3 className="font-semibold mb-1">Drag & Position</h3>
+              <p className="text-xs text-muted-foreground">
+                Freely drag and position your watermark anywhere on the image with precision.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-4">
+              <Star className="w-8 h-8 mb-2 text-primary" />
+              <h3 className="font-semibold mb-1">Save Presets</h3>
+              <p className="text-xs text-muted-foreground">
+                Save your favorite configurations and quickly apply them to new images.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* SEO Content */}
+        <div className="mt-8 space-y-6">
+          <Card>
+            <CardContent className="p-6 prose prose-sm max-w-none dark:prose-invert">
+              <h2>Professional Watermark Tool for Image Protection</h2>
+              <p>
+                Protect your images and establish brand identity with our advanced online watermark tool. Whether
+                you're a photographer, designer, content creator, or business owner, adding watermarks to your
+                images is essential for copyright protection and brand recognition.
+              </p>
+
+              <h3>Why Use Watermarks?</h3>
+              <ul>
+                <li>
+                  <strong>Copyright Protection:</strong> Prevent unauthorized use of your images and intellectual
+                  property
+                </li>
+                <li>
+                  <strong>Brand Recognition:</strong> Increase visibility and promote your brand across social
+                  media and websites
+                </li>
+                <li>
+                  <strong>Professional Image:</strong> Show that you take your work seriously and value your
+                  content
+                </li>
+                <li>
+                  <strong>Attribution:</strong> Ensure proper credit when your images are shared online
+                </li>
+                <li>
+                  <strong>Marketing:</strong> Turn every image into a promotional opportunity for your business
+                </li>
+              </ul>
+
+              <h3>Advanced Features</h3>
+              
+              <h4>Text Watermarks</h4>
+              <p>
+                Create custom text watermarks with full control over font, size, color, and effects. Add copyright
+                symbols, your name, website, or any custom text. Advanced text effects include:
+              </p>
+              <ul>
+                <li>Text shadows for better visibility on any background</li>
+                <li>Outlines to make text stand out</li>
+                <li>Background rectangles for enhanced readability</li>
+                <li>Multi-line support for complex watermarks</li>
+                <li>Multiple font families to match your brand</li>
+              </ul>
+
+              <h4>Logo & Image Watermarks</h4>
+              <p>
+                Upload your logo or any image to use as a watermark. Perfect for businesses and photographers who
+                want to maintain consistent branding. Supports PNG images with transparency for professional
+                results.
+              </p>
+
+              <h4>Batch Processing</h4>
+              <p>
+                Save time by processing multiple images at once. Upload hundreds of photos and apply the same
+                watermark configuration to all of them. All processed images are downloaded as a convenient ZIP
+                file. Essential features for photographers and content creators who need to watermark large
+                quantities of images.
+              </p>
+
+              <h4>Drag & Drop Positioning</h4>
+              <p>
+                Precisely position your watermark anywhere on the image with intuitive drag-and-drop controls. Use
+                keyboard shortcuts for pixel-perfect placement. Choose from preset positions like corners and
+                center, or use custom positioning for complete control.
+              </p>
+
+              <h4>Preset Templates</h4>
+              <p>
+                Save your watermark configurations as presets for quick access. Includes professional templates for
+                photographers, businesses, and security purposes. Create unlimited custom presets for different use
+                cases.
+              </p>
+
+              <h4>Export Options</h4>
+              <p>Choose your output format based on your needs:</p>
+              <ul>
+                <li>
+                  <strong>PNG:</strong> Lossless compression, perfect for graphics and images with transparency
+                </li>
+                <li>
+                  <strong>JPG:</strong> Smaller file sizes, ideal for photographs and web use
+                </li>
+                <li>
+                  <strong>WebP:</strong> Modern format with excellent compression and quality balance
+                </li>
+              </ul>
+
+              <h3>Use Cases</h3>
+              
+              <h4>For Photographers</h4>
+              <p>
+                Protect your photography portfolio and prevent image theft. Add subtle copyright notices that don't
+                distract from your art but ensure proper attribution. Batch process hundreds of photos from a
+                photoshoot in minutes.
+              </p>
+
+              <h4>For Businesses</h4>
+              <p>
+                Add your company logo to product images, marketing materials, and social media posts. Maintain
+                consistent branding across all visual content. Create professional watermarks that enhance rather
+                than detract from your images.
+              </p>
+
+              <h4>For Content Creators</h4>
+              <p>
+                Protect your original content on social media platforms, blogs, and websites. Add watermarks to
+                memes, graphics, and educational content. Track the spread of your content across the internet.
+              </p>
+
+              <h4>For E-commerce</h4>
+              <p>
+                Protect product images from competitors while still showcasing your products effectively. Add your
+                store branding to build recognition. Prevent unauthorized use of your product photography.
+              </p>
+
+              <h3>Watermark Best Practices</h3>
+              
+              <h4>Opacity and Visibility</h4>
+              <p>
+                Balance protection with aesthetics. Use 30-50% opacity for subtle watermarks that don't distract
+                from the main image. For security-critical applications, use higher opacity or tiled patterns.
+              </p>
+
+              <h4>Placement Strategy</h4>
+              <p>
+                Corner placement is non-intrusive and professional. Center watermarks provide maximum protection
+                but can be distracting. Tiled patterns offer the strongest protection against cropping and removal.
+              </p>
+
+              <h4>Size and Scaling</h4>
+              <p>
+                Make watermarks large enough to be effective but not so large that they ruin the image. Enable
+                automatic scaling to maintain consistent watermark sizes across different image dimensions.
+              </p>
+
+              <h4>Color Selection</h4>
+              <p>
+                White watermarks work well on dark images, while dark watermarks suit light images. Use text
+                shadows or outlines to ensure visibility across varied backgrounds. Consider using your brand
+                colors for consistency.
+              </p>
+
+              <h3>Tips for Professional Results</h3>
+              <ul>
+                <li>Use high-quality logo images (PNG format with transparency recommended)</li>
+                <li>Test your watermark on different types of images before batch processing</li>
+                <li>Save frequently used configurations as presets for consistency</li>
+                <li>Use keyboard shortcuts (Ctrl+Z, Ctrl+Y) to quickly adjust settings</li>
+                <li>Enable the grid overlay for precise positioning</li>
+                <li>Use before/after comparison to verify watermark effectiveness</li>
+                <li>Consider your audience and platform when choosing opacity and size</li>
+                <li>Batch process similar images together for efficiency</li>
+              </ul>
+
+              <h3>Privacy & Security</h3>
+              <p>
+                All image processing happens directly in your browser. Your images are never uploaded to our
+                servers, ensuring complete privacy and security. Your original images and watermark configurations
+                remain on your device.
+              </p>
+
+              <h3>Compatible with All Devices</h3>
+              <p>
+                Our watermark tool works on desktop computers, laptops, tablets, and mobile devices. No
+                installation required - just open your browser and start adding watermarks. Fully responsive design
+                ensures optimal experience on any screen size.
+              </p>
+
+              <h3>Free & No Registration</h3>
+              <p>
+                Use our professional watermark tool completely free. No account creation, no credit card, no hidden
+                fees. Process unlimited images and create unlimited presets at no cost.
+              </p>
+
+              <h2>Frequently Asked Questions</h2>
+              
+              <h4>Can I remove watermarks from images?</h4>
+              <p>
+                This tool is designed to add watermarks, not remove them. Removing watermarks from images you don't
+                own may violate copyright laws. Always respect intellectual property rights.
+              </p>
+
+              <h4>What image formats are supported?</h4>
+              <p>
+                We support all common image formats including JPG, PNG, WebP, GIF, and more. Output formats include
+                PNG, JPG, and WebP.
+              </p>
+
+              <h4>How many images can I watermark at once?</h4>
+              <p>
+                There's no hard limit on batch processing. However, processing very large batches (100+) may take
+                time depending on your device's performance and the image sizes.
+              </p>
+
+              <h4>Will watermarking reduce image quality?</h4>
+              <p>
+                When exporting as PNG, there is no quality loss. JPG and WebP exports have adjustable quality
+                settings. Set quality to 90-100% for minimal quality loss.
+              </p>
+
+              <h4>Can I use transparent watermarks?</h4>
+              <p>
+                Yes! Adjust the opacity slider to create semi-transparent watermarks. This is perfect for subtle
+                branding that doesn't interfere with the image content.
+              </p>
+
+              <h4>Do you store my images?</h4>
+              <p>
+                No. All processing happens locally in your browser. Your images never leave your device, ensuring
+                complete privacy and security.
+              </p>
+
+              <h3>Keywords</h3>
+              <p className="text-xs text-muted-foreground">
+                watermark tool, add watermark to image, image watermark, photo watermark, bulk watermark, batch
+                watermark images, watermark maker, online watermark tool, free watermark software, logo watermark,
+                text watermark, protect images, copyright images, image protection, watermark generator, custom
+                watermark, transparent watermark, watermark app, watermark creator, add logo to photo, brand
+                protection, image security, batch image processing, watermark multiple images, professional
+                watermark, photography watermark, business watermark, social media watermark, copyright protection,
+                image branding, bulk image watermark, automated watermarking, photographer tools, content creator
+                tools, image copyright, watermark photos online, free bulk watermark, batch image editor, copyright
+                watermark, branding tool, image ownership, watermark software, photo protection, digital watermark,
+                visible watermark, image signature, brand identity, visual watermark, photograph protection
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </ToolLayout>
 
       <AdWatchModal
-        open={showAdModal}
-        onOpenChange={setShowAdModal}
-        onAdWatched={() => {
+        isOpen={showAdModal}
+        onClose={() => setShowAdModal(false)}
+        onAdComplete={() => {
           setCanDownload(true);
           setShowAdModal(false);
-          downloadWatermarkedImage();
+          if (images.length > 1) {
+            handleBatchDownload();
+          } else {
+            downloadSingleImage();
+          }
         }}
         title="Watch ad to download watermarked image"
         description="Please watch this short ad to download your watermarked image."
