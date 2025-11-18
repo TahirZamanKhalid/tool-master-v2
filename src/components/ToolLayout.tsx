@@ -2,8 +2,6 @@ import { ReactNode } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AdSpace } from "@/components/AdSpace";
-import { LazyAdSpace } from "@/components/LazyAdSpace";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ToolRating } from "@/components/ToolRating";
@@ -11,7 +9,6 @@ import { SEOHead } from "@/components/SEOHead";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ToolFAQ } from "@/components/ToolFAQ";
 import { useToolAnalytics } from "@/hooks/useToolAnalytics";
-import { getDisplayAdSlot, getAdIndex } from "@/utils/adSlotRotation";
 
 interface ToolLayoutProps {
   title: string;
@@ -21,7 +18,6 @@ interface ToolLayoutProps {
   instructions?: string[];
   relatedTools?: { name: string; path: string }[];
   layout?: "full-width" | "with-sidebar"; // default: full-width
-  adRefreshKey?: number; // Optional key to force ad refresh
 }
 
 export const ToolLayout = ({
@@ -32,7 +28,6 @@ export const ToolLayout = ({
   instructions,
   relatedTools,
   layout = "full-width",
-  adRefreshKey,
 }: ToolLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -93,13 +88,8 @@ export const ToolLayout = ({
         />
 
         {layout === "full-width" ? (
-          /* Full Width Layout with Sticky Ads */
+          /* Full Width Layout */
           <div className="mt-8 space-y-8 w-full">
-            {/* Top Sticky Ad - Desktop */}
-            <div className="hidden md:block my-2">
-              <LazyAdSpace type="display" slot={getDisplayAdSlot(getAdIndex('top'))} className="w-full" />
-            </div>
-
             <div className="space-y-8">
               <div>
                 <div className="flex items-center gap-3 mb-4 flex-wrap">
