@@ -47,7 +47,7 @@ import { getDisplayAdSlot, getAdIndex } from "@/utils/adSlotRotation";
 import JSZip from "jszip";
 
 type WatermarkType = "text" | "image" | "qrcode";
-type Position = "top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right" | "center" | "tiled" | "custom";
+type Position = "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center" | "tiled" | "custom";
 type ExportFormat = "png" | "jpg" | "webp";
 type TextAlign = "left" | "center" | "right";
 
@@ -205,12 +205,12 @@ const WatermarkTool = () => {
 
   // UI states
   const [showAdModal, setShowAdModal] = useState(false);
-  const [canDownload, setCanDownload] = useState(true);
+  const [canDownload, setCanDownload] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
 
   // Preview states
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(0.3);
   const [showGrid, setShowGrid] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [comparisonSlider, setComparisonSlider] = useState(50);
@@ -324,9 +324,26 @@ const WatermarkTool = () => {
       }
     };
 
+    const handleWheel = (e: WheelEvent) => {
+      // Only zoom if Ctrl key is pressed
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        
+        // Zoom in/out based on wheel direction
+        const zoomDelta = e.deltaY > 0 ? -0.1 : 0.1;
+        const newZoom = Math.max(0.1, Math.min(5, zoom + zoomDelta));
+        setZoom(newZoom);
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [config, historyIndex, originalImage]);
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("wheel", handleWheel);
+    };
+  }, [config, historyIndex, originalImage, zoom]);
 
   useEffect(() => {
     if (originalImage) {
@@ -352,18 +369,6 @@ const WatermarkTool = () => {
       img.src = images[currentImageIndex].preview;
     }
   }, [currentImageIndex, images]);
-
-  // Initialize AdSense ads
-  useEffect(() => {
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (e) {
-      console.error('AdSense error:', e);
-    }
-  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -492,25 +497,13 @@ const WatermarkTool = () => {
       drawGrid(ctx, canvas.width, canvas.height);
     }
 
-    // Draw to preview canvas - scale to fit container
+    // Draw to preview canvas with zoom
     if (previewCanvasRef.current) {
       const previewCanvas = previewCanvasRef.current;
       const previewCtx = previewCanvas.getContext("2d");
       if (previewCtx) {
-        // Calculate scale to fit in container (max 1200px wide, maintain aspect ratio)
-        const maxWidth = 1200;
-        const maxHeight = 800;
-        let scale = 1;
-        
-        if (canvas.width > maxWidth || canvas.height > maxHeight) {
-          scale = Math.min(maxWidth / canvas.width, maxHeight / canvas.height);
-        }
-        
-        // Apply zoom on top of fit-to-container scale
-        const finalScale = scale * zoom;
-        
-        previewCanvas.width = canvas.width * finalScale;
-        previewCanvas.height = canvas.height * finalScale;
+        previewCanvas.width = canvas.width * zoom;
+        previewCanvas.height = canvas.height * zoom;
         previewCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
       }
     }
@@ -916,32 +909,23 @@ const WatermarkTool = () => {
         title="Free Online Watermark Tool - Add Watermarks to Images | ToolMaster.cloud"
         description="Professional watermark tool to protect your images. Add text or logo watermarks, batch process multiple images, drag & drop positioning, custom presets, and export in PNG/JPG/WebP. Free online watermarking software."
         keywords="watermark tool, add watermark to image, image watermark, photo watermark, bulk watermark, batch watermark images, watermark maker, online watermark tool, free watermark software, logo watermark, text watermark, protect images, copyright images, image protection, watermark generator, custom watermark, transparent watermark, watermark app, watermark creator, add logo to photo, brand protection, image security, batch image processing, watermark multiple images, professional watermark, photography watermark"
-        canonical="https://toolmaster.cloud/tools/watermark"
+        canonicalUrl="https://toolmaster.cloud/tools/watermark"
         ogImage="https://toolmaster.cloud/og-watermark-tool.jpg"
       />
 
       <ToolLayout
         title="Advanced Watermark Tool"
         description="Add professional watermarks to protect your images. Supports text, logo, batch processing, and custom positioning."
-        category="image"
       >
-        {/* Top AdSense Ad */}
-        <div className="w-full flex justify-center mb-6">
-          <div className="inline-block">
-            <ins
-              className="adsbygoogle"
-              style={{ display: 'inline-block', width: '800px', height: '200px' }}
-              data-ad-client="ca-pub-7382531001943020"
-              data-ad-slot="4838473293"
-            />
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
+          {/* Top Leaderboard Ad */}
+          <div className="lg:col-span-2">
+            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex())} format="horizontal" />
+          </div>
 
           {/* Left Sidebar Ad */}
           <div className="hidden xl:block fixed left-4 top-24 w-[160px]">
-            <LazyAdSpace slot={getDisplayAdSlot(1)} index={getAdIndex("1")} format="vertical" />
+            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex() + 1)} format="vertical" />
           </div>
 
           {/* Left Column - Controls */}
@@ -1700,20 +1684,20 @@ const WatermarkTool = () => {
                       {showComparison ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                     </Button>
                     <Button
-                      onClick={() => setZoom(Math.max(0.25, zoom - 0.25))}
+                      onClick={() => setZoom(Math.max(0.1, zoom - 0.1))}
                       variant="ghost"
                       size="sm"
                       title="Zoom Out"
-                      disabled={zoom <= 0.25}
+                      disabled={zoom <= 0.1}
                     >
                       <ZoomOut className="w-4 h-4" />
                     </Button>
                     <Button
-                      onClick={() => setZoom(Math.min(3, zoom + 0.25))}
+                      onClick={() => setZoom(Math.min(5, zoom + 0.1))}
                       variant="ghost"
                       size="sm"
                       title="Zoom In"
-                      disabled={zoom >= 3}
+                      disabled={zoom >= 5}
                     >
                       <ZoomIn className="w-4 h-4" />
                     </Button>
@@ -1859,7 +1843,7 @@ const WatermarkTool = () => {
 
           {/* Right Sidebar Ad */}
           <div className="hidden xl:block fixed right-4 top-24 w-[160px]">
-            <LazyAdSpace slot={getDisplayAdSlot(2)} index={getAdIndex("2")} format="vertical" />
+            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex() + 2)} format="vertical" />
           </div>
 
           {/* Bottom Ad Row */}
@@ -2142,18 +2126,6 @@ const WatermarkTool = () => {
               </p>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Bottom AdSense Ad */}
-        <div className="w-full flex justify-center mt-8 lg:col-span-2">
-          <div className="inline-block">
-            <ins
-              className="adsbygoogle"
-              style={{ display: 'inline-block', width: '800px', height: '200px' }}
-              data-ad-client="ca-pub-7382531001943020"
-              data-ad-slot="4838473293"
-            />
-          </div>
         </div>
       </ToolLayout>
 
