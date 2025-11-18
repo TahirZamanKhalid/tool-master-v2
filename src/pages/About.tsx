@@ -37,8 +37,6 @@ const About = () => {
             <p className="text-xl text-muted-foreground mb-12">
               Your trusted source for 100+ free, professional-grade web-based tools and utilities. No registration or download required.
             </p>
-            
-            <LazyAdSpace size="leaderboard" className="mb-8" />
 
             <div className="prose prose-slate dark:prose-invert max-w-none mb-12">
               <h2>Who We Are - Leading Free Online Tools Provider</h2>
@@ -149,8 +147,6 @@ const About = () => {
                 Have questions, suggestions, or feedback? We'd love to hear from you! Visit our <a href="/contact" className="text-primary hover:underline">contact page</a> to get in touch with our team.
               </p>
             </div>
-            
-            <LazyAdSpace size="leaderboard" className="mt-8" />
           </div>
         </div>
       </main>
