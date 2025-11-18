@@ -205,7 +205,7 @@ const WatermarkTool = () => {
 
   // UI states
   const [showAdModal, setShowAdModal] = useState(false);
-  const [canDownload, setCanDownload] = useState(false);
+  const [canDownload, setCanDownload] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
 
@@ -352,6 +352,18 @@ const WatermarkTool = () => {
       img.src = images[currentImageIndex].preview;
     }
   }, [currentImageIndex, images]);
+
+  // Initialize AdSense ads
+  useEffect(() => {
+    try {
+      // @ts-ignore
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+      // @ts-ignore
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {
+      console.error('AdSense error:', e);
+    }
+  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -913,11 +925,19 @@ const WatermarkTool = () => {
         description="Add professional watermarks to protect your images. Supports text, logo, batch processing, and custom positioning."
         category="image"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
-          {/* Top Leaderboard Ad */}
-          <div className="lg:col-span-2">
-            <LazyAdSpace slot={getDisplayAdSlot(0)} index={getAdIndex("0")} format="horizontal" />
+        {/* Top AdSense Ad */}
+        <div className="w-full flex justify-center mb-6">
+          <div className="inline-block">
+            <ins
+              className="adsbygoogle"
+              style={{ display: 'inline-block', width: '800px', height: '200px' }}
+              data-ad-client="ca-pub-7382531001943020"
+              data-ad-slot="4838473293"
+            />
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
 
           {/* Left Sidebar Ad */}
           <div className="hidden xl:block fixed left-4 top-24 w-[160px]">
@@ -2122,6 +2142,18 @@ const WatermarkTool = () => {
               </p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Bottom AdSense Ad */}
+        <div className="w-full flex justify-center mt-8 lg:col-span-2">
+          <div className="inline-block">
+            <ins
+              className="adsbygoogle"
+              style={{ display: 'inline-block', width: '800px', height: '200px' }}
+              data-ad-client="ca-pub-7382531001943020"
+              data-ad-slot="4838473293"
+            />
+          </div>
         </div>
       </ToolLayout>
 
