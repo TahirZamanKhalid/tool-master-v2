@@ -620,7 +620,7 @@ const WatermarkTool = () => {
     ctx.restore();
   };
 
-  const drawQRCodeWatermark = async (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+  const drawQRCodeWatermark = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
     // This would require a QR code library like qrcode
     // For now, we'll draw a placeholder
     const size = config.watermarkSize;
@@ -919,13 +919,8 @@ const WatermarkTool = () => {
       >
         <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
           {/* Top Leaderboard Ad */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 min-h-[100px]">
             <LazyAdSpace slot={getDisplayAdSlot(getAdIndex())} format="horizontal" />
-          </div>
-
-          {/* Left Sidebar Ad */}
-          <div className="hidden xl:block fixed left-4 top-24 w-[160px]">
-            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex() + 1)} format="vertical" />
           </div>
 
           {/* Left Column - Controls */}
@@ -1071,30 +1066,19 @@ const WatermarkTool = () => {
                           <Label className="text-sm">Type</Label>
                           <Select
                             value={config.type}
-                            onValueChange={(v) => updateConfig({ type: v as WatermarkType })}
+                            onValueChange={(v) => {
+                              if (v && (v === "text" || v === "image" || v === "qrcode")) {
+                                updateConfig({ type: v as WatermarkType });
+                              }
+                            }}
                           >
                             <SelectTrigger className="h-8 text-sm">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="text">
-                                <div className="flex items-center gap-2">
-                                  <Type className="w-4 h-4" />
-                                  Text
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="image">
-                                <div className="flex items-center gap-2">
-                                  <ImageIcon className="w-4 h-4" />
-                                  Image/Logo
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="qrcode">
-                                <div className="flex items-center gap-2">
-                                  <Grid3x3 className="w-4 h-4" />
-                                  QR Code
-                                </div>
-                              </SelectItem>
+                              <SelectItem value="text">Text</SelectItem>
+                              <SelectItem value="image">Image/Logo</SelectItem>
+                              <SelectItem value="qrcode">QR Code</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -1141,7 +1125,9 @@ const WatermarkTool = () => {
                               <Label className="text-sm">Font Family</Label>
                               <Select
                                 value={config.fontFamily}
-                                onValueChange={(v) => updateConfig({ fontFamily: v })}
+                                onValueChange={(v) => {
+                                  if (v) updateConfig({ fontFamily: v });
+                                }}
                               >
                                 <SelectTrigger className="h-8 text-sm">
                                   <SelectValue />
@@ -1163,7 +1149,11 @@ const WatermarkTool = () => {
                               <Label className="text-sm">Text Align</Label>
                               <Select
                                 value={config.textAlign}
-                                onValueChange={(v) => updateConfig({ textAlign: v as TextAlign })}
+                                onValueChange={(v) => {
+                                  if (v && (v === "left" || v === "center" || v === "right")) {
+                                    updateConfig({ textAlign: v as TextAlign });
+                                  }
+                                }}
                               >
                                 <SelectTrigger className="h-8 text-sm">
                                   <SelectValue />
@@ -1463,7 +1453,9 @@ const WatermarkTool = () => {
                           <Label className="text-sm">Position</Label>
                           <Select
                             value={config.position}
-                            onValueChange={(v) => updateConfig({ position: v as Position })}
+                            onValueChange={(v) => {
+                              if (v) updateConfig({ position: v as Position });
+                            }}
                           >
                             <SelectTrigger className="h-8 text-sm">
                               <SelectValue />
@@ -1484,7 +1476,7 @@ const WatermarkTool = () => {
                           <div className="p-3 bg-muted/50 rounded-lg space-y-2">
                             <p className="text-xs text-muted-foreground">
                               Click and drag on the preview to position the watermark. Use arrow keys for fine
-                              adjustment (Shift + Arrow for larger steps).
+                              adjustment (Shift + Arrow for larger steps). Use Ctrl + Scroll to zoom.
                             </p>
                             <div className="grid grid-cols-2 gap-2">
                               <div>
@@ -1542,7 +1534,11 @@ const WatermarkTool = () => {
                           <Label className="text-sm">Format</Label>
                           <Select
                             value={exportFormat}
-                            onValueChange={(v) => setExportFormat(v as ExportFormat)}
+                            onValueChange={(v) => {
+                              if (v && (v === "png" || v === "jpg" || v === "webp")) {
+                                setExportFormat(v as ExportFormat);
+                              }
+                            }}
                           >
                             <SelectTrigger className="h-8 text-sm">
                               <SelectValue />
@@ -1636,6 +1632,9 @@ const WatermarkTool = () => {
                 <h3 className="text-sm font-semibold mb-2">💡 Pro Tips</h3>
                 <div className="space-y-2 text-xs text-muted-foreground">
                   <p>
+                    <strong>Zoom Control:</strong> Hold Ctrl and scroll mouse wheel to zoom in/out. Default view is 30% for full image visibility.
+                  </p>
+                  <p>
                     <strong>Text Watermarks:</strong> Use 30-50% opacity for subtle protection. Add shadow
                     for better visibility on varied backgrounds.
                   </p>
@@ -1648,12 +1647,7 @@ const WatermarkTool = () => {
                     lower opacity (15-25%).
                   </p>
                   <p>
-                    <strong>Batch Processing:</strong> Upload multiple images and apply the same watermark to
-                    all. Great for photographers!
-                  </p>
-                  <p>
-                    <strong>Shortcuts:</strong> Ctrl+Z (Undo), Ctrl+Y (Redo), Ctrl+S (Download), Arrow keys
-                    (Move in custom mode)
+                    <strong>Shortcuts:</strong> Ctrl+Z (Undo), Ctrl+Y (Redo), Ctrl+S (Download), Ctrl+Scroll (Zoom), Arrow keys (Move)
                   </p>
                 </div>
               </CardContent>
@@ -1714,7 +1708,7 @@ const WatermarkTool = () => {
 
                 <div
                   className={`relative bg-muted rounded overflow-auto ${
-                    fullScreen ? "fixed inset-0 z-50 p-8" : "min-h-[400px] max-h-[70vh]"
+                    fullScreen ? "fixed inset-0 z-50 p-8 bg-background" : "min-h-[400px] max-h-[70vh]"
                   }`}
                 >
                   {originalImage ? (
@@ -1784,6 +1778,7 @@ const WatermarkTool = () => {
                     <div className="flex flex-col items-center justify-center min-h-[400px] text-muted-foreground">
                       <ImageIcon className="w-16 h-16 mb-4 opacity-20" />
                       <p className="text-sm">Upload an image to preview</p>
+                      <p className="text-xs mt-2">Use Ctrl + Scroll to zoom</p>
                     </div>
                   )}
                 </div>
@@ -1791,7 +1786,7 @@ const WatermarkTool = () => {
                 {originalImage && (
                   <div className="mt-2 text-xs text-muted-foreground text-center">
                     {originalImage.width} × {originalImage.height} • Zoom: {(zoom * 100).toFixed(0)}%
-                    {config.position === "custom" && " • Drag to position"}
+                    {config.position === "custom" && " • Drag to position • Ctrl+Scroll to zoom"}
                   </div>
                 )}
               </CardContent>
@@ -1841,13 +1836,8 @@ const WatermarkTool = () => {
             )}
           </div>
 
-          {/* Right Sidebar Ad */}
-          <div className="hidden xl:block fixed right-4 top-24 w-[160px]">
-            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex() + 2)} format="vertical" />
-          </div>
-
           {/* Bottom Ad Row */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 min-h-[100px] mt-6">
             <AdRow />
           </div>
         </div>
@@ -1895,234 +1885,28 @@ const WatermarkTool = () => {
           </Card>
         </div>
 
-        {/* SEO Content */}
-        <div className="mt-8 space-y-6">
+        {/* SEO Content - Condensed */}
+        <div className="mt-8">
           <Card>
             <CardContent className="p-6 prose prose-sm max-w-none dark:prose-invert">
               <h2>Professional Watermark Tool for Image Protection</h2>
               <p>
-                Protect your images and establish brand identity with our advanced online watermark tool. Whether
-                you're a photographer, designer, content creator, or business owner, adding watermarks to your
-                images is essential for copyright protection and brand recognition.
+                Protect your images and establish brand identity with our advanced online watermark tool. Add text or logo watermarks, batch process multiple images, use drag & drop positioning, and export in multiple formats.
               </p>
 
-              <h3>Why Use Watermarks?</h3>
+              <h3>Key Features</h3>
               <ul>
-                <li>
-                  <strong>Copyright Protection:</strong> Prevent unauthorized use of your images and intellectual
-                  property
-                </li>
-                <li>
-                  <strong>Brand Recognition:</strong> Increase visibility and promote your brand across social
-                  media and websites
-                </li>
-                <li>
-                  <strong>Professional Image:</strong> Show that you take your work seriously and value your
-                  content
-                </li>
-                <li>
-                  <strong>Attribution:</strong> Ensure proper credit when your images are shared online
-                </li>
-                <li>
-                  <strong>Marketing:</strong> Turn every image into a promotional opportunity for your business
-                </li>
+                <li><strong>Text & Logo Watermarks:</strong> Full customization with fonts, colors, shadows, outlines, and backgrounds</li>
+                <li><strong>Batch Processing:</strong> Watermark hundreds of images at once, download as ZIP</li>
+                <li><strong>Drag & Drop Positioning:</strong> Precise watermark placement with keyboard shortcuts</li>
+                <li><strong>Multiple Export Formats:</strong> PNG, JPG, WebP with quality control</li>
+                <li><strong>Preset Templates:</strong> Save and load custom configurations</li>
+                <li><strong>Privacy Protected:</strong> All processing happens in your browser</li>
               </ul>
 
-              <h3>Advanced Features</h3>
-              
-              <h4>Text Watermarks</h4>
+              <h3>Perfect For</h3>
               <p>
-                Create custom text watermarks with full control over font, size, color, and effects. Add copyright
-                symbols, your name, website, or any custom text. Advanced text effects include:
-              </p>
-              <ul>
-                <li>Text shadows for better visibility on any background</li>
-                <li>Outlines to make text stand out</li>
-                <li>Background rectangles for enhanced readability</li>
-                <li>Multi-line support for complex watermarks</li>
-                <li>Multiple font families to match your brand</li>
-              </ul>
-
-              <h4>Logo & Image Watermarks</h4>
-              <p>
-                Upload your logo or any image to use as a watermark. Perfect for businesses and photographers who
-                want to maintain consistent branding. Supports PNG images with transparency for professional
-                results.
-              </p>
-
-              <h4>Batch Processing</h4>
-              <p>
-                Save time by processing multiple images at once. Upload hundreds of photos and apply the same
-                watermark configuration to all of them. All processed images are downloaded as a convenient ZIP
-                file. Essential features for photographers and content creators who need to watermark large
-                quantities of images.
-              </p>
-
-              <h4>Drag & Drop Positioning</h4>
-              <p>
-                Precisely position your watermark anywhere on the image with intuitive drag-and-drop controls. Use
-                keyboard shortcuts for pixel-perfect placement. Choose from preset positions like corners and
-                center, or use custom positioning for complete control.
-              </p>
-
-              <h4>Preset Templates</h4>
-              <p>
-                Save your watermark configurations as presets for quick access. Includes professional templates for
-                photographers, businesses, and security purposes. Create unlimited custom presets for different use
-                cases.
-              </p>
-
-              <h4>Export Options</h4>
-              <p>Choose your output format based on your needs:</p>
-              <ul>
-                <li>
-                  <strong>PNG:</strong> Lossless compression, perfect for graphics and images with transparency
-                </li>
-                <li>
-                  <strong>JPG:</strong> Smaller file sizes, ideal for photographs and web use
-                </li>
-                <li>
-                  <strong>WebP:</strong> Modern format with excellent compression and quality balance
-                </li>
-              </ul>
-
-              <h3>Use Cases</h3>
-              
-              <h4>For Photographers</h4>
-              <p>
-                Protect your photography portfolio and prevent image theft. Add subtle copyright notices that don't
-                distract from your art but ensure proper attribution. Batch process hundreds of photos from a
-                photoshoot in minutes.
-              </p>
-
-              <h4>For Businesses</h4>
-              <p>
-                Add your company logo to product images, marketing materials, and social media posts. Maintain
-                consistent branding across all visual content. Create professional watermarks that enhance rather
-                than detract from your images.
-              </p>
-
-              <h4>For Content Creators</h4>
-              <p>
-                Protect your original content on social media platforms, blogs, and websites. Add watermarks to
-                memes, graphics, and educational content. Track the spread of your content across the internet.
-              </p>
-
-              <h4>For E-commerce</h4>
-              <p>
-                Protect product images from competitors while still showcasing your products effectively. Add your
-                store branding to build recognition. Prevent unauthorized use of your product photography.
-              </p>
-
-              <h3>Watermark Best Practices</h3>
-              
-              <h4>Opacity and Visibility</h4>
-              <p>
-                Balance protection with aesthetics. Use 30-50% opacity for subtle watermarks that don't distract
-                from the main image. For security-critical applications, use higher opacity or tiled patterns.
-              </p>
-
-              <h4>Placement Strategy</h4>
-              <p>
-                Corner placement is non-intrusive and professional. Center watermarks provide maximum protection
-                but can be distracting. Tiled patterns offer the strongest protection against cropping and removal.
-              </p>
-
-              <h4>Size and Scaling</h4>
-              <p>
-                Make watermarks large enough to be effective but not so large that they ruin the image. Enable
-                automatic scaling to maintain consistent watermark sizes across different image dimensions.
-              </p>
-
-              <h4>Color Selection</h4>
-              <p>
-                White watermarks work well on dark images, while dark watermarks suit light images. Use text
-                shadows or outlines to ensure visibility across varied backgrounds. Consider using your brand
-                colors for consistency.
-              </p>
-
-              <h3>Tips for Professional Results</h3>
-              <ul>
-                <li>Use high-quality logo images (PNG format with transparency recommended)</li>
-                <li>Test your watermark on different types of images before batch processing</li>
-                <li>Save frequently used configurations as presets for consistency</li>
-                <li>Use keyboard shortcuts (Ctrl+Z, Ctrl+Y) to quickly adjust settings</li>
-                <li>Enable the grid overlay for precise positioning</li>
-                <li>Use before/after comparison to verify watermark effectiveness</li>
-                <li>Consider your audience and platform when choosing opacity and size</li>
-                <li>Batch process similar images together for efficiency</li>
-              </ul>
-
-              <h3>Privacy & Security</h3>
-              <p>
-                All image processing happens directly in your browser. Your images are never uploaded to our
-                servers, ensuring complete privacy and security. Your original images and watermark configurations
-                remain on your device.
-              </p>
-
-              <h3>Compatible with All Devices</h3>
-              <p>
-                Our watermark tool works on desktop computers, laptops, tablets, and mobile devices. No
-                installation required - just open your browser and start adding watermarks. Fully responsive design
-                ensures optimal experience on any screen size.
-              </p>
-
-              <h3>Free & No Registration</h3>
-              <p>
-                Use our professional watermark tool completely free. No account creation, no credit card, no hidden
-                fees. Process unlimited images and create unlimited presets at no cost.
-              </p>
-
-              <h2>Frequently Asked Questions</h2>
-              
-              <h4>Can I remove watermarks from images?</h4>
-              <p>
-                This tool is designed to add watermarks, not remove them. Removing watermarks from images you don't
-                own may violate copyright laws. Always respect intellectual property rights.
-              </p>
-
-              <h4>What image formats are supported?</h4>
-              <p>
-                We support all common image formats including JPG, PNG, WebP, GIF, and more. Output formats include
-                PNG, JPG, and WebP.
-              </p>
-
-              <h4>How many images can I watermark at once?</h4>
-              <p>
-                There's no hard limit on batch processing. However, processing very large batches (100+) may take
-                time depending on your device's performance and the image sizes.
-              </p>
-
-              <h4>Will watermarking reduce image quality?</h4>
-              <p>
-                When exporting as PNG, there is no quality loss. JPG and WebP exports have adjustable quality
-                settings. Set quality to 90-100% for minimal quality loss.
-              </p>
-
-              <h4>Can I use transparent watermarks?</h4>
-              <p>
-                Yes! Adjust the opacity slider to create semi-transparent watermarks. This is perfect for subtle
-                branding that doesn't interfere with the image content.
-              </p>
-
-              <h4>Do you store my images?</h4>
-              <p>
-                No. All processing happens locally in your browser. Your images never leave your device, ensuring
-                complete privacy and security.
-              </p>
-
-              <h3>Keywords</h3>
-              <p className="text-xs text-muted-foreground">
-                watermark tool, add watermark to image, image watermark, photo watermark, bulk watermark, batch
-                watermark images, watermark maker, online watermark tool, free watermark software, logo watermark,
-                text watermark, protect images, copyright images, image protection, watermark generator, custom
-                watermark, transparent watermark, watermark app, watermark creator, add logo to photo, brand
-                protection, image security, batch image processing, watermark multiple images, professional
-                watermark, photography watermark, business watermark, social media watermark, copyright protection,
-                image branding, bulk image watermark, automated watermarking, photographer tools, content creator
-                tools, image copyright, watermark photos online, free bulk watermark, batch image editor, copyright
-                watermark, branding tool, image ownership, watermark software, photo protection, digital watermark,
-                visible watermark, image signature, brand identity, visual watermark, photograph protection
+                Photographers protecting portfolios, businesses branding product images, content creators securing social media posts, and e-commerce stores protecting product photography.
               </p>
             </CardContent>
           </Card>
