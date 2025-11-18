@@ -1,5 +1,4 @@
 import { ReactNode } from "react";
-import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -17,7 +16,7 @@ interface ToolLayoutProps {
   children: ReactNode;
   instructions?: string[];
   relatedTools?: { name: string; path: string }[];
-  layout?: "full-width" | "with-sidebar"; // default: full-width
+  layout?: "full-width" | "with-sidebar";
 }
 
 export const ToolLayout = ({
@@ -87,183 +86,75 @@ export const ToolLayout = ({
           ]}
         />
 
-        {layout === "full-width" ? (
-          /* Full Width Layout */
-          <div className="mt-8 space-y-8 w-full">
-            <div className="space-y-8">
-              <div>
-                <div className="flex items-center gap-3 mb-4 flex-wrap">
-                  <Badge>{category}</Badge>
-                  <h1 className="text-3xl md:text-4xl font-bold break-words">{title}</h1>
-                </div>
-                <p className="text-lg text-muted-foreground mb-4">{description}</p>
-
-                <ShareButtons
-                  title={title}
-                  description={description}
-                  url={`https://toolmaster.cloud${location.pathname}`}
-                />
+        <div className="mt-8 space-y-8 w-full">
+          <div className="space-y-8">
+            <div>
+              <div className="flex items-center gap-3 mb-4 flex-wrap">
+                <Badge>{category}</Badge>
+                <h1 className="text-3xl md:text-4xl font-bold break-words">{title}</h1>
               </div>
+              <p className="text-lg text-muted-foreground mb-4">{description}</p>
 
-              <div className="overflow-hidden w-full">
-                {children}
-              </div>
+              <ShareButtons
+                title={title}
+                description={description}
+                url={`https://toolmaster.cloud${location.pathname}`}
+              />
+            </div>
 
-              {instructions && (
-                <div className="bg-muted/30 rounded-lg p-6">
-                  <h2 className="text-2xl font-bold mb-2">How to Use This {category} Tool</h2>
-                  <h3 className="text-lg font-semibold text-muted-foreground mb-4">Step-by-Step Guide for {title}</h3>
-                  <ol className="space-y-2 list-decimal list-inside">
-                    {instructions.map((instruction, index) => (
-                      <li key={index} className="text-muted-foreground">
-                        {instruction}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              )}
+            <div className="overflow-hidden w-full">
+              {children}
+            </div>
 
+            {instructions && (
               <div className="bg-muted/30 rounded-lg p-6">
-                <h2 className="text-2xl font-bold mb-2">Why Use Our {title}?</h2>
-                <h3 className="text-lg font-semibold text-muted-foreground mb-4">Key Features & Benefits</h3>
-                <ul className="space-y-2 list-disc list-inside text-muted-foreground">
-                  <li>100% Free online tool - No signup or registration required</li>
-                  <li>Fast and secure processing - All operations performed in your browser</li>
-                  <li>Works on any device - Desktop, tablet, or mobile</li>
-                  <li>Professional results - Enterprise-grade quality for free</li>
-                  <li>Privacy focused - Your data never leaves your device</li>
-                </ul>
+                <h2 className="text-2xl font-bold mb-2">How to Use {title}</h2>
+                <h3 className="text-lg font-semibold text-muted-foreground mb-4">Step-by-Step Guide for {title}</h3>
+                <ol className="space-y-2 list-decimal list-inside">
+                  {instructions.map((instruction, index) => (
+                    <li key={index} className="text-muted-foreground">
+                      {instruction}
+                    </li>
+                  ))}
+                </ol>
               </div>
+            )}
 
-              <ToolRating toolPath={location.pathname} />
-
-              <ToolFAQ toolName={title} />
-
-              {relatedTools && relatedTools.length > 0 && (
-                <div>
-                  <h2 className="text-xl font-semibold mb-4">Related Tools</h2>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {relatedTools.map((tool, index) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        onClick={() => navigate(tool.path)}
-                        className="justify-start"
-                      >
-                        {tool.name}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-            {/* Mobile Bottom Ad */}
-            <div className="md:hidden my-4">
-              <LazyAdSpace type="display" slot={getDisplayAdSlot(getAdIndex('bottom'))} className="w-full" />
-            </div>
-            
-            {/* Desktop Bottom Ad */}
-            <div className="hidden md:block my-4">
-              <LazyAdSpace type="display" slot={getDisplayAdSlot(getAdIndex('bottom'))} className="w-full" />
-            </div>
-          </div>
-        ) : (
-          /* Sidebar Layout: 10% left, 80% content, 10% right sticky ad */
-          <div className="flex gap-6 mt-8 w-full">
-            {/* Left Sidebar Ad */}
-            <div className="hidden xl:block flex-shrink-0" style={{ width: "160px", maxWidth: "160px" }}>
-              <div style={{ maxHeight: "600px", overflow: "hidden" }}>
-                <LazyAdSpace 
-                  type="display" 
-                  slot={getDisplayAdSlot(getAdIndex('sidebar-left'))}
-                  position="sidebar-left"
-                  className="w-full"
-                />
-              </div>
+            <div className="bg-muted/30 rounded-lg p-6">
+              <h2 className="text-2xl font-bold mb-2">Why Use Our {title}?</h2>
+              <h3 className="text-lg font-semibold text-muted-foreground mb-4">Key Features & Benefits</h3>
+              <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+                <li>100% Free online tool - No signup or registration required</li>
+                <li>Fast and secure processing - All operations performed in your browser</li>
+                <li>Works on any device - Desktop, tablet, or mobile</li>
+                <li>Professional results - Enterprise-grade quality for free</li>
+                <li>Privacy focused - Your data never leaves your device</li>
+              </ul>
             </div>
 
-            {/* Main Content */}
-            <div className="flex-1 space-y-8 overflow-hidden" style={{ maxWidth: "80%" }}>
+            <ToolRating toolPath={location.pathname} />
+
+            <ToolFAQ toolName={title} />
+
+            {relatedTools && relatedTools.length > 0 && (
               <div>
-                <div className="flex items-center gap-3 mb-4 flex-wrap">
-                  <Badge>{category}</Badge>
-                  <h1 className="text-3xl md:text-4xl font-bold break-words">{title}</h1>
+                <h2 className="text-xl font-semibold mb-4">Related Tools</h2>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {relatedTools.map((tool, index) => (
+                    <Button
+                      key={index}
+                      variant="outline"
+                      onClick={() => navigate(tool.path)}
+                      className="justify-start"
+                    >
+                      {tool.name}
+                    </Button>
+                  ))}
                 </div>
-                <p className="text-lg text-muted-foreground mb-4">{description}</p>
-
-                <ShareButtons
-                  title={title}
-                  description={description}
-                  url={`https://toolmaster.cloud${location.pathname}`}
-                />
               </div>
-
-              <div className="overflow-hidden">
-                {children}
-              </div>
-
-              {instructions && (
-                <div className="bg-muted/30 rounded-lg p-6">
-                  <h2 className="text-2xl font-bold mb-2">How to Use This {category} Tool</h2>
-                  <h3 className="text-lg font-semibold text-muted-foreground mb-4">Step-by-Step Guide for {title}</h3>
-                  <ol className="space-y-2 list-decimal list-inside">
-                    {instructions.map((instruction, index) => (
-                      <li key={index} className="text-muted-foreground">
-                        {instruction}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              )}
-
-              <div className="bg-muted/30 rounded-lg p-6">
-                <h2 className="text-2xl font-bold mb-2">Why Use Our {title}?</h2>
-                <h3 className="text-lg font-semibold text-muted-foreground mb-4">Key Features & Benefits</h3>
-                <ul className="space-y-2 list-disc list-inside text-muted-foreground">
-                  <li>100% Free online tool - No signup or registration required</li>
-                  <li>Fast and secure processing - All operations performed in your browser</li>
-                  <li>Works on any device - Desktop, tablet, or mobile</li>
-                  <li>Professional results - Enterprise-grade quality for free</li>
-                  <li>Privacy focused - Your data never leaves your device</li>
-                </ul>
-              </div>
-
-              <ToolRating toolPath={location.pathname} />
-
-              <ToolFAQ toolName={title} />
-
-              {relatedTools && relatedTools.length > 0 && (
-                <div>
-                  <h2 className="text-xl font-semibold mb-4">Related Tools</h2>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {relatedTools.map((tool, index) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        onClick={() => navigate(tool.path)}
-                        className="justify-start"
-                      >
-                        {tool.name}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Right Sidebar Ad */}
-            <div className="hidden xl:block flex-shrink-0" style={{ width: "160px", maxWidth: "160px" }}>
-              <div style={{ maxHeight: "600px", overflow: "hidden" }}>
-                <LazyAdSpace 
-                  type="display" 
-                  slot={getDisplayAdSlot(getAdIndex('sidebar-right'))}
-                  position="sidebar-right"
-                  className="w-full"
-                />
-              </div>
-            </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
