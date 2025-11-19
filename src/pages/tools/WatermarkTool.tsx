@@ -39,11 +39,8 @@ import {
   Star,
   ImagePlus,
 } from "lucide-react";
-import { AdWatchModal } from "@/components/AdWatchModal";
 import { SEOHead } from "@/components/SEOHead";
 import { LazyAdSpace } from "@/components/LazyAdSpace";
-import { AdRow } from "@/components/AdRow";
-import { getDisplayAdSlot, getAdIndex } from "@/utils/adSlotRotation";
 import JSZip from "jszip";
 
 type WatermarkType = "text" | "image" | "qrcode";
@@ -204,8 +201,6 @@ const WatermarkTool = () => {
   const [config, setConfig] = useState<WatermarkConfig>(DEFAULT_CONFIG);
 
   // UI states
-  const [showAdModal, setShowAdModal] = useState(false);
-  const [canDownload, setCanDownload] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
 
@@ -743,11 +738,6 @@ const WatermarkTool = () => {
       return;
     }
 
-    if (!canDownload) {
-      setShowAdModal(true);
-      return;
-    }
-
     if (images.length > 1) {
       handleBatchDownload();
     } else {
@@ -921,7 +911,14 @@ const WatermarkTool = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
           {/* Top Leaderboard Ad */}
           <div className="lg:col-span-2 min-h-[100px]">
-            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex("watermark-top"))} format="horizontal" />
+            <div className="flex items-center justify-center border-2 border-dashed border-border/50 rounded-lg bg-muted/30" style={{ minHeight: "90px" }}>
+              <ins 
+                className="adsbygoogle"
+                style={{ display: "inline-block", width: "800px", height: "200px" }}
+                data-ad-client="ca-pub-7382531001943020"
+                data-ad-slot="4838473293"
+              />
+            </div>
           </div>
 
           {/* Left Column - Controls */}
@@ -1839,7 +1836,14 @@ const WatermarkTool = () => {
 
           {/* Bottom Ad Row */}
           <div className="lg:col-span-2 min-h-[100px] mt-6">
-            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex("watermark-bottom"))} format="horizontal" />
+            <div className="flex items-center justify-center border-2 border-dashed border-border/50 rounded-lg bg-muted/30" style={{ minHeight: "90px" }}>
+              <ins 
+                className="adsbygoogle"
+                style={{ display: "inline-block", width: "800px", height: "200px" }}
+                data-ad-client="ca-pub-7382531001943020"
+                data-ad-slot="4838473293"
+              />
+            </div>
           </div>
         </div>
 
@@ -1914,21 +1918,6 @@ const WatermarkTool = () => {
         </div>
       </ToolLayout>
 
-      <AdWatchModal
-        isOpen={showAdModal}
-        onClose={() => setShowAdModal(false)}
-        onAdComplete={() => {
-          setCanDownload(true);
-          setShowAdModal(false);
-          if (images.length > 1) {
-            handleBatchDownload();
-          } else {
-            downloadSingleImage();
-          }
-        }}
-        title="Watch ad to download watermarked image"
-        description="Please watch this short ad to download your watermarked image."
-      />
     </>
   );
 };
