@@ -142,7 +142,7 @@ const PRESET_TEMPLATES: Preset[] = [
     config: {
       ...DEFAULT_CONFIG,
       text: "Your Company™",
-      position: "bottom-center",
+      position: "bottom-right",
       opacity: 60,
       fontSize: 42,
       color: "#ffffff",
@@ -909,18 +909,19 @@ const WatermarkTool = () => {
         title="Free Online Watermark Tool - Add Watermarks to Images | ToolMaster.cloud"
         description="Professional watermark tool to protect your images. Add text or logo watermarks, batch process multiple images, drag & drop positioning, custom presets, and export in PNG/JPG/WebP. Free online watermarking software."
         keywords="watermark tool, add watermark to image, image watermark, photo watermark, bulk watermark, batch watermark images, watermark maker, online watermark tool, free watermark software, logo watermark, text watermark, protect images, copyright images, image protection, watermark generator, custom watermark, transparent watermark, watermark app, watermark creator, add logo to photo, brand protection, image security, batch image processing, watermark multiple images, professional watermark, photography watermark"
-        canonicalUrl="https://toolmaster.cloud/tools/watermark"
+        canonical="https://toolmaster.cloud/tools/watermark"
         ogImage="https://toolmaster.cloud/og-watermark-tool.jpg"
       />
 
       <ToolLayout
         title="Advanced Watermark Tool"
         description="Add professional watermarks to protect your images. Supports text, logo, batch processing, and custom positioning."
+        category="Image Tools"
       >
         <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
           {/* Top Leaderboard Ad */}
           <div className="lg:col-span-2 min-h-[100px]">
-            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex())} format="horizontal" />
+            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex("watermark-top"))} format="horizontal" />
           </div>
 
           {/* Left Column - Controls */}
