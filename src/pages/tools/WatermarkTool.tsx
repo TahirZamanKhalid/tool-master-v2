@@ -39,6 +39,7 @@ import {
   Star,
   ImagePlus,
 } from "lucide-react";
+import { AdWatchModal } from "@/components/AdWatchModal";
 import { SEOHead } from "@/components/SEOHead";
 import { LazyAdSpace } from "@/components/LazyAdSpace";
 import JSZip from "jszip";
@@ -201,6 +202,8 @@ const WatermarkTool = () => {
   const [config, setConfig] = useState<WatermarkConfig>(DEFAULT_CONFIG);
 
   // UI states
+  const [showAdModal, setShowAdModal] = useState(false);
+  const [canDownload, setCanDownload] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isBatchProcessing, setIsBatchProcessing] = useState(false);
 
@@ -735,6 +738,11 @@ const WatermarkTool = () => {
   const handleDownload = () => {
     if (!originalImage) {
       toast.error("Please upload an image first");
+      return;
+    }
+
+    if (!canDownload) {
+      setShowAdModal(true);
       return;
     }
 
@@ -1918,6 +1926,21 @@ const WatermarkTool = () => {
         </div>
       </ToolLayout>
 
+      <AdWatchModal
+        isOpen={showAdModal}
+        onClose={() => setShowAdModal(false)}
+        onAdComplete={() => {
+          setCanDownload(true);
+          setShowAdModal(false);
+          if (images.length > 1) {
+            handleBatchDownload();
+          } else {
+            downloadSingleImage();
+          }
+        }}
+        title="Watch ad to download watermarked image"
+        description="Please watch this short ad to download your watermarked image."
+      />
     </>
   );
 };
