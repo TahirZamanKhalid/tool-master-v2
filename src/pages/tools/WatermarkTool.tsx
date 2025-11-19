@@ -1839,7 +1839,7 @@ const WatermarkTool = () => {
 
           {/* Bottom Ad Row */}
           <div className="lg:col-span-2 min-h-[100px] mt-6">
-            <AdRow />
+            <LazyAdSpace slot={getDisplayAdSlot(getAdIndex("watermark-bottom"))} format="horizontal" />
           </div>
         </div>
 
