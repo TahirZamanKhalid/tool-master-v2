@@ -1261,7 +1261,7 @@ const AdvancedImageEditor = () => {
 
         {/* Bottom Ad Row */}
         <div className="mt-6">
-          <AdRow type="display" count={3} position="bottom" />
+          <AdRow />
         </div>
       </div>
 

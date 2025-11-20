@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
-import { ProcessingOverlay } from "@/components/ProcessingOverlay";
+import { AdWatchModal } from "@/components/AdWatchModal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -221,12 +221,10 @@ const ImageCompressor = () => {
       </ToolLayout>
 
       {showAdOverlay && (
-        <ProcessingOverlay
-          message="Compression complete! Please view the ad to enable download."
-          minAdViewTime={5}
+        <AdWatchModal
+          isOpen={showAdOverlay}
+          onClose={() => setShowAdOverlay(false)}
           onAdComplete={handleAdComplete}
-          showSkip={canDownload}
-          onSkip={() => setShowAdOverlay(false)}
         />
       )}
     </>

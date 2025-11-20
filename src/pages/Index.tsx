@@ -8,6 +8,7 @@ import { HowItWorks } from "@/components/HowItWorks";
 import { FAQ } from "@/components/FAQ";
 import { SEOHead } from "@/components/SEOHead";
 import { trackSearch } from "@/hooks/useToolAnalytics";
+import { AdRow } from "@/components/AdRow";
 import { useState, useEffect, useMemo } from "react";
 import { allTools } from "@/data/allTools";
 import {
@@ -314,6 +315,11 @@ const Index = () => {
           )}
         </div>
       </section>
+
+      {/* Ad Row after Categories */}
+      <div className="container">
+        <AdRow />
+      </div>
 
       {!searchQuery && !selectedCategory && <HowItWorks />}
 
