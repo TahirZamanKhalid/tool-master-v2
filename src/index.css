@@ -8,7 +8,8 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 248 100% 98%;
+    /* Vibrant, colorful light theme with professional gradients */
+    --background: 210 100% 97%;
     --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
@@ -17,31 +18,50 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 221 83% 53%;
+    /* Vibrant primary colors - electric blue to purple gradient */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 160 84% 39%;
+    /* Vibrant secondary - teal/cyan */
+    --secondary: 180 90% 50%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 17% 93%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 210 20% 95%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 262 83% 58%;
+    /* Vibrant accent - electric purple/magenta */
+    --accent: 280 89% 62%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 221 83% 53%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --gradient-primary: linear-gradient(135deg, hsl(221 83% 53%), hsl(262 83% 58%));
-    --gradient-hero: linear-gradient(135deg, hsl(221 83% 53% / 0.1), hsl(262 83% 58% / 0.1));
-    --shadow-card: 0 4px 6px -1px hsl(221 83% 53% / 0.1), 0 2px 4px -2px hsl(221 83% 53% / 0.1);
-    --shadow-card-hover: 0 20px 25px -5px hsl(221 83% 53% / 0.15), 0 8px 10px -6px hsl(221 83% 53% / 0.1);
+    /* Colorful animated gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(280 89% 62%), hsl(330 85% 65%));
+    --gradient-secondary: linear-gradient(135deg, hsl(180 90% 50%), hsl(200 90% 55%));
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 60% / 0.08), hsl(280 89% 62% / 0.08), hsl(330 85% 65% / 0.08));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(210 100% 99%));
+
+    /* Vibrant shadows with colored tints */
+    --shadow-card: 0 4px 6px -1px hsl(217 91% 60% / 0.12), 0 2px 4px -2px hsl(217 91% 60% / 0.08);
+    --shadow-card-hover: 0 20px 25px -5px hsl(217 91% 60% / 0.25), 0 8px 10px -6px hsl(280 89% 62% / 0.15);
+    --shadow-glow: 0 0 30px hsl(217 91% 60% / 0.3), 0 0 60px hsl(280 89% 62% / 0.2);
+
+    /* Additional colorful accents */
+    --color-orange: 30 100% 60%;
+    --color-pink: 330 85% 65%;
+    --color-green: 150 80% 50%;
+    --color-yellow: 45 100% 60%;
+    --color-red: 0 90% 65%;
+    --color-blue: 217 91% 60%;
+    --color-purple: 280 89% 62%;
+    --color-teal: 180 90% 50%;
   }
 
   .dark {
@@ -104,21 +124,103 @@ body {
 @layer utilities {
   .gradient-primary {
     background: var(--gradient-primary);
+    background-size: 200% 200%;
   }
-  
+
+  .gradient-secondary {
+    background: var(--gradient-secondary);
+    background-size: 200% 200%;
+  }
+
   .gradient-hero {
     background: var(--gradient-hero);
+    background-size: 200% 200%;
   }
-  
+
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+
   .shadow-card {
     box-shadow: var(--shadow-card);
   }
-  
+
   .shadow-card-hover {
     box-shadow: var(--shadow-card-hover);
   }
-  
+
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
   .transition-smooth {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .transition-bounce {
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  /* Glassmorphism effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  /* Shimmer effect for buttons and cards */
+  .shimmer-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-effect::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    background: var(--gradient-primary);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+  }
+
+  /* Hover lift effect */
+  .hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-8px) scale(1.02);
+  }
+
+  /* Animated border gradient */
+  .border-gradient {
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+  }
+
+  .border-gradient::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: var(--gradient-primary);
+    border-radius: inherit;
+    z-index: -1;
   }
 }
