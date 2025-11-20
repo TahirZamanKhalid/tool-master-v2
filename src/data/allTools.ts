@@ -15,22 +15,22 @@ import {
 
 export const allTools = [
   // AI & Content (9)
-  { icon: MessageSquare, title: "AI Chat", description: "Chat with AI powered by Google Gemini 2.5 Pro", category: "AI & Content", path: "/tools/ai-chat", popular: true },
+  { icon: MessageSquare, title: "Free Online AI Chat", description: "Free online AI chatbot powered by Google Gemini 2.5 Pro - Chat with AI assistant for instant answers", category: "AI & Content", path: "/tools/ai-chat", popular: true },
   { icon: Captions, title: "Caption Generator", description: "Generate engaging social media captions with AI", category: "AI & Content", path: "/tools/caption-generator" },
-  { icon: Shield, title: "Premium Plagiarism & AI Detector", description: "Advanced plagiarism detection, AI content analysis, and intelligent text rephrasing with real-time visualizations", category: "AI & Content", path: "/tools/premium-plagiarism-ai-tool", popular: true },
+  { icon: Shield, title: "Free Online Plagiarism Checker & AI Detector", description: "Best free online plagiarism checker and AI content detector - Advanced plagiarism detection with real-time visualizations", category: "AI & Content", path: "/tools/premium-plagiarism-ai-tool", popular: true },
   { icon: RefreshCw, title: "Text Rephraser", description: "Rephrase text with different tones using AI", category: "AI & Content", path: "/tools/text-rephraser" },
-  { icon: PenTool, title: "Essay Writer", description: "Generate academic essays with AI", category: "AI & Content", path: "/tools/essay-writer", popular: true },
+  { icon: PenTool, title: "Free Online Essay Writer", description: "Best free online essay writer AI - Generate academic essays instantly with AI", category: "AI & Content", path: "/tools/essay-writer", popular: true },
   { icon: BookOpen, title: "Thesis Writer", description: "Generate thesis and dissertation content with AI", category: "AI & Content", path: "/tools/thesis-writer" },
-  { icon: Newspaper, title: "Blog Article Writer", description: "Generate SEO-optimized blog articles with AI", category: "AI & Content", path: "/tools/blog-article-writer", popular: true },
+  { icon: Newspaper, title: "Free Online Blog Article Writer", description: "Best free online blog writer AI - Generate SEO-optimized blog articles instantly", category: "AI & Content", path: "/tools/blog-article-writer", popular: true },
   { icon: Zap, title: "Text to Speech", description: "Convert text to natural-sounding speech", category: "AI & Content", path: "/tools/text-to-speech" },
 
   // Image Tools (15)
-  { icon: Edit, title: "Advanced Image Editor", description: "Professional image editor with filters, text, crop, rotate, and drawing tools", category: "Image Tools", path: "/tools/advanced-image-editor", popular: true },
-  { icon: Paintbrush, title: "Watermark Tool", description: "Add text or image watermarks to protect your photos and images", category: "Image Tools", path: "/tools/watermark-tool", popular: true },
-  { icon: Images, title: "Photo Collage Maker", description: "Create beautiful photo collages with multiple layout templates and customization options", category: "Image Tools", path: "/tools/photo-collage-maker", popular: true },
-  { icon: Film, title: "GIF Maker", description: "Create animated GIFs from multiple images with customizable speed and quality", category: "Image Tools", path: "/tools/gif-maker", popular: true },
-  { icon: Eraser, title: "Background Remover", description: "Remove image backgrounds instantly with AI", category: "Image Tools", path: "/tools/background-remover", popular: true },
-  { icon: Image, title: "Image Compressor", description: "Reduce image file size without losing quality", category: "Image Tools", path: "/tools/image-compressor" },
+  { icon: Edit, title: "Free Online Image Editor", description: "Best free online photo editor - Professional image editing with filters, text, crop, rotate, and drawing tools", category: "Image Tools", path: "/tools/advanced-image-editor", popular: true },
+  { icon: Paintbrush, title: "Free Online Watermark Tool", description: "Best free online watermark maker - Add text or image watermarks to protect your photos", category: "Image Tools", path: "/tools/watermark-tool", popular: true },
+  { icon: Images, title: "Free Online Photo Collage Maker", description: "Best free online collage maker - Create beautiful photo collages with multiple layout templates", category: "Image Tools", path: "/tools/photo-collage-maker", popular: true },
+  { icon: Film, title: "Free Online GIF Maker", description: "Best free online GIF maker - Create animated GIFs from images with customizable speed and quality", category: "Image Tools", path: "/tools/gif-maker", popular: true },
+  { icon: Eraser, title: "Free Online Background Remover", description: "Best free online background remover - Remove image backgrounds instantly with AI", category: "Image Tools", path: "/tools/background-remover", popular: true },
+  { icon: Image, title: "Free Online Image Compressor", description: "Best free online image compressor - Reduce image file size without losing quality", category: "Image Tools", path: "/tools/image-compressor", popular: true },
   { icon: Palette, title: "Color Picker", description: "Pick colors and generate palettes", category: "Image Tools", path: "/tools/color-picker" },
   { icon: Image, title: "Image Resizer", description: "Resize images to custom dimensions", category: "Image Tools", path: "/tools/image-resizer" },
   { icon: Crop, title: "Image Cropper", description: "Crop images to your desired size", category: "Image Tools", path: "/tools/image-cropper" },
@@ -42,7 +42,7 @@ export const allTools = [
   { icon: Images, title: "Images to PDF", description: "Convert multiple images to PDF", category: "Image Tools", path: "/tools/images-to-pdf" },
 
   // Developer Tools (21)
-  { icon: Code, title: "JSON Formatter", description: "Format and validate JSON data", category: "Developer Tools", path: "/tools/json-formatter" },
+  { icon: Code, title: "Online JSON Formatter", description: "Best free online JSON formatter and validator - Format and beautify JSON data instantly", category: "Developer Tools", path: "/tools/json-formatter", popular: true },
   { icon: Link2, title: "URL Encoder", description: "Encode and decode URLs safely", category: "Developer Tools", path: "/tools/url-encoder" },
   { icon: Hash, title: "Hash Generator", description: "Generate cryptographic hashes", category: "Developer Tools", path: "/tools/hash-generator" },
   { icon: Key, title: "UUID Generator", description: "Generate unique identifiers", category: "Developer Tools", path: "/tools/uuid-generator" },
@@ -56,7 +56,7 @@ export const allTools = [
   { icon: FileCode, title: "YAML Formatter", description: "Format and validate YAML files", category: "Developer Tools", path: "/tools/yaml-formatter" },
   { icon: Database, title: "SQL Formatter", description: "Format and beautify SQL queries", category: "Developer Tools", path: "/tools/sql-formatter" },
   { icon: Globe, title: "IP Lookup", description: "Get location and details of any IP", category: "Developer Tools", path: "/tools/ip-lookup" },
-  { icon: Send, title: "API Tester", description: "Test REST APIs with custom headers and methods", category: "Developer Tools", path: "/tools/api-tester" },
+  { icon: Send, title: "Online API Tool", description: "Free online REST API tester - Test HTTP requests, APIs with custom headers, authentication, and methods. Best API testing tool for developers", category: "Developer Tools", path: "/tools/api-tester", popular: true },
   { icon: FileJson, title: "JSON to YAML", description: "Convert JSON to YAML format", category: "Developer Tools", path: "/tools/json-to-yaml" },
   { icon: Code, title: "CSS Minifier", description: "Minify CSS code", category: "Developer Tools", path: "/tools/css-minifier" },
   { icon: Code, title: "JavaScript Minifier", description: "Minify JavaScript code", category: "Developer Tools", path: "/tools/javascript-minifier" },
@@ -65,22 +65,22 @@ export const allTools = [
   { icon: Code, title: "JSON Validator", description: "Validate JSON syntax", category: "Developer Tools", path: "/tools/json-validator" },
 
   // QR & Barcodes (5)
-  { icon: QrCode, title: "QR Code Generator", description: "Create custom QR codes with logos and colors", category: "QR & Barcodes", path: "/tools/qr-code-generator", popular: true },
+  { icon: QrCode, title: "Free Online QR Code Generator", description: "Best free online QR code generator - Create custom QR codes with logos and colors", category: "QR & Barcodes", path: "/tools/qr-code-generator", popular: true },
   { icon: Barcode, title: "Barcode Generator", description: "Generate various barcode formats", category: "QR & Barcodes", path: "/tools/barcode-generator" },
   { icon: ScanLine, title: "QR Scanner", description: "Scan QR codes from images or camera", category: "QR & Barcodes", path: "/tools/qr-scanner" },
   { icon: ScanLine, title: "Barcode Scanner", description: "Scan and decode barcodes", category: "QR & Barcodes", path: "/tools/barcode-scanner" },
   { icon: Wifi, title: "WiFi QR Generator", description: "Generate WiFi QR codes", category: "QR & Barcodes", path: "/tools/wifi-qr" },
 
   // PDF Tools (6)
-  { icon: Edit, title: "PDF Editor", description: "Edit PDF files online - add text, highlights, and annotations", category: "PDF Tools", path: "/tools/pdf-editor", popular: true },
-  { icon: FileDown, title: "PDF Merger", description: "Combine multiple PDFs into a single document", category: "PDF Tools", path: "/tools/pdf-merger", popular: true },
+  { icon: Edit, title: "Free Online PDF Editor", description: "Best free online PDF editor - Edit PDF files, add text, highlights, and annotations", category: "PDF Tools", path: "/tools/pdf-editor", popular: true },
+  { icon: FileDown, title: "Free Online PDF Merger", description: "Best free online PDF merger - Combine multiple PDFs into a single document", category: "PDF Tools", path: "/tools/pdf-merger", popular: true },
   { icon: Scissors, title: "PDF Splitter", description: "Split PDF into multiple files", category: "PDF Tools", path: "/tools/pdf-splitter" },
   { icon: Minimize2, title: "PDF Optimizer", description: "Optimize PDF file structure to reduce size", category: "PDF Tools", path: "/tools/pdf-compressor" },
   { icon: FileType, title: "PDF to Text", description: "Extract text from PDF files", category: "PDF Tools", path: "/tools/pdf-to-text" },
   { icon: Images, title: "Images to PDF", description: "Convert images to PDF", category: "PDF Tools", path: "/tools/images-to-pdf" },
 
   // Text Tools (23)
-  { icon: Type, title: "Word Counter", description: "Count words, characters, and analyze text", category: "Text Tools", path: "/tools/word-counter" },
+  { icon: Sparkles, title: "Free Online Word Counter", description: "Best free online word counter - Advanced text analysis with reading time, readability scores, and keyword density", category: "Text Tools", path: "/tools/premium-plus-word-counter", popular: true },
   { icon: Type, title: "Case Converter", description: "Convert text between different cases", category: "Text Tools", path: "/tools/case-converter" },
   { icon: FileCode, title: "Markdown Preview", description: "Write and preview markdown in real-time", category: "Text Tools", path: "/tools/markdown-preview" },
   { icon: AlignLeft, title: "Lorem Ipsum", description: "Generate placeholder text", category: "Text Tools", path: "/tools/lorem-ipsum" },
@@ -104,13 +104,13 @@ export const allTools = [
   { icon: Type, title: "Text Compare", description: "Compare two texts side by side", category: "Text Tools", path: "/tools/text-compare" },
   { icon: Shuffle, title: "Word Scrambler", description: "Scramble words randomly", category: "Text Tools", path: "/tools/word-scrambler" },
 
-  // Premium Video Tools (6) - State-of-the-art video editing suite
-  { icon: Sparkles, title: "Premium Video Editor", description: "Professional video editing with filters, effects, color adjustments, speed control, rotation, and more", category: "Premium Video Tools", path: "/tools/premium-video-editor", popular: true },
-  { icon: Minimize2, title: "Premium Video Compressor", description: "Advanced video compression with multiple codecs (H.264, H.265, VP9), quality presets, resolution control, and format conversion", category: "Premium Video Tools", path: "/tools/premium-video-compressor", popular: true },
-  { icon: Layers, title: "Premium Video Merger", description: "Combine multiple videos with custom ordering, transitions, quality control, and batch processing", category: "Premium Video Tools", path: "/tools/premium-video-merger", popular: true },
-  { icon: Shield, title: "Premium Video Watermark", description: "Add professional text or image watermarks with full customization of position, size, opacity, and styling", category: "Premium Video Tools", path: "/tools/premium-video-watermark", popular: true },
-  { icon: Scissors, title: "Video Trimmer", description: "Trim and cut videos with precision controls", category: "Premium Video Tools", path: "/tools/video-trimmer" },
-  { icon: Film, title: "Video to GIF", description: "Convert videos to high-quality animated GIFs with custom settings", category: "Premium Video Tools", path: "/tools/video-to-gif" },
+  // Video Tools (6) - State-of-the-art video editing suite
+  { icon: Sparkles, title: "Free Online Video Editor", description: "Best free online video editor - Professional video editing with filters, effects, and speed control", category: "Video Tools", path: "/tools/premium-video-editor", popular: true },
+  { icon: Minimize2, title: "Free Online Video Compressor", description: "Best free online video compressor - Advanced video compression with multiple codecs and quality presets", category: "Video Tools", path: "/tools/premium-video-compressor", popular: true },
+  { icon: Layers, title: "Free Online Video Merger", description: "Best free online video merger - Combine multiple videos with transitions and quality control", category: "Video Tools", path: "/tools/premium-video-merger", popular: true },
+  { icon: Shield, title: "Free Online Video Watermark Tool", description: "Best free online video watermark tool - Add professional watermarks to videos", category: "Video Tools", path: "/tools/premium-video-watermark", popular: true },
+  { icon: Scissors, title: "Video Trimmer", description: "Trim and cut videos with precision controls", category: "Video Tools", path: "/tools/video-trimmer" },
+  { icon: Film, title: "Video to GIF", description: "Convert videos to high-quality animated GIFs with custom settings", category: "Video Tools", path: "/tools/video-to-gif" },
 
   // SEO & Marketing (8)
   { icon: TrendingUp, title: "Meta Tag Generator", description: "Generate SEO meta tags", category: "SEO & Marketing", path: "/tools/meta-tag-generator" },
@@ -124,7 +124,7 @@ export const allTools = [
 
   // Calculators (14)
   { icon: DollarSign, title: "Currency Converter", description: "Convert between world currencies", category: "Calculators", path: "/tools/currency-converter" },
-  { icon: Scale, title: "Unit Converter", description: "Convert units of measurement", category: "Calculators", path: "/tools/unit-converter" },
+  { icon: Ruler, title: "Free Online Unit Converter", description: "Best free online unit converter - Convert units with history tracking and 8 categories", category: "Calculators", path: "/tools/premium-plus-unit-converter", popular: true },
   { icon: Percent, title: "Percentage Calculator", description: "Calculate percentages", category: "Calculators", path: "/tools/percentage-calculator" },
   { icon: Activity, title: "BMI Calculator", description: "Calculate Body Mass Index", category: "Calculators", path: "/tools/bmi-calculator" },
   { icon: Calendar, title: "Age Calculator", description: "Calculate your exact age", category: "Calculators", path: "/tools/age-calculator" },
@@ -134,11 +134,11 @@ export const allTools = [
   { icon: Shield, title: "Password Strength", description: "Check password strength", category: "Security Tools", path: "/tools/password-strength" },
   { icon: CreditCard, title: "Credit Card Validator", description: "Validate credit card numbers", category: "Security Tools", path: "/tools/credit-card-validator" },
 
-  // Utilities (9)
-  { icon: Dices, title: "Random Number", description: "Generate random numbers", category: "Utilities", path: "/tools/random-number" },
+  // Utilities (8)
+  { icon: Dices, title: "Online Random Number Generator", description: "Best free online random number generator - Generate random numbers with statistical analysis", category: "Utilities", path: "/tools/premium-plus-random-number-generator", popular: true },
   { icon: Dices, title: "Dice Roller", description: "Roll virtual dice", category: "Utilities", path: "/tools/dice-roller" },
   { icon: Timer, title: "Countdown Timer", description: "Set a countdown timer", category: "Utilities", path: "/tools/countdown-timer" },
-  { icon: Clock, title: "Stopwatch", description: "Precise stopwatch timer", category: "Utilities", path: "/tools/stopwatch" },
+  { icon: Timer, title: "Free Online Stopwatch", description: "Best free online multi-stopwatch - Multiple simultaneous stopwatches with lap timing", category: "Utilities", path: "/tools/premium-plus-multi-stopwatch", popular: true },
   { icon: Timer, title: "Pomodoro Timer", description: "Productivity timer", category: "Utilities", path: "/tools/pomodoro-timer" },
   { icon: Type, title: "Random String Generator", description: "Generate random strings", category: "Utilities", path: "/tools/random-string-generator" },
   { icon: Monitor, title: "IP Address Detector", description: "Detect your IP address", category: "Utilities", path: "/tools/ip-detector" },
@@ -146,7 +146,7 @@ export const allTools = [
   { icon: Coins, title: "Coin Flip", description: "Flip a virtual coin", category: "Utilities", path: "/tools/coin-flip" },
 
   // File Converters (7) - NEW HIGH-DEMAND TOOLS
-  { icon: ArrowRightLeft, title: "Excel to CSV", description: "Convert Excel files to CSV format instantly", category: "File Converters", path: "/tools/excel-to-csv", popular: true },
+  { icon: ArrowRightLeft, title: "Free Online Excel to CSV Converter", description: "Best free online Excel to CSV converter - Convert Excel files to CSV format instantly", category: "File Converters", path: "/tools/excel-to-csv", popular: true },
   { icon: ArrowRightLeft, title: "CSV to Excel", description: "Convert CSV files to Excel (.xlsx) format", category: "File Converters", path: "/tools/csv-to-excel", popular: true },
   { icon: ImageDown, title: "PNG to JPG", description: "Convert PNG images to JPG format online", category: "File Converters", path: "/tools/png-to-jpg", popular: true },
   { icon: ImageDown, title: "JPG to PNG", description: "Convert JPG/JPEG images to PNG format", category: "File Converters", path: "/tools/jpg-to-png", popular: true },
@@ -154,15 +154,16 @@ export const allTools = [
   { icon: FileArchive, title: "PDF to Images", description: "Convert PDF pages to JPG or PNG images", category: "File Converters", path: "/tools/pdf-to-images", popular: true },
   { icon: ImageDown, title: "WebP to PNG", description: "Convert WebP images to PNG format", category: "File Converters", path: "/tools/webp-to-png" },
 
-  // Advanced Image Tools (1) - NEW
+  // Advanced Image Tools (2) - NEW
   { icon: Minimize2, title: "Advanced Image Compressor", description: "Compress images with full control over quality and format", category: "Image Tools", path: "/tools/advanced-image-compressor" },
+  { icon: Images, title: "Batch Image Resizer", description: "Resize multiple images at once with social media presets, custom dimensions, and batch export", category: "Image Tools", path: "/tools/premium-plus-batch-image-resizer", popular: true },
 
   // Business Tools (2) - NEW
   { icon: Receipt, title: "Invoice Generator", description: "Create professional invoices with PDF download", category: "Business Tools", path: "/tools/invoice-generator", popular: true },
   { icon: FileText, title: "Resume Builder", description: "Create professional resumes with live preview and customizable templates", category: "Business Tools", path: "/tools/resume-builder", popular: true },
 
   // Advanced Security Tools (1) - NEW
-  { icon: ShieldCheck, title: "Advanced Password Generator", description: "Generate ultra-secure passwords with full customization", category: "Security Tools", path: "/tools/advanced-password-generator", popular: true },
+  { icon: ShieldCheck, title: "Password Generator", description: "Generate ultra-secure passwords with full customization", category: "Security Tools", path: "/tools/advanced-password-generator", popular: true },
 
   // NEW TOOLS - Calculators (9)
   { icon: Calculator, title: "Tip Calculator", description: "Calculate tips and split bills easily for restaurants and services", category: "Calculators", path: "/tools/tip-calculator", popular: true },
@@ -203,10 +204,4 @@ export const allTools = [
   { icon: FileCheck, title: "Sitemap Validator", description: "Validate XML sitemap structure and check for errors", category: "SEO & Marketing", path: "/tools/sitemap-validator", popular: true },
   { icon: List, title: "Breadcrumb Generator", description: "Generate breadcrumb navigation with structured data for SEO", category: "SEO & Marketing", path: "/tools/breadcrumb-generator", popular: true },
 
-  // Premium Plus Tools (5) - Enhanced versions with advanced features
-  { icon: Sparkles, title: "Premium Plus Word Counter", description: "Advanced text analysis with reading time, writing analytics, readability scores, and keyword density", category: "Premium Plus", path: "/tools/premium-plus-word-counter", popular: true },
-  { icon: Images, title: "Premium Plus Batch Image Resizer", description: "Resize multiple images at once with social media presets, custom dimensions, and batch export", category: "Premium Plus", path: "/tools/premium-plus-batch-image-resizer", popular: true },
-  { icon: Ruler, title: "Premium Plus Unit Converter", description: "Convert units with conversion history tracking, 8 categories, and quick access to recent conversions", category: "Premium Plus", path: "/tools/premium-plus-unit-converter", popular: true },
-  { icon: Dices, title: "Premium Plus Random Number Generator", description: "Generate random numbers with multiple probability distributions (uniform, normal, exponential, poisson) and statistical analysis", category: "Premium Plus", path: "/tools/premium-plus-random-number-generator", popular: true },
-  { icon: Timer, title: "Premium Plus Multi-Stopwatch", description: "Multiple simultaneous stopwatches with lap timing, split analysis, and performance statistics", category: "Premium Plus", path: "/tools/premium-plus-multi-stopwatch", popular: true },
 ];

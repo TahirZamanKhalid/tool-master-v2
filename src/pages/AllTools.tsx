@@ -3,7 +3,6 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ToolCard } from "@/components/ToolCard";
 import { SEOHead } from "@/components/SEOHead";
-import { AdSpace } from "@/components/AdSpace";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { allTools } from "@/data/allTools";
@@ -27,7 +26,7 @@ const AllTools = () => {
         keywords="all tools, online tools, free tools"
       />
       <Header />
-      <main className="flex-1 py-12 container">
+      <main className="flex-1 py-12 container max-w-[1400px] mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4">All Tools</h1>
           <p className="text-muted-foreground mb-6">Browse all {allTools.length} tools</p>
@@ -39,11 +38,9 @@ const AllTools = () => {
           />
         </div>
 
-        <AdSpace size="leaderboard" className="mb-8" />
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredTools.map((tool, index) => (
-            <div key={index} onClick={() => navigate(tool.path)}>
+            <div key={index} onClick={() => navigate(tool.path)} className="cursor-pointer">
               <ToolCard {...tool} />
             </div>
           ))}

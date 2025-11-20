@@ -6,160 +6,159 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, Download, Eraser } from "lucide-react";
+import { Upload, Download, Eraser, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SEOHead } from "@/components/SEOHead";
-import { removeBackground, loadImage } from "@/utils/backgroundRemoval";
-import { supabase } from "@/integrations/supabase/client";
+import { removeBackground, validateImageFile } from "@/utils/backgroundRemoval";
 
 const BackgroundRemover = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [showEditor, setShowEditor] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [showSkip, setShowSkip] = useState(false);
-  const [canDownload, setCanDownload] = useState(false);
-  const [showAdOverlay, setShowAdOverlay] = useState(false);
+  const [processingStage, setProcessingStage] = useState<string>("");
   const [backgroundColor, setBackgroundColor] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setSelectedImage(e.target?.result as string);
-        setProcessedImage(null);
-        setShowEditor(false);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Validate file
+    const validation = validateImageFile(file);
+    if (!validation.valid) {
+      toast({
+        title: "Invalid File",
+        description: validation.error,
+        variant: "destructive",
+      });
+      return;
     }
+
+    setSelectedFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setSelectedImage(e.target?.result as string);
+      setProcessedImage(null);
+      setShowEditor(false);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleRemoveBackground = async () => {
-    if (!selectedImage) return;
+    if (!selectedFile || !selectedImage) {
+      toast({
+        title: "No Image",
+        description: "Please select an image first",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsProcessing(true);
-    setProgress(5);
-    setShowSkip(false);
+    setProgress(0);
+    setProcessingStage("Initializing...");
 
     try {
       toast({
-        title: "Processing",
-        description: "Removing background locally for best quality (no credits used)...",
+        title: "Processing Started",
+        description: "AI is analyzing your image. This may take 10-30 seconds...",
       });
 
-      // 1) Try high-quality local matting first (WebGPU/CPU)
-      const originalResp = await fetch(selectedImage);
-      const originalBlob = await originalResp.blob();
-      const imageElement = await loadImage(originalBlob);
-
+      // Remove background using our own implementation
       const resultBlob = await removeBackground(
-        imageElement,
+        selectedFile,
         backgroundColor || undefined,
-        (p) => setProgress(Math.min(95, p))
+        (progressValue, stage, message) => {
+          setProgress(progressValue);
+          setProcessingStage(message);
+        }
       );
 
+      // Convert blob to base64 for display
       const reader = new FileReader();
       reader.onloadend = () => {
-        setProcessedImage(reader.result as string);
+        const base64 = reader.result as string;
+        setProcessedImage(base64);
         setIsProcessing(false);
-        setShowAdOverlay(true);
-        setCanDownload(false);
-        toast({ title: "Complete!", description: "Background removed with local AI." });
+        setProgress(100);
+        setProcessingStage("Complete!");
+        
+        toast({
+          title: "Success!",
+          description: "Background removed successfully. You can now download or edit the result.",
+        });
       };
       reader.readAsDataURL(resultBlob);
-    } catch (localError) {
-      console.warn("Local background removal failed, falling back to cloud:", localError);
-      try {
-        // 2) Fallback to Lovable AI (uses credits)
-        setProgress(30);
-        const { data, error } = await supabase.functions.invoke('remove-background', {
-          body: { imageUrl: selectedImage }
-        });
-        if (error) throw new Error(error.message || 'Failed to remove background');
-        if (!data?.processedImage) throw new Error('No processed image received');
 
-        let finalImage: string = data.processedImage;
-        if (backgroundColor) {
-          const img = new Image();
-          await new Promise((resolve, reject) => {
-            img.onload = resolve;
-            img.onerror = reject;
-            img.src = data.processedImage;
-          });
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.fillStyle = backgroundColor;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
-            finalImage = canvas.toDataURL('image/png');
-          }
-        }
-
-        setProgress(100);
-        setProcessedImage(finalImage);
-        setIsProcessing(false);
-        setShowAdOverlay(true);
-        setCanDownload(false);
-        toast({ title: "Complete!", description: "Background removed with cloud AI." });
-      } catch (cloudError) {
-        console.error("Background removal error:", cloudError);
-        toast({
-          title: "Error",
-          description: cloudError instanceof Error ? cloudError.message : "Failed to remove background. Please try again.",
-          variant: "destructive",
-        });
-        setIsProcessing(false);
-      }
+    } catch (error) {
+      console.error("Background removal error:", error);
+      setIsProcessing(false);
+      
+      toast({
+        title: "Error",
+        description: error instanceof Error 
+          ? error.message 
+          : "Failed to remove background. Please try again with a different image.",
+        variant: "destructive",
+      });
     }
-  };
-
-  const handleAdComplete = () => {
-    setCanDownload(true);
-    setShowEditor(true);
-    toast({
-      title: "Success!",
-      description: "Background removed. You can now download or edit the result.",
-    });
   };
 
   const downloadImage = () => {
     if (!processedImage) return;
     
     const link = document.createElement("a");
-    link.download = "background-removed.png";
+    const timestamp = new Date().getTime();
+    link.download = `background-removed-${timestamp}.png`;
     link.href = processedImage;
     link.click();
+
+    toast({
+      title: "Downloaded",
+      description: "Image saved successfully!",
+    });
+  };
+
+  const resetAll = () => {
+    setSelectedImage(null);
+    setSelectedFile(null);
+    setProcessedImage(null);
+    setShowEditor(false);
+    setBackgroundColor("");
+    setProgress(0);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   return (
     <>
       <SEOHead
-        title="AI Background Remover"
-        description="Remove image backgrounds instantly with state-of-the-art AI technology - no manual editing needed!"
-        keywords="background remover, remove background, AI background removal, transparent background"
+        title="Free AI Background Remover - Remove Image Background Online"
+        description="Remove image backgrounds instantly with powerful AI technology. 100% free, no signup required. Process images entirely in your browser for maximum privacy."
+        keywords="background remover, remove background, AI background removal, transparent background, free background remover, online background removal"
         canonical="https://toolmaster.cloud/tools/background-remover"
       />
       <ToolLayout
         title="AI Background Remover"
-        description="Remove image backgrounds instantly with state-of-the-art AI technology - no manual editing needed!"
+        description="Remove image backgrounds instantly with state-of-the-art AI technology. Completely free and private - all processing happens in your browser!"
         category="Image Tools"
         instructions={[
-          "Upload any image (portrait, product, object, etc.)",
-          "Optionally choose a background color to replace the removed background",
-          "AI automatically detects and removes background with precision",
-          "Download transparent PNG or use brush tools for fine-tuning",
-          "Optional: Use erase/keep brushes if you want to refine the result",
+          "Upload any image (portrait, product, object, pet, etc.)",
+          "Optionally choose a background color to replace transparency",
+          "AI automatically detects and removes background with high precision",
+          "Download as transparent PNG or with custom background color",
+          "Use the editor for fine-tuning if needed",
+          "All processing is done locally in your browser - no uploads, maximum privacy!",
         ]}
         relatedTools={[
           { name: "Image Compressor", path: "/tools/image-compressor" },
           { name: "Image Resizer", path: "/tools/image-resizer" },
+          { name: "Image Converter", path: "/tools/image-converter" },
         ]}
       >
         <Card className="p-6 space-y-6">
@@ -167,7 +166,7 @@ const BackgroundRemover = () => {
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
               onChange={handleImageSelect}
               className="hidden"
             />
@@ -175,12 +174,15 @@ const BackgroundRemover = () => {
             {!selectedImage ? (
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed rounded-lg p-12 text-center cursor-pointer hover:border-primary transition-smooth"
+                className="border-2 border-dashed rounded-lg p-12 text-center cursor-pointer hover:border-primary transition-smooth hover:bg-accent/5"
               >
                 <Upload className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-lg font-medium mb-2">Click to upload image</p>
                 <p className="text-sm text-muted-foreground">
                   Supports PNG, JPG, WebP (Max 10MB)
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  🔒 100% Private - All processing happens in your browser
                 </p>
               </div>
             ) : showEditor && processedImage ? (
@@ -192,21 +194,25 @@ const BackgroundRemover = () => {
             ) : (
               <>
                 {!processedImage && (
-                  <div className="space-y-3">
-                    <Label htmlFor="bgColor">Background Color (Optional)</Label>
+                  <div className="space-y-3 bg-accent/5 p-4 rounded-lg">
+                    <Label htmlFor="bgColor" className="text-base font-medium">
+                      Background Color (Optional)
+                    </Label>
                     <div className="flex gap-3 items-center">
-                      <Input
-                        id="bgColor"
-                        type="color"
-                        value={backgroundColor}
-                        onChange={(e) => setBackgroundColor(e.target.value)}
-                        className="w-20 h-10 cursor-pointer"
-                      />
+                      <div className="relative">
+                        <Input
+                          id="bgColor"
+                          type="color"
+                          value={backgroundColor || "#ffffff"}
+                          onChange={(e) => setBackgroundColor(e.target.value)}
+                          className="w-16 h-10 cursor-pointer p-1"
+                        />
+                      </div>
                       <Input
                         type="text"
                         value={backgroundColor}
                         onChange={(e) => setBackgroundColor(e.target.value)}
-                        placeholder="#ffffff or transparent"
+                        placeholder="Leave empty for transparent"
                         className="flex-1"
                       />
                       {backgroundColor && (
@@ -220,29 +226,38 @@ const BackgroundRemover = () => {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      Leave empty for transparent background
+                      💡 Leave empty for transparent background (.png), or choose a color
                     </p>
                   </div>
                 )}
                 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <p className="font-medium mb-2">Original</p>
-                    <img
-                      src={selectedImage}
-                      alt="Original"
-                      className="w-full rounded-lg border"
-                    />
+                    <p className="font-medium mb-2 flex items-center gap-2">
+                      <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                      Original Image
+                    </p>
+                    <div className="relative h-[400px] rounded-lg border shadow-sm overflow-hidden bg-gray-50">
+                      <img
+                        src={selectedImage}
+                        alt="Original"
+                        className="absolute inset-0 w-full h-full object-contain"
+                      />
+                    </div>
                   </div>
                   {processedImage && (
                     <div>
-                      <p className="font-medium mb-2">Background Removed</p>
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-[linear-gradient(45deg,#f0f0f0_25%,transparent_25%,transparent_75%,#f0f0f0_75%,#f0f0f0),linear-gradient(45deg,#f0f0f0_25%,transparent_25%,transparent_75%,#f0f0f0_75%,#f0f0f0)] bg-[length:20px_20px] bg-[position:0_0,10px_10px] rounded-lg"></div>
+                      <p className="font-medium mb-2 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                        Background Removed
+                      </p>
+                      <div className="relative h-[400px] rounded-lg overflow-hidden shadow-sm">
+                        {/* Checkered background to show transparency */}
+                        <div className="absolute inset-0 bg-[linear-gradient(45deg,#f0f0f0_25%,transparent_25%,transparent_75%,#f0f0f0_75%,#f0f0f0),linear-gradient(45deg,#f0f0f0_25%,transparent_25%,transparent_75%,#f0f0f0_75%,#f0f0f0)] bg-[length:20px_20px] bg-[position:0_0,10px_10px]"></div>
                         <img
                           src={processedImage}
                           alt="Processed"
-                          className="relative w-full rounded-lg"
+                          className="absolute inset-0 w-full h-full object-contain"
                         />
                       </div>
                     </div>
@@ -262,7 +277,7 @@ const BackgroundRemover = () => {
                   className="gradient-primary border-0"
                 >
                   <Eraser className="h-4 w-4 mr-2" />
-                  Remove Background
+                  {isProcessing ? "Processing..." : "Remove Background"}
                 </Button>
               )}
               
@@ -271,6 +286,7 @@ const BackgroundRemover = () => {
                   onClick={() => fileInputRef.current?.click()}
                   variant="outline"
                   size="lg"
+                  disabled={isProcessing}
                 >
                   <Upload className="h-4 w-4 mr-2" />
                   Upload New
@@ -278,35 +294,53 @@ const BackgroundRemover = () => {
               )}
               
               {processedImage && !showEditor && (
-                <Button 
-                  onClick={() => setShowEditor(true)} 
-                  size="lg" 
-                  variant="secondary"
-                >
-                  Edit Result
-                </Button>
+                <>
+                  <Button 
+                    onClick={downloadImage} 
+                    size="lg" 
+                    className="gradient-primary border-0"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+                  <Button 
+                    onClick={() => setShowEditor(true)} 
+                    size="lg" 
+                    variant="outline"
+                  >
+                    Edit Result
+                  </Button>
+                  <Button 
+                    onClick={resetAll} 
+                    size="lg" 
+                    variant="ghost"
+                  >
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Start Over
+                  </Button>
+                </>
               )}
             </div>
           )}
+
+          {/* Info section */}
+          <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h3 className="font-semibold text-sm mb-2 text-blue-900 dark:text-blue-100">
+              🔒 Privacy First
+            </h3>
+            <p className="text-xs text-blue-800 dark:text-blue-200">
+              Your images are processed entirely in your browser using AI. No uploads, no servers, 100% private and secure.
+            </p>
+          </div>
         </Card>
       </ToolLayout>
 
       {isProcessing && (
         <ProcessingOverlay
-          message="AI is removing background with high precision..."
+          message={processingStage}
           progress={progress}
           showSkip={false}
-          onSkip={() => setIsProcessing(false)}
-        />
-      )}
-
-      {showAdOverlay && (
-        <ProcessingOverlay
-          message="Processing complete! Please view the ad to enable download."
-          minAdViewTime={5}
-          onAdComplete={handleAdComplete}
-          showSkip={canDownload}
-          onSkip={() => setShowAdOverlay(false)}
+          onSkip={() => {}}
         />
       )}
     </>

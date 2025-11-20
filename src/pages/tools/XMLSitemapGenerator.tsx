@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download, Copy, Check, FileCode } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { SEOSchema } from "@/components/SEOSchema";
 
 interface URLEntry {
   loc: string;
@@ -86,13 +85,6 @@ const XMLSitemapGenerator = () => {
       description="Generate XML sitemaps for search engines. Help Google, Bing, and other search engines discover and index all pages on your website for better SEO."
       category="SEO & Marketing"
     >
-      <SEOSchema
-        type="SoftwareApplication"
-        name="XML Sitemap Generator"
-        description="Free tool to generate XML sitemaps for better search engine indexing"
-        url="https://toolmaster.cloud/tools/xml-sitemap-generator"
-      />
-
       <div className="grid gap-6 md:grid-cols-2">
         <div className="space-y-6">
           <Card>

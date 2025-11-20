@@ -3,7 +3,6 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ToolCard } from "@/components/ToolCard";
 import { SEOHead } from "@/components/SEOHead";
-import { AdSpace } from "@/components/AdSpace";
 import { allTools } from "@/data/allTools";
 
 const CategoryTools = () => {
@@ -20,11 +19,13 @@ const CategoryTools = () => {
     "text-tools": "Text Tools",
     "video-tools": "Video Tools",
     "seo-marketing": "SEO & Marketing",
-    "calculators": "Calculators",
+    calculators: "Calculators",
     "security-tools": "Security Tools",
-    "utilities": "Utilities",
+    utilities: "Utilities",
     "file-converters": "File Converters",
-    "business-tools": "Business Tools"
+    "business-tools": "Business Tools",
+    "social-media": "Social Media",
+    generators: "Generators",
   };
 
   const decodedCategory = categoryMap[category || ""] || "";
@@ -38,17 +39,15 @@ const CategoryTools = () => {
         keywords={`${decodedCategory}, tools, online tools`}
       />
       <Header />
-      <main className="flex-1 py-12 container">
+      <main className="flex-1 py-12 container max-w-[1400px] mx-auto px-4">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4">{decodedCategory}</h1>
           <p className="text-muted-foreground">{categoryTools.length} tools available</p>
         </div>
 
-        <AdSpace size="leaderboard" className="mb-8" />
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {categoryTools.map((tool, index) => (
-            <div key={index} onClick={() => navigate(tool.path)}>
+            <div key={index} onClick={() => navigate(tool.path)} className="cursor-pointer">
               <ToolCard {...tool} />
             </div>
           ))}

@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Globe, Calendar, ExternalLink } from "lucide-react";
-import { SEOSchema } from "@/components/SEOSchema";
 
 const DomainAgeChecker = () => {
   const [domain, setDomain] = useState("");
@@ -21,13 +20,6 @@ const DomainAgeChecker = () => {
       description="Check when a domain was registered and how old it is. Domain age is an important SEO factor that affects search engine rankings and trustworthiness."
       category="SEO & Marketing"
     >
-      <SEOSchema
-        type="SoftwareApplication"
-        name="Domain Age Checker"
-        description="Free tool to check domain registration date and age for SEO analysis"
-        url="https://toolmaster.cloud/tools/domain-age-checker"
-      />
-
       <div className="space-y-6">
         <Card>
           <CardHeader>

@@ -227,6 +227,7 @@ const App = () => (
         <Route path="/tools/image-cropper" element={<ImageCropper />} />
         <Route path="/tools/advanced-image-editor" element={<AdvancedImageEditor />} />
         <Route path="/tools/watermark-tool" element={<WatermarkTool />} />
+        <Route path="/tools/watermark" element={<WatermarkTool />} />
         <Route path="/tools/photo-collage-maker" element={<PhotoCollageMaker />} />
         <Route path="/tools/gif-maker" element={<GIFMaker />} />
         <Route path="/tools/meme-generator" element={<MemeGenerator />} />

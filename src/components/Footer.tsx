@@ -22,8 +22,8 @@ export const Footer = () => {
                 ToolMaster Pro
               </h3>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Your all-in-one platform for 100+ free online tools. Making your daily tasks easier and more efficient.
+            <p className="text-sm text-muted-foreground">
+              Your all-in-one platform for 100+ free online tools. Professional web-based utilities for developers, designers, and content creators. No signup required.
             </p>
             <div className="flex gap-3">
               <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-bounce hover:scale-125 p-2 rounded-lg hover:shadow-card">
@@ -42,32 +42,32 @@ export const Footer = () => {
           </div>
 
           {/* Tools Section */}
-          <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-            <h4 className="font-bold mb-4 text-gradient">Popular Tools</h4>
+          <div>
+            <h4 className="font-semibold mb-4">Top Free Online Tools</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/tools/background-remover" className="text-muted-foreground hover:text-primary transition-smooth hover:translate-x-1 inline-block">
-                  → Background Remover
+                <Link to="/tools/background-remover" className="text-muted-foreground hover:text-primary transition-colors">
+                  Free Background Remover Online
                 </Link>
               </li>
               <li>
-                <Link to="/tools/qr-code-generator" className="text-muted-foreground hover:text-primary transition-smooth hover:translate-x-1 inline-block">
-                  → QR Code Generator
+                <Link to="/tools/qr-code-generator" className="text-muted-foreground hover:text-primary transition-colors">
+                  QR Code Generator Free
                 </Link>
               </li>
               <li>
-                <Link to="/tools/pdf-merger" className="text-muted-foreground hover:text-primary transition-smooth hover:translate-x-1 inline-block">
-                  → PDF Merger
+                <Link to="/tools/pdf-merger" className="text-muted-foreground hover:text-primary transition-colors">
+                  Online PDF Merger Tool
                 </Link>
               </li>
               <li>
-                <Link to="/tools/image-compressor" className="text-muted-foreground hover:text-primary transition-smooth hover:translate-x-1 inline-block">
-                  → Image Compressor
+                <Link to="/tools/image-compressor" className="text-muted-foreground hover:text-primary transition-colors">
+                  Image Compressor Free
                 </Link>
               </li>
               <li>
-                <Link to="/tools/word-counter" className="text-muted-foreground hover:text-primary transition-smooth hover:translate-x-1 inline-block">
-                  → Word Counter
+                <Link to="/tools/word-counter" className="text-muted-foreground hover:text-primary transition-colors">
+                  Word Counter Online Tool
                 </Link>
               </li>
             </ul>
@@ -128,10 +128,10 @@ export const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-gradient mt-8 pt-8 text-center text-sm text-muted-foreground animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-          <p className="font-semibold">&copy; {currentYear} ToolMaster Pro. All rights reserved.</p>
-          <p className="mt-2 font-medium">
-            Made with <span className="text-red-500 animate-pulse-slow">❤️</span> to make your life easier. <span className="text-gradient font-bold">100% free tools</span>, no signup required.
+        <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
+          <p>&copy; {currentYear} ToolMaster Pro. All rights reserved.</p>
+          <p className="mt-2">
+            Made with ❤️ to make your life easier. 100% free online tools and utilities, no signup or registration required. Browser-based tools for instant productivity.
           </p>
         </div>
       </div>

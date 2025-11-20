@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Copy, Check, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { SEOSchema } from "@/components/SEOSchema";
 
 const OpenGraphGenerator = () => {
   const { toast } = useToast();
@@ -92,13 +91,6 @@ const OpenGraphGenerator = () => {
       category="SEO & Marketing"
       instructions={instructions}
     >
-      <SEOSchema
-        type="SoftwareApplication"
-        name="Open Graph Meta Tag Generator"
-        description="Free online tool to generate Open Graph and Twitter Card meta tags for social media optimization"
-        url="https://toolmaster.cloud/tools/open-graph-generator"
-      />
-      
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>

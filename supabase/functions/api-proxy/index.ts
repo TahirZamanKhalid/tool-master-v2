@@ -6,17 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS',
 };
 
-// SECURITY: URL allowlist for approved domains only
-const ALLOWED_DOMAINS = [
-  'api.exchangerate-api.com',
-  'api.openexchangerates.org',
-  'api.currencyapi.com',
-  'ipapi.co',
-  'ipinfo.io',
-  'api.ipify.org',
-  'api.frankfurter.app',
-  'ip-api.com',  // For IP lookup
-];
+// Note: Domain allowlist removed to allow users to test any public API
+// Security still enforced: blocks private IPs, localhost, and non-HTTP protocols
 
 // SECURITY: Validate URL to prevent SSRF attacks
 const validateUrl = (urlString: string): { valid: boolean; error?: string } => {
@@ -28,15 +19,7 @@ const validateUrl = (urlString: string): { valid: boolean; error?: string } => {
       return { valid: false, error: 'Only HTTP/HTTPS protocols allowed' };
     }
     
-    // Check against allowlist
     const hostname = parsedUrl.hostname.toLowerCase();
-    const isAllowed = ALLOWED_DOMAINS.some(domain => 
-      hostname === domain || hostname.endsWith('.' + domain)
-    );
-    
-    if (!isAllowed) {
-      return { valid: false, error: 'Domain not in allowlist' };
-    }
     
     // Block private IP ranges (RFC 1918)
     const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;

@@ -60,24 +60,7 @@ const BarcodeScanner = () => {
           fps: 30, // High FPS for fast detection
           qrbox: { width: 350, height: 150 }, // Wider box for barcodes
           aspectRatio: 2.33,
-          disableFlip: false,
-          formatsToSupport: [
-            Html5QrcodeSupportedFormats.CODE_128,
-            Html5QrcodeSupportedFormats.CODE_39,
-            Html5QrcodeSupportedFormats.CODE_93,
-            Html5QrcodeSupportedFormats.EAN_13,
-            Html5QrcodeSupportedFormats.EAN_8,
-            Html5QrcodeSupportedFormats.UPC_A,
-            Html5QrcodeSupportedFormats.UPC_E,
-            Html5QrcodeSupportedFormats.ITF,
-            Html5QrcodeSupportedFormats.CODABAR,
-            // QR_CODE format (0) is intentionally excluded
-          ],
-          videoConstraints: {
-            facingMode: "environment",
-            focusMode: "continuous",
-            advanced: [{ zoom: 1.0 }]
-          }
+          disableFlip: false
         },
         (decodedText, decodedResult) => {
           // Barcode detected - immediate stop to prevent continuous scanning

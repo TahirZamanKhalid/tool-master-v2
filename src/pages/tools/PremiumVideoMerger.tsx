@@ -1,15 +1,17 @@
 import { useState, useRef, useEffect } from "react";
-import { Plus, X, Upload, Download, Sparkles, ArrowUp, ArrowDown, Play, Film, Loader2, Layers } from "lucide-react";
+import { Plus, X, Upload, Download, Sparkles, ArrowUp, ArrowDown, Film, Loader2, Layers, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { AdWatchModal } from "@/components/AdWatchModal";
+import { Header } from "@/components/Header";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 
 interface VideoItem {
   id: string;
@@ -26,11 +28,7 @@ const PremiumVideoMerger = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
-  const [format, setFormat] = useState("mp4");
-  const [quality, setQuality] = useState("high");
-  const [addTransitions, setAddTransitions] = useState(false);
-  const [transition, setTransition] = useState("fade");
-  const [transitionDuration, setTransitionDuration] = useState("0.5");
+  const [showAdModal, setShowAdModal] = useState(false);
 
   const ffmpegRef = useRef(new FFmpeg());
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -41,7 +39,6 @@ const PremiumVideoMerger = () => {
 
   const loadFFmpeg = async () => {
     try {
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
       const ffmpeg = ffmpegRef.current;
 
       ffmpeg.on('log', ({ message }) => {
@@ -52,16 +49,21 @@ const PremiumVideoMerger = () => {
         setProcessingProgress(Math.round(progress * 100));
       });
 
+      // Load from local public folder to avoid CDN issues
       await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+        coreURL: '/ffmpeg/ffmpeg-core.js',
+        wasmURL: await toBlobURL('https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm', 'application/wasm'),
       });
 
       setFfmpegLoaded(true);
-      toast({ title: "Video merger loaded!" });
+      toast({ title: "Video merger ready!" });
     } catch (error) {
       console.error('Failed to load FFmpeg:', error);
-      toast({ title: "Failed to load merger", variant: "destructive" });
+      toast({ 
+        title: "Failed to load merger", 
+        description: "Please refresh the page and try again.",
+        variant: "destructive" 
+      });
     }
   };
 
@@ -134,49 +136,50 @@ const PremiumVideoMerger = () => {
       return;
     }
 
+    setShowAdModal(true);
+  };
+
+  const handleAdWatched = async () => {
+    setShowAdModal(false);
     setIsProcessing(true);
     setProcessingProgress(0);
-    toast({ title: "Merging videos... This may take several minutes" });
+    toast({ title: "Merging videos... This may take a moment" });
 
     try {
       const ffmpeg = ffmpegRef.current;
 
-      // Write all video files
+      // Write all video files to FFmpeg filesystem
       for (let i = 0; i < videos.length; i++) {
         await ffmpeg.writeFile(`input${i}.mp4`, await fetchFile(videos[i].file));
       }
 
-      // Create concat file
+      // Create concat demuxer file list
       const concatContent = videos.map((_, i) => `file 'input${i}.mp4'`).join('\n');
       await ffmpeg.writeFile('concat.txt', new TextEncoder().encode(concatContent));
 
-      const args = ['-f', 'concat', '-safe', '0', '-i', 'concat.txt'];
+      // Use concat demuxer with copy codec (no re-encoding!)
+      // This is fast and maintains quality when codecs match
+      await ffmpeg.exec([
+        '-f', 'concat',
+        '-safe', '0',
+        '-i', 'concat.txt',
+        '-c', 'copy', // Copy streams without re-encoding
+        'output.mp4'
+      ]);
 
-      // Quality settings
-      if (quality === 'high') {
-        args.push('-c:v', 'libx264', '-crf', '18');
-      } else if (quality === 'medium') {
-        args.push('-c:v', 'libx264', '-crf', '23');
-      } else {
-        args.push('-c:v', 'libx264', '-crf', '28');
-      }
-
-      args.push('-c:a', 'aac');
-      args.push(`output.${format}`);
-
-      console.log('FFmpeg args:', args);
-      await ffmpeg.exec(args);
-
-      const data = await ffmpeg.readFile(`output.${format}`);
-      const mimeType = format === 'webm' ? 'video/webm' : 'video/mp4';
-      const blob = new Blob([data as BlobPart], { type: mimeType });
+      const data = await ffmpeg.readFile('output.mp4');
+      const blob = new Blob([data as BlobPart], { type: 'video/mp4' });
       const url = URL.createObjectURL(blob);
 
       setOutputUrl(url);
       toast({ title: "Videos merged successfully!" });
     } catch (error) {
       console.error('Error merging videos:', error);
-      toast({ title: "Failed to merge videos", variant: "destructive" });
+      toast({ 
+        title: "Failed to merge videos", 
+        description: "Please ensure all videos are valid MP4 files",
+        variant: "destructive" 
+      });
     } finally {
       setIsProcessing(false);
       setProcessingProgress(0);
@@ -188,7 +191,7 @@ const PremiumVideoMerger = () => {
 
     const link = document.createElement('a');
     link.href = outputUrl;
-    link.download = `merged-video-${Date.now()}.${format}`;
+    link.download = `merged-video-${Date.now()}.mp4`;
     link.click();
     toast({ title: "Downloading merged video..." });
   };
@@ -204,7 +207,9 @@ const PremiumVideoMerger = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 p-4 md:p-8">
+    <>
+      <Header />
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
@@ -247,7 +252,7 @@ const PremiumVideoMerger = () => {
             >
               <Layers className="w-10 h-10 mx-auto mb-3 text-orange-600" />
               <p className="text-lg font-medium mb-2">Click to add videos</p>
-              <p className="text-sm text-muted-foreground">You can select multiple videos at once</p>
+              <p className="text-sm text-muted-foreground">Upload multiple videos to combine them</p>
               {!ffmpegLoaded && (
                 <p className="text-xs text-yellow-600 mt-2">Loading merger...</p>
               )}
@@ -272,7 +277,7 @@ const PremiumVideoMerger = () => {
           <Card className="shadow-xl border-2 border-orange-100">
             <CardHeader>
               <CardTitle>Video Sequence ({videos.length} videos)</CardTitle>
-              <CardDescription>Drag to reorder or use arrow buttons</CardDescription>
+              <CardDescription>Use arrow buttons to reorder videos</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -333,41 +338,19 @@ const PremiumVideoMerger = () => {
           <Card className="shadow-xl border-2 border-orange-100">
             <CardHeader>
               <CardTitle>Merge Settings</CardTitle>
-              <CardDescription>Configure output quality and format</CardDescription>
+              <CardDescription>Combine videos without re-encoding</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Output Format</Label>
-                  <Select value={format} onValueChange={setFormat}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="mp4">MP4 (Recommended)</SelectItem>
-                      <SelectItem value="webm">WebM</SelectItem>
-                      <SelectItem value="avi">AVI</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Output Quality</Label>
-                  <Select value={quality} onValueChange={setQuality}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="high">High (Best quality, larger file)</SelectItem>
-                      <SelectItem value="medium">Medium (Balanced)</SelectItem>
-                      <SelectItem value="low">Low (Smaller file)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              <Alert>
+                <Sparkles className="h-4 w-4" />
+                <AlertTitle>Fast Merge</AlertTitle>
+                <AlertDescription>
+                  Videos will be merged using FFmpeg's concat demuxer without re-encoding. This preserves quality and is much faster.
+                </AlertDescription>
+              </Alert>
 
               <div className="p-4 bg-orange-50 rounded-lg">
-                <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <p className="text-sm text-muted-foreground">Videos</p>
                     <p className="text-2xl font-bold text-orange-600">{videos.length}</p>
@@ -376,23 +359,24 @@ const PremiumVideoMerger = () => {
                     <p className="text-sm text-muted-foreground">Total Duration</p>
                     <p className="text-2xl font-bold text-orange-600">{formatTime(getTotalDuration())}</p>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Format</p>
-                    <p className="text-2xl font-bold text-orange-600">{format.toUpperCase()}</p>
-                  </div>
                 </div>
               </div>
 
               <Button
                 onClick={mergeVideos}
                 disabled={isProcessing || !ffmpegLoaded || videos.length < 2}
-                className="w-full bg-gradient-to-r from-orange-600 to-yellow-600"
+                className="w-full bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700"
                 size="lg"
               >
                 {isProcessing ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Merging... {processingProgress}%
+                  </>
+                ) : !ffmpegLoaded ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Loading merger...
                   </>
                 ) : (
                   <>
@@ -403,7 +387,13 @@ const PremiumVideoMerger = () => {
               </Button>
 
               {isProcessing && (
-                <Progress value={processingProgress} className="h-3" />
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Merging progress</span>
+                    <span className="font-medium">{processingProgress}%</span>
+                  </div>
+                  <Progress value={processingProgress} className="h-3" />
+                </div>
               )}
             </CardContent>
           </Card>
@@ -444,11 +434,11 @@ const PremiumVideoMerger = () => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Film className="w-5 h-5 text-yellow-600" />
-                Custom Order
+                No Re-encoding
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
-              Easily reorder videos with arrow buttons or drag-and-drop
+              Fast merge using FFmpeg's concat demuxer - preserves original quality
             </CardContent>
           </Card>
 
@@ -456,16 +446,33 @@ const PremiumVideoMerger = () => {
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-amber-600" />
-                Quality Control
+                Custom Order
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
-              Choose output format and quality for perfect results
+              Easily reorder videos with arrow buttons before merging
             </CardContent>
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+
+      {isProcessing && (
+        <ProcessingOverlay
+          message="Merging your videos..."
+          progress={processingProgress}
+          showSkip={false}
+        />
+      )}
+
+      <AdWatchModal
+        open={showAdModal}
+        onOpenChange={setShowAdModal}
+        onAdWatched={handleAdWatched}
+        title="Watch Ad to Merge Videos"
+        description="Watch this short ad to start merging your videos"
+      />
+    </>
   );
 };
 

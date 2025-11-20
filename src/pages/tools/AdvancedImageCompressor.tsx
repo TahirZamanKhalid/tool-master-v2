@@ -8,6 +8,8 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Download, Upload, Image as ImageIcon } from "lucide-react";
+import { SidebarAd } from "@/components/SidebarAd";
+import { AdRow } from "@/components/AdRow";
 
 const AdvancedImageCompressor = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -143,7 +145,13 @@ const AdvancedImageCompressor = () => {
         { name: "WebP to PNG", path: "/tools/webp-to-png" }
       ]}
     >
-      <div className="grid gap-6">
+      <div className="flex gap-4">
+        {/* Left Sidebar Ad */}
+        <div className="hidden xl:block w-40 flex-shrink-0">
+          <SidebarAd position="left" />
+        </div>
+
+        <div className="flex-1 grid gap-6">
         <Card>
           <CardContent className="p-6 space-y-6">
             {/* Image Upload */}
@@ -337,7 +345,16 @@ const AdvancedImageCompressor = () => {
             </ul>
           </CardContent>
         </Card>
+
+        {/* Bottom Ad Row */}
+        <AdRow type="display" count={3} position="bottom" />
       </div>
+
+      {/* Right Sidebar Ad */}
+      <div className="hidden xl:block w-40 flex-shrink-0">
+        <SidebarAd position="right" />
+      </div>
+    </div>
     </ToolLayout>
   );
 };

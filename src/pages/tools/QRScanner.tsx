@@ -56,13 +56,7 @@ const QRScanner = () => {
           fps: 30, // Higher FPS for faster detection
           qrbox: { width: 300, height: 300 }, // Square box for QR codes
           aspectRatio: 1.0,
-          disableFlip: false,
-          formatsToSupport: [0], // 0 = QR_CODE only (not barcodes)
-          videoConstraints: {
-            facingMode: "environment",
-            focusMode: "continuous",
-            advanced: [{ zoom: 1.0 }]
-          }
+          disableFlip: false
         },
         (decodedText, decodedResult) => {
           // QR Code detected - immediate stop to prevent continuous scanning

@@ -1,8 +1,6 @@
 import { ReactNode } from "react";
-import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AdSpace } from "@/components/AdSpace";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { ToolRating } from "@/components/ToolRating";
@@ -18,6 +16,7 @@ interface ToolLayoutProps {
   children: ReactNode;
   instructions?: string[];
   relatedTools?: { name: string; path: string }[];
+  layout?: "full-width" | "with-sidebar";
 }
 
 export const ToolLayout = ({
@@ -27,6 +26,7 @@ export const ToolLayout = ({
   children,
   instructions,
   relatedTools,
+  layout = "full-width",
 }: ToolLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -66,32 +66,6 @@ export const ToolLayout = ({
     }
   };
 
-  // Breadcrumb structured data
-  const breadcrumbData = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      {
-        "@type": "ListItem",
-        "position": 1,
-        "name": "Home",
-        "item": "https://toolmaster.cloud"
-      },
-      {
-        "@type": "ListItem",
-        "position": 2,
-        "name": category,
-        "item": `https://toolmaster.cloud/#${category.toLowerCase().replace(/\s+/g, '-')}`
-      },
-      {
-        "@type": "ListItem",
-        "position": 3,
-        "name": title,
-        "item": `https://toolmaster.cloud${location.pathname}`
-      }
-    ]
-  };
-
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead 
@@ -104,7 +78,6 @@ export const ToolLayout = ({
       
       {/* Structured Data for SEO */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbData) }} />
       <div className="container max-w-[1600px] py-8 px-4">
         <Breadcrumbs
           items={[
@@ -113,16 +86,8 @@ export const ToolLayout = ({
           ]}
         />
 
-        <div className="flex gap-6 justify-center mt-8">
-          {/* Left Sidebar Ad */}
-          <div className="hidden xl:block flex-shrink-0 w-[300px]">
-            <div className="sticky top-24 w-[300px]">
-              <AdSpace size="skyscraper" className="w-[300px]" />
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1 max-w-4xl space-y-8 overflow-hidden">
+        <div className="mt-8 space-y-8 w-full">
+          <div className="space-y-8">
             <div>
               <div className="flex items-center gap-3 mb-4 flex-wrap">
                 <Badge>{category}</Badge>
@@ -137,13 +102,14 @@ export const ToolLayout = ({
               />
             </div>
 
-            <div className="overflow-hidden">
+            <div className="overflow-hidden w-full">
               {children}
             </div>
 
             {instructions && (
               <div className="bg-muted/30 rounded-lg p-6">
-                <h2 className="text-xl font-semibold mb-4">How to Use</h2>
+                <h2 className="text-2xl font-bold mb-2">How to Use {title}</h2>
+                <h3 className="text-lg font-semibold text-muted-foreground mb-4">Step-by-Step Guide for {title}</h3>
                 <ol className="space-y-2 list-decimal list-inside">
                   {instructions.map((instruction, index) => (
                     <li key={index} className="text-muted-foreground">
@@ -153,6 +119,18 @@ export const ToolLayout = ({
                 </ol>
               </div>
             )}
+
+            <div className="bg-muted/30 rounded-lg p-6">
+              <h2 className="text-2xl font-bold mb-2">Why Use Our {title}?</h2>
+              <h3 className="text-lg font-semibold text-muted-foreground mb-4">Key Features & Benefits</h3>
+              <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+                <li>100% Free online tool - No signup or registration required</li>
+                <li>Fast and secure processing - All operations performed in your browser</li>
+                <li>Works on any device - Desktop, tablet, or mobile</li>
+                <li>Professional results - Enterprise-grade quality for free</li>
+                <li>Privacy focused - Your data never leaves your device</li>
+              </ul>
+            </div>
 
             <ToolRating toolPath={location.pathname} />
 
@@ -175,13 +153,6 @@ export const ToolLayout = ({
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Right Sidebar Ad */}
-          <div className="hidden xl:block flex-shrink-0 w-[300px]">
-            <div className="sticky top-24 w-[300px]">
-              <AdSpace size="skyscraper" className="w-[300px]" />
-            </div>
           </div>
         </div>
       </div>

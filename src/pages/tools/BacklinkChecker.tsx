@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link2, ExternalLink, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { SEOSchema } from "@/components/SEOSchema";
 
 const BacklinkChecker = () => {
   const [url, setUrl] = useState("");
@@ -93,13 +92,6 @@ const BacklinkChecker = () => {
       category="SEO & Marketing"
       instructions={instructions}
     >
-      <SEOSchema
-        type="SoftwareApplication"
-        name="Backlink Checker Tool"
-        description="Free backlink analysis tool to check and monitor links pointing to your website"
-        url="https://toolmaster.cloud/tools/backlink-checker"
-      />
-
       <div className="space-y-6">
         <Alert>
           <AlertCircle className="h-4 w-4" />
