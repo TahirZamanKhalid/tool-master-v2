@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
-import { ProcessingOverlay } from "@/components/ProcessingOverlay";
+import { AdWatchModal } from "@/components/AdWatchModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -143,12 +143,10 @@ const ImageCropper = () => {
       </Card>
 
       {showAdOverlay && (
-        <ProcessingOverlay
-          message="Image uploaded! Please view the ad to continue."
-          minAdViewTime={5}
+        <AdWatchModal
+          isOpen={showAdOverlay}
+          onClose={() => setShowAdOverlay(false)}
           onAdComplete={handleAdComplete}
-          showSkip={canDownload}
-          onSkip={() => setShowAdOverlay(false)}
         />
       )}
     </ToolLayout>

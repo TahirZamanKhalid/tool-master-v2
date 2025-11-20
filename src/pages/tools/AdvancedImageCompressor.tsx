@@ -347,7 +347,7 @@ const AdvancedImageCompressor = () => {
         </Card>
 
         {/* Bottom Ad Row */}
-        <AdRow type="display" count={3} position="bottom" />
+        <AdRow />
       </div>
 
       {/* Right Sidebar Ad */}
