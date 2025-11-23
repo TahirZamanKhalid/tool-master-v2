@@ -1,5 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
+import { Card } from "./ui/card";
+import { Zap } from "lucide-react";
 
 declare global {
   interface Window {
@@ -21,6 +23,7 @@ export interface AdSpaceProps {
 
 export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpaceProps) => {
   const adRef = useRef<HTMLModElement>(null);
+  const [showFallback, setShowFallback] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -28,9 +31,13 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
         if (adRef.current) {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
           console.log("AdSense generic ad initialized");
+          
+          // Hide fallback after 3 seconds
+          setTimeout(() => setShowFallback(false), 3000);
         }
       } catch (error) {
         console.error("AdSense generic ad error:", error);
+        setShowFallback(true);
       }
     }, 100);
 
@@ -50,7 +57,20 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
   const adSlot = slot || "4838473293";
 
   return (
-    <div className={className} style={style}>
+    <div className={`relative ${className}`} style={style}>
+      {/* Fallback content */}
+      {showFallback && (
+        <Card className="absolute inset-0 bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20">
+          <div className="h-full flex items-center justify-center p-4">
+            <div className="text-center space-y-2">
+              <Zap className="h-8 w-8 text-accent mx-auto opacity-50" />
+              <p className="text-sm font-medium">ToolMaster Pro</p>
+              <p className="text-xs text-muted-foreground">100+ Free Online Tools</p>
+            </div>
+          </div>
+        </Card>
+      )}
+      
       <ins
         ref={adRef}
         className="adsbygoogle"
