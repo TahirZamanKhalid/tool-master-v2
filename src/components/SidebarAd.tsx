@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
+import { LazyAdSpace } from "./LazyAdSpace";
 
 export const SidebarAd = (props: any) => {
-  return <div className={props.className} />;
+  return <LazyAdSpace format="vertical" {...props} />;
 };
