@@ -919,14 +919,12 @@ const WatermarkTool = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6">
           {/* Top Leaderboard Ad */}
           <div className="lg:col-span-2 min-h-[100px]">
-            <div className="flex items-center justify-center border-2 border-dashed border-border/50 rounded-lg bg-muted/30" style={{ minHeight: "90px" }}>
-              <ins 
-                className="adsbygoogle"
-                style={{ display: "inline-block", width: "800px", height: "200px" }}
-                data-ad-client="ca-pub-7382531001943020"
-                data-ad-slot="4838473293"
-              />
-            </div>
+            <ins 
+              className="adsbygoogle"
+              style={{ display: "inline-block", width: "800px", height: "200px" }}
+              data-ad-client="ca-pub-7382531001943020"
+              data-ad-slot="4838473293"
+            />
           </div>
 
           {/* Left Column - Controls */}
@@ -1844,14 +1842,12 @@ const WatermarkTool = () => {
 
           {/* Bottom Ad Row */}
           <div className="lg:col-span-2 min-h-[100px] mt-6">
-            <div className="flex items-center justify-center border-2 border-dashed border-border/50 rounded-lg bg-muted/30" style={{ minHeight: "90px" }}>
-              <ins 
-                className="adsbygoogle"
-                style={{ display: "inline-block", width: "800px", height: "200px" }}
-                data-ad-client="ca-pub-7382531001943020"
-                data-ad-slot="4838473293"
-              />
-            </div>
+            <ins 
+              className="adsbygoogle"
+              style={{ display: "inline-block", width: "800px", height: "200px" }}
+              data-ad-client="ca-pub-7382531001943020"
+              data-ad-slot="4838473293"
+            />
           </div>
         </div>
 
