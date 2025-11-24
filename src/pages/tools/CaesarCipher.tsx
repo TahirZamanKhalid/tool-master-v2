@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { AdSpace } from "@/components/AdSpace";
+import { AdRow } from "@/components/AdRow";
 
 const CaesarCipher = () => {
   const [text, setText] = useState("");
@@ -32,7 +32,7 @@ const CaesarCipher = () => {
       description="Encrypt and decrypt text using Caesar cipher"
       category="Security Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdRow className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>
@@ -56,6 +56,7 @@ const CaesarCipher = () => {
           {result && <Textarea value={result} readOnly rows={4} />}
         </CardContent>
       </Card>
+      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };

@@ -3,7 +3,7 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { AdSpace } from "@/components/AdSpace";
+import { AdRow } from "@/components/AdRow";
 
 const BinaryTranslator = () => {
   const [text, setText] = useState("");
@@ -31,7 +31,7 @@ const BinaryTranslator = () => {
       description="Convert text to binary and vice versa"
       category="Converter Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdRow className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div className="space-y-2">
@@ -61,6 +61,7 @@ const BinaryTranslator = () => {
           </div>
         </CardContent>
       </Card>
+      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };

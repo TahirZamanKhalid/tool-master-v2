@@ -3,7 +3,7 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { AdSpace } from "@/components/AdSpace";
+import { AdRow } from "@/components/AdRow";
 import { useToast } from "@/hooks/use-toast";
 
 const StringReverser = () => {
@@ -26,7 +26,7 @@ const StringReverser = () => {
       description="Reverse any text string instantly"
       category="Text Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdRow className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <Textarea
@@ -44,6 +44,7 @@ const StringReverser = () => {
           )}
         </CardContent>
       </Card>
+      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };

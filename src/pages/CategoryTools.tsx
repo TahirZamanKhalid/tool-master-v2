@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ToolCard } from "@/components/ToolCard";
 import { SEOHead } from "@/components/SEOHead";
+import { AdRow } from "@/components/AdRow";
 import { allTools } from "@/data/allTools";
 
 const CategoryTools = () => {
@@ -45,6 +46,8 @@ const CategoryTools = () => {
           <p className="text-muted-foreground">{categoryTools.length} tools available</p>
         </div>
 
+        <AdRow className="mb-8" />
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {categoryTools.map((tool, index) => (
             <div key={index} onClick={() => navigate(tool.path)} className="cursor-pointer">
@@ -52,6 +55,8 @@ const CategoryTools = () => {
             </div>
           ))}
         </div>
+
+        <AdRow className="mt-8" />
       </main>
       <Footer />
     </div>
