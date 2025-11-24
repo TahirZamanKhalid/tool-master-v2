@@ -25,6 +25,17 @@ const JSONValidator = () => {
           </p>
         </div>
         
+        {/* AdSense Ad */}
+        <div style={{ textAlign: 'center', margin: '2rem 0' }}>
+          <ins className="adsbygoogle"
+               style={{ display: 'inline-block', width: '600px', height: '300px' }}
+               data-ad-client="ca-pub-7382531001943020"
+               data-ad-slot="2931558314"></ins>
+          <script>
+            {(window.adsbygoogle = window.adsbygoogle || []).push({})}
+          </script>
+        </div>
+
         <div className="json-validator-card">
           <div className="json-validator-form">
             <textarea
