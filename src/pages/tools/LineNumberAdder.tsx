@@ -1,9 +1,5 @@
 import { useState } from "react";
-import { ToolLayout } from "@/components/ToolLayout";
-import { Card, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { AdSpace } from "@/components/AdSpace";
+import "./LineNumberAdder.css";
 
 const LineNumberAdder = () => {
   const [input, setInput] = useState("");
@@ -16,27 +12,43 @@ const LineNumberAdder = () => {
   };
 
   return (
-    <ToolLayout
-      title="Line Number Adder"
-      description="Add line numbers to text"
-      category="Text Tools"
-    >
-      <AdSpace size="leaderboard" className="mb-6" />
-      <Card>
-        <CardContent className="p-6 space-y-4">
-          <Textarea
-            placeholder="Enter text..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            rows={10}
-          />
-          <Button onClick={addLineNumbers} className="w-full">
-            Add Line Numbers
-          </Button>
-          {output && <Textarea value={output} readOnly rows={10} className="font-mono" />}
-        </CardContent>
-      </Card>
-    </ToolLayout>
+    <div className="line-number-adder-container">
+      <div className="line-number-adder-content">
+        <div className="line-number-adder-header">
+          <span className="line-number-adder-badge">Text Tools</span>
+          <h1 className="line-number-adder-title">Line Number Adder</h1>
+          <p className="line-number-adder-description">
+            Add line numbers to text
+          </p>
+        </div>
+        
+        <div className="line-number-adder-card">
+          <div className="line-number-adder-form">
+            <textarea
+              className="line-number-adder-textarea"
+              placeholder="Enter text..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              rows={10}
+            />
+            <button
+              onClick={addLineNumbers}
+              className="line-number-adder-button"
+            >
+              Add Line Numbers
+            </button>
+            {output && (
+              <textarea
+                className="line-number-adder-textarea"
+                value={output}
+                readOnly
+                rows={10}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

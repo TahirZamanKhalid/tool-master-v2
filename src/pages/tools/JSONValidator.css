@@ -1,0 +1,119 @@
+/* JSON Validator Tool Styles */
+.json-validator-container {
+  min-height: 100vh;
+  background: hsl(var(--background));
+  overflow-x: hidden;
+}
+
+.json-validator-content {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.json-validator-header {
+  margin-bottom: 2rem;
+}
+
+.json-validator-badge {
+  background: hsl(var(--primary) / 0.1);
+  color: hsl(var(--primary));
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.json-validator-title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  color: hsl(var(--foreground));
+  margin-bottom: 1rem;
+}
+
+.json-validator-description {
+  font-size: 1.125rem;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 1.5rem;
+  line-height: 1.75;
+}
+
+.json-validator-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+}
+
+.json-validator-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.json-validator-textarea {
+  width: 100%;
+  min-height: 250px;
+  padding: 0.75rem;
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: 0.5rem;
+  color: hsl(var(--foreground));
+  font-family: 'Courier New', monospace;
+  resize: vertical;
+}
+
+.json-validator-textarea:focus {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+.json-validator-button {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.json-validator-button:hover {
+  background: hsl(var(--primary) / 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
+}
+
+.json-validator-alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-top: 1rem;
+}
+
+.json-validator-alert.success {
+  background: hsl(142 70% 50% / 0.1);
+  border: 1px solid hsl(142 70% 50% / 0.3);
+  color: hsl(142 70% 50%);
+}
+
+.json-validator-alert.error {
+  background: hsl(var(--destructive) / 0.1);
+  border: 1px solid hsl(var(--destructive) / 0.3);
+  color: hsl(var(--destructive));
+}
+
+@media (max-width: 768px) {
+  .json-validator-title {
+    font-size: 1.875rem;
+  }
+  
+  .json-validator-content {
+    padding: 1rem;
+  }
+}
