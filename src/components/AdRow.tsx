@@ -22,7 +22,7 @@ export const AdRow = ({ className = "" }: AdRowProps) => {
         if (adRef.current) {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
           console.log("AdSense row ad initialized");
-          
+
           // Hide fallback after 3 seconds if ad loads
           setTimeout(() => setShowFallback(false), 3000);
         }
@@ -36,11 +36,11 @@ export const AdRow = ({ className = "" }: AdRowProps) => {
   }, []);
 
   return (
-    <div className={`w-full flex justify-center py-4 ${className}`}>
-      <div className="max-w-[600px] w-full min-h-[200px] relative">
+    <div className={`w-full flex justify-center my-8 ${className}`}>
+      <div className="max-w-[600px] w-full">
         {/* Fallback content */}
         {showFallback && (
-          <Card className="absolute inset-0 bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border-primary/20">
+          <Card className="w-full h-[200px] bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border-primary/20 mb-4">
             <div className="h-full flex items-center justify-center text-center p-6">
               <div className="space-y-2">
                 <Sparkles className="h-10 w-10 text-primary mx-auto opacity-50" />
@@ -52,7 +52,7 @@ export const AdRow = ({ className = "" }: AdRowProps) => {
             </div>
           </Card>
         )}
-        
+
         <ins
           ref={adRef}
           className="adsbygoogle"

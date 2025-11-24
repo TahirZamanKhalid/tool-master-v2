@@ -31,7 +31,7 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
         if (adRef.current) {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
           console.log("AdSense generic ad initialized");
-          
+
           // Hide fallback after 3 seconds
           setTimeout(() => setShowFallback(false), 3000);
         }
@@ -57,20 +57,22 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
   const adSlot = slot || "4838473293";
 
   return (
-    <div className={`relative ${className}`} style={style}>
+    <div className={`relative ${className}`} style={{ ...style, minHeight: height, minWidth: width }}>
       {/* Fallback content */}
       {showFallback && (
-        <Card className="absolute inset-0 bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20">
-          <div className="h-full flex items-center justify-center p-4">
-            <div className="text-center space-y-2">
-              <Zap className="h-8 w-8 text-accent mx-auto opacity-50" />
-              <p className="text-sm font-medium">ToolMaster Pro</p>
-              <p className="text-xs text-muted-foreground">100+ Free Online Tools</p>
+        <Card className="w-full h-full bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20 overflow-hidden" style={{ minHeight: height }}>
+          <div className="h-full flex items-center justify-center px-4">
+            <div className="flex items-center gap-3">
+              <Zap className="h-6 w-6 text-accent opacity-50 shrink-0" />
+              <div className="text-left">
+                <p className="text-sm font-bold leading-none mb-1">ToolMaster Pro</p>
+                <p className="text-[10px] text-muted-foreground leading-none">100+ Free Online Tools</p>
+              </div>
             </div>
           </div>
         </Card>
       )}
-      
+
       <ins
         ref={adRef}
         className="adsbygoogle"

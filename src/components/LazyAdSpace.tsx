@@ -27,7 +27,7 @@ export const LazyAdSpace = ({ className = "", style, format = "auto", slot }: La
           (window.adsbygoogle = window.adsbygoogle || []).push({});
           console.log("AdSense lazy ad initialized");
           setAdLoaded(true);
-          
+
           // Hide fallback after 3 seconds if ad loads
           setTimeout(() => setShowFallback(false), 3000);
         }
@@ -47,10 +47,10 @@ export const LazyAdSpace = ({ className = "", style, format = "auto", slot }: La
   const adSlot = slot || "4838473293";
 
   return (
-    <div className={`relative ${className}`} style={{ ...style }}>
+    <div className={`relative ${className}`} style={{ ...style, minHeight: height, minWidth: width, maxWidth }}>
       {/* Fallback content when ad isn't loaded */}
       {showFallback && (
-        <Card className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
+        <Card className="w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20" style={{ minHeight: height }}>
           <div className="h-full p-4 flex flex-col justify-center items-center text-center space-y-2">
             <ExternalLink className="h-8 w-8 text-primary opacity-50" />
             <h3 className="font-semibold text-sm">Discover More Tools</h3>
@@ -60,7 +60,7 @@ export const LazyAdSpace = ({ className = "", style, format = "auto", slot }: La
           </div>
         </Card>
       )}
-      
+
       <ins
         ref={adRef}
         className="adsbygoogle"

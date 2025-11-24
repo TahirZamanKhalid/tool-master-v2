@@ -7,6 +7,7 @@ import { ToolRating } from "@/components/ToolRating";
 import { SEOHead } from "@/components/SEOHead";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ToolFAQ } from "@/components/ToolFAQ";
+import { SidebarAd } from "@/components/SidebarAd";
 import { useToolAnalytics } from "@/hooks/useToolAnalytics";
 
 interface ToolLayoutProps {
@@ -30,7 +31,7 @@ export const ToolLayout = ({
 }: ToolLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Track tool view
   useToolAnalytics(location.pathname);
 
@@ -68,14 +69,14 @@ export const ToolLayout = ({
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      <SEOHead 
+      <SEOHead
         title={title}
         description={description}
         keywords={enhancedKeywords}
         canonical={`https://toolmaster.cloud${location.pathname}`}
         ogImage="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg"
       />
-      
+
       {/* Structured Data for SEO */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <div className="container max-w-[1600px] py-8 px-4">
@@ -86,70 +87,102 @@ export const ToolLayout = ({
           ]}
         />
 
-        <div className="mt-8 space-y-8 w-full">
-          <div className="space-y-8">
-            <div>
-              <div className="flex items-center gap-3 mb-4 flex-wrap">
-                <Badge>{category}</Badge>
-                <h1 className="text-3xl md:text-4xl font-bold break-words">{title}</h1>
-              </div>
-              <p className="text-lg text-muted-foreground mb-4">{description}</p>
-
-              <ShareButtons
-                title={title}
-                description={description}
-                url={`https://toolmaster.cloud${location.pathname}`}
-              />
-            </div>
-
-            <div className="overflow-hidden w-full">
-              {children}
-            </div>
-
-            {instructions && (
-              <div className="bg-muted/30 rounded-lg p-6">
-                <h2 className="text-2xl font-bold mb-2">How to Use {title}</h2>
-                <h3 className="text-lg font-semibold text-muted-foreground mb-4">Step-by-Step Guide for {title}</h3>
-                <ol className="space-y-2 list-decimal list-inside">
-                  {instructions.map((instruction, index) => (
-                    <li key={index} className="text-muted-foreground">
-                      {instruction}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-
-            <div className="bg-muted/30 rounded-lg p-6">
-              <h2 className="text-2xl font-bold mb-2">Why Use Our {title}?</h2>
-              <h3 className="text-lg font-semibold text-muted-foreground mb-4">Key Features & Benefits</h3>
-              <ul className="space-y-2 list-disc list-inside text-muted-foreground">
-                <li>100% Free online tool - No signup or registration required</li>
-                <li>Fast and secure processing - All operations performed in your browser</li>
-                <li>Works on any device - Desktop, tablet, or mobile</li>
-                <li>Professional results - Enterprise-grade quality for free</li>
-                <li>Privacy focused - Your data never leaves your device</li>
-              </ul>
-            </div>
-
-            <ToolRating toolPath={location.pathname} />
-
-            <ToolFAQ toolName={title} />
-
-            {relatedTools && relatedTools.length > 0 && (
+        <div className="mt-8 w-full">
+          <div className={`grid gap-8 ${layout === "with-sidebar" ? "lg:grid-cols-[1fr_300px]" : ""}`}>
+            {/* Main Content Column */}
+            <div className="space-y-8 min-w-0">
               <div>
-                <h2 className="text-xl font-semibold mb-4">Related Tools</h2>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {relatedTools.map((tool, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      onClick={() => navigate(tool.path)}
-                      className="justify-start"
-                    >
-                      {tool.name}
-                    </Button>
-                  ))}
+                <div className="flex items-center gap-3 mb-4 flex-wrap">
+                  <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                    {category}
+                  </Badge>
+                  <h1 className="text-3xl md:text-4xl font-bold break-words text-foreground">
+                    {title}
+                  </h1>
+                </div>
+                <p className="text-lg text-muted-foreground mb-6 leading-relaxed">{description}</p>
+
+                <ShareButtons
+                  title={title}
+                  description={description}
+                  url={`https://toolmaster.cloud${location.pathname}`}
+                />
+              </div>
+
+              <div className="overflow-hidden w-full bg-card rounded-xl border shadow-sm p-1 md:p-6">
+                {children}
+              </div>
+
+              {instructions && (
+                <div className="bg-muted/30 rounded-xl p-6 border border-border/50">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <span className="bg-primary/10 p-2 rounded-lg text-primary">📚</span>
+                    How to Use {title}
+                  </h2>
+                  <h3 className="text-lg font-semibold text-muted-foreground mb-4">Step-by-Step Guide</h3>
+                  <ol className="space-y-3 list-decimal list-inside">
+                    {instructions.map((instruction, index) => (
+                      <li key={index} className="text-muted-foreground pl-2 marker:font-bold marker:text-primary">
+                        {instruction}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              <div className="bg-muted/30 rounded-xl p-6 border border-border/50">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <span className="bg-primary/10 p-2 rounded-lg text-primary">✨</span>
+                  Why Use Our {title}?
+                </h2>
+                <h3 className="text-lg font-semibold text-muted-foreground mb-4">Key Features & Benefits</h3>
+                <ul className="space-y-3 list-disc list-inside text-muted-foreground">
+                  <li className="pl-2">100% Free online tool - No signup or registration required</li>
+                  <li className="pl-2">Fast and secure processing - All operations performed in your browser</li>
+                  <li className="pl-2">Works on any device - Desktop, tablet, or mobile</li>
+                  <li className="pl-2">Professional results - Enterprise-grade quality for free</li>
+                  <li className="pl-2">Privacy focused - Your data never leaves your device</li>
+                </ul>
+              </div>
+
+              <ToolRating toolPath={location.pathname} />
+
+              <ToolFAQ toolName={title} />
+
+              {relatedTools && relatedTools.length > 0 && (
+                <div>
+                  <h2 className="text-xl font-semibold mb-4">Related Tools</h2>
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {relatedTools.map((tool, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        onClick={() => navigate(tool.path)}
+                        className="justify-start h-auto py-4 px-6 hover:border-primary/50 hover:bg-primary/5 transition-all"
+                      >
+                        {tool.name}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Sidebar Column */}
+            {layout === "with-sidebar" && (
+              <div className="space-y-8">
+                <div className="sticky top-24 space-y-8">
+                  <div className="bg-card rounded-xl border shadow-sm p-4 min-h-[600px] flex items-center justify-center bg-muted/10">
+                    <SidebarAd />
+                  </div>
+
+                  {/* Additional sidebar content can go here */}
+                  <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl p-6 border border-primary/10">
+                    <h3 className="font-semibold mb-2 text-primary">Pro Tip</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Bookmark this page (Ctrl+D) to access {title} instantly whenever you need it!
+                    </p>
+                  </div>
                 </div>
               </div>
             )}

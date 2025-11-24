@@ -14,40 +14,60 @@ interface ToolCardProps {
 
 export const ToolCard = ({ icon: Icon, title, description, category, popular, comingSoon }: ToolCardProps) => {
   return (
-    <Card className={`group shadow-card hover:shadow-card-hover transition-smooth hover:-translate-y-2 hover:scale-105 relative flex flex-col h-full border-2 border-transparent hover:border-primary/20 overflow-hidden animate-fade-in-up ${comingSoon ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
+    <Card className={`group relative flex flex-col h-full border border-border/50 bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 overflow-hidden ${comingSoon ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}>
+
+      {/* Popular Badge */}
       {popular && !comingSoon && (
-        <Badge className="absolute -top-2 -right-2 gradient-primary border-0 shadow-card z-10 animate-bounce-in">
-          <span className="animate-pulse-slow">⭐ Popular</span>
-        </Badge>
-      )}
-      {comingSoon && (
-        <Badge className="absolute -top-2 -right-2 bg-yellow-500/90 text-white border-0 shadow-card z-10 animate-bounce-in">
-          Coming Soon
-        </Badge>
-      )}
-      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5"></div>
-      </div>
-      <CardHeader className="pb-3 relative z-10">
-        <div className="flex items-start justify-between gap-4">
-          <div className="p-3 rounded-xl bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 shadow-card group-hover:shadow-card-hover transition-smooth group-hover:scale-110 group-hover:rotate-6 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <Icon className="h-6 w-6 text-primary relative z-10 group-hover:animate-wiggle" />
+        <div className="absolute top-0 right-0 z-20">
+          <div className="bg-gradient-to-r from-primary to-accent text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl shadow-md">
+            POPULAR
           </div>
-          <Badge variant="outline" className="text-xs font-semibold border-2 group-hover:border-primary/50 transition-smooth">
+        </div>
+      )}
+
+      {/* Coming Soon Badge */}
+      {comingSoon && (
+        <div className="absolute top-0 right-0 z-20">
+          <div className="bg-yellow-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl shadow-md">
+            SOON
+          </div>
+        </div>
+      )}
+
+      {/* Hover Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+      <CardHeader className="pt-6 px-6 pb-2 relative z-10">
+        <div className="flex justify-between items-start mb-4">
+          {/* Icon Container */}
+          <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300 shadow-sm">
+            <Icon className="h-6 w-6" />
+          </div>
+
+          {/* Category Badge */}
+          <Badge variant="secondary" className="font-medium text-[10px] uppercase tracking-wider bg-secondary/50 text-secondary-foreground">
             {category}
           </Badge>
         </div>
-        <CardTitle className="text-lg mt-3 line-clamp-2 group-hover:text-gradient transition-smooth">{title}</CardTitle>
+
+        <CardTitle className="text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-1">
+          {title}
+        </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col relative z-10">
-        <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-3 leading-relaxed">{description}</p>
+
+      <CardContent className="px-6 pb-6 flex-1 flex flex-col relative z-10">
+        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-6 flex-1">
+          {description}
+        </p>
+
         <Button
-          variant="outline"
-          className="w-full group-hover:gradient-primary group-hover:text-white group-hover:border-0 transition-bounce shadow-card group-hover:shadow-card-hover font-semibold shimmer-effect"
+          className={`w-full font-semibold shadow-none transition-all duration-300 ${comingSoon
+              ? 'bg-muted text-muted-foreground'
+              : 'bg-secondary/50 text-secondary-foreground hover:bg-primary hover:text-white'
+            }`}
           disabled={comingSoon}
         >
-          {comingSoon ? 'Coming Soon' : 'Use Tool →'}
+          {comingSoon ? 'Coming Soon' : 'Try Now'}
         </Button>
       </CardContent>
     </Card>

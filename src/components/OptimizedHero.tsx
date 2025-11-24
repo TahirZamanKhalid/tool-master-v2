@@ -56,8 +56,10 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
       </div>
       <div className="container py-16 md:py-24 px-4 relative z-10">
         <div className="mx-auto max-w-4xl text-center space-y-8">
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight break-words text-gradient animate-gradient-x animate-fade-in-up">
-            100+ Free AI-Powered Tools
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight break-words animate-fade-in-up">
+            <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-gradient-x">
+              100+ Free AI-Powered Tools
+            </span>
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground break-words animate-fade-in-up font-semibold" style={{ animationDelay: '0.1s' }}>
             ✨ Instant Access, No Signup Required ✨
