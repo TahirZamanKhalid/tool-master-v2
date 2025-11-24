@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { AdSpace } from "@/components/AdSpace";
+import { AdRow } from "@/components/AdRow";
 
 const CharacterFrequency = () => {
   const [text, setText] = useState("");
@@ -25,7 +25,7 @@ const CharacterFrequency = () => {
       description="Count character occurrences in text"
       category="Text Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdRow className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <Textarea
@@ -56,6 +56,7 @@ const CharacterFrequency = () => {
           )}
         </CardContent>
       </Card>
+      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };
