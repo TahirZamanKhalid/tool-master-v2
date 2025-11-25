@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { AdRow } from "@/components/AdRow";
+import { AdSpace } from "@/components/AdSpace";
 
 const RandomNumberGenerator = () => {
   const [min, setMin] = useState("1");
@@ -24,7 +24,7 @@ const RandomNumberGenerator = () => {
       description="Generate random numbers within a range"
       category="Utilities"
     >
-      <AdRow className="mb-6" />
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -57,7 +57,6 @@ const RandomNumberGenerator = () => {
           )}
         </CardContent>
       </Card>
-      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };

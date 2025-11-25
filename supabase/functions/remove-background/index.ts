@@ -43,7 +43,7 @@ serve(async (req) => {
             content: [
               {
                 type: 'text',
-                text: 'Remove ALL background from this image. The background must be completely transparent (alpha channel 0). Keep ONLY the main person/subject. Remove every trace of the background including edges, shadows on the background, and any artifacts. The subject should have clean, precise edges with no background remnants whatsoever. Make the entire background pure transparent.'
+                text: 'Remove the background from this image completely, making it fully transparent. Keep only the main subject/object.'
               },
               {
                 type: 'image_url',

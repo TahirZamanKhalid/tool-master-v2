@@ -1,14 +1,13 @@
 import { useState, useRef } from "react";
 import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
-import { AdWatchModal } from "@/components/AdWatchModal";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Upload, Download, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { AdRow } from "@/components/AdRow";
 
 const ImageCompressor = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -135,7 +134,6 @@ const ImageCompressor = () => {
           { name: "Format Converter", path: "/tools/format-converter" },
         ]}
       >
-        <AdRow className="mb-6" />
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
             <input
@@ -220,14 +218,15 @@ const ImageCompressor = () => {
             )}
           </div>
         </Card>
-        <AdRow className="mt-6" />
       </ToolLayout>
 
       {showAdOverlay && (
-        <AdWatchModal
-          isOpen={showAdOverlay}
-          onClose={() => setShowAdOverlay(false)}
+        <ProcessingOverlay
+          message="Compression complete! Please view the ad to enable download."
+          minAdViewTime={5}
           onAdComplete={handleAdComplete}
+          showSkip={canDownload}
+          onSkip={() => setShowAdOverlay(false)}
         />
       )}
     </>

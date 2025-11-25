@@ -8,7 +8,7 @@ import { Upload, Download, FileDown, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PDFDocument } from "pdf-lib";
 import { AdWatchModal } from "@/components/AdWatchModal";
-import { AdRow } from "@/components/AdRow";
+import { AdSpace } from "@/components/AdSpace";
 
 const PDFMerger = () => {
   const [files, setFiles] = useState<File[]>([]);
@@ -127,7 +127,7 @@ const PDFMerger = () => {
          { name: "PDF Compressor", path: "/tools/pdf-compressor" },
         ]}
       >
-        <AdRow className="mb-6" />
+        <AdSpace size="leaderboard" className="mb-6" />
         
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
@@ -205,7 +205,7 @@ const PDFMerger = () => {
           </div>
         </Card>
 
-        <AdRow className="mt-6" />
+        <AdSpace size="leaderboard" className="mt-6" />
       </ToolLayout>
 
       {isProcessing && (

@@ -36,10 +36,10 @@ export const Hero = ({ searchQuery = "", onSearch }: HeroProps) => {
       <div className="container py-16 md:py-24 px-4">
         <div className="mx-auto max-w-4xl text-center space-y-8 animate-fade-in">
           <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight break-words">
-            100+ Free Online Tools for Every Task
+            100+ Free AI-Powered Tools
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground break-words">
-            AI-Powered Web Tools - Instant Access, No Registration Required
+            Instant Access, No Signup Required
           </p>
           
           <form onSubmit={handleSearchSubmit} className="mx-auto max-w-2xl w-full px-2">

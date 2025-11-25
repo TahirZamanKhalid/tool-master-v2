@@ -1,108 +1,134 @@
 import { Link } from "react-router-dom";
-import { Facebook, Twitter, Linkedin, Mail, Shield, Zap } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Facebook, Twitter, Linkedin, Mail } from "lucide-react";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-card border-t border-white/5 relative overflow-hidden mt-20">
-      {/* Background Glow Effects */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[100px]" />
-        <div className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-accent/5 rounded-full blur-[100px]" />
-      </div>
-
-      <div className="container relative z-10 pt-16 pb-8 px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mb-16">
-          {/* Brand Column */}
-          <div className="lg:col-span-4 space-y-6">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold shadow-lg shadow-primary/20">
-                TM
+    <footer className="bg-card border-t mt-20">
+      <div className="container py-12 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Brand Section */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <div className="gradient-primary h-10 w-10 rounded-xl flex items-center justify-center shadow-card">
+                <span className="text-white font-black text-lg tracking-tight">TM</span>
               </div>
-              <span className="font-bold text-xl tracking-tight">ToolMaster Pro</span>
+              <h3 className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                ToolMaster Pro
+              </h3>
             </div>
-            <p className="text-muted-foreground leading-relaxed">
-              Your all-in-one platform for 100+ free online tools. Professional web-based utilities for developers, designers, and content creators.
-            </p>
-            <div className="flex gap-4">
-              {[Facebook, Twitter, Linkedin, Mail].map((Icon, i) => (
-                <a
-                  key={i}
-                  href="#"
-                  className="h-10 w-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all duration-300 hover:scale-110"
-                >
-                  <Icon className="h-5 w-5" />
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Links Columns */}
-          <div className="lg:col-span-2 space-y-6">
-            <h4 className="font-bold text-foreground">Product</h4>
-            <ul className="space-y-3">
-              {['All Tools', 'Popular', 'New Arrivals', 'Categories'].map((item) => (
-                <li key={item}>
-                  <Link to="/tools" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                    {item}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="lg:col-span-2 space-y-6">
-            <h4 className="font-bold text-foreground">Company</h4>
-            <ul className="space-y-3">
-              {['About Us', 'Blog', 'Contact', 'Careers'].map((item) => (
-                <li key={item}>
-                  <Link to={`/${item.toLowerCase().replace(' ', '-')}`} className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                    {item}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="lg:col-span-4 space-y-6">
-            <h4 className="font-bold text-foreground">Stay Updated</h4>
             <p className="text-sm text-muted-foreground">
-              Subscribe to our newsletter for the latest tools and updates.
+              Your all-in-one platform for 100+ free online tools. Making your daily tasks easier and more efficient.
             </p>
-            <div className="flex gap-2">
-              <Input
-                placeholder="Enter your email"
-                className="bg-background/50 border-white/10 focus:border-primary/50"
-              />
-              <Button className="bg-primary hover:bg-primary/90 text-white">
-                Subscribe
-              </Button>
+            <div className="flex gap-3">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                <Twitter className="h-5 w-5" />
+              </a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
+                <Linkedin className="h-5 w-5" />
+              </a>
+              <a href="mailto:contact@toolmasterpro.com" className="text-muted-foreground hover:text-primary transition-colors">
+                <Mail className="h-5 w-5" />
+              </a>
             </div>
-            <div className="flex gap-6 pt-4">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Shield className="h-4 w-4 text-primary" />
-                <span>Secure & Private</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Zap className="h-4 w-4 text-accent" />
-                <span>Lightning Fast</span>
-              </div>
-            </div>
+          </div>
+
+          {/* Tools Section */}
+          <div>
+            <h4 className="font-semibold mb-4">Popular Tools</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/tools/background-remover" className="text-muted-foreground hover:text-primary transition-colors">
+                  Background Remover
+                </Link>
+              </li>
+              <li>
+                <Link to="/tools/qr-code-generator" className="text-muted-foreground hover:text-primary transition-colors">
+                  QR Code Generator
+                </Link>
+              </li>
+              <li>
+                <Link to="/tools/pdf-merger" className="text-muted-foreground hover:text-primary transition-colors">
+                  PDF Merger
+                </Link>
+              </li>
+              <li>
+                <Link to="/tools/image-compressor" className="text-muted-foreground hover:text-primary transition-colors">
+                  Image Compressor
+                </Link>
+              </li>
+              <li>
+                <Link to="/tools/word-counter" className="text-muted-foreground hover:text-primary transition-colors">
+                  Word Counter
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Company Section */}
+          <div>
+            <h4 className="font-semibold mb-4">Company</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/blog" className="text-muted-foreground hover:text-primary transition-colors">
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-muted-foreground hover:text-primary transition-colors">
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal Section */}
+          <div>
+            <h4 className="font-semibold mb-4">Legal</h4>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/privacy-policy" className="text-muted-foreground hover:text-primary transition-colors">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms-of-service" className="text-muted-foreground hover:text-primary transition-colors">
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link to="/cookie-policy" className="text-muted-foreground hover:text-primary transition-colors">
+                  Cookie Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/disclaimer" className="text-muted-foreground hover:text-primary transition-colors">
+                  Disclaimer
+                </Link>
+              </li>
+              <li>
+                <Link to="/dmca" className="text-muted-foreground hover:text-primary transition-colors">
+                  DMCA Policy
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
-            &copy; {currentYear} ToolMaster Pro. All rights reserved.
+        <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
+          <p>&copy; {currentYear} ToolMaster Pro. All rights reserved.</p>
+          <p className="mt-2">
+            Made with ❤️ to make your life easier. 100% free tools, no signup required.
           </p>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <Link to="/privacy-policy" className="hover:text-foreground transition-colors">Privacy</Link>
-            <Link to="/terms-of-service" className="hover:text-foreground transition-colors">Terms</Link>
-            <Link to="/cookies" className="hover:text-foreground transition-colors">Cookies</Link>
-          </div>
         </div>
       </div>
     </footer>

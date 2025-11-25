@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
-import { AdWatchModal } from "@/components/AdWatchModal";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,65 +34,7 @@ const MemeGenerator = () => {
     setCanDownload(false);
   };
 
-  const drawMemeToCanvas = () => {
-    return new Promise<void>((resolve) => {
-      const canvas = canvasRef.current;
-      if (!canvas || !selectedImage) {
-        resolve();
-        return;
-      }
-
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        resolve();
-        return;
-      }
-
-      const img = new Image();
-      img.onload = () => {
-        // Set canvas dimensions to match image
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        // Draw the image
-        ctx.drawImage(img, 0, 0);
-
-        // Set text properties
-        const fontSize = Math.floor(img.width / 12);
-        ctx.font = `bold ${fontSize}px Impact, sans-serif`;
-        ctx.fillStyle = "white";
-        ctx.strokeStyle = "black";
-        ctx.lineWidth = fontSize / 20;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "top";
-
-        // Draw top text
-        if (topText) {
-          const topY = fontSize / 2;
-          // Draw text outline (stroke)
-          ctx.strokeText(topText.toUpperCase(), img.width / 2, topY);
-          // Draw text fill
-          ctx.fillText(topText.toUpperCase(), img.width / 2, topY);
-        }
-
-        // Draw bottom text
-        if (bottomText) {
-          ctx.textBaseline = "bottom";
-          const bottomY = img.height - fontSize / 2;
-          // Draw text outline (stroke)
-          ctx.strokeText(bottomText.toUpperCase(), img.width / 2, bottomY);
-          // Draw text fill
-          ctx.fillText(bottomText.toUpperCase(), img.width / 2, bottomY);
-        }
-
-        resolve();
-      };
-      img.src = selectedImage;
-    });
-  };
-
-  const handleAdComplete = async () => {
-    await drawMemeToCanvas();
+  const handleAdComplete = () => {
     setCanDownload(true);
     toast.success("Meme created! You can now download it.");
   };
@@ -166,10 +108,12 @@ const MemeGenerator = () => {
       </Card>
 
       {showAdOverlay && (
-        <AdWatchModal
-          isOpen={showAdOverlay}
-          onClose={() => setShowAdOverlay(false)}
+        <ProcessingOverlay
+          message="Meme ready! Please view the ad to enable download."
+          minAdViewTime={5}
           onAdComplete={handleAdComplete}
+          showSkip={canDownload}
+          onSkip={() => setShowAdOverlay(false)}
         />
       )}
     </ToolLayout>

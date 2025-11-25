@@ -1,6 +1,5 @@
 import { ToolLayout } from '@/components/ToolLayout';
 import { AIChat as AIChatComponent } from '@/components/AIChat';
-import { AdRow } from '@/components/AdRow';
 
 const AIChat = () => {
   return (
@@ -9,7 +8,6 @@ const AIChat = () => {
       description="Chat with an advanced AI powered by Google Gemini 2.5 Pro. Get answers, brainstorm ideas, or have a conversation about anything."
       category="ai"
     >
-      <AdRow className="mb-6" />
       <div className="space-y-6">
         <div className="text-center space-y-2">
           <h2 className="text-2xl font-bold">Your Personal AI Assistant</h2>
@@ -42,7 +40,6 @@ const AIChat = () => {
           </div>
         </div>
       </div>
-      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };

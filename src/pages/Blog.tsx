@@ -1,5 +1,3 @@
-// pages/Blog.tsx - Simplified version
-import { useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
@@ -8,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
 import { BlogPostCard } from "@/components/BlogPostCard";
 import { blogPosts } from "@/data/blogPosts";
-
+import { LazyAdSpace } from "@/components/LazyAdSpace";
 
 const Blog = () => {
   const navigate = useNavigate();
@@ -17,53 +15,40 @@ const Blog = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
         title="Blog - ToolMaster Pro"
-        description="Read articles, tutorials, and tips about using ToolMaster Pro's free online tools."
+        description="Read articles, tutorials, and tips about using ToolMaster Pro's free online tools effectively. Stay updated with latest features and best practices."
         keywords="blog, tutorials, tips, guides, online tools"
         canonical="https://toolmaster.cloud/blog"
       />
-
       <Header />
-
       <main className="flex-1">
-        <div className="container py-12 px-4 max-w-[1200px] mx-auto">
-          <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
-          </Button>
+        <div className="container py-12 px-4">
+        <Button
+          variant="ghost"
+          onClick={() => navigate("/")}
+          className="mb-6"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home
+        </Button>
 
-          <div className="mx-auto">
-            {/* Page Header */}
-            <div className="text-center mb-12">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">ToolMaster Pro Blog</h1>
-              <p className="text-xl text-muted-foreground">Tips, tutorials, and insights about our tools</p>
-            </div>
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">Blog</h1>
+          <p className="text-xl text-muted-foreground mb-12">
+            Tips, tutorials, and insights about our tools
+          </p>
+          
+          <LazyAdSpace size="leaderboard" className="mb-8" />
 
-            {/* Featured Posts */}
-            <section className="mb-16">
-              <h2 className="text-3xl font-bold mb-8 text-center">Featured Articles</h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {blogPosts
-                  .filter((post) => post.featured)
-                  .slice(0, 3)
-                  .map((post) => (
-                    <BlogPostCard key={post.id} post={post} />
-                  ))}
-              </div>
-            </section>
-
-            {/* All Posts */}
-            <section className="mb-16">
-              <h2 className="text-3xl font-bold mb-8 text-center">All Articles</h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {blogPosts.map((post) => (
-                  <BlogPostCard key={post.id} post={post} />
-                ))}
-              </div>
-            </section>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {blogPosts.map((post) => (
+              <BlogPostCard key={post.id} post={post} />
+            ))}
           </div>
+          
+          <LazyAdSpace size="leaderboard" className="mt-8" />
+        </div>
         </div>
       </main>
-
       <Footer />
     </div>
   );

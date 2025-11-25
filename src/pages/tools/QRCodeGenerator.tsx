@@ -5,25 +5,25 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, QrCode } from "lucide-react";
-import { toast } from "sonner";
+import { useToast } from "@/hooks/use-toast";
 import QRCodeLib from "qrcode";
-import { AdRow } from "@/components/AdRow";
 
 const QRCodeGenerator = () => {
   const [text, setText] = useState("");
   const [qrCode, setQrCode] = useState("");
-  const [color, setColor] = useState("#000000");
+  const [color, setColor] = useState("#2563eb");
   const [bgColor, setBgColor] = useState("#ffffff");
-  const [errorCorrectionLevel, setErrorCorrectionLevel] = useState<"L" | "M" | "Q" | "H">("M");
-  const [size, setSize] = useState(300);
-  const [margin, setMargin] = useState(4);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { toast } = useToast();
 
   const generateQR = async () => {
     if (!text) {
-      setQrCode("");
+      toast({
+        title: "Error",
+        description: "Please enter text or URL",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -32,9 +32,8 @@ const QRCodeGenerator = () => {
       if (!canvas) return;
 
       await QRCodeLib.toCanvas(canvas, text, {
-        width: size,
-        margin: margin,
-        errorCorrectionLevel: errorCorrectionLevel,
+        width: 300,
+        margin: 2,
         color: {
           dark: color,
           light: bgColor,
@@ -44,24 +43,19 @@ const QRCodeGenerator = () => {
       const dataUrl = canvas.toDataURL("image/png");
       setQrCode(dataUrl);
 
-      toast.success("QR code generated successfully!");
+      toast({
+        title: "Success!",
+        description: "QR code generated successfully",
+      });
     } catch (error) {
       console.error(error);
-      toast.error("Failed to generate QR code. Check your input.");
+      toast({
+        title: "Error",
+        description: "Failed to generate QR code",
+        variant: "destructive",
+      });
     }
   };
-
-  // Auto-generate QR code when parameters change
-  useEffect(() => {
-    if (text) {
-      const timer = setTimeout(() => {
-        generateQR();
-      }, 300);
-      return () => clearTimeout(timer);
-    } else {
-      setQrCode("");
-    }
-  }, [text, color, bgColor, errorCorrectionLevel, size, margin]);
 
   const downloadQR = () => {
     if (!qrCode) return;
@@ -77,38 +71,31 @@ const QRCodeGenerator = () => {
       <Header />
       <ToolLayout
         title="QR Code Generator"
-        description="Advanced QR code generator with real-time preview and customization"
+        description="Create custom QR codes with colors and download instantly"
         category="QR & Barcodes"
         instructions={[
           "Enter your text, URL, or any content",
-          "QR code generates automatically as you type",
-          "Customize colors, size, error correction, and margin",
-          "Higher error correction allows damaged codes to be read",
-          "Download your QR code as PNG image",
+          "Customize colors if desired",
+          "Click 'Generate QR Code'",
+          "Download your QR code as PNG",
         ]}
         relatedTools={[
           { name: "Barcode Generator", path: "/tools/barcode-generator" },
           { name: "WiFi QR Generator", path: "/tools/wifi-qr" },
-          { name: "QR Scanner", path: "/tools/qr-scanner" },
         ]}
       >
-        <AdRow className="mb-6" />
         <div className="grid md:grid-cols-2 gap-6">
           <Card className="p-6 space-y-6">
             <div className="space-y-4">
               <div>
                 <Label htmlFor="text">Text or URL</Label>
-                <textarea
+                <Input
                   id="text"
                   placeholder="Enter text, URL, or any content..."
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-2 resize-none"
-                  rows={4}
+                  className="mt-2"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {text.length > 0 ? `${text.length} characters` : "Real-time generation"}
-                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -148,90 +135,43 @@ const QRCodeGenerator = () => {
                   </div>
                 </div>
               </div>
-
-              <div>
-                <Label htmlFor="errorCorrection">Error Correction Level</Label>
-                <Select value={errorCorrectionLevel} onValueChange={(value: "L" | "M" | "Q" | "H") => setErrorCorrectionLevel(value)}>
-                  <SelectTrigger id="errorCorrection" className="mt-2">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="L">Low (7% recovery)</SelectItem>
-                    <SelectItem value="M">Medium (15% recovery)</SelectItem>
-                    <SelectItem value="Q">Quartile (25% recovery)</SelectItem>
-                    <SelectItem value="H">High (30% recovery)</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Higher levels = more damage tolerance
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="size">Size: {size}px</Label>
-                  <Input
-                    id="size"
-                    type="range"
-                    min="200"
-                    max="600"
-                    step="50"
-                    value={size}
-                    onChange={(e) => setSize(Number(e.target.value))}
-                    className="mt-2"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="margin">Margin: {margin}</Label>
-                  <Input
-                    id="margin"
-                    type="range"
-                    min="0"
-                    max="10"
-                    value={margin}
-                    onChange={(e) => setMargin(Number(e.target.value))}
-                    className="mt-2"
-                  />
-                </div>
-              </div>
             </div>
+
+            <Button
+              onClick={generateQR}
+              size="lg"
+              className="w-full gradient-primary border-0"
+            >
+              <QrCode className="h-4 w-4 mr-2" />
+              Generate QR Code
+            </Button>
           </Card>
 
           <Card className="p-6 flex flex-col items-center justify-center">
             <canvas ref={canvasRef} className="hidden" />
-
+            
             {qrCode ? (
               <div className="space-y-4 w-full">
-                <div className="flex justify-center p-4 bg-white rounded-lg">
+                <div className="flex justify-center">
                   <img
                     src={qrCode}
                     alt="Generated QR Code"
                     className="border rounded-lg shadow-card"
-                    style={{ maxWidth: `${size}px` }}
                   />
-                </div>
-                <div className="text-center text-sm text-muted-foreground space-y-1">
-                  <p>Size: {size}x{size}px</p>
-                  <p>Error Correction: {errorCorrectionLevel}</p>
-                  <p className="text-xs">Updates in real-time as you type</p>
                 </div>
                 <Button onClick={downloadQR} size="lg" className="w-full" variant="secondary">
                   <Download className="h-4 w-4 mr-2" />
-                  Download PNG
+                  Download QR Code
                 </Button>
               </div>
             ) : (
               <div className="text-center text-muted-foreground py-12">
                 <QrCode className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                <p className="font-medium">Your QR code will appear here</p>
-                <p className="text-sm mt-2">Start typing to generate instantly</p>
+                <p>Your QR code will appear here</p>
               </div>
             )}
           </Card>
         </div>
-
-        <AdRow className="mt-6" />
       </ToolLayout>
     </>
   );

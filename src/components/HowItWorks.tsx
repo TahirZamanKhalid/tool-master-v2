@@ -1,5 +1,5 @@
 import { MousePointer, Zap, Download } from "lucide-react";
-
+import { AdSpace } from "./AdSpace";
 
 const steps = [
   {
@@ -43,6 +43,10 @@ export const HowItWorks = () => {
           ))}
         </div>
 
+        {/* Ad after How It Works section */}
+        <div className="mt-12">
+          <AdSpace size="leaderboard" />
+        </div>
       </div>
     </section>
   );

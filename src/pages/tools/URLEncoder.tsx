@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Copy, Link } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdWatchModal } from "@/components/AdWatchModal";
-import { AdRow } from "@/components/AdRow";
 
 const URLEncoder = () => {
   const [input, setInput] = useState("");
@@ -82,7 +81,6 @@ const URLEncoder = () => {
         { name: "Hash Generator", path: "/tools/hash-generator" },
       ]}
     >
-      <AdRow className="mb-6" />
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>
           <CardContent className="pt-6">
@@ -142,8 +140,6 @@ const URLEncoder = () => {
           </CardContent>
         </Card>
       </div>
-
-      <AdRow className="mt-6" />
 
       <AdWatchModal
         open={showAdModal}

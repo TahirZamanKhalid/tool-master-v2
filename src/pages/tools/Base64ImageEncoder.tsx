@@ -1,6 +1,11 @@
 import { useState } from "react";
+import { ToolLayout } from "@/components/ToolLayout";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import "./Base64ImageEncoder.css";
+import { AdSpace } from "@/components/AdSpace";
 
 const Base64ImageEncoder = () => {
   const [base64Output, setBase64Output] = useState("");
@@ -23,41 +28,27 @@ const Base64ImageEncoder = () => {
   };
 
   return (
-    <div className="base64-encoder-container">
-      <div className="base64-encoder-content">
-        <div className="base64-encoder-header">
-          <span className="base64-encoder-badge">Developer Tools</span>
-          <h1 className="base64-encoder-title">Base64 Image Encoder</h1>
-          <p className="base64-encoder-description">
-            Convert images to Base64 strings
-          </p>
-        </div>
-        
-        <div className="base64-encoder-card">
-          <div className="base64-encoder-form">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="base64-encoder-input"
-            />
-            <textarea
-              className="base64-encoder-textarea"
-              value={base64Output}
-              readOnly
-              placeholder="Base64 output will appear here..."
-            />
-            <button
-              onClick={copyToClipboard}
-              className="base64-encoder-button"
-              disabled={!base64Output}
-            >
-              Copy to Clipboard
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <ToolLayout
+      title="Base64 Image Encoder"
+      description="Convert images to Base64 strings"
+      category="Developer Tools"
+    >
+      <AdSpace size="leaderboard" className="mb-6" />
+      <Card>
+        <CardContent className="p-6 space-y-4">
+          <Input type="file" accept="image/*" onChange={handleImageUpload} />
+          <Textarea
+            value={base64Output}
+            readOnly
+            placeholder="Base64 output will appear here..."
+            className="min-h-[200px] font-mono text-xs"
+          />
+          <Button onClick={copyToClipboard} className="w-full" disabled={!base64Output}>
+            Copy to Clipboard
+          </Button>
+        </CardContent>
+      </Card>
+    </ToolLayout>
   );
 };
 

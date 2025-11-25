@@ -22,13 +22,9 @@ serve(async (req) => {
 
     // Try Open Food Facts first (best for food products worldwide)
     try {
-      const foodResponse = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`, {
-        headers: {
-          'User-Agent': 'ToolMasterPro/1.0 (Barcode Scanner)'
-        }
-      });
+      const foodResponse = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
       const foodData = await foodResponse.json();
-
+      
       if (foodData.status === 1 && foodData.product && foodData.product.product_name) {
         return new Response(
           JSON.stringify({
@@ -47,7 +43,6 @@ serve(async (req) => {
             labels: foodData.product.labels,
             packaging: foodData.product.packaging,
             countries: foodData.product.countries,
-            barcode: barcode,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -58,13 +53,9 @@ serve(async (req) => {
 
     // Try UPC Database
     try {
-      const upcResponse = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`, {
-        headers: {
-          'User-Agent': 'ToolMasterPro/1.0 (Barcode Scanner)'
-        }
-      });
+      const upcResponse = await fetch(`https://api.upcitemdb.com/prod/trial/lookup?upc=${barcode}`);
       const upcData = await upcResponse.json();
-
+      
       if (upcData.items && upcData.items.length > 0) {
         const item = upcData.items[0];
         return new Response(
@@ -78,7 +69,6 @@ serve(async (req) => {
             price: item.offers?.[0]?.price,
             currency: item.offers?.[0]?.currency,
             merchant: item.offers?.[0]?.merchant,
-            barcode: barcode,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -113,13 +103,9 @@ serve(async (req) => {
 
     // Try Open Product Data
     try {
-      const opdResponse = await fetch(`https://openproductdata.com/api/v1/products/${barcode}`, {
-        headers: {
-          'User-Agent': 'ToolMasterPro/1.0 (Barcode Scanner)'
-        }
-      });
+      const opdResponse = await fetch(`https://openproductdata.com/api/v1/products/${barcode}`);
       const opdData = await opdResponse.json();
-
+      
       if (opdData && opdData.name) {
         return new Response(
           JSON.stringify({
@@ -129,7 +115,6 @@ serve(async (req) => {
             description: opdData.description,
             category: opdData.category,
             image: opdData.image_url,
-            barcode: barcode,
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
@@ -142,10 +127,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         source: "Not Found",
-        barcode: barcode,
-        message: `No product information found for barcode: ${barcode}`,
-        suggestion: "This barcode might be:\n• A regional or local product not in international databases\n• A newly released product\n• A private label or store brand\n• A non-retail barcode (internal use)\n\nYou can try:\n• Searching the barcode number on Google\n• Checking the manufacturer's website\n• Looking for product information on the packaging",
-        searchUrl: `https://www.google.com/search?q=${barcode}+barcode`,
+        message: "Product information not available in any database for this barcode. This might be a regional product or the barcode might not be registered yet.",
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

@@ -1,132 +1,92 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { AdSpace } from "@/components/AdSpace";
 import { Clock } from "lucide-react";
 
 interface AdWatchModalProps {
-  isOpen?: boolean;
-  open?: boolean;
-  onClose?: () => void;
-  onOpenChange?: (open: boolean) => void;
-  onAdComplete?: () => void;
-  onAdWatched?: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAdWatched: () => void;
   title?: string;
   description?: string;
+  adDuration?: number;
 }
 
 export const AdWatchModal = ({
-  isOpen,
   open,
-  onClose,
   onOpenChange,
-  onAdComplete,
   onAdWatched,
-  title = "Watch ad to continue",
-  description = "Please watch this short ad to continue.",
+  title = "Watch Ad to Continue",
+  description = "Please watch this short ad to unlock this premium feature",
+  adDuration = 5,
 }: AdWatchModalProps) => {
-  const [countdown, setCountdown] = useState(15);
-  const [adLoaded, setAdLoaded] = useState(false);
-
-  const modalOpen = isOpen ?? open ?? false;
-  const handleClose = onClose || (() => onOpenChange?.(false));
-  const handleComplete = onAdComplete || onAdWatched || (() => {});
+  const [countdown, setCountdown] = useState(adDuration);
+  const [canProceed, setCanProceed] = useState(false);
 
   useEffect(() => {
-    if (modalOpen) {
-      setCountdown(15);
-      setAdLoaded(false);
-      
-      // Initialize AdSense ad
-      const timer = setTimeout(() => {
-        try {
-          // @ts-ignore
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-          setAdLoaded(true);
-        } catch (err) {
-          console.error("AdSense error:", err);
-          setAdLoaded(true);
-        }
-      }, 100);
+    if (open) {
+      setCountdown(adDuration);
+      setCanProceed(false);
 
-      return () => clearTimeout(timer);
-    }
-  }, [modalOpen]);
-
-  useEffect(() => {
-    if (modalOpen && countdown > 0) {
-      const timer = setTimeout(() => {
-        setCountdown((prev) => prev - 1);
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            setCanProceed(true);
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [modalOpen, countdown]);
 
-  const handleContinue = () => {
-    handleComplete();
-    handleClose();
+      return () => clearInterval(timer);
+    }
+  }, [open, adDuration]);
+
+  const handleProceed = () => {
+    onAdWatched();
+    onOpenChange(false);
   };
 
-  const progress = ((15 - countdown) / 15) * 100;
-
   return (
-    <Dialog open={modalOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="max-w-3xl">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Ad Container */}
-          <div className="flex items-center justify-center min-h-[280px] bg-muted/30 rounded-lg border-2 border-dashed border-border/50">
-            <ins
-              className="adsbygoogle"
-              style={{
-                display: "block",
-                width: "728px",
-                height: "250px",
-              }}
-              data-ad-client="ca-pub-7382531001943020"
-              data-ad-slot="4838473293"
-            />
+        <div className="space-y-4">
+          {/* Ad Display Area */}
+          <div className="border rounded-lg p-4 bg-muted/50">
+            <AdSpace size="rectangle" />
           </div>
 
-          {/* Countdown and Progress */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                <span>
-                  {countdown > 0
-                    ? `Please wait ${countdown} seconds...`
-                    : "Ready to continue!"}
-                </span>
-              </div>
-              <span className="text-xs text-muted-foreground">
-                {Math.round(progress)}%
+          {/* Countdown and Action */}
+          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              <span className="text-sm">
+                {canProceed ? (
+                  "You can now proceed"
+                ) : (
+                  <>Wait {countdown} seconds...</>
+                )}
               </span>
             </div>
-            <Progress value={progress} className="h-2" />
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex gap-3 justify-end">
-            <Button variant="outline" onClick={handleClose}>
-              Cancel
-            </Button>
             <Button
-              onClick={handleContinue}
-              disabled={countdown > 0}
-              className="min-w-32"
+              onClick={handleProceed}
+              disabled={!canProceed}
+              size="sm"
             >
-              {countdown > 0 ? `Wait ${countdown}s` : "Continue"}
+              Continue
             </Button>
           </div>
         </div>

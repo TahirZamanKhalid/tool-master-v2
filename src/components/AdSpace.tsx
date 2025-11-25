@@ -1,60 +1,51 @@
-import { GoogleAd } from "./AdRow";
+import { useEffect } from "react";
 
-export interface AdSpaceProps {
-  type?: string;
-  slot?: string;
-  position?: string;
-  layoutKey?: string;
-  size?: "leaderboard" | "banner" | "skyscraper" | "medium-rectangle" | "large-rectangle" | string;
+interface AdSpaceProps {
+  size: "banner" | "leaderboard" | "rectangle" | "skyscraper";
   className?: string;
-  style?: React.CSSProperties;
-  width?: number | string;
-  height?: number | string;
-  responsive?: boolean;
-  debug?: boolean;
 }
 
-export const AdSpace = ({
-  className = "",
-  style,
-  size = "leaderboard",
-  slot = "2931558314",
-  width,
-  height,
-  responsive = true,
-  debug = false
-}: AdSpaceProps) => {
-  // Define standard ad sizes based on the size prop
-  let adWidth: number | string = width || 728;
-  let adHeight: number | string = height || 90;
+const adSizes = {
+  banner: { width: 728, height: 90 },
+  leaderboard: { width: 970, height: 90 },
+  rectangle: { width: 300, height: 250 },
+  skyscraper: { width: 300, height: 600 },
+};
 
-  if (size === "skyscraper") {
-    adWidth = width || 160;
-    adHeight = height || 600;
-  } else if (size === "banner") {
-    adWidth = width || 468;
-    adHeight = height || 60;
-  } else if (size === "medium-rectangle") {
-    adWidth = width || 300;
-    adHeight = height || 250;
-  } else if (size === "large-rectangle") {
-    adWidth = width || 336;
-    adHeight = height || 280;
-  } else if (size === "leaderboard") {
-    adWidth = width || 728;
-    adHeight = height || 90;
-  }
+export const AdSpace = ({ size, className = "" }: AdSpaceProps) => {
+  const dimensions = adSizes[size];
+
+  useEffect(() => {
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      try {
+        // @ts-ignore
+        if (window.adsbygoogle && typeof window.adsbygoogle.push === 'function') {
+          // @ts-ignore
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        }
+      } catch (err) {
+        console.error("AdSense error:", err);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <GoogleAd
-      width={adWidth}
-      height={adHeight}
-      adSlot={slot}
-      adFormat="auto"
-      className={className}
-      style={style}
-      responsive={responsive}
-      debug={debug}
-    />
+    <div className={`flex items-center justify-center w-full min-h-[90px] ${className}`}>
+      <ins
+        className="adsbygoogle"
+        style={{
+          display: "inline-block",
+          width: "100%",
+          minHeight: "90px",
+        }}
+        data-ad-client="ca-pub-7382531001943020"
+        data-ad-slot="auto"
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
+    </div>
   );
 };

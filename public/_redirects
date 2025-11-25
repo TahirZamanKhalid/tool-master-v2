@@ -1,6 +1,0 @@
-# Redirect www to non-www (canonical URL)
-https://www.toolmaster.cloud/* https://toolmaster.cloud/:splat 301!
-http://www.toolmaster.cloud/* https://toolmaster.cloud/:splat 301!
-
-# Redirect HTTP to HTTPS for non-www
-http://toolmaster.cloud/* https://toolmaster.cloud/:splat 301!

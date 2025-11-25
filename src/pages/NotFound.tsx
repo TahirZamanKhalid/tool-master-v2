@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
-
+import { AdSpace } from "@/components/AdSpace";
 import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
@@ -20,6 +20,9 @@ const NotFound = () => {
             The page you're looking for doesn't exist or has been moved.
           </p>
         </div>
+
+        {/* Ad on 404 page */}
+        <AdSpace size="rectangle" />
 
         <Button size="lg" onClick={() => window.location.href = "/"} className="gradient-primary">
           Return to Home

@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
-import { Volume2, Pause, StopCircle } from "lucide-react";
+import { Volume2, Pause, StopCircle, Download, Info } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
+import { ProcessingOverlay } from "@/components/ProcessingOverlay";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const TextToSpeech = () => {
   const [text, setText] = useState("");
@@ -16,6 +18,10 @@ const TextToSpeech = () => {
   const [rate, setRate] = useState([1]);
   const [pitch, setPitch] = useState([1]);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [showAdOverlay, setShowAdOverlay] = useState(false);
+  const [canDownload, setCanDownload] = useState(false);
+  const [downloadFormat, setDownloadFormat] = useState<'mp3' | 'wav' | 'ogg'>('mp3');
 
   useEffect(() => {
     const loadVoices = () => {
@@ -33,7 +39,6 @@ const TextToSpeech = () => {
       speechSynthesis.cancel();
     };
   }, []);
-
 
   const speak = () => {
     if (!text.trim()) {
@@ -71,6 +76,107 @@ const TextToSpeech = () => {
     setIsSpeaking(false);
   };
 
+  const generateAudioForDownload = async () => {
+    if (!text.trim()) {
+      toast.error("Please enter some text");
+      return;
+    }
+
+    toast.info("Note: Browser TTS has limitations. For voice cloning, you'll need ElevenLabs API key (free tier available)");
+    
+    // Show ad overlay first
+    setShowAdOverlay(true);
+    setCanDownload(false);
+
+    // Generate audio using Web Audio API
+    try {
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voice = voices.find(v => v.name === selectedVoice);
+      
+      if (voice) utterance.voice = voice;
+      utterance.rate = rate[0];
+      utterance.pitch = pitch[0];
+
+      // Create a simple audio buffer
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const dest = audioContext.createMediaStreamDestination();
+      
+      // Try to capture system audio (limited browser support)
+      let mediaRecorder: MediaRecorder;
+      const chunks: BlobPart[] = [];
+      
+      try {
+        // Attempt to capture audio stream
+        mediaRecorder = new MediaRecorder(dest.stream, { 
+          mimeType: 'audio/webm;codecs=opus' 
+        });
+      } catch {
+        toast.warning("Audio capture limited in this browser. Download may not work perfectly.");
+        setShowAdOverlay(false);
+        return;
+      }
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+      
+      mediaRecorder.onstop = async () => {
+        if (chunks.length > 0) {
+          const webmBlob = new Blob(chunks, { type: 'audio/webm' });
+          setAudioBlob(webmBlob);
+        } else {
+          toast.error("No audio captured. Browser TTS limitations - consider using ElevenLabs for reliable downloads.");
+          setShowAdOverlay(false);
+        }
+      };
+
+      mediaRecorder.start();
+      
+      utterance.onend = () => {
+        setTimeout(() => {
+          mediaRecorder.stop();
+          audioContext.close();
+        }, 500);
+      };
+
+      utterance.onerror = () => {
+        mediaRecorder.stop();
+        audioContext.close();
+        toast.error("Speech failed");
+        setShowAdOverlay(false);
+      };
+
+      speechSynthesis.speak(utterance);
+    } catch (error) {
+      console.error("Audio generation error:", error);
+      toast.error("Browser TTS has limitations. For reliable audio downloads with voice cloning, use ElevenLabs API.");
+      setShowAdOverlay(false);
+    }
+  };
+
+  const handleAdComplete = () => {
+    setCanDownload(true);
+    toast.success("You can now download your audio!");
+  };
+
+  const downloadAudio = async () => {
+    if (!audioBlob) {
+      toast.error("No audio available");
+      return;
+    }
+
+    // For now, we can only download as WebM (browser limitation)
+    // For MP3/WAV conversion, we'd need a backend service or library
+    const url = URL.createObjectURL(audioBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `text-to-speech.webm`;
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    toast.success("Audio downloaded as WebM! For MP3/WAV and voice cloning, use ElevenLabs API.");
+    setShowAdOverlay(false);
+  };
 
   return (
     <>
@@ -95,6 +201,14 @@ const TextToSpeech = () => {
           { name: "Word Counter", path: "/tools/word-counter" }
         ]}
       >
+        <Alert className="mb-6">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Browser TTS Limitations:</strong> This free version uses browser voices (limited download support). 
+            For <strong>voice cloning</strong> (record your voice 3-10 times for custom TTS), <strong>reliable MP3/WAV downloads</strong>, 
+            and <strong>premium voices</strong>, you'll need an <strong>ElevenLabs API key</strong> (free tier: 10,000 chars/month).
+          </AlertDescription>
+        </Alert>
 
         <Card>
           <CardContent className="p-6 space-y-6">
@@ -178,10 +292,51 @@ const TextToSpeech = () => {
               </Button>
             </div>
 
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Download Format</label>
+                <Select value={downloadFormat} onValueChange={(v) => setDownloadFormat(v as any)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="mp3">MP3 (requires API)</SelectItem>
+                    <SelectItem value="wav">WAV (requires API)</SelectItem>
+                    <SelectItem value="ogg">WebM (browser only)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Button 
+                onClick={generateAudioForDownload}
+                disabled={!text.trim()}
+                variant="secondary"
+                size="lg"
+                className="w-full"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download Audio (Watch Ad)
+              </Button>
+            </div>
+
+            <div className="text-xs text-muted-foreground p-3 bg-muted rounded-lg space-y-1">
+              <p><strong>Basic (Free):</strong> Browser voices, WebM downloads only</p>
+              <p><strong>Voice Cloning (Requires API):</strong> Record 3-10 samples → Get custom voice → Download as MP3/WAV</p>
+              <p className="text-primary">Want voice cloning? Sign up for ElevenLabs free tier!</p>
+            </div>
           </CardContent>
         </Card>
       </ToolLayout>
 
+      {showAdOverlay && (
+        <ProcessingOverlay
+          message="Generating your audio... Please view the ad to enable download."
+          minAdViewTime={5}
+          onAdComplete={handleAdComplete}
+          showSkip={canDownload}
+          onSkip={canDownload ? downloadAudio : undefined}
+        />
+      )}
     </>
   );
 };
