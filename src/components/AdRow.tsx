@@ -6,168 +6,309 @@ declare global {
   }
 }
 
-export const AdRow = ({ className = "" }) => {
+interface GoogleAdProps {
+  width?: number | string;
+  height?: number | string;
+  adSlot: string;
+  adFormat?: "auto" | "rectangle" | "vertical" | "horizontal" | "fluid";
+  className?: string;
+  style?: React.CSSProperties;
+  responsive?: boolean;
+  adClient?: string; // Optional: override default ad client
+  debug?: boolean;
+}
+
+export const GoogleAd = ({
+  width = 300,
+  height = 250,
+  adSlot,
+  adFormat = "auto",
+  className = "",
+  style = {},
+  responsive = true,
+  adClient = "ca-pub-7382531001943020", // Your default ad client
+  debug = false
+}: GoogleAdProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [debugLog, setDebugLog] = useState<any[]>([]);
   const [adLoaded, setAdLoaded] = useState(false);
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
+  const [adError, setAdError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
-  const addDebug = (step: string, status: string, message: string, details?: any) => {
-    const debugInfo = { step, status, message, details, timestamp: new Date() };
-    setDebugLog(prev => [...prev, debugInfo]);
-    console.log(`[AdDebug] ${step}: ${message}`, details || '');
+  // Convert numeric dimensions to pixel values
+  const getDimension = (dim: number | string): string => {
+    if (typeof dim === 'number') return `${dim}px`;
+    return dim;
   };
 
-  // Check container size and ensure it's visible
-  useEffect(() => {
-    const checkContainerSize = () => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        const styles = window.getComputedStyle(containerRef.current);
-        
-        setContainerSize({
-          width: rect.width,
-          height: rect.height
-        });
+  const adDimensions = {
+    width: getDimension(width),
+    height: getDimension(height)
+  };
 
-        addDebug('CONTAINER_CHECK', 'info', 'Container dimensions', {
-          width: rect.width,
-          height: rect.height,
-          display: styles.display,
-          visibility: styles.visibility,
-          opacity: styles.opacity,
-          inViewport: rect.width > 0 && rect.height > 0
-        });
+  // Common ad sizes mapping for validation
+  const commonAdSizes = [
+    { width: 300, height: 250 },   // Medium Rectangle
+    { width: 336, height: 280 },   // Large Rectangle
+    { width: 728, height: 90 },    // Leaderboard
+    { width: 970, height: 90 },    // Large Leaderboard
+    { width: 970, height: 250 },   // Billboard
+    { width: 300, height: 600 },   // Half Page
+    { width: 160, height: 600 },   // Wide Skyscraper
+    { width: 120, height: 600 },   // Skyscraper
+    { width: 320, height: 100 },   // Large Mobile Banner
+    { width: 320, height: 50 },    // Mobile Banner
+    { width: 468, height: 60 },    // Banner
+  ];
 
-        return rect.width > 0;
-      }
-      return false;
-    };
-
-    // Initial check
-    checkContainerSize();
-
-    // Check again after a delay to ensure CSS is applied
-    const timer = setTimeout(() => {
-      const hasWidth = checkContainerSize();
-      if (!hasWidth) {
-        addDebug('SIZE_ERROR', 'error', 'Container has zero width - ad will fail');
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
+  // Validate if the requested size matches common ad sizes
+  const isValidAdSize = commonAdSizes.some(
+    size => 
+      (typeof width === 'number' && size.width === width) ||
+      (typeof height === 'number' && size.height === height)
+  );
 
   useEffect(() => {
-    addDebug('INIT', 'info', 'AdRow component mounted');
+    if (!adSlot) {
+      setAdError('Ad slot is required');
+      return;
+    }
 
     const loadAd = () => {
-      addDebug('LOAD_AD', 'info', 'Starting ad loading process');
-
       if (!adRef.current) {
-        addDebug('ELEMENT_MISSING', 'error', 'Ad element reference is null');
+        if (debug) console.log('❌ Ad element not found');
         return;
       }
 
-      // Final size check before loading ad
-      if (containerSize.width === 0) {
-        addDebug('ZERO_WIDTH', 'error', 'Container has zero width - delaying ad load');
-        
-        // Retry after a short delay
-        setTimeout(loadAd, 500);
-        return;
-      }
-
-      addDebug('SIZE_OK', 'success', 'Container has valid dimensions', containerSize);
-
+      // Check if AdSense is loaded
       if (typeof window.adsbygoogle === 'undefined') {
-        addDebug('ADSENSE_UNDEFINED', 'error', 'window.adsbygoogle is undefined');
+        if (debug) console.log('🔄 AdSense not loaded yet, retrying...');
+        if (retryCount < 3) {
+          setTimeout(loadAd, 1000 * (retryCount + 1));
+          setRetryCount(prev => prev + 1);
+        } else {
+          setAdError('AdSense failed to load after retries');
+        }
         return;
       }
 
       try {
-        addDebug('BEFORE_PUSH', 'info', 'Pushing ad to AdSense');
-        
-        // Use requestAnimationFrame to ensure DOM is ready
-        requestAnimationFrame(() => {
-          try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-            setAdLoaded(true);
-            addDebug('PUSH_SUCCESS', 'success', 'Ad pushed successfully!');
-          } catch (error) {
-            addDebug('PUSH_ERROR', 'error', 'Failed to push ad', error);
-          }
-        });
+        if (debug) console.log('📤 Loading ad:', { adSlot, width, height, adFormat });
 
-      } catch (error) {
-        addDebug('OUTER_ERROR', 'error', 'Outer error in ad load', error);
+        // Push ad to AdSense
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        
+        setAdLoaded(true);
+        setAdError(null);
+        if (debug) console.log('✅ Ad loaded successfully');
+
+      } catch (error: any) {
+        console.error('❌ Ad load error:', error);
+        setAdError(error.message);
+        
+        // Retry on error
+        if (retryCount < 2) {
+          setTimeout(loadAd, 2000);
+          setRetryCount(prev => prev + 1);
+        }
       }
     };
 
-    // Wait longer to ensure container is properly rendered
-    const timer = setTimeout(loadAd, 1000);
+    // Initial load with delay to ensure DOM readiness
+    const timer = setTimeout(loadAd, 500);
 
-    return () => clearTimeout(timer);
-  }, [containerSize.width]);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [adSlot, adFormat, retryCount, debug]);
+
+  // Reset error state when props change
+  useEffect(() => {
+    setAdError(null);
+    setRetryCount(0);
+  }, [adSlot, width, height]);
 
   return (
     <div 
       ref={containerRef}
-      className={`w-full flex justify-center my-8 ${className}`}
-      style={{ 
-        minWidth: '728px',
-        minHeight: '90px'
+      className={`google-ad-container ${className}`}
+      style={{
+        ...adDimensions,
+        ...style,
+        position: 'relative',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: adLoaded ? 'transparent' : '#f8f9fa',
+        border: debug ? '2px dashed #e9ecef' : 'none',
+        borderRadius: '4px',
+        overflow: 'hidden',
+        margin: '0 auto'
       }}
     >
-      {/* Debug Info */}
-      {debugLog.some(log => log.status === 'error') && (
-        <div className="fixed top-4 right-4 bg-red-100 border border-red-300 p-4 rounded-lg shadow-lg z-50">
-          <h3 className="font-bold text-red-800">Ad Error Detected</h3>
-          <p className="text-sm text-red-600">Container width: {containerSize.width}px</p>
-          <p className="text-sm text-red-600">Fix: Ensure container has visible width</p>
+      {/* Loading State */}
+      {!adLoaded && !adError && (
+        <div 
+          className="ad-loading-placeholder"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+            color: '#6c757d',
+            fontSize: '14px',
+            zIndex: 1
+          }}
+        >
+          <div className="loading-spinner" style={{
+            width: '24px',
+            height: '24px',
+            border: '2px solid #dee2e6',
+            borderTop: '2px solid #007bff',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            marginBottom: '8px'
+          }} />
+          <span>Loading Advertisement</span>
         </div>
       )}
 
-      {/* Ad Container with guaranteed dimensions */}
-      <div 
-        className="bg-gray-100 border-2 border-blue-500"
-        style={{
-          width: '728px',
-          height: '90px',
-          minWidth: '728px',
-          minHeight: '90px',
-          visibility: adLoaded ? 'visible' : 'visible'
-        }}
-      >
-        <ins
-          ref={adRef}
-          className="adsbygoogle"
+      {/* Error State */}
+      {adError && (
+        <div 
+          className="ad-error-state"
           style={{
-            display: 'block',
-            width: '728px',
-            height: '90px',
-            minWidth: '728px',
-            minHeight: '90px'
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: '#fff3cd',
+            border: '1px solid #ffeaa7',
+            color: '#856404',
+            fontSize: '12px',
+            textAlign: 'center',
+            padding: '10px',
+            zIndex: 2
           }}
-          data-ad-client="ca-pub-7382531001943020"
-          data-ad-slot="2931558314"
-          data-ad-format="rectangle"
-          data-full-width-responsive="false"
-        />
-      </div>
-
-      {/* Debug Panel */}
-      <div className="fixed bottom-4 left-4 bg-white border border-gray-300 p-4 rounded-lg shadow-lg z-50 max-w-md">
-        <h3 className="font-bold mb-2">Ad Debug</h3>
-        <div className="text-sm space-y-1">
-          <div>Container: {containerSize.width} × {containerSize.height}px</div>
-          <div>Status: {adLoaded ? '✅ Loaded' : '🔄 Loading'}</div>
-          <div>Errors: {debugLog.filter(log => log.status === 'error').length}</div>
+        >
+          <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+            Ad Not Available
+          </div>
+          <div style={{ fontSize: '10px', opacity: 0.7 }}>
+            {adError}
+          </div>
+          {retryCount < 2 && (
+            <button
+              onClick={() => {
+                setAdError(null);
+                setRetryCount(0);
+              }}
+              style={{
+                marginTop: '8px',
+                padding: '4px 8px',
+                fontSize: '10px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '3px',
+                cursor: 'pointer'
+              }}
+            >
+              Retry
+            </button>
+          )}
         </div>
-      </div>
+      )}
+
+      {/* Debug Info */}
+      {debug && (
+        <div 
+          className="ad-debug-info"
+          style={{
+            position: 'absolute',
+            top: '2px',
+            right: '2px',
+            background: 'rgba(0,0,0,0.7)',
+            color: 'white',
+            fontSize: '10px',
+            padding: '2px 4px',
+            borderRadius: '2px',
+            zIndex: 3
+          }}
+        >
+          {width}×{height}
+        </div>
+      )}
+
+      {/* Size Warning */}
+      {debug && !isValidAdSize && (
+        <div 
+          className="ad-size-warning"
+          style={{
+            position: 'absolute',
+            bottom: '2px',
+            left: '2px',
+            background: 'rgba(255,193,7,0.9)',
+            color: '#856404',
+            fontSize: '8px',
+            padding: '1px 3px',
+            borderRadius: '2px',
+            zIndex: 3
+          }}
+        >
+          Non-standard size
+        </div>
+      )}
+
+      {/* Actual AdSense Ad */}
+      <ins
+        ref={adRef}
+        className="adsbygoogle"
+        style={{
+          display: adLoaded ? 'block' : 'none',
+          ...adDimensions,
+          maxWidth: '100%',
+          margin: '0 auto'
+        }}
+        data-ad-client={adClient}
+        data-ad-slot={adSlot}
+        data-ad-format={adFormat}
+        data-full-width-responsive={responsive ? "true" : "false"}
+        data-ad-region={`ad-${adSlot}`}
+      />
     </div>
   );
 };
 
-export default AdRow;
+// CSS for spinner animation
+const spinnerStyles = `
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.google-ad-container {
+  min-height: 50px;
+  min-width: 120px;
+}
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.innerText = spinnerStyles;
+  document.head.appendChild(styleSheet);
+}
+
+export default GoogleAd;
