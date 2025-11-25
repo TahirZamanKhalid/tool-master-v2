@@ -223,7 +223,7 @@ const ImageCompressor = () => {
       {showAdOverlay && (
         <ProcessingOverlay
           message="Compression complete! Please view the ad to enable download."
-          minAdViewTime={5}
+          adViewTime={8}
           onAdComplete={handleAdComplete}
           showSkip={canDownload}
           onSkip={() => setShowAdOverlay(false)}

@@ -56,7 +56,7 @@ const ImageCropper = () => {
       {showAdOverlay && (
         <ProcessingOverlay
           message="Image uploaded! Please view the ad to continue."
-          minAdViewTime={5}
+          adViewTime={8}
           onAdComplete={handleAdComplete}
           showSkip={canDownload}
           onSkip={() => setShowAdOverlay(false)}

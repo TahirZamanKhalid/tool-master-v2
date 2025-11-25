@@ -18,13 +18,11 @@ export const Hero = ({ searchQuery = "", onSearch }: HeroProps) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalSearch(value);
-    // Don't trigger search on input - only on button click
+    onSearch?.(value); // Live search on every keystroke
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Trigger search only when button is clicked
-    onSearch?.(localSearch);
   };
 
   const handleTrendingClick = (term: string) => {

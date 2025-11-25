@@ -63,7 +63,6 @@ import {
   FileType,
   Images,
   Send,
-  CreditCard,
 } from "lucide-react";
 
 const categories = [
@@ -71,77 +70,63 @@ const categories = [
     icon: Sparkles,
     title: "AI & Content",
     description: "AI-powered writing, chatbots, and content generation",
-    toolCount: 3,
+    toolCount: 18,
     color: "from-blue-500 to-purple-600",
   },
   {
     icon: Image,
     title: "Image Tools",
     description: "Edit, compress, convert, and enhance images",
-    toolCount: 11,
+    toolCount: 25,
     color: "from-pink-500 to-rose-600",
   },
   {
     icon: Code,
     title: "Developer Tools",
     description: "API testing, formatters, and development utilities",
-    toolCount: 20,
+    toolCount: 10,
     color: "from-green-500 to-emerald-600",
   },
   {
     icon: QrCode,
     title: "QR & Barcodes",
     description: "Generate and customize QR codes and barcodes",
-    toolCount: 5,
+    toolCount: 8,
     color: "from-emerald-500 to-teal-600",
   },
   {
     icon: FileText,
     title: "PDF Tools",
     description: "Merge, split, compress, and convert PDFs",
-    toolCount: 5,
+    toolCount: 15,
     color: "from-orange-500 to-red-600",
   },
   {
     icon: Type,
     title: "Text Tools",
     description: "Word counter, case converter, and more",
-    toolCount: 18,
+    toolCount: 20,
     color: "from-indigo-500 to-blue-600",
-  },
-  {
-    icon: Video,
-    title: "Video Tools",
-    description: "Video editing and conversion",
-    toolCount: 2,
-    color: "from-purple-500 to-indigo-600",
   },
   {
     icon: TrendingUp,
     title: "SEO & Marketing",
     description: "Meta tags, sitemaps, and SEO optimization",
-    toolCount: 2,
+    toolCount: 12,
     color: "from-violet-500 to-purple-600",
   },
   {
     icon: Calculator,
     title: "Calculators",
     description: "Percentage, BMI, loan, and more calculators",
-    toolCount: 5,
+    toolCount: 15,
     color: "from-cyan-500 to-blue-600",
   },
   {
-    icon: Shield,
-    title: "Security Tools",
-    description: "Password generators and validators",
-    toolCount: 3,
-    color: "from-red-500 to-orange-600",
-  },
-  {
-    icon: Dices,
-    title: "Utilities",
-    description: "Random generators, timers, and more",
-    toolCount: 4,
+    icon: Video,
+    title: "Video & Audio",
+    description: "Compress, convert, and edit media files",
+    toolCount: 10,
     color: "from-fuchsia-500 to-pink-600",
   },
 ];
@@ -198,12 +183,13 @@ const popularTools = [
     title: "Text to Speech",
     description: "Convert text to natural-sounding speech",
     category: "Text Tools",
+    comingSoon: true,
   },
   {
     icon: Code,
     title: "JSON Formatter",
     description: "Format and validate JSON data",
-    category: "Developer Tools",
+    category: "Text Tools",
   },
   {
     icon: Captions,
@@ -218,22 +204,29 @@ const popularTools = [
     category: "Image Tools",
   },
   {
+    icon: Brain,
+    title: "AI Writing Assistant",
+    description: "Improve your writing with AI suggestions",
+    category: "AI & Content",
+    comingSoon: true,
+  },
+  {
     icon: Link2,
     title: "URL Encoder",
     description: "Encode and decode URLs safely",
-    category: "Developer Tools",
+    category: "Text Tools",
   },
   {
     icon: Hash,
     title: "Hash Generator",
     description: "Generate cryptographic hashes",
-    category: "Developer Tools",
+    category: "Text Tools",
   },
   {
     icon: Key,
     title: "UUID Generator",
     description: "Generate unique identifiers",
-    category: "Developer Tools",
+    category: "Text Tools",
   },
   {
     icon: Type,
@@ -251,7 +244,7 @@ const popularTools = [
     icon: Code,
     title: "HTML Encoder",
     description: "Encode or decode HTML entities",
-    category: "Developer Tools",
+    category: "Text Tools",
   },
   {
     icon: AlignLeft,
@@ -263,7 +256,7 @@ const popularTools = [
     icon: Clock,
     title: "Timestamp Converter",
     description: "Convert Unix timestamps",
-    category: "Developer Tools",
+    category: "Text Tools",
   },
   {
     icon: GitCompare,
@@ -275,13 +268,13 @@ const popularTools = [
     icon: Regex,
     title: "Regex Tester",
     description: "Test regular expressions",
-    category: "Developer Tools",
+    category: "Text Tools",
   },
   {
     icon: Wand2,
     title: "Code Beautifier",
     description: "Format JSON, HTML, CSS",
-    category: "Developer Tools",
+    category: "Text Tools",
   },
   {
     icon: Scale,
@@ -377,7 +370,7 @@ const popularTools = [
     icon: FileImage,
     title: "Base64 Image Encoder",
     description: "Convert images to Base64 strings",
-    category: "Image Tools",
+    category: "Developer Tools",
   },
   {
     icon: Palette,
@@ -523,79 +516,6 @@ const popularTools = [
     description: "Convert between binary, decimal, hex, and octal",
     category: "Developer Tools",
   },
-  {
-    icon: Send,
-    title: "Email Validator",
-    description: "Validate email addresses with syntax checking",
-    category: "Developer Tools",
-  },
-  {
-    icon: FileCode,
-    title: "Markdown to HTML",
-    description: "Convert Markdown to HTML instantly",
-    category: "Text Tools",
-  },
-  {
-    icon: FileImage,
-    title: "Image to Base64",
-    description: "Convert images to Base64 encoded strings",
-    category: "Image Tools",
-  },
-  {
-    icon: Type,
-    title: "Morse Code Translator",
-    description: "Translate between text and Morse code",
-    category: "Text Tools",
-  },
-  {
-    icon: CreditCard,
-    title: "Credit Card Validator",
-    description: "Validate credit card numbers using Luhn algorithm",
-    category: "Security Tools",
-  },
-  {
-    icon: Hash,
-    title: "Roman Numeral Converter",
-    description: "Convert between Roman numerals and numbers",
-    category: "Calculators",
-  },
-  {
-    icon: AlignLeft,
-    title: "Lorem Ipsum Pro",
-    description: "Advanced placeholder text generator",
-    category: "Text Tools",
-  },
-  {
-    icon: Minimize2,
-    title: "JSON Minifier",
-    description: "Minify and compress JSON data",
-    category: "Developer Tools",
-  },
-  {
-    icon: Minimize2,
-    title: "HTML Minifier",
-    description: "Minify and compress HTML code",
-    category: "Developer Tools",
-  },
-  {
-    icon: Video,
-    title: "Video Trimmer",
-    description: "Trim and cut videos with precision",
-    category: "Video Tools",
-  },
-  {
-    icon: Video,
-    title: "Video to GIF",
-    description: "Convert video clips to animated GIFs",
-    category: "Video Tools",
-  },
-  {
-    icon: TrendingUp,
-    title: "SEO Analyzer",
-    description: "Analyze and optimize your website's SEO",
-    category: "SEO & Marketing",
-    comingSoon: true,
-  },
 ];
 
 const Index = () => {
@@ -628,21 +548,14 @@ const Index = () => {
     }
   };
 
-  // Button-triggered search handler
-  const handleButtonSearch = (query: string) => {
+  // Live search handler
+  const handleLiveSearch = (query: string) => {
     setSearchQuery(query);
-    const params = new URLSearchParams();
-    if (query) params.set("q", query);
-    if (selectedCategory) params.set("category", selectedCategory);
-    setSearchParams(params);
     
-    // Track search analytics
+    // Track search analytics for live searches too
     if (query.length >= 3) {
       trackSearch(query);
-    }
-    
-    // Scroll to search results when user searches
-    if (query) {
+      // Scroll to search results for live search
       setTimeout(() => {
         document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
@@ -701,7 +614,7 @@ const Index = () => {
       <Header />
 
 
-      <OptimizedHero searchQuery={searchQuery} onSearch={handleButtonSearch} />
+      <OptimizedHero searchQuery={searchQuery} onSearch={handleLiveSearch} />
       
       {/* Ad after Hero - High visibility */}
       <div className="container px-4 py-6">
@@ -808,6 +721,7 @@ const Index = () => {
                 "JSON Formatter": "/tools/json-formatter",
                 "Caption Generator": "/tools/caption-generator",
                 "Color Picker": "/tools/color-picker",
+                "AI Writing Assistant": "/tools/ai-writing",
                 "URL Encoder": "/tools/url-encoder",
                 "Hash Generator": "/tools/hash-generator",
                 "UUID Generator": "/tools/uuid-generator",
@@ -859,15 +773,6 @@ const Index = () => {
                 "JavaScript Minifier": "/tools/javascript-minifier",
                 "User Agent Parser": "/tools/user-agent-parser",
                 "Number Base Converter": "/tools/number-base-converter",
-                "Email Validator": "/tools/email-validator",
-                "Markdown to HTML": "/tools/markdown-to-html",
-                "Image to Base64": "/tools/image-to-base64",
-                "Morse Code Translator": "/tools/morse-code",
-                "Credit Card Validator": "/tools/credit-card-validator",
-                "Roman Numeral Converter": "/tools/roman-numeral-converter",
-                "Lorem Ipsum Pro": "/tools/lorem-ipsum-pro",
-                "JSON Minifier": "/tools/json-minifier",
-                "HTML Minifier": "/tools/html-minifier",
               };
               
               return (

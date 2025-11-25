@@ -64,11 +64,10 @@ export const ToolRating = ({ toolPath }: ToolRatingProps) => {
       return;
     }
 
-    // Get user identifier for tracking
+    // Create anonymous session ID if no user
     let userIdentifier = user?.id;
-    
     if (!userIdentifier) {
-      // Use localStorage to create a persistent anonymous ID for tracking
+      // Use localStorage to create a persistent anonymous ID
       let anonId = localStorage.getItem('toolmaster_anon_id');
       if (!anonId) {
         anonId = `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -97,16 +96,15 @@ export const ToolRating = ({ toolPath }: ToolRatingProps) => {
         .eq("id", existing.id);
       error = result.error;
     } else {
-      // Insert new rating - use NULL for anonymous users
+      // Insert new rating
       const result = await supabase
         .from("tool_ratings")
         .insert({
           tool_path: toolPath,
           user_identifier: userIdentifier,
-          user_id: user?.id || null, // NULL for anonymous users
           rating,
           comment: comment.trim() || null,
-        });
+        } as any);
       error = result.error;
     }
 
