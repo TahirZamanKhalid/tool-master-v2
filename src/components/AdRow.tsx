@@ -68,26 +68,41 @@ export const GoogleAd = ({
       (typeof height === 'number' && size.height === height)
   );
 
+
   useEffect(() => {
     if (!adSlot) {
       setAdError('Ad slot is required');
       return;
     }
 
+    let isMounted = true;
+    let hasLoaded = false;
+
     const loadAd = () => {
+      if (!isMounted || hasLoaded) return;
+
       if (!adRef.current) {
         if (debug) console.log('❌ Ad element not found');
+        return;
+      }
+
+      // Check if this ad element already has the data-adsbygoogle-status attribute
+      const adStatus = adRef.current.getAttribute('data-adsbygoogle-status');
+      if (adStatus === 'done' || adStatus === 'filled') {
+        if (debug) console.log('⚠️ Ad already loaded, skipping');
+        setAdLoaded(true);
+        hasLoaded = true;
         return;
       }
 
       // Check if AdSense is loaded
       if (typeof window.adsbygoogle === 'undefined') {
         if (debug) console.log('🔄 AdSense not loaded yet, retrying...');
-        if (retryCount < 3) {
+        if (retryCount < 3 && isMounted) {
           setTimeout(loadAd, 1000 * (retryCount + 1));
           setRetryCount(prev => prev + 1);
         } else {
-          setAdError('AdSense failed to load after retries');
+          if (isMounted) setAdError('AdSense failed to load after retries');
         }
         return;
       }
@@ -95,21 +110,37 @@ export const GoogleAd = ({
       try {
         if (debug) console.log('📤 Loading ad:', { adSlot, width, height, adFormat });
 
-        // Push ad to AdSense
+        // Push ad to AdSense only if not already loaded
         (window.adsbygoogle = window.adsbygoogle || []).push({});
 
-        setAdLoaded(true);
-        setAdError(null);
+        hasLoaded = true;
+        if (isMounted) {
+          setAdLoaded(true);
+          setAdError(null);
+        }
         if (debug) console.log('✅ Ad loaded successfully');
 
       } catch (error: any) {
         console.error('❌ Ad load error:', error);
-        setAdError(error.message);
 
-        // Retry on error
-        if (retryCount < 2) {
-          setTimeout(loadAd, 2000);
-          setRetryCount(prev => prev + 1);
+        // Only set error if it's not the duplicate ad error
+        if (!error.message?.includes('already have ads in them')) {
+          if (isMounted) {
+            setAdError(error.message);
+          }
+
+          // Retry on error
+          if (retryCount < 2 && isMounted) {
+            setTimeout(loadAd, 2000);
+            setRetryCount(prev => prev + 1);
+          }
+        } else {
+          // If it's a duplicate error, just mark as loaded
+          if (debug) console.log('⚠️ Ad already exists, marking as loaded');
+          if (isMounted) {
+            setAdLoaded(true);
+            setAdError(null);
+          }
         }
       }
     };
@@ -118,6 +149,7 @@ export const GoogleAd = ({
     const timer = setTimeout(loadAd, 500);
 
     return () => {
+      isMounted = false;
       clearTimeout(timer);
     };
   }, [adSlot, adFormat, retryCount, debug]);
