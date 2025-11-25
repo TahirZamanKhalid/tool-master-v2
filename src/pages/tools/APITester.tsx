@@ -36,6 +36,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AdRow } from "@/components/AdRow";
 
 interface Header {
   key: string;
@@ -576,6 +577,7 @@ echo $response;
         { name: "JWT Decoder", path: "/tools/jwt-decoder" },
       ]}
     >
+      <AdRow className="mb-6" />
       <div className="space-y-4">
         <QuickActions />
 
@@ -1175,6 +1177,7 @@ echo $response;
           </Card>
         )}
       </div>
+      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };

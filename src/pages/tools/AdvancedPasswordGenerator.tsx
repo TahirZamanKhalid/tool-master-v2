@@ -8,6 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { Copy, RefreshCw, Check } from "lucide-react";
+import { AdRow } from "@/components/AdRow";
 
 const AdvancedPasswordGenerator = () => {
   const [password, setPassword] = useState("");
@@ -114,6 +115,7 @@ const AdvancedPasswordGenerator = () => {
         { name: "Hash Generator", path: "/tools/hash-generator" }
       ]}
     >
+      <AdRow className="mb-6" />
       <div className="grid gap-6">
         <Card>
           <CardContent className="p-6 space-y-6">
@@ -328,6 +330,7 @@ const AdvancedPasswordGenerator = () => {
           </CardContent>
         </Card>
       </div>
+      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };
