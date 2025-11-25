@@ -63,7 +63,7 @@ export const GoogleAd = ({
 
   // Validate if the requested size matches common ad sizes
   const isValidAdSize = commonAdSizes.some(
-    size => 
+    size =>
       (typeof width === 'number' && size.width === width) ||
       (typeof height === 'number' && size.height === height)
   );
@@ -97,7 +97,7 @@ export const GoogleAd = ({
 
         // Push ad to AdSense
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-        
+
         setAdLoaded(true);
         setAdError(null);
         if (debug) console.log('✅ Ad loaded successfully');
@@ -105,7 +105,7 @@ export const GoogleAd = ({
       } catch (error: any) {
         console.error('❌ Ad load error:', error);
         setAdError(error.message);
-        
+
         // Retry on error
         if (retryCount < 2) {
           setTimeout(loadAd, 2000);
@@ -129,7 +129,7 @@ export const GoogleAd = ({
   }, [adSlot, width, height]);
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className={`google-ad-container ${className}`}
       style={{
@@ -148,7 +148,7 @@ export const GoogleAd = ({
     >
       {/* Loading State */}
       {!adLoaded && !adError && (
-        <div 
+        <div
           className="ad-loading-placeholder"
           style={{
             position: 'absolute',
@@ -181,7 +181,7 @@ export const GoogleAd = ({
 
       {/* Error State */}
       {adError && (
-        <div 
+        <div
           className="ad-error-state"
           style={{
             position: 'absolute',
@@ -233,7 +233,7 @@ export const GoogleAd = ({
 
       {/* Debug Info */}
       {debug && (
-        <div 
+        <div
           className="ad-debug-info"
           style={{
             position: 'absolute',
@@ -253,7 +253,7 @@ export const GoogleAd = ({
 
       {/* Size Warning */}
       {debug && !isValidAdSize && (
-        <div 
+        <div
           className="ad-size-warning"
           style={{
             position: 'absolute',
@@ -311,4 +311,39 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(styleSheet);
 }
 
+// AdRow component - Horizontal ad for use in rows/sections
+export interface AdRowProps {
+  className?: string;
+  style?: React.CSSProperties;
+  slot?: string;
+  width?: number | string;
+  height?: number | string;
+  responsive?: boolean;
+  debug?: boolean;
+}
+
+export const AdRow = ({
+  className = "",
+  style,
+  slot = "2931558314",
+  width = 728,
+  height = 90,
+  responsive = true,
+  debug = false
+}: AdRowProps) => {
+  return (
+    <GoogleAd
+      width={width}
+      height={height}
+      adSlot={slot}
+      adFormat="horizontal"
+      className={className}
+      style={style}
+      responsive={responsive}
+      debug={debug}
+    />
+  );
+};
+
 export default GoogleAd;
+

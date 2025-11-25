@@ -1,53 +1,53 @@
-import { useEffect, useRef } from "react";
-import type { ReactNode, CSSProperties } from "react";
+import { GoogleAd } from "./AdRow";
 import type { AdSpaceProps } from "./AdSpace";
 
-declare global {
-  interface Window {
-    adsbygoogle: any[];
+export interface LazyAdSpaceProps extends Omit<AdSpaceProps, 'size'> {
+  format?: "auto" | "horizontal" | "vertical" | "rectangle" | "fluid";
+}
+
+export const LazyAdSpace = ({
+  className = "",
+  style,
+  format = "auto",
+  slot = "2931558314",
+  width,
+  height,
+  responsive = true,
+  debug = false
+}: LazyAdSpaceProps) => {
+  // Define dimensions based on format
+  let adWidth: number | string = width || 728;
+  let adHeight: number | string = height || 90;
+  let adFormat: "auto" | "rectangle" | "vertical" | "horizontal" | "fluid" = "auto";
+
+  if (format === "horizontal") {
+    adWidth = width || 728;
+    adHeight = height || 90;
+    adFormat = "horizontal";
+  } else if (format === "vertical") {
+    adWidth = width || 160;
+    adHeight = height || 600;
+    adFormat = "vertical";
+  } else if (format === "rectangle") {
+    adWidth = width || 300;
+    adHeight = height || 250;
+    adFormat = "rectangle";
+  } else if (format === "fluid") {
+    adWidth = width || "100%";
+    adHeight = height || "auto";
+    adFormat = "fluid";
   }
-}
-
-export interface LazyAdSpaceProps extends AdSpaceProps {
-  children?: ReactNode;
-  [key: string]: any;
-}
-
-export const LazyAdSpace = ({ className = "", style, format = "auto", slot }: LazyAdSpaceProps) => {
-  const adRef = useRef<HTMLModElement>(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        if (adRef.current) {
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-        }
-      } catch (error) {
-        console.error("AdSense lazy ad error:", error);
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const height = format === "horizontal" ? "300px" : format === "vertical" ? "600px" : "300px";
-  const width = format === "vertical" ? "300px" : "600px";
-
-  const adSlot = slot || "2931558314";
 
   return (
-    <div className={`${className}`} style={style}>
-      <ins
-        ref={adRef}
-        className="adsbygoogle"
-        style={{
-          display: "inline-block",
-          width,
-          height,
-        }}
-        data-ad-client="ca-pub-7382531001943020"
-        data-ad-slot={adSlot}
-      />
-    </div>
+    <GoogleAd
+      width={adWidth}
+      height={adHeight}
+      adSlot={slot}
+      adFormat={adFormat}
+      className={className}
+      style={style}
+      responsive={responsive}
+      debug={debug}
+    />
   );
 };

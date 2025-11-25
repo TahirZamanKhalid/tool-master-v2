@@ -1,62 +1,60 @@
-import { useEffect, useRef } from "react";
-import type { CSSProperties, ReactNode } from "react";
-
-declare global {
-  interface Window {
-    adsbygoogle: any[];
-  }
-}
+import { GoogleAd } from "./AdRow";
 
 export interface AdSpaceProps {
   type?: string;
   slot?: string;
   position?: string;
   layoutKey?: string;
-  size?: "leaderboard" | "banner" | "skyscraper" | string;
+  size?: "leaderboard" | "banner" | "skyscraper" | "medium-rectangle" | "large-rectangle" | string;
   className?: string;
-  style?: CSSProperties;
-  children?: ReactNode;
-  [key: string]: any;
+  style?: React.CSSProperties;
+  width?: number | string;
+  height?: number | string;
+  responsive?: boolean;
+  debug?: boolean;
 }
 
-export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpaceProps) => {
-  const adRef = useRef<HTMLModElement>(null);
+export const AdSpace = ({
+  className = "",
+  style,
+  size = "leaderboard",
+  slot = "2931558314",
+  width,
+  height,
+  responsive = true,
+  debug = false
+}: AdSpaceProps) => {
+  // Define standard ad sizes based on the size prop
+  let adWidth: number | string = width || 728;
+  let adHeight: number | string = height || 90;
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        if (adRef.current) {
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-        }
-      } catch (error) {
-        console.error("AdSense generic ad error:", error);
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  let width = "600px";
-  let height = "300px";
   if (size === "skyscraper") {
-    width = "300px";
-    height = "600px";
+    adWidth = width || 160;
+    adHeight = height || 600;
   } else if (size === "banner") {
-    width = "468px";
-    height = "60px";
+    adWidth = width || 468;
+    adHeight = height || 60;
+  } else if (size === "medium-rectangle") {
+    adWidth = width || 300;
+    adHeight = height || 250;
+  } else if (size === "large-rectangle") {
+    adWidth = width || 336;
+    adHeight = height || 280;
+  } else if (size === "leaderboard") {
+    adWidth = width || 728;
+    adHeight = height || 90;
   }
 
-  const adSlot = slot || "2931558314";
-
   return (
-    <div className={`${className}`} style={style}>
-      <ins
-        ref={adRef}
-        className="adsbygoogle"
-        style={{ display: "inline-block", width, height }}
-        data-ad-client="ca-pub-7382531001943020"
-        data-ad-slot={adSlot}
-      />
-    </div>
+    <GoogleAd
+      width={adWidth}
+      height={adHeight}
+      adSlot={slot}
+      adFormat="auto"
+      className={className}
+      style={style}
+      responsive={responsive}
+      debug={debug}
+    />
   );
 };

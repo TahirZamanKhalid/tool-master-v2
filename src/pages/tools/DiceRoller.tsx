@@ -3,7 +3,7 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { GoogleAd } from "@/components/GoogleAd"; // Using the new GoogleAd component
+import { GoogleAd } from "@/components/AdRow";
 
 const DiceRoller = () => {
   const [sides, setSides] = useState("6");
@@ -21,7 +21,7 @@ const DiceRoller = () => {
       category="Utilities"
     >
       {/* Top Ad - Leaderboard */}
-      <GoogleAd 
+      <GoogleAd
         width={728}
         height={250}
         adSlot="4974734897" // Replace with your actual leaderboard ad slot ID
@@ -59,7 +59,7 @@ const DiceRoller = () => {
         </CardContent>
       </Card>
 
-   
+
     </ToolLayout>
   );
 };
