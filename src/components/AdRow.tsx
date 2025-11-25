@@ -50,7 +50,7 @@ export const GoogleAd: React.FC<GoogleAdProps> = ({
   const commonAdSizes = [
     { width: 300, height: 250 },
     { width: 336, height: 280 },
-    { width: 728, height: 90 },
+    { width: 600, height: 200 },
     { width: 970, height: 90 },
     { width: 970, height: 250 },
     { width: 300, height: 600 },
