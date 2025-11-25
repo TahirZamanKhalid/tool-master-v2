@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Download, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import QRCodeLib from "qrcode";
-import { AdSpace } from "@/components/AdSpace";
+import { AdRow } from "@/components/AdRow";
 
 const QRCodeGenerator = () => {
   const [text, setText] = useState("");
@@ -92,7 +92,7 @@ const QRCodeGenerator = () => {
           { name: "QR Scanner", path: "/tools/qr-scanner" },
         ]}
       >
-        <AdSpace size="leaderboard" className="mb-6" />
+        <AdRow className="mb-6" />
         <div className="grid md:grid-cols-2 gap-6">
           <Card className="p-6 space-y-6">
             <div className="space-y-4">
@@ -231,7 +231,7 @@ const QRCodeGenerator = () => {
           </Card>
         </div>
 
-        <AdSpace size="leaderboard" className="mt-6" />
+        <AdRow className="mt-6" />
       </ToolLayout>
     </>
   );

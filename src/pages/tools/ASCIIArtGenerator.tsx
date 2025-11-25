@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { AdSpace } from "@/components/AdSpace";
+import { AdRow } from "@/components/AdRow";
 
 const ASCIIArtGenerator = () => {
   const [text, setText] = useState("");
@@ -41,7 +41,7 @@ const ASCIIArtGenerator = () => {
       description="Convert text to ASCII art"
       category="Text Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdRow className="mb-6" />
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardContent className="p-6 space-y-4">
@@ -67,6 +67,7 @@ const ASCIIArtGenerator = () => {
           </CardContent>
         </Card>
       </div>
+      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };

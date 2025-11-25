@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Upload, Download, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AdRow } from "@/components/AdRow";
 
 const ImageCompressor = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -134,6 +135,7 @@ const ImageCompressor = () => {
           { name: "Format Converter", path: "/tools/format-converter" },
         ]}
       >
+        <AdRow className="mb-6" />
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
             <input
@@ -218,6 +220,7 @@ const ImageCompressor = () => {
             )}
           </div>
         </Card>
+        <AdRow className="mt-6" />
       </ToolLayout>
 
       {showAdOverlay && (
