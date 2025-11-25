@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { AdSpace } from "@/components/AdSpace";
+import { AdRow } from "@/components/AdRow";
 
 const AgeCalculator = () => {
   const [birthDate, setBirthDate] = useState("");
@@ -40,7 +40,7 @@ const AgeCalculator = () => {
       description="Calculate your exact age"
       category="Calculators"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdRow className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>
@@ -66,6 +66,7 @@ const AgeCalculator = () => {
           )}
         </CardContent>
       </Card>
+      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };

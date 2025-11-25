@@ -14,36 +14,60 @@ interface ToolCardProps {
 
 export const ToolCard = ({ icon: Icon, title, description, category, popular, comingSoon }: ToolCardProps) => {
   return (
-    <Card className={`group shadow-card hover:shadow-card-hover transition-smooth hover:-translate-y-1 relative ${comingSoon ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
+    <Card className={`group relative flex flex-col h-full border border-border/50 bg-card hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 overflow-hidden ${comingSoon ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}>
+
+      {/* Popular Badge */}
       {popular && !comingSoon && (
-        <Badge className="absolute -top-2 -right-2 gradient-primary border-0 shadow-lg">
-          Popular
-        </Badge>
-      )}
-      {comingSoon && (
-        <Badge className="absolute -top-2 -right-2 bg-yellow-500/90 text-white border-0 shadow-lg">
-          Coming Soon
-        </Badge>
-      )}
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-4">
-          <div className="p-2 rounded-lg bg-gradient-to-br from-primary/10 to-accent/10">
-            <Icon className="h-6 w-6 text-primary" />
+        <div className="absolute top-0 right-0 z-20">
+          <div className="bg-gradient-to-r from-primary to-accent text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl shadow-md">
+            POPULAR
           </div>
-          <Badge variant="outline" className="text-xs">
+        </div>
+      )}
+
+      {/* Coming Soon Badge */}
+      {comingSoon && (
+        <div className="absolute top-0 right-0 z-20">
+          <div className="bg-yellow-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-xl shadow-md">
+            SOON
+          </div>
+        </div>
+      )}
+
+      {/* Hover Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+      <CardHeader className="pt-6 px-6 pb-2 relative z-10">
+        <div className="flex justify-between items-start mb-4">
+          {/* Icon Container */}
+          <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300 shadow-sm">
+            <Icon className="h-6 w-6" />
+          </div>
+
+          {/* Category Badge */}
+          <Badge variant="secondary" className="font-medium text-[10px] uppercase tracking-wider bg-secondary/50 text-secondary-foreground">
             {category}
           </Badge>
         </div>
-        <CardTitle className="text-lg mt-3">{title}</CardTitle>
+
+        <CardTitle className="text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-1">
+          {title}
+        </CardTitle>
       </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground mb-4">{description}</p>
-        <Button 
-          variant="outline" 
-          className="w-full group-hover:gradient-primary group-hover:text-white group-hover:border-0 transition-smooth"
+
+      <CardContent className="px-6 pb-6 flex-1 flex flex-col relative z-10">
+        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-6 flex-1">
+          {description}
+        </p>
+
+        <Button
+          className={`w-full font-semibold shadow-none transition-all duration-300 ${comingSoon
+              ? 'bg-muted text-muted-foreground'
+              : 'bg-secondary/50 text-secondary-foreground hover:bg-primary hover:text-white'
+            }`}
           disabled={comingSoon}
         >
-          {comingSoon ? 'Coming Soon' : 'Use Tool'}
+          {comingSoon ? 'Coming Soon' : 'Try Now'}
         </Button>
       </CardContent>
     </Card>

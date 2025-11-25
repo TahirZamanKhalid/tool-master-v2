@@ -37,7 +37,7 @@ export const ToolRating = ({ toolPath }: ToolRatingProps) => {
       .from("tool_ratings")
       .select("*")
       .eq("tool_path", toolPath)
-      .eq("user_id", userId)
+      .eq("user_identifier", userId)
       .maybeSingle();
     
     if (data) {
@@ -59,31 +59,65 @@ export const ToolRating = ({ toolPath }: ToolRatingProps) => {
   };
 
   const submitRating = async () => {
-    if (!user) {
-      toast.error("Please sign in to rate this tool");
-      return;
-    }
-
     if (rating === 0) {
       toast.error("Please select a rating");
       return;
     }
 
-    const { error } = await supabase
+    // Get user identifier for tracking
+    let userIdentifier = user?.id;
+    
+    if (!userIdentifier) {
+      // Use localStorage to create a persistent anonymous ID for tracking
+      let anonId = localStorage.getItem('toolmaster_anon_id');
+      if (!anonId) {
+        anonId = `anon_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        localStorage.setItem('toolmaster_anon_id', anonId);
+      }
+      userIdentifier = anonId;
+    }
+
+    // First check if rating exists
+    const { data: existing } = await supabase
       .from("tool_ratings")
-      .upsert({
-        tool_path: toolPath,
-        user_id: user.id,
-        rating,
-        comment: comment.trim() || null,
-      });
+      .select("id")
+      .eq("tool_path", toolPath)
+      .eq("user_identifier", userIdentifier)
+      .maybeSingle();
+
+    let error;
+    if (existing) {
+      // Update existing rating
+      const result = await supabase
+        .from("tool_ratings")
+        .update({
+          rating,
+          comment: comment.trim() || null,
+        })
+        .eq("id", existing.id);
+      error = result.error;
+    } else {
+      // Insert new rating - use NULL for anonymous users
+      const result = await supabase
+        .from("tool_ratings")
+        .insert({
+          tool_path: toolPath,
+          user_identifier: userIdentifier,
+          user_id: user?.id || null, // NULL for anonymous users
+          rating,
+          comment: comment.trim() || null,
+        });
+      error = result.error;
+    }
 
     if (error) {
+      console.error('Rating error:', error);
       toast.error("Failed to submit rating");
     } else {
       toast.success("Rating submitted successfully!");
+      setRating(0);
+      setComment("");
       fetchRatings();
-      fetchUserRating(user.id);
     }
   };
 
@@ -116,25 +150,15 @@ export const ToolRating = ({ toolPath }: ToolRatingProps) => {
           </div>
         </div>
 
-        {user && (
-          <>
-            <Textarea
-              placeholder="Share your experience (optional)"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              className="min-h-[80px]"
-            />
-            <Button onClick={submitRating} className="w-full">
-              {userRating ? "Update Rating" : "Submit Rating"}
-            </Button>
-          </>
-        )}
-
-        {!user && (
-          <p className="text-sm text-muted-foreground text-center">
-            Sign in to rate this tool
-          </p>
-        )}
+        <Textarea
+          placeholder="Share your experience (optional)"
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="min-h-[80px]"
+        />
+        <Button onClick={submitRating} className="w-full">
+          Submit Rating
+        </Button>
       </CardContent>
     </Card>
   );

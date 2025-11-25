@@ -1,43 +1,61 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
-interface AdSpaceProps {
-  size: "banner" | "leaderboard" | "rectangle" | "skyscraper";
-  className?: string;
+declare global {
+  interface Window {
+    adsbygoogle: any[];
+  }
 }
 
-const adSizes = {
-  banner: { width: 728, height: 90 },
-  leaderboard: { width: 970, height: 90 },
-  rectangle: { width: 300, height: 250 },
-  skyscraper: { width: 300, height: 600 },
-};
+export interface AdSpaceProps {
+  type?: string;
+  slot?: string;
+  position?: string;
+  layoutKey?: string;
+  size?: "leaderboard" | "banner" | "skyscraper" | string;
+  className?: string;
+  style?: CSSProperties;
+  children?: ReactNode;
+  [key: string]: any;
+}
 
-export const AdSpace = ({ size, className = "" }: AdSpaceProps) => {
-  const dimensions = adSizes[size];
+export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpaceProps) => {
+  const adRef = useRef<HTMLModElement>(null);
 
   useEffect(() => {
-    try {
-      // @ts-ignore
-      (window.adsbygoogle = window.adsbygoogle || []).push({});
-    } catch (err) {
-      console.error("AdSense error:", err);
-    }
+    const timer = setTimeout(() => {
+      try {
+        if (adRef.current) {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        }
+      } catch (error) {
+        console.error("AdSense generic ad error:", error);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
+  let width = "600px";
+  let height = "300px";
+  if (size === "skyscraper") {
+    width = "300px";
+    height = "600px";
+  } else if (size === "banner") {
+    width = "468px";
+    height = "60px";
+  }
+
+  const adSlot = slot || "2931558314";
+
   return (
-    <div className={`flex items-center justify-center overflow-hidden w-full ${className}`}>
+    <div className={`${className}`} style={style}>
       <ins
+        ref={adRef}
         className="adsbygoogle"
-        style={{
-          display: "block",
-          maxWidth: "100%",
-          width: "100%",
-          height: "auto",
-        }}
+        style={{ display: "inline-block", width, height }}
         data-ad-client="ca-pub-7382531001943020"
-        data-ad-slot="auto"
-        data-ad-format="auto"
-        data-full-width-responsive="true"
+        data-ad-slot={adSlot}
       />
     </div>
   );

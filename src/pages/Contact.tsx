@@ -1,4 +1,5 @@
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { ArrowLeft, Mail, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { SEOHead } from "@/components/SEOHead";
+import { z } from "zod";
+
+const contactSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
+  subject: z.string().trim().min(1, "Subject is required").max(200, "Subject must be less than 200 characters"),
+  message: z.string().trim().min(1, "Message is required").max(2000, "Message must be less than 2000 characters"),
+});
 
 const Contact = () => {
   const navigate = useNavigate();
@@ -16,16 +27,47 @@ const Contact = () => {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Message sent! We'll get back to you soon.");
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    setIsSubmitting(true);
+
+    try {
+      // Validate form data
+      const validatedData = contactSchema.parse(formData);
+
+      const { error } = await supabase.functions.invoke("send-contact-email", {
+        body: validatedData,
+      });
+
+      if (error) throw error;
+
+      toast.success("Message sent! We'll get back to you soon.");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      } else {
+        console.error("Error sending message:", error);
+        toast.error("Failed to send message. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
+      <SEOHead
+        title="Contact Us - ToolMaster Pro"
+        description="Get in touch with ToolMaster Pro. We'd love to hear your feedback, questions, or suggestions about our free online tools."
+        keywords="contact, support, feedback, help, customer service"
+        canonical={`${window.location.origin}/contact`}
+      />
       <Header />
-      <div className="container py-12">
+      <main className="flex-1">
+        <div className="container py-12 px-4">
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
@@ -47,7 +89,7 @@ const Contact = () => {
             <div className="bg-card border rounded-lg p-6 text-center">
               <Mail className="h-8 w-8 mx-auto mb-3 text-primary" />
               <h3 className="font-semibold mb-2">Email Us</h3>
-              <p className="text-sm text-muted-foreground">support@toolmasterpro.com</p>
+              <p className="text-sm text-muted-foreground">tzaman208@gmail.com</p>
             </div>
             <div className="bg-card border rounded-lg p-6 text-center">
               <MessageSquare className="h-8 w-8 mx-auto mb-3 text-primary" />
@@ -111,12 +153,19 @@ const Contact = () => {
               />
             </div>
 
-            <Button type="submit" size="lg" className="w-full gradient-primary">
-              Send Message
+            <Button 
+              type="submit" 
+              size="lg" 
+              className="w-full gradient-primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Sending..." : "Send Message"}
             </Button>
           </form>
         </div>
       </div>
+      </main>
+      <Footer />
     </div>
   );
 };

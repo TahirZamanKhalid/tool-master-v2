@@ -1,7 +1,6 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { AdSpace } from "./AdSpace";
 import { useState, useEffect } from "react";
 
 interface HeroProps {
@@ -19,11 +18,13 @@ export const Hero = ({ searchQuery = "", onSearch }: HeroProps) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalSearch(value);
-    onSearch?.(value); // Live search on every keystroke
+    // Don't trigger search on input - only on button click
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Trigger search only when button is clicked
+    onSearch?.(localSearch);
   };
 
   const handleTrendingClick = (term: string) => {
@@ -35,10 +36,10 @@ export const Hero = ({ searchQuery = "", onSearch }: HeroProps) => {
       <div className="container py-16 md:py-24 px-4">
         <div className="mx-auto max-w-4xl text-center space-y-8 animate-fade-in">
           <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight break-words">
-            100+ Free AI-Powered Tools
+            100+ Free Online Tools for Every Task
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground break-words">
-            Instant Access, No Signup Required
+            AI-Powered Web Tools - Instant Access, No Registration Required
           </p>
           
           <form onSubmit={handleSearchSubmit} className="mx-auto max-w-2xl w-full px-2">
@@ -75,11 +76,6 @@ export const Hero = ({ searchQuery = "", onSearch }: HeroProps) => {
                 {term}
               </Button>
             ))}
-          </div>
-
-          {/* Ad in Hero section */}
-          <div className="pt-8 w-full overflow-hidden">
-            <AdSpace size="leaderboard" />
           </div>
         </div>
       </div>

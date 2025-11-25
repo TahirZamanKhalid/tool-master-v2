@@ -41,23 +41,77 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_rate_limit: {
+        Row: {
+          created_at: string
+          id: string
+          identifier: string
+          last_submission: string
+          submission_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          identifier: string
+          last_submission?: string
+          submission_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          identifier?: string
+          last_submission?: string
+          submission_count?: number
+        }
+        Relationships: []
+      }
       search_analytics: {
         Row: {
           id: string
           search_query: string
           searched_at: string | null
+          session_id: string | null
           user_id: string | null
         }
         Insert: {
           id?: string
           search_query: string
           searched_at?: string | null
+          session_id?: string | null
           user_id?: string | null
         }
         Update: {
           id?: string
           search_query?: string
           searched_at?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      subtitle_rate_limits: {
+        Row: {
+          created_at: string | null
+          generations_count: number | null
+          id: string
+          last_generation: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          generations_count?: number | null
+          id?: string
+          last_generation?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          generations_count?: number | null
+          id?: string
+          last_generation?: string | null
+          session_id?: string | null
           user_id?: string | null
         }
         Relationships: []
@@ -70,6 +124,7 @@ export type Database = {
           rating: number
           tool_path: string
           user_id: string | null
+          user_identifier: string
         }
         Insert: {
           comment?: string | null
@@ -78,6 +133,7 @@ export type Database = {
           rating: number
           tool_path: string
           user_id?: string | null
+          user_identifier: string
         }
         Update: {
           comment?: string | null
@@ -86,24 +142,28 @@ export type Database = {
           rating?: number
           tool_path?: string
           user_id?: string | null
+          user_identifier?: string
         }
         Relationships: []
       }
       tool_views: {
         Row: {
           id: string
+          session_id: string | null
           tool_path: string
           user_id: string | null
           viewed_at: string | null
         }
         Insert: {
           id?: string
+          session_id?: string | null
           tool_path: string
           user_id?: string | null
           viewed_at?: string | null
         }
         Update: {
           id?: string
+          session_id?: string | null
           tool_path?: string
           user_id?: string | null
           viewed_at?: string | null
@@ -115,10 +175,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      cleanup_old_caption_cache: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      cleanup_old_caption_cache: { Args: never; Returns: undefined }
+      cleanup_old_rate_limits: { Args: never; Returns: undefined }
+      cleanup_old_subtitle_limits: { Args: never; Returns: undefined }
       get_popular_searches: {
         Args: { limit_count?: number }
         Returns: {
