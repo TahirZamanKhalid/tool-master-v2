@@ -165,45 +165,22 @@ export const GoogleAd = ({
   useEffect(() => {
     setAdError(null);
     setRetryCount(0);
-  }, [adSlot, width, height]);
-
-  return (
-    <div
-      ref={containerRef}
-      className={`google-ad-container ${className}`}
-      style={{
-        ...adDimensions,
-        ...style,
-        position: 'relative',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: adLoaded ? 'transparent' : '#f8f9fa',
-        border: debug ? '2px dashed #e9ecef' : 'none',
-        borderRadius: '4px',
-        overflow: 'hidden',
-        margin: '0 auto'
-      }}
-    >
-      {/* Loading State */}
-      {!adLoaded && !adError && (
-        <div
-          className="ad-loading-placeholder"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
+    style = {{
+      position: 'absolute',
+        top: 0,
+          left: 0,
             right: 0,
-            bottom: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-            color: '#6c757d',
-            fontSize: '14px',
-            zIndex: 1
-          }}
+              bottom: 0,
+                display: 'flex',
+                  flexDirection: 'column',
+                    justifyContent: 'center',
+                      alignItems: 'center',
+                        background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+                          color: '#6c757d',
+                            fontSize: '14px',
+                              zIndex: 1
+    }
+  }
         >
           <div className="loading-spinner" style={{
             width: '24px',
@@ -215,118 +192,127 @@ export const GoogleAd = ({
             marginBottom: '8px'
           }} />
           <span>Loading Advertisement</span>
-        </div>
+        </div >
       )}
 
-      {/* Error State */}
-      {adError && (
-        <div
-          className="ad-error-state"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: '#fff3cd',
-            border: '1px solid #ffeaa7',
-            color: '#856404',
-            fontSize: '12px',
-            textAlign: 'center',
-            padding: '10px',
-            zIndex: 2
+{/* Error State */ }
+{
+  adError && (
+    <div
+      className="ad-error-state"
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff3cd',
+        border: '1px solid #ffeaa7',
+        color: '#856404',
+        fontSize: '12px',
+        textAlign: 'center',
+        padding: '10px',
+        zIndex: 2
+      }}
+    >
+      <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+        Ad Not Available
+      </div>
+      <div style={{ fontSize: '10px', opacity: 0.7 }}>
+        {adError}
+      </div>
+      {retryCount < 2 && (
+        <button
+          onClick={() => {
+            setAdError(null);
+            setRetryCount(0);
           }}
-        >
-          <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
-            Ad Not Available
-          </div>
-          <div style={{ fontSize: '10px', opacity: 0.7 }}>
-            {adError}
-          </div>
-          {retryCount < 2 && (
-            <button
-              onClick={() => {
-                setAdError(null);
-                setRetryCount(0);
-              }}
-              style={{
-                marginTop: '8px',
-                padding: '4px 8px',
-                fontSize: '10px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '3px',
-                cursor: 'pointer'
-              }}
-            >
-              Retry
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* Debug Info */}
-      {debug && (
-        <div
-          className="ad-debug-info"
           style={{
-            position: 'absolute',
-            top: '2px',
-            right: '2px',
-            background: 'rgba(0,0,0,0.7)',
-            color: 'white',
+            marginTop: '8px',
+            padding: '4px 8px',
             fontSize: '10px',
-            padding: '2px 4px',
-            borderRadius: '2px',
-            zIndex: 3
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '3px',
+            cursor: 'pointer'
           }}
         >
-          {width}×{height}
-        </div>
+          Retry
+        </button>
       )}
-
-      {/* Size Warning */}
-      {debug && !isValidAdSize && (
-        <div
-          className="ad-size-warning"
-          style={{
-            position: 'absolute',
-            bottom: '2px',
-            left: '2px',
-            background: 'rgba(255,193,7,0.9)',
-            color: '#856404',
-            fontSize: '8px',
-            padding: '1px 3px',
-            borderRadius: '2px',
-            zIndex: 3
-          }}
-        >
-          Non-standard size
-        </div>
-      )}
-
-      {/* Actual AdSense Ad */}
-      <ins
-        ref={adRef}
-        className="adsbygoogle"
-        style={{
-          display: adLoaded ? 'block' : 'none',
-          ...adDimensions,
-          maxWidth: '100%',
-          margin: '0 auto'
-        }}
-        data-ad-client={adClient}
-        data-ad-slot={adSlot}
-        data-ad-format={adFormat}
-        data-full-width-responsive={responsive ? "true" : "false"}
-        data-ad-region={`ad-${adSlot}`}
-      />
     </div>
+  )
+}
+
+{/* Debug Info */ }
+{
+  debug && (
+    <div
+      className="ad-debug-info"
+      style={{
+        position: 'absolute',
+        top: '2px',
+        right: '2px',
+        background: 'rgba(0,0,0,0.7)',
+        color: 'white',
+        fontSize: '10px',
+        padding: '2px 4px',
+        borderRadius: '2px',
+        zIndex: 3
+      }}
+    >
+      {width}×{height}
+    </div>
+  )
+}
+
+{/* Size Warning */ }
+{
+  debug && !isValidAdSize && (
+    <div
+      className="ad-size-warning"
+      style={{
+        position: 'absolute',
+        bottom: '2px',
+        left: '2px',
+        background: 'rgba(255,193,7,0.9)',
+        color: '#856404',
+        fontSize: '8px',
+        padding: '1px 3px',
+        borderRadius: '2px',
+        zIndex: 3
+      }}
+    >
+      Non-standard size
+    </div>
+  )
+}
+
+{/* Actual AdSense Ad */ }
+<ins
+  ref={adRef}
+  className="adsbygoogle"
+  style={{
+    display: adLoaded ? 'block' : 'none',
+    // Apply dimensions only when not using responsive fluid ads
+    ...(responsive && adFormat === 'fluid'
+      ? {}
+      : adDimensions),
+    maxWidth: '100%',
+    margin: '0 auto'
+  }}
+  data-ad-client={adClient}
+  data-ad-slot={adSlot}
+  data-ad-format={adFormat}
+  data-full-width-responsive={responsive ? "true" : "false"}
+  data-ad-region={`ad-${adSlot}`}
+/>
+    </div >
   );
 };
 
