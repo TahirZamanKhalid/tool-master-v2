@@ -46,6 +46,15 @@ export const GoogleAd: React.FC<GoogleAdProps> = ({
     height: getDimension(height),
   };
 
+  // Ensure container has dimensions even if ad is empty
+  const containerStyle: React.CSSProperties = {
+    position: "relative",
+    minWidth: adDimensions.width,
+    minHeight: adDimensions.height,
+    backgroundColor: "#f8f9fa", // Light background to make space visible
+    ...style,
+  };
+
   // Validate size against common ad sizes (used only for a warning UI)
   const commonAdSizes = [
     { width: 300, height: 250 },
@@ -150,7 +159,7 @@ export const GoogleAd: React.FC<GoogleAdProps> = ({
   return (
     <div
       className={className}
-      style={{ position: "relative", ...style }}
+      style={containerStyle}
     >
       {/* Loading state */}
       {!adLoaded && !adError && (
