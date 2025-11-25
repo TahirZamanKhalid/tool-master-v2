@@ -1,298 +1,72 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#9b87f5" />
-    <meta name="google-adsense-account" content="ca-pub-7382531001943020" />
-    <!-- Replace with your actual Google Search Console verification code -->
-    <meta name="google-site-verification" content="wBDEMYvYjTTG-G8qisnQwhhGbI1_pMjY5E51TbWLenM" />
-    
-    <!-- Updated Content Security Policy for AdSense -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; 
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net https://staticimgly.com https://*.staticimgly.com https://*.googlesyndication.com https://tpc.googlesyndication.com https://pagead2.googlesyndication.com https://*.google.com https://*.gstatic.com https://*.google-analytics.com https://*.adtrafficquality.google https://*.doubleclick.net https://googleads.g.doubleclick.net https://securepubads.g.doubleclick.net; 
-      worker-src 'self' blob:; 
-      connect-src 'self' blob: data: https://unpkg.com https://cdn.jsdelivr.net https://staticimgly.com https://*.staticimgly.com https://cggwrsztafeosmigfckc.supabase.co wss://cggwrsztafeosmigfckc.supabase.co https://*.googlesyndication.com https://tpc.googlesyndication.com https://pagead2.googlesyndication.com https://*.google.com https://*.google-analytics.com https://*.doubleclick.net https://googleads.g.doubleclick.net https://*.adtrafficquality.google https://*.g.doubleclick.net https://securepubads.g.doubleclick.net; 
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.googleapis.com https://*.googlesyndication.com; 
-      font-src 'self' https://fonts.gstatic.com; 
-      img-src 'self' data: blob: https: http:; 
-      media-src 'self' blob: data: https:; 
-      frame-src 'self' https://*.google.com https://*.doubleclick.net https://googleads.g.doubleclick.net https://*.googlesyndication.com https://tpc.googlesyndication.com https://pagead2.googlesyndication.com https://*.g.doubleclick.net https://*.adtrafficquality.google https://securepubads.g.doubleclick.net; 
-      child-src 'self' blob:;" />
+import { useState, useRef } from "react";
+import { ToolLayout } from "@/components/ToolLayout";
+import { AdRow } from "@/components/AdRow";
+import { ImageEditor } from "@/components/ImageEditor";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+import { toast } from "sonner";
 
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg"
-    />
+const AdvancedImageEditor = () => {
+  const [originalImage, setOriginalImage] = useState<string | null>(null);
+  const [processedImage, setProcessedImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-    <title>ToolMaster Pro™ - 100+ Free Online Tools | No Signup Required</title>
-    <meta
-      name="description"
-      content="Access 100+ free online tools instantly. Image converter, PDF editor, QR generator, text formatter, calculator & more. Browser-based, no download, no registration."
-    />
-    <meta name="author" content="ToolMaster Pro™" />
-    <meta
-      name="keywords"
-      content="free online tools, web tools, browser tools, no signup, image converter, PDF tools, text tools, online calculator, developer tools, QR generator, file converter, productivity tools, online utilities"
-    />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <meta name="googlebot" content="index, follow" />
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const imageUrl = event.target?.result as string;
+        setOriginalImage(imageUrl);
+        setProcessedImage(imageUrl);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-    <!-- DNS prefetch for ad domains -->
-    <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
-    <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
-    <link rel="dns-prefetch" href="https://tpc.googlesyndication.com" />
-    <link rel="dns-prefetch" href="https://securepubads.g.doubleclick.net" />
+  const handleDownload = (imageData: string) => {
+    const link = document.createElement("a");
+    link.download = "edited-image.png";
+    link.href = imageData;
+    link.click();
+    toast.success("Image downloaded successfully!");
+  };
 
-    <!-- SINGLE AdSense script - remove duplicates -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7382531001943020" crossorigin="anonymous"></script>
+  return (
+    <ToolLayout
+      title="Advanced Image Editor"
+      description="Professional image editing with layers, filters, and advanced tools"
+      category="Image Tools"
+    >
+      <AdRow className="mb-6" />
+      
+      {!originalImage ? (
+        <div className="flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed rounded-lg">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="hidden"
+          />
+          <Upload className="h-16 w-16 text-muted-foreground mb-4" />
+          <h3 className="text-xl font-semibold mb-2">Upload an Image to Edit</h3>
+          <p className="text-muted-foreground mb-4">Support for JPG, PNG, WebP</p>
+          <Button onClick={() => fileInputRef.current?.click()} size="lg">
+            Choose Image
+          </Button>
+        </div>
+      ) : (
+        <ImageEditor
+          originalImage={originalImage}
+          processedImage={processedImage}
+          onDownload={handleDownload}
+        />
+      )}
+      
+      <AdRow className="mt-6" />
+    </ToolLayout>
+  );
+};
 
-    <!-- Organization & WebSite Structured Data for Rich Results -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "ToolMaster Pro™",
-        "alternateName": "TM",
-        "legalName": "ToolMaster Pro",
-        "url": "https://toolmaster.cloud",
-        "logo": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg",
-        "description": "Access 100+ free AI-powered online tools instantly. No signup required.",
-        "sameAs": [
-          "https://toolmaster.cloud"
-        ],
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.9",
-          "ratingCount": "8543",
-          "bestRating": "5"
-        }
-      }
-    </script>
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "ToolMaster Pro™",
-        "url": "https://toolmaster.cloud",
-        "description": "100+ free online tools - Background remover, PDF merger, QR generator, image compressor & more. No signup needed.",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": {
-            "@type": "EntryPoint",
-            "urlTemplate": "https://toolmaster.cloud/?q={search_term_string}"
-          },
-          "query-input": "required name=search_term_string"
-        },
-        "publisher": {
-          "@type": "Organization",
-          "name": "ToolMaster Pro™",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg"
-          }
-        }
-      }
-    </script>
-
-    <meta property="og:type" content="website" />
-    <meta
-      property="og:image"
-      content="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg"
-    />
-
-    <meta name="twitter:card" content="summary_large_image" />
-
-    <meta
-      name="twitter:image"
-      content="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg"
-    />
-
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-    <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    </noscript>
-    <meta property="og:title" content="ToolMaster Pro™ - 100+ Free Online Tools | No Signup Required" />
-    <meta name="twitter:title" content="ToolMaster Pro™ - 100+ Free Online Tools | No Signup" />
-    <meta property="og:site_name" content="ToolMaster Pro™" />
-    <meta
-      property="og:description"
-      content="Access 100+ free online tools instantly. Image converter, PDF editor, QR generator, text formatter, calculator & more. Browser-based, no download, no registration."
-    />
-    <meta
-      name="twitter:description"
-      content="Access 100+ free online tools instantly. Image converter, PDF editor, QR generator, text formatter, calculator & more. Browser-based, no download."
-    />
-    <meta property="og:url" content="https://toolmaster.cloud" />
-    <link rel="canonical" href="https://toolmaster.cloud/" />
-    <script type="module" crossorigin src="/assets/index-BUQKUEjY.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/react-vendor-Bh4eAhPz.js">
-    <link rel="modulepreload" crossorigin href="/assets/ui-vendor-B9DAy1xF.js">
-    <link rel="modulepreload" crossorigin href="/assets/utils-vendor-BpqZfnrR.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-CPcRdRuy.css">
-    <script defer src="https://toolmaster.cloud/~flock.js" data-proxy-url="https://toolmaster.cloud/~api/analytics"></script>
-  </head>
-
-  <body>
-    <noscript>
-      <div style="text-align: center; padding: 40px; font-family: Arial, sans-serif;">
-        <h1>ToolMaster Pro - 100+ Free Online Tools</h1>
-        <p>This site requires JavaScript to function. Please enable JavaScript in your browser.</p>
-        <p>Access free online tools including:</p>
-        <ul style="list-style: none; padding: 0;">
-          <li>✓ Free Online Image Editor & Compressor</li>
-          <li>✓ Online JSON Formatter & Validator</li>
-          <li>✓ Free PDF Merger & Editor</li>
-          <li>✓ Online QR Code Generator</li>
-          <li>✓ Free Background Remover</li>
-          <li>✓ Online API Tool & Tester</li>
-          <li>✓ And 100+ more free tools!</li>
-        </ul>
-      </div>
-    </noscript>
-
-    <!-- Header Ad Placement -->
-    <div class="ad-container" style="margin: 15px auto; text-align: center; max-width: 728px;">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-7382531001943020"
-           data-ad-slot="4356563508"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>
-           (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </div>
-
-    <div id="root">
-      <!-- Initial content for crawlers -->
-      <div style="opacity: 0; position: absolute; pointer-events: none;">
-        <h1>ToolMaster Pro - Free Online Tools</h1>
-        <p>Access 100+ free online tools instantly. Image converter, PDF editor, QR generator, text formatter, calculator, API tester, and more. Browser-based, no download, no registration required.</p>
-        <nav>
-          <a href="/tools/api-tester">Online API Tool</a>
-          <a href="/tools/json-formatter">JSON Formatter</a>
-          <a href="/tools/image-compressor">Image Compressor</a>
-          <a href="/tools/pdf-merger">PDF Merger</a>
-          <a href="/tools/qr-code-generator">QR Code Generator</a>
-          <a href="/tools/background-remover">Background Remover</a>
-        </nav>
-      </div>
-    </div>
-
-    <!-- Middle Page Ad Placement -->
-    <div class="ad-container" style="margin: 30px auto; text-align: center; max-width: 600px;">
-      <ins class="adsbygoogle"
-           style="display:inline-block;width:600px;height:300px"
-           data-ad-client="ca-pub-7382531001943020"
-           data-ad-slot="2931558314"></ins>
-      <script>
-           (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </div>
-
-    <!-- Bottom Page Ad Placement -->
-    <div class="ad-container" style="margin: 30px auto; text-align: center; max-width: 728px;">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-7382531001943020"
-           data-ad-slot="4356563508"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>
-           (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </div>
-
-    <!-- Sidebar Style Ad Placement (if you have sidebar layout) -->
-    <div class="ad-container" style="margin: 20px auto; text-align: center; max-width: 300px;">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-7382531001943020"
-           data-ad-slot="4356563508"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>
-           (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </div>
-
-    <script>
-      // Enhanced AdSense initialization and refresh
-      document.addEventListener('DOMContentLoaded', function() {
-        // Initial ad load with delay
-        setTimeout(function() {
-          try {
-            (adsbygoogle = window.adsbygoogle || []).push({});
-            console.log('AdSense: Initial ads loaded');
-          } catch (e) {
-            console.log('AdSense initial load error:', e);
-          }
-        }, 1000);
-
-        // Refresh ads every 45 seconds for better performance
-        setInterval(function() {
-          try {
-            (adsbygoogle = window.adsbygoogle || []).push({});
-            console.log('AdSense: Ads refreshed');
-          } catch (e) {
-            console.log('AdSense refresh error:', e);
-          }
-        }, 45000);
-
-        // Refresh ads on route changes (for SPAs)
-        if (typeof window !== 'undefined') {
-          let originalPushState = history.pushState;
-          let originalReplaceState = history.replaceState;
-
-          history.pushState = function() {
-            originalPushState.apply(this, arguments);
-            setTimeout(() => (adsbygoogle = window.adsbygoogle || []).push({}), 500);
-          };
-
-          history.replaceState = function() {
-            originalReplaceState.apply(this, arguments);
-            setTimeout(() => (adsbygoogle = window.adsbygoogle || []).push({}), 500);
-          };
-
-          window.addEventListener('popstate', function() {
-            setTimeout(() => (adsbygoogle = window.adsbygoogle || []).push({}), 500);
-          });
-        }
-      });
-
-      // Fallback ad loading for slow networks
-      window.addEventListener('load', function() {
-        setTimeout(function() {
-          try {
-            if (window.adsbygoogle) {
-              (adsbygoogle = window.adsbygoogle || []).push({});
-            }
-          } catch (e) {
-            console.log('AdSense window load error:', e);
-          }
-        }, 2000);
-      });
-    </script>
-  </body>
-</html>
+export default AdvancedImageEditor;

@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Key, RefreshCw, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { AdRow } from "@/components/AdRow";
 
 const PasswordGenerator = () => {
   const [password, setPassword] = useState("");
@@ -94,6 +95,7 @@ const PasswordGenerator = () => {
           { name: "Base64 Encoder", path: "/tools/base64-encoder" },
         ]}
       >
+        <AdRow className="mb-6" />
         <Card className="p-6 space-y-6">
           {password && (
             <div className="space-y-2">
@@ -188,6 +190,7 @@ const PasswordGenerator = () => {
             {password ? "Generate New Password" : "Generate Password"}
           </Button>
         </Card>
+        <AdRow className="mt-6" />
       </ToolLayout>
     </>
   );
