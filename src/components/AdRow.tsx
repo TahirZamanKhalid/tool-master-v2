@@ -123,8 +123,22 @@ export const GoogleAd = ({
       } catch (error: any) {
         console.error('❌ Ad load error:', error);
 
-        // Only set error if it's not the duplicate ad error
-        if (!error.message?.includes('already have ads in them')) {
+        const errorMsg = error.message || '';
+
+        // Don't show error messages for these common benign AdSense errors
+        const isBenignError = errorMsg.includes('already have ads in them') ||
+          errorMsg.includes('No slot size') ||
+          errorMsg.includes('availableWidth=0');
+
+        if (isBenignError) {
+          // Just mark as loaded and don't show error to user
+          if (debug) console.log('⚠️ Benign ad error, suppressing:', errorMsg);
+          if (isMounted) {
+            setAdLoaded(true);
+            setAdError(null);
+          }
+        } else {
+          // Show actual errors
           if (isMounted) {
             setAdError(error.message);
           }
@@ -133,13 +147,6 @@ export const GoogleAd = ({
           if (retryCount < 2 && isMounted) {
             setTimeout(loadAd, 2000);
             setRetryCount(prev => prev + 1);
-          }
-        } else {
-          // If it's a duplicate error, just mark as loaded
-          if (debug) console.log('⚠️ Ad already exists, marking as loaded');
-          if (isMounted) {
-            setAdLoaded(true);
-            setAdError(null);
           }
         }
       }
