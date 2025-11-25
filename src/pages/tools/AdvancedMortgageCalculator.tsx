@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calculator, Home, Download, DollarSign, TrendingUp, Calendar } from "lucide-react";
 import { toast } from "sonner";
-import { AdSpace } from "@/components/AdSpace";
+import { AdRow } from "@/components/AdRow";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface AmortizationRow {
@@ -145,7 +145,7 @@ const AdvancedMortgageCalculator = () => {
         { name: "ROI Calculator", path: "/tools/roi-calculator" }
       ]}
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdRow className="mb-6" />
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Left Column - Inputs */}
@@ -519,7 +519,7 @@ const AdvancedMortgageCalculator = () => {
         </div>
       </div>
 
-      <AdSpace size="leaderboard" className="mt-6" />
+      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };

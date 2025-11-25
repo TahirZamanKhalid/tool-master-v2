@@ -24,6 +24,7 @@ import {
   Share2,
   History,
 } from "lucide-react";
+import { AdRow } from "@/components/AdRow";
 import {
   LineChart,
   Line,
@@ -412,6 +413,7 @@ const EnhancedBMICalculator = () => {
         { name: "Currency Converter", path: "/tools/currency-converter" },
       ]}
     >
+      <AdRow className="mb-6" />
       <div className="space-y-6">
         {/* Control Panel */}
         <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50">
@@ -1117,6 +1119,7 @@ const EnhancedBMICalculator = () => {
           </TabsContent>
         </Tabs>
       </div>
+      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };

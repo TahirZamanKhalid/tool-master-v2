@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { ImageIcon, Copy, Sparkles } from "lucide-react";
+import { AdRow } from "@/components/AdRow";
 
 const AltTextGenerator = () => {
   const [imageUrl, setImageUrl] = useState("");
@@ -105,6 +106,7 @@ const AltTextGenerator = () => {
         { name: "Meta Tag Generator", path: "/tools/meta-tag-generator" }
       ]}
     >
+      <AdRow className="mb-6" />
       <div className="grid gap-6">
         <Card>
           <CardContent className="p-6 space-y-6">
@@ -214,6 +216,7 @@ const AltTextGenerator = () => {
           </CardContent>
         </Card>
       </div>
+      <AdRow className="mt-6" />
     </ToolLayout>
   );
 };
