@@ -3,7 +3,7 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AdRow } from "@/components/AdRow";
+import { GoogleAd } from "@/components/GoogleAd"; // Using the new GoogleAd component
 
 const DiceRoller = () => {
   const [sides, setSides] = useState("6");
@@ -20,7 +20,16 @@ const DiceRoller = () => {
       description="Roll virtual dice with custom sides"
       category="Utilities"
     >
-      <AdRow className="mb-6" />
+      {/* Top Ad - Leaderboard */}
+      <GoogleAd 
+        width={728}
+        height={250}
+        adSlot="4974734897" // Replace with your actual leaderboard ad slot ID
+        adFormat="rectangle"
+        className="mb-6"
+        responsive={true}
+      />
+
       <Card>
         <CardContent className="p-6 space-y-4">
           <Select value={sides} onValueChange={setSides}>
@@ -49,7 +58,8 @@ const DiceRoller = () => {
           )}
         </CardContent>
       </Card>
-      <AdRow className="mt-6" />
+
+   
     </ToolLayout>
   );
 };
