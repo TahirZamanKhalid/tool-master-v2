@@ -65,18 +65,6 @@ import PDFCompressor from "./pages/tools/PDFCompressor";
 import PDFToText from "./pages/tools/PDFToText";
 import ImagesToPDF from "./pages/tools/ImagesToPDF";
 import Auth from "./pages/Auth";
-import About from "./pages/About";
-import CookiePolicy from "./pages/CookiePolicy";
-import Disclaimer from "./pages/Disclaimer";
-import DMCA from "./pages/DMCA";
-import APITester from "./pages/tools/APITester";
-import JSONToYAML from "./pages/tools/JSONToYAML";
-import CSSMinifier from "./pages/tools/CSSMinifier";
-import JavaScriptMinifier from "./pages/tools/JavaScriptMinifier";
-import UserAgentParser from "./pages/tools/UserAgentParser";
-import NumberBaseConverter from "./pages/tools/NumberBaseConverter";
-import AIChat from "./pages/tools/AIChat";
-
 
 const queryClient = new QueryClient();
 
@@ -144,21 +132,9 @@ const App = () => (
         <Route path="/tools/pdf-compressor" element={<PDFCompressor />} />
         <Route path="/tools/pdf-to-text" element={<PDFToText />} />
         <Route path="/tools/images-to-pdf" element={<ImagesToPDF />} />
-        <Route path="/tools/api-tester" element={<APITester />} />
-        <Route path="/tools/json-to-yaml" element={<JSONToYAML />} />
-        <Route path="/tools/css-minifier" element={<CSSMinifier />} />
-        <Route path="/tools/javascript-minifier" element={<JavaScriptMinifier />} />
-        <Route path="/tools/user-agent-parser" element={<UserAgentParser />} />
-        <Route path="/tools/number-base-converter" element={<NumberBaseConverter />} />
-        <Route path="/tools/ai-chat" element={<AIChat />} />
-
         <Route path="/blog" element={<Blog />} />
-        <Route path="/about" element={<About />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-service" element={<TermsOfService />} />
-        <Route path="/cookie-policy" element={<CookiePolicy />} />
-        <Route path="/disclaimer" element={<Disclaimer />} />
-        <Route path="/dmca" element={<DMCA />} />
         <Route path="/contact" element={<Contact />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

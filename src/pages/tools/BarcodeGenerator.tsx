@@ -40,12 +40,6 @@ const BarcodeGenerator = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
 
-      // Clear canvas before drawing
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-      }
-
       JsBarcode(canvas, text, {
         format: format,
         width: width,
@@ -53,8 +47,6 @@ const BarcodeGenerator = () => {
         displayValue: displayValue,
         fontSize: 16,
         margin: 10,
-        background: "#ffffff",
-        lineColor: "#000000",
       });
 
       setBarcodeGenerated(true);

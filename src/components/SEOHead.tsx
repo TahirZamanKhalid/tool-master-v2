@@ -16,8 +16,8 @@ export const SEOHead = ({
   canonical
 }: SEOHeadProps) => {
   useEffect(() => {
-    // Set title - show just the title for homepage, add suffix for other pages
-    document.title = title === "ToolMaster Pro" ? title : `${title} | ToolMaster Pro`;
+    // Set title
+    document.title = `${title} | Free Online Tools`;
 
     // Set or update meta tags
     const updateMetaTag = (property: string, content: string, isName = false) => {

@@ -1,27 +1,15 @@
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { SEOHead } from "@/components/SEOHead";
-import { BlogPostCard } from "@/components/BlogPostCard";
-import { blogPosts } from "@/data/blogPosts";
-import { LazyAdSpace } from "@/components/LazyAdSpace";
 
 const Blog = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <SEOHead
-        title="Blog - ToolMaster Pro"
-        description="Read articles, tutorials, and tips about using ToolMaster Pro's free online tools effectively. Stay updated with latest features and best practices."
-        keywords="blog, tutorials, tips, guides, online tools"
-        canonical="https://toolmaster.cloud/blog"
-      />
+    <div className="min-h-screen bg-background">
       <Header />
-      <main className="flex-1">
-        <div className="container py-12 px-4">
+      <div className="container py-12">
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
@@ -36,20 +24,15 @@ const Blog = () => {
           <p className="text-xl text-muted-foreground mb-12">
             Tips, tutorials, and insights about our tools
           </p>
-          
-          <LazyAdSpace size="leaderboard" className="mb-8" />
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {blogPosts.map((post) => (
-              <BlogPostCard key={post.id} post={post} />
-            ))}
+          <div className="text-center py-20">
+            <h2 className="text-2xl font-semibold mb-4">Coming Soon</h2>
+            <p className="text-muted-foreground">
+              We're working on creating helpful content for you. Check back soon!
+            </p>
           </div>
-          
-          <LazyAdSpace size="leaderboard" className="mt-8" />
         </div>
-        </div>
-      </main>
-      <Footer />
+      </div>
     </div>
   );
 };

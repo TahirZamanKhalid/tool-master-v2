@@ -1,12 +1,10 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { OptimizedHero } from "@/components/OptimizedHero";
+import { Hero } from "@/components/Hero";
 import { CategoryCard } from "@/components/CategoryCard";
 import { ToolCard } from "@/components/ToolCard";
 import { HowItWorks } from "@/components/HowItWorks";
-import { FAQ } from "@/components/FAQ";
-import { LazyAdSpace } from "@/components/LazyAdSpace";
+import { AdSpace } from "@/components/AdSpace";
 import { SEOHead } from "@/components/SEOHead";
 import { trackSearch } from "@/hooks/useToolAnalytics";
 import { useState, useEffect, useMemo } from "react";
@@ -62,7 +60,6 @@ import {
   Minimize2,
   FileType,
   Images,
-  Send,
 } from "lucide-react";
 
 const categories = [
@@ -79,13 +76,6 @@ const categories = [
     description: "Edit, compress, convert, and enhance images",
     toolCount: 25,
     color: "from-pink-500 to-rose-600",
-  },
-  {
-    icon: Code,
-    title: "Developer Tools",
-    description: "API testing, formatters, and development utilities",
-    toolCount: 10,
-    color: "from-green-500 to-emerald-600",
   },
   {
     icon: QrCode,
@@ -134,10 +124,11 @@ const categories = [
 const popularTools = [
   {
     icon: MessageSquare,
-    title: "AI Chat",
-    description: "Chat with AI powered by Google Gemini 2.5 Pro",
+    title: "AI Chatbot",
+    description: "Chat with AI assistant powered by advanced language models",
     category: "AI & Content",
     popular: true,
+    comingSoon: true,
   },
   {
     icon: Eraser,
@@ -355,12 +346,6 @@ const popularTools = [
     category: "Developer Tools",
   },
   {
-    icon: Send,
-    title: "API Tester",
-    description: "Test REST APIs with custom headers and methods",
-    category: "Developer Tools",
-  },
-  {
     icon: Shield,
     title: "Password Strength",
     description: "Check how strong your password is",
@@ -474,48 +459,6 @@ const popularTools = [
     description: "Convert multiple images to PDF",
     category: "PDF Tools",
   },
-  {
-    icon: Key,
-    title: "Password Generator",
-    description: "Generate strong secure passwords",
-    category: "Security Tools",
-  },
-  {
-    icon: Link2,
-    title: "Base64 Encoder",
-    description: "Encode and decode Base64 strings",
-    category: "Developer Tools",
-  },
-  {
-    icon: Code,
-    title: "JSON to YAML",
-    description: "Convert JSON data to YAML format",
-    category: "Developer Tools",
-  },
-  {
-    icon: Code,
-    title: "CSS Minifier",
-    description: "Minify and compress CSS code",
-    category: "Developer Tools",
-  },
-  {
-    icon: Code,
-    title: "JavaScript Minifier",
-    description: "Minify and compress JavaScript code",
-    category: "Developer Tools",
-  },
-  {
-    icon: Globe,
-    title: "User Agent Parser",
-    description: "Parse and analyze user agent strings",
-    category: "Developer Tools",
-  },
-  {
-    icon: Hash,
-    title: "Number Base Converter",
-    description: "Convert between binary, decimal, hex, and octal",
-    category: "Developer Tools",
-  },
 ];
 
 const Index = () => {
@@ -605,21 +548,19 @@ const Index = () => {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
-      <SEOHead
-        title="ToolMaster Pro"
+      <SEOHead 
+        title="Home - 100+ Free Online Tools"
         description="Access 100+ free online tools for developers, designers, and content creators. No signup required. Image tools, text converters, calculators, and more."
         keywords="free online tools, developer tools, image tools, text tools, converters, calculators, no signup"
-        canonical="https://toolmaster.cloud"
       />
-      <Header />
-
-
-      <OptimizedHero searchQuery={searchQuery} onSearch={handleLiveSearch} />
+      <Header searchQuery={searchQuery} onSearch={handleLiveSearch} />
       
-      {/* Ad after Hero - High visibility */}
-      <div className="container px-4 py-6">
-        <LazyAdSpace size="leaderboard" />
+      {/* Top Banner Ad */}
+      <div className="container py-4 flex justify-center w-full overflow-hidden px-4">
+        <AdSpace size="leaderboard" />
       </div>
+
+      <Hero searchQuery={searchQuery} onSearch={handleLiveSearch} />
 
       {/* Categories Section */}
       <section className="py-16 container w-full overflow-hidden px-4">
@@ -632,6 +573,11 @@ const Index = () => {
 
         {/* Desktop Sidebar Layout */}
         <div className="flex gap-6 justify-center w-full">
+          {/* Left Sidebar Ad - Desktop Only */}
+          <div className="hidden xl:block flex-shrink-0 sticky top-24 self-start">
+            <AdSpace size="skyscraper" />
+          </div>
+
           {/* Main Content */}
           <div className="flex-1 max-w-6xl">
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -670,14 +616,17 @@ const Index = () => {
                 </p>
               </div>
             )}
+
+            {/* Mid-content Ad */}
+            <div className="flex justify-center my-8">
+              <AdSpace size="banner" />
+            </div>
           </div>
 
-          {/* Right Sidebar Ad - Desktop Only (Removed for better performance) */}
-        </div>
-        
-        {/* Ad after Categories section */}
-        <div className="mt-12">
-          <LazyAdSpace size="leaderboard" />
+          {/* Right Sidebar Ad - Desktop Only */}
+          <div className="hidden xl:block flex-shrink-0 sticky top-24 self-start">
+            <AdSpace size="skyscraper" />
+          </div>
         </div>
       </section>
 
@@ -698,19 +647,10 @@ const Index = () => {
         </div>
 
         {filteredTools.length > 0 ? (
-          <>
-            {/* Ad before tools grid */}
-            <div className="mb-8">
-              <LazyAdSpace size="leaderboard" />
-            </div>
-            
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredTools.map((tool, index) => {
-              // Insert ad after every 8 tools
-              const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
-              
               const toolPaths: Record<string, string> = {
-                "AI Chat": "/tools/ai-chat",
+                "AI Chatbot": "/tools/ai-chatbot",
                 "Background Remover": "/tools/background-remover",
                 "QR Code Generator": "/tools/qr-code-generator",
                 "PDF Merger": "/tools/pdf-merger",
@@ -746,7 +686,6 @@ const Index = () => {
                 "YAML Formatter": "/tools/yaml-formatter",
                 "SQL Formatter": "/tools/sql-formatter",
                 "IP Lookup": "/tools/ip-lookup",
-                "API Tester": "/tools/api-tester",
                 "Password Strength": "/tools/password-strength",
                 "Base64 Image Encoder": "/tools/base64-image",
                 "Color Converter": "/tools/color-converter",
@@ -766,37 +705,20 @@ const Index = () => {
                 "PDF Compressor": "/tools/pdf-compressor",
                 "PDF to Text": "/tools/pdf-to-text",
                 "Images to PDF": "/tools/images-to-pdf",
-                "Password Generator": "/tools/password-generator",
-                "Base64 Encoder": "/tools/base64-encoder",
-                "JSON to YAML": "/tools/json-to-yaml",
-                "CSS Minifier": "/tools/css-minifier",
-                "JavaScript Minifier": "/tools/javascript-minifier",
-                "User Agent Parser": "/tools/user-agent-parser",
-                "Number Base Converter": "/tools/number-base-converter",
               };
               
               return (
-                <>
-                  <div
-                    key={index}
-                    className="animate-fade-in"
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                    onClick={() => !tool.comingSoon && handleToolClick(toolPaths[tool.title] || "/")}
-                  >
-                    <ToolCard {...tool} comingSoon={tool.comingSoon} />
-                  </div>
-                  
-                  {/* Insert rectangle ad after every 8 tools */}
-                  {showAdAfter && (
-                    <div className="col-span-full my-4">
-                      <LazyAdSpace size="rectangle" className="mx-auto" />
-                    </div>
-                  )}
-                </>
+                <div
+                  key={index}
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                  onClick={() => !tool.comingSoon && handleToolClick(toolPaths[tool.title] || "/")}
+                >
+                  <ToolCard {...tool} comingSoon={tool.comingSoon} />
+                </div>
               );
             })}
           </div>
-          </>
         ) : (
           <div className="text-center py-12">
             <p className="text-xl text-muted-foreground mb-4">No tools found matching your search</p>
@@ -812,10 +734,8 @@ const Index = () => {
           </div>
         )}
 
-        {/* Bottom Ad - Lazy loaded */}
-        <div className="mt-12">
-          <LazyAdSpace size="leaderboard" />
-        </div>
+        {/* Bottom Ad */}
+        <AdSpace size="leaderboard" className="mt-12" />
       </section>
 
       {/* Stats Section */}
@@ -856,17 +776,72 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Ad after Stats section - Lazy loaded */}
+          {/* Ad after Stats section */}
           <div className="mt-12">
-            <LazyAdSpace size="leaderboard" />
+            <AdSpace size="leaderboard" />
           </div>
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <FAQ />
+      {/* Footer */}
+      <footer className="border-t py-12 bg-card">
+        <div className="container">
+          {/* Ad before footer content */}
+          <div className="mb-8">
+            <AdSpace size="leaderboard" />
+          </div>
 
-      <Footer />
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="gradient-primary h-12 w-12 rounded-xl flex items-center justify-center shadow-card">
+                  <span className="text-white font-black text-xl tracking-tight">TM</span>
+                </div>
+                <span className="text-lg font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  ToolMaster Pro
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                100+ free online tools for everyone. No signup required.
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold mb-4">Popular Categories</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="hover:text-foreground cursor-pointer">AI Tools</li>
+                <li className="hover:text-foreground cursor-pointer">Image Tools</li>
+                <li className="hover:text-foreground cursor-pointer">PDF Tools</li>
+                <li className="hover:text-foreground cursor-pointer">Text Tools</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-4">Resources</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="hover:text-foreground cursor-pointer" onClick={() => navigate("/blog")}>Blog</li>
+                <li className="hover:text-foreground cursor-pointer">Tutorials</li>
+                <li className="hover:text-foreground cursor-pointer">API Access</li>
+                <li className="hover:text-foreground cursor-pointer">Sitemap</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-4">Legal</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="hover:text-foreground cursor-pointer" onClick={() => navigate("/privacy-policy")}>Privacy Policy</li>
+                <li className="hover:text-foreground cursor-pointer" onClick={() => navigate("/terms-of-service")}>Terms of Service</li>
+                <li className="hover:text-foreground cursor-pointer">DMCA</li>
+                <li className="hover:text-foreground cursor-pointer" onClick={() => navigate("/contact")}>Contact</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t pt-8 text-center text-sm text-muted-foreground">
+            <p>© 2025 ToolMaster Pro. All rights reserved. Built with ❤️ for everyone.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

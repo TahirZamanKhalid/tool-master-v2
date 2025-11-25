@@ -16,30 +16,23 @@ export const AdSpace = ({ size, className = "" }: AdSpaceProps) => {
   const dimensions = adSizes[size];
 
   useEffect(() => {
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(() => {
-      try {
-        // @ts-ignore
-        if (window.adsbygoogle && typeof window.adsbygoogle.push === 'function') {
-          // @ts-ignore
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-        }
-      } catch (err) {
-        console.error("AdSense error:", err);
-      }
-    }, 100);
-
-    return () => clearTimeout(timer);
+    try {
+      // @ts-ignore
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (err) {
+      console.error("AdSense error:", err);
+    }
   }, []);
 
   return (
-    <div className={`flex items-center justify-center w-full min-h-[90px] ${className}`}>
+    <div className={`flex items-center justify-center overflow-hidden w-full ${className}`}>
       <ins
         className="adsbygoogle"
         style={{
-          display: "inline-block",
+          display: "block",
+          maxWidth: "100%",
           width: "100%",
-          minHeight: "90px",
+          height: "auto",
         }}
         data-ad-client="ca-pub-7382531001943020"
         data-ad-slot="auto"

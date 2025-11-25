@@ -1,24 +1,15 @@
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { SEOHead } from "@/components/SEOHead";
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <SEOHead
-        title="Privacy Policy - ToolMaster Pro"
-        description="Read ToolMaster Pro's privacy policy to understand how we collect, use, and protect your personal information when you use our free online tools."
-        keywords="privacy policy, data protection, user privacy, data security"
-        canonical="https://toolmaster.cloud/privacy-policy"
-      />
+    <div className="min-h-screen bg-background">
       <Header />
-      <main className="flex-1">
-        <div className="container py-12 px-4">
+      <div className="container py-12">
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
@@ -76,8 +67,6 @@ const PrivacyPolicy = () => {
           </p>
         </div>
       </div>
-      </main>
-      <Footer />
     </div>
   );
 };

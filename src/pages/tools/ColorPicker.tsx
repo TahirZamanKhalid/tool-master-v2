@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -89,7 +90,9 @@ const ColorPicker = () => {
   const shades = generateShades();
 
   return (
-    <ToolLayout
+    <>
+      <Header />
+      <ToolLayout
         title="Color Picker"
         description="Pick colors and generate color palettes with HEX, RGB, and HSL values"
         category="Developer Tools"
@@ -210,6 +213,7 @@ const ColorPicker = () => {
           </Card>
         </div>
       </ToolLayout>
+    </>
   );
 };
 

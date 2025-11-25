@@ -1,10 +1,1 @@
 project_id = "cggwrsztafeosmigfckc"
-
-[functions.lookup-barcode]
-verify_jwt = false
-
-[functions.send-contact-email]
-verify_jwt = false
-
-[functions.smart-ai-chat]
-verify_jwt = false
