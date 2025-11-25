@@ -22,8 +22,8 @@ const DiceRoller = () => {
     >
       {/* Top Ad - Leaderboard */}
       <GoogleAd
-        width={728}
-        height={250}
+        width={600}
+        height={200}
         adSlot="4974734897" // Replace with your actual leaderboard ad slot ID
         adFormat="rectangle"
         className="mb-6"
