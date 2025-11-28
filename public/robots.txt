@@ -7,7 +7,7 @@ Allow: /
 Allow: /tools/
 Allow: /category/
 Allow: /blog/
-Allow: /ads.txt
+
 Crawl-delay: 0.2
 
 # Bing Bot Configuration
