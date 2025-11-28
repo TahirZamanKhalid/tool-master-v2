@@ -1,18 +1,12 @@
 import { useEffect, useRef } from 'react';
 
-interface MonetagSquareProps {
-    zoneId?: string; // Optional, defaults to the one we know
-    className?: string;
-}
-
-const MonetagSquare = ({ zoneId = "188818", className }: MonetagSquareProps) => {
+const MonetagSquare = ({ className }: { className?: string }) => {
     const adRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (adRef.current) {
             const script = document.createElement('script');
-            script.src = "https://quge5.com/88/tag.min.js";
-            script.dataset.zone = zoneId;
+            script.src = "https://3nbf4.com/act/files/tag.min.js?z=10250230";
             script.async = true;
             script.dataset.cfasync = "false";
 
@@ -20,7 +14,7 @@ const MonetagSquare = ({ zoneId = "188818", className }: MonetagSquareProps) => 
             adRef.current.innerHTML = '';
             adRef.current.appendChild(script);
         }
-    }, [zoneId]);
+    }, []);
 
     return (
         <div
