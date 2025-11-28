@@ -12,7 +12,7 @@ const AdGridLayout = ({ children, className = "" }: AdGridLayoutProps) => {
     return (
         <div className={`w-full max-w-[1600px] mx-auto p-4 ${className}`}>
             {/* Desktop Grid Layout */}
-            <div className="hidden xl:grid grid-cols-[300px_1fr_300px] gap-4">
+            <div className="hidden xl:grid grid-cols-[15%_1fr_15%] gap-2">
 
                 {/* Top Row */}
                 <div className="col-span-1">

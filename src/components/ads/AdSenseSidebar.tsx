@@ -16,7 +16,7 @@ const AdSenseSidebar = ({ slotId, className, style }: AdSenseSidebarProps) => {
     }, []);
 
     return (
-        <div className={`w-full h-full flex justify-center items-center overflow-hidden bg-gray-50/50 rounded-lg border border-gray-100 ${className}`} style={{ minHeight: '600px', ...style }}>
+        <div className={`w-full h-full flex justify-center items-center overflow-hidden ${className}`} style={{ minHeight: '600px', ...style }}>
             <ins
                 className="adsbygoogle"
                 style={{ display: 'block', width: '100%', height: '100%' }}
@@ -25,10 +25,6 @@ const AdSenseSidebar = ({ slotId, className, style }: AdSenseSidebarProps) => {
                 data-ad-format="auto"
                 data-full-width-responsive="true"
             />
-            {/* Fallback/Placeholder for development */}
-            <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-400 pointer-events-none opacity-0 hover:opacity-100">
-                AdSense Sidebar
-            </div>
         </div>
     );
 };
