@@ -27,11 +27,7 @@
       "@/*": [
         "./src/*"
       ]
-    },
-    "types": [
-      "react",
-      "react-dom"
-    ]
+    }
   },
   "include": [
     "src"
