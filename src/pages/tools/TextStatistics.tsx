@@ -30,7 +30,7 @@ const TextStatistics = () => {
       description="Detailed statistical analysis of text"
       category="Text Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdSpace className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <Textarea

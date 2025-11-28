@@ -32,7 +32,7 @@ const IPDetector = () => {
       description="Detect your current IP address"
       category="Utilities"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdSpace className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div className="text-center p-8 bg-muted rounded">

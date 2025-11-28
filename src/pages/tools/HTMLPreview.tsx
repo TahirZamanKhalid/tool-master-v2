@@ -17,7 +17,7 @@ const HTMLPreview = () => {
       description="Write HTML and see live preview"
       category="Developer Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdSpace className="mb-6" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardContent className="p-6">

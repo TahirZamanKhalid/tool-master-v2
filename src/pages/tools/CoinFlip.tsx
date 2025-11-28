@@ -66,13 +66,13 @@ const CoinFlip = () => {
       description="Flip a virtual coin with real-time statistics and history tracking. Perfect for making decisions, settling disputes, or understanding probability."
       category="Utilities"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdSpace className="mb-6" />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Sidebar Ad - Left */}
         <div className="hidden lg:block lg:col-span-2">
           <div className="sticky top-6">
-            <AdSpace size="skyscraper" />
+            <AdSpace />
           </div>
         </div>
 
@@ -251,14 +251,14 @@ const CoinFlip = () => {
         {/* Sidebar Ad - Right */}
         <div className="hidden lg:block lg:col-span-2">
           <div className="sticky top-6">
-            <AdSpace size="skyscraper" />
+            <AdSpace />
           </div>
         </div>
       </div>
 
       {/* Mobile Bottom Ad */}
       <div className="lg:hidden mt-6">
-        <AdSpace size="banner" />
+        <AdSpace />
       </div>
     </ToolLayout>
   );
