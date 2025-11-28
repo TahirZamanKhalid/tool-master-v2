@@ -14,10 +14,8 @@ import {
 } from "lucide-react";
 
 export const allTools = [
-  // AI & Content (9)
-  { icon: MessageSquare, title: "Free Online AI Chat", description: "Free online AI chatbot powered by Google Gemini 2.5 Pro - Chat with AI assistant for instant answers", category: "AI & Content", path: "/tools/ai-chat", popular: true },
+  // AI & Content (7)
   { icon: Captions, title: "Caption Generator", description: "Generate engaging social media captions with AI", category: "AI & Content", path: "/tools/caption-generator" },
-  { icon: Shield, title: "Free Online Plagiarism Checker & AI Detector", description: "Best free online plagiarism checker and AI content detector - Advanced plagiarism detection with real-time visualizations", category: "AI & Content", path: "/tools/premium-plagiarism-ai-tool", popular: true },
   { icon: RefreshCw, title: "Text Rephraser", description: "Rephrase text with different tones using AI", category: "AI & Content", path: "/tools/text-rephraser" },
   { icon: PenTool, title: "Free Online Essay Writer", description: "Best free online essay writer AI - Generate academic essays instantly with AI", category: "AI & Content", path: "/tools/essay-writer", popular: true },
   { icon: BookOpen, title: "Thesis Writer", description: "Generate thesis and dissertation content with AI", category: "AI & Content", path: "/tools/thesis-writer" },

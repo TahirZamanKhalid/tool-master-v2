@@ -44,7 +44,7 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
     onSearch?.(term.toLowerCase());
   };
 
-  const trendingTerms = ["Background Remover", "QR Generator", "PDF Merger", "AI Chat"];
+  const trendingTerms = ["Background Remover", "QR Generator", "PDF Merger", "Image Editor"];
 
   return (
     <section className="relative overflow-hidden w-full">
