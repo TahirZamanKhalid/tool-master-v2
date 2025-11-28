@@ -60,7 +60,7 @@ const TextRephraser = () => {
         "Copy the rephrased version you prefer"
       ]}
     >
-      <AdSpace className="mb-6" />
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>

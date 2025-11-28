@@ -87,7 +87,7 @@ const ImageToText = () => {
         { name: "Image Compressor", path: "/tools/image-compressor" }
       ]}
     >
-      <AdSpace className="mb-6" />
+      <AdSpace size="leaderboard" className="mb-6" />
 
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-6 space-y-6">
@@ -181,7 +181,7 @@ const ImageToText = () => {
         </Card>
       </div>
 
-      <AdSpace className="mt-6" />
+      <AdSpace size="leaderboard" className="mt-6" />
     </ToolLayout>
   );
 };

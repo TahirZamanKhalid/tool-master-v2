@@ -965,21 +965,21 @@ const CodeBeautifier = () => {
             {/* Ad Slot 1 - 300x250 */}
             <Card className="border-2 overflow-hidden">
               <CardContent className="p-4">
-                <AdSpace slot="7713152297" className="w-full" />
+                <AdSpace type="display" slot="7713152297" position="sidebar-right" className="w-full" />
               </CardContent>
             </Card>
 
             {/* Ad Slot 2 - 300x600 */}
             <Card className="border-2 overflow-hidden">
               <CardContent className="p-4">
-                <AdSpace slot="7110517063" className="w-full" />
+                <AdSpace type="display" slot="7110517063" position="sidebar-right" className="w-full" />
               </CardContent>
             </Card>
 
             {/* Ad Slot 3 - 300x300 */}
             <Card className="border-2 overflow-hidden">
               <CardContent className="p-4">
-                <AdSpace slot="4153181237" className="w-full" />
+                <AdSpace type="display" slot="4153181237" position="sidebar-right" className="w-full" />
               </CardContent>
             </Card>
           </div>

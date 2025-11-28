@@ -81,7 +81,7 @@ import CSSMinifier from "./pages/tools/CSSMinifier";
 import JavaScriptMinifier from "./pages/tools/JavaScriptMinifier";
 import UserAgentParser from "./pages/tools/UserAgentParser";
 import NumberBaseConverter from "./pages/tools/NumberBaseConverter";
-
+import AIChat from "./pages/tools/AIChat";
 import EmailValidator from "./pages/tools/EmailValidator";
 import MarkdownToHTML from "./pages/tools/MarkdownToHTML";
 import TextToSpeech from "./pages/tools/TextToSpeech";
@@ -124,7 +124,7 @@ import TextCompare from "./pages/tools/TextCompare";
 import HexConverter from "./pages/tools/HexConverter";
 import TemperatureConverter from "./pages/tools/TemperatureConverter";
 import RGBConverter from "./pages/tools/RGBConverter";
-
+import PremiumPlagiarismAITool from "./pages/tools/PremiumPlagiarismAITool";
 import PremiumPlusWordCounter from "./pages/tools/PremiumPlusWordCounter";
 import PremiumPlusBatchImageResizer from "./pages/tools/PremiumPlusBatchImageResizer";
 import PremiumPlusUnitConverter from "./pages/tools/PremiumPlusUnitConverter";
@@ -281,7 +281,7 @@ const App = () => {
             <Route path="/tools/javascript-minifier" element={<JavaScriptMinifier />} />
             <Route path="/tools/user-agent-parser" element={<UserAgentParser />} />
             <Route path="/tools/number-base-converter" element={<NumberBaseConverter />} />
-
+            <Route path="/tools/ai-chat" element={<AIChat />} />
             <Route path="/tools/email-validator" element={<EmailValidator />} />
             <Route path="/tools/markdown-to-html" element={<MarkdownToHTML />} />
             <Route path="/tools/text-to-speech" element={<TextToSpeech />} />
@@ -324,7 +324,7 @@ const App = () => {
             <Route path="/tools/hex-converter" element={<HexConverter />} />
             <Route path="/tools/temperature-converter" element={<TemperatureConverter />} />
             <Route path="/tools/rgb-converter" element={<RGBConverter />} />
-
+            <Route path="/tools/premium-plagiarism-ai-tool" element={<PremiumPlagiarismAITool />} />
             <Route path="/tools/premium-plus-word-counter" element={<PremiumPlusWordCounter />} />
             <Route path="/tools/premium-plus-batch-image-resizer" element={<PremiumPlusBatchImageResizer />} />
             <Route path="/tools/premium-plus-unit-converter" element={<PremiumPlusUnitConverter />} />

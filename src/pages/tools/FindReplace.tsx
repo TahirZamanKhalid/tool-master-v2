@@ -24,7 +24,7 @@ const FindReplace = () => {
       description="Find and replace text in bulk"
       category="Text Tools"
     >
-      <AdSpace className="mb-6" />
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <Textarea

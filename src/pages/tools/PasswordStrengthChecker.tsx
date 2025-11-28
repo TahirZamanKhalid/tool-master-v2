@@ -39,7 +39,7 @@ const PasswordStrengthChecker = () => {
       description="Check how strong your password is"
       category="Security Tools"
     >
-      <AdSpace className="mb-6" />
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <Input

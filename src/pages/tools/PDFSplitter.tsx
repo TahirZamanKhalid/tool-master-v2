@@ -134,7 +134,7 @@ const PDFSplitter = () => {
         { name: "PDF to Text", path: "/tools/pdf-to-text" },
       ]}
     >
-      <AdSpace className="mb-6" />
+      <AdSpace size="leaderboard" className="mb-6" />
       
       <Card>
         <CardContent className="p-6 space-y-6">
@@ -215,7 +215,7 @@ const PDFSplitter = () => {
         </CardContent>
       </Card>
 
-      <AdSpace className="mt-6" />
+      <AdSpace size="leaderboard" className="mt-6" />
 
       <AdWatchModal
         open={showAdModal}

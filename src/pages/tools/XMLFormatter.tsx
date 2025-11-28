@@ -42,7 +42,7 @@ const XMLFormatter = () => {
       description="Format and beautify XML code"
       category="Developer Tools"
     >
-      <AdSpace className="mb-6" />
+      <AdSpace size="leaderboard" className="mb-6" />
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardContent className="p-6 space-y-4">

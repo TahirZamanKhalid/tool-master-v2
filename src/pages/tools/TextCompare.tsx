@@ -31,7 +31,7 @@ const TextCompare = () => {
       description="Compare two text blocks line by line"
       category="Text Tools"
     >
-      <AdSpace className="mb-6" />
+      <AdSpace size="leaderboard" className="mb-6" />
       <div className="space-y-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <Card>

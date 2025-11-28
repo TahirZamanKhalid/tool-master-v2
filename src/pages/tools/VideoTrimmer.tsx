@@ -974,6 +974,7 @@ const VideoTrimmer = () => {
             <Card>
               <CardContent className="p-6">
                 <LazyAdSpace
+                  type="display"
                   slot="8364314011"
                   className="min-h-[250px]"
                 />
@@ -1036,6 +1037,7 @@ const VideoTrimmer = () => {
             <Card>
               <CardContent className="p-6">
                 <LazyAdSpace
+                  type="display"
                   slot="5105501959"
                   className="min-h-[250px]"
                 />

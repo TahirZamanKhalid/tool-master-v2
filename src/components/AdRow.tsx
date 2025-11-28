@@ -8,32 +8,37 @@ declare global {
 
 interface AdRowProps {
   className?: string;
-  slot?: string;
 }
 
-export const AdRow = ({ className = "", slot = "2931558314" }: AdRowProps) => {
+export const AdRow = ({ className = "" }: AdRowProps) => {
   const adRef = useRef<HTMLModElement>(null);
 
   useEffect(() => {
-    try {
-      if (adRef.current && window.adsbygoogle) {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
+    const timer = setTimeout(() => {
+      try {
+        if (adRef.current) {
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
+        }
+      } catch (error) {
+        console.error("AdSense row ad error:", error);
       }
-    } catch (error) {
-      console.error("AdSense error:", error);
-    }
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className={`w-full my-4 md:my-6 ${className}`}>
+    <div className={`w-full flex justify-center my-8 ${className}`}>
       <ins
         ref={adRef}
         className="adsbygoogle"
-        style={{ display: "block" }}
+        style={{
+          display: "inline-block",
+          width: "600px",
+          height: "300px",
+        }}
         data-ad-client="ca-pub-7382531001943020"
-        data-ad-slot={slot}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
+        data-ad-slot="2931558314"
       />
     </div>
   );

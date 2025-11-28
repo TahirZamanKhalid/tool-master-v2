@@ -125,7 +125,7 @@ const PDFCompressor = () => {
         { name: "Image Compressor", path: "/tools/image-compressor" },
       ]}
     >
-      <AdSpace className="mb-6" />
+      <AdSpace size="leaderboard" className="mb-6" />
       
       <AdWatchModal
         open={showAdModal}

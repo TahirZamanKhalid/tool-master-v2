@@ -45,7 +45,7 @@ const CountdownTimer = () => {
       description="Set a countdown timer"
       category="Utilities"
     >
-      <AdSpace className="mb-6" />
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">

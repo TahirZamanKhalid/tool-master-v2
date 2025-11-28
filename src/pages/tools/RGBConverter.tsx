@@ -37,7 +37,7 @@ const RGBConverter = () => {
       description="Convert between RGB and Hex color formats"
       category="Design Tools"
     >
-      <AdSpace className="mb-6" />
+      <AdSpace size="leaderboard" className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div className="grid grid-cols-3 gap-4">

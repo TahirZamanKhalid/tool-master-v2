@@ -89,7 +89,7 @@ const WiFiQRGenerator = () => {
         { name: "Barcode Generator", path: "/tools/barcode-generator" },
       ]}
     >
-      <AdSpace className="mb-6" />
+      <AdSpace size="leaderboard" className="mb-6" />
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
@@ -185,7 +185,7 @@ const WiFiQRGenerator = () => {
         </Card>
       </div>
       
-      <AdSpace className="mt-6" />
+      <AdSpace size="leaderboard" className="mt-6" />
     </ToolLayout>
   );
 };
