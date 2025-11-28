@@ -46,7 +46,7 @@ const ColorConverter = () => {
       description="Convert between HEX, RGB, and HSL color formats"
       category="Image Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdSpace className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>

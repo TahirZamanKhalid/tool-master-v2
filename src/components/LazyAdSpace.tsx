@@ -1,6 +1,4 @@
 import { useEffect, useRef } from "react";
-import type { ReactNode, CSSProperties } from "react";
-import type { AdSpaceProps } from "./AdSpace";
 
 declare global {
   interface Window {
@@ -8,45 +6,34 @@ declare global {
   }
 }
 
-export interface LazyAdSpaceProps extends AdSpaceProps {
-  children?: ReactNode;
-  [key: string]: any;
+interface LazyAdSpaceProps {
+  className?: string;
+  slot?: string;
 }
 
-export const LazyAdSpace = ({ className = "", style, format = "auto", slot }: LazyAdSpaceProps) => {
+export const LazyAdSpace = ({ className = "", slot = "2931558314" }: LazyAdSpaceProps) => {
   const adRef = useRef<HTMLModElement>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      try {
-        if (adRef.current) {
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-        }
-      } catch (error) {
-        console.error("AdSense lazy ad error:", error);
+    try {
+      if (adRef.current && window.adsbygoogle) {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
       }
-    }, 100);
-
-    return () => clearTimeout(timer);
+    } catch (error) {
+      console.error("AdSense error:", error);
+    }
   }, []);
 
-  const height = format === "horizontal" ? "300px" : format === "vertical" ? "600px" : "300px";
-  const width = format === "vertical" ? "300px" : "600px";
-
-  const adSlot = slot || "2931558314";
-
   return (
-    <div className={`${className}`} style={style}>
+    <div className={`w-full my-4 ${className}`}>
       <ins
         ref={adRef}
         className="adsbygoogle"
-        style={{
-          display: "inline-block",
-          width,
-          height,
-        }}
+        style={{ display: "block" }}
         data-ad-client="ca-pub-7382531001943020"
-        data-ad-slot={adSlot}
+        data-ad-slot={slot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
       />
     </div>
   );

@@ -123,7 +123,7 @@ const ImagesToPDF = () => {
         { name: "PDF Splitter", path: "/tools/pdf-splitter" },
       ]}
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdSpace className="mb-6" />
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
           <CardContent className="p-6 space-y-6">
@@ -227,7 +227,7 @@ const ImagesToPDF = () => {
         </Card>
       </div>
       
-      <AdSpace size="leaderboard" className="mt-6" />
+      <AdSpace className="mt-6" />
 
       <AdWatchModal
         open={showAdModal}

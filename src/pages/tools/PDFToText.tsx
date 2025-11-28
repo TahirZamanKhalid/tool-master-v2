@@ -127,7 +127,7 @@ const PDFToText = () => {
         { name: "Word Counter", path: "/tools/word-counter" },
       ]}
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdSpace className="mb-6" />
       
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
@@ -205,7 +205,7 @@ const PDFToText = () => {
         </Card>
       </div>
       
-      <AdSpace size="leaderboard" className="mt-6" />
+      <AdSpace className="mt-6" />
 
       <AdWatchModal
         open={showAdModal}

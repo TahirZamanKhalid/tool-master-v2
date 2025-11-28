@@ -30,7 +30,7 @@ const ColorPaletteGenerator = () => {
       description="Generate beautiful random color palettes"
       category="Design Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdSpace className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <Button onClick={generatePalette} className="w-full">

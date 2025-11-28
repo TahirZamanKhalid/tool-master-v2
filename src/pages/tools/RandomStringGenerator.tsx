@@ -35,7 +35,7 @@ const RandomStringGenerator = () => {
       description="Generate random strings with custom options"
       category="Utilities"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdSpace className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>

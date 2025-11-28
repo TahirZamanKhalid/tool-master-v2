@@ -22,7 +22,7 @@ const TextAnalyzer = () => {
       description="Analyze text statistics including word count, character count, and reading time"
       category="Text Tools"
     >
-      <AdSpace size="leaderboard" className="mb-6" />
+      <AdSpace className="mb-6" />
       <Card>
         <CardContent className="p-6 space-y-4">
           <Textarea
