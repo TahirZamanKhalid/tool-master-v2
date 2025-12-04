@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
 declare global {
@@ -19,46 +19,25 @@ export interface AdSpaceProps {
   [key: string]: any;
 }
 
+// Ad slots by type
+const AD_SLOTS = {
+  leaderboard: "9769564871", // testing adsssss - Display (600x300)
+  banner: "1575962277", // Display ad 10 (468x60)
+  skyscraper: "1212397554", // Side bar for both mobile and desktop (300x600)
+  sidebar: "5628599414", // Side bar Ads1 (300x600)
+};
+
 export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpaceProps) => {
   const adRef = useRef<HTMLModElement>(null);
-  const [adStatus, setAdStatus] = useState<string>("initializing");
 
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
         if (adRef.current) {
-          const adElement = adRef.current;
-          
-          // Debug logging
-          console.log("[AdSpace Debug] Attempting to push ad...", { size, slot });
-          console.log("[AdSpace Debug] adsbygoogle available:", typeof window.adsbygoogle);
-          console.log("[AdSpace Debug] Ad element dimensions:", {
-            width: adElement.offsetWidth,
-            height: adElement.offsetHeight,
-          });
-          console.log("[AdSpace Debug] Ad element visible:", adElement.offsetParent !== null);
-          
           (window.adsbygoogle = window.adsbygoogle || []).push({});
-          setAdStatus("pushed");
-          console.log("[AdSpace Debug] Ad push successful");
-          
-          // Check ad status after a delay
-          setTimeout(() => {
-            const computedStyle = window.getComputedStyle(adElement);
-            console.log("[AdSpace Debug] Post-push status:", {
-              display: computedStyle.display,
-              visibility: computedStyle.visibility,
-              height: computedStyle.height,
-              dataAdStatus: adElement.getAttribute("data-ad-status"),
-            });
-          }, 2000);
-        } else {
-          console.log("[AdSpace Debug] Ad ref is null");
-          setAdStatus("ref-null");
         }
       } catch (error) {
-        console.error("[AdSpace Debug] AdSense error:", error);
-        setAdStatus("error");
+        console.error("AdSense generic ad error:", error);
       }
     }, 100);
 
@@ -67,7 +46,7 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
 
   let width = "600px";
   let height = "300px";
-  if (size === "skyscraper") {
+  if (size === "skyscraper" || size === "sidebar") {
     width = "300px";
     height = "600px";
   } else if (size === "banner") {
@@ -75,7 +54,8 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
     height = "60px";
   }
 
-  const adSlot = slot || "2931558314";
+  // Use provided slot or get from AD_SLOTS based on size
+  const adSlot = slot || AD_SLOTS[size as keyof typeof AD_SLOTS] || AD_SLOTS.leaderboard;
 
   return (
     <div className={`${className}`} style={style}>
