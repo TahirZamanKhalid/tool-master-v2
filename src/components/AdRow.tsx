@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 declare global {
   interface Window {
@@ -8,57 +8,36 @@ declare global {
 
 interface AdRowProps {
   className?: string;
+  slot?: string;
 }
 
-export const AdRow = ({ className = "" }: AdRowProps) => {
+// Display ad slots for row ads
+const DISPLAY_SLOTS = [
+  "9769564871", // testing adsssss - Display
+  "1575962277", // Display ad 10
+  "2889043946", // Display ad 9
+  "4202125614", // Display ad 8
+];
+
+export const AdRow = ({ className = "", slot }: AdRowProps) => {
   const adRef = useRef<HTMLModElement>(null);
-  const [adStatus, setAdStatus] = useState<string>("initializing");
 
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
         if (adRef.current) {
-          const adElement = adRef.current;
-          
-          // Debug logging
-          console.log("[AdRow Debug] Attempting to push ad...");
-          console.log("[AdRow Debug] adsbygoogle available:", typeof window.adsbygoogle);
-          console.log("[AdRow Debug] Ad element dimensions:", {
-            width: adElement.offsetWidth,
-            height: adElement.offsetHeight,
-            clientWidth: adElement.clientWidth,
-            clientHeight: adElement.clientHeight,
-          });
-          console.log("[AdRow Debug] Ad element visible:", adElement.offsetParent !== null);
-          console.log("[AdRow Debug] Ad element dataset:", adElement.dataset);
-          
           (window.adsbygoogle = window.adsbygoogle || []).push({});
-          setAdStatus("pushed");
-          console.log("[AdRow Debug] Ad push successful, queue length:", window.adsbygoogle.length);
-          
-          // Check ad status after a delay
-          setTimeout(() => {
-            const computedStyle = window.getComputedStyle(adElement);
-            console.log("[AdRow Debug] Post-push status:", {
-              display: computedStyle.display,
-              visibility: computedStyle.visibility,
-              height: computedStyle.height,
-              dataAdStatus: adElement.getAttribute("data-ad-status"),
-              innerHTML: adElement.innerHTML.substring(0, 100),
-            });
-          }, 2000);
-        } else {
-          console.log("[AdRow Debug] Ad ref is null");
-          setAdStatus("ref-null");
         }
       } catch (error) {
-        console.error("[AdRow Debug] AdSense error:", error);
-        setAdStatus("error");
+        console.error("AdSense row ad error:", error);
       }
     }, 100);
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Use provided slot or pick from display slots
+  const adSlot = slot || DISPLAY_SLOTS[0];
 
   return (
     <div className={`w-full flex justify-center my-8 ${className}`}>
@@ -71,14 +50,8 @@ export const AdRow = ({ className = "" }: AdRowProps) => {
           height: "300px",
         }}
         data-ad-client="ca-pub-7382531001943020"
-        data-ad-slot="2931558314"
+        data-ad-slot={adSlot}
       />
-      {/* Debug indicator - remove in production */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="absolute top-0 right-0 text-xs bg-yellow-500 text-black px-1">
-          {adStatus}
-        </div>
-      )}
     </div>
   );
 };
