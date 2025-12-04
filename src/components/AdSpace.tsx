@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
 declare global {
@@ -21,15 +21,44 @@ export interface AdSpaceProps {
 
 export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpaceProps) => {
   const adRef = useRef<HTMLModElement>(null);
+  const [adStatus, setAdStatus] = useState<string>("initializing");
 
   useEffect(() => {
     const timer = setTimeout(() => {
       try {
         if (adRef.current) {
+          const adElement = adRef.current;
+          
+          // Debug logging
+          console.log("[AdSpace Debug] Attempting to push ad...", { size, slot });
+          console.log("[AdSpace Debug] adsbygoogle available:", typeof window.adsbygoogle);
+          console.log("[AdSpace Debug] Ad element dimensions:", {
+            width: adElement.offsetWidth,
+            height: adElement.offsetHeight,
+          });
+          console.log("[AdSpace Debug] Ad element visible:", adElement.offsetParent !== null);
+          
           (window.adsbygoogle = window.adsbygoogle || []).push({});
+          setAdStatus("pushed");
+          console.log("[AdSpace Debug] Ad push successful");
+          
+          // Check ad status after a delay
+          setTimeout(() => {
+            const computedStyle = window.getComputedStyle(adElement);
+            console.log("[AdSpace Debug] Post-push status:", {
+              display: computedStyle.display,
+              visibility: computedStyle.visibility,
+              height: computedStyle.height,
+              dataAdStatus: adElement.getAttribute("data-ad-status"),
+            });
+          }, 2000);
+        } else {
+          console.log("[AdSpace Debug] Ad ref is null");
+          setAdStatus("ref-null");
         }
       } catch (error) {
-        console.error("AdSense generic ad error:", error);
+        console.error("[AdSpace Debug] AdSense error:", error);
+        setAdStatus("error");
       }
     }, 100);
 
