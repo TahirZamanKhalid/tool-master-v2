@@ -4,6 +4,7 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText } from "lucide-react";
+import { AdRow } from "@/components/AdRow";
 
 const WordCounter = () => {
   const [text, setText] = useState("");
@@ -47,32 +48,35 @@ const WordCounter = () => {
               <div className="text-4xl font-bold text-primary mb-2">{words}</div>
               <div className="text-sm text-muted-foreground">Words</div>
             </Card>
-            
+
             <Card className="p-6 text-center">
               <div className="text-4xl font-bold text-primary mb-2">{characters}</div>
               <div className="text-sm text-muted-foreground">Characters</div>
             </Card>
-            
+
             <Card className="p-6 text-center">
               <div className="text-4xl font-bold text-primary mb-2">{charactersNoSpaces}</div>
               <div className="text-sm text-muted-foreground">Characters (no spaces)</div>
             </Card>
-            
+
             <Card className="p-6 text-center">
               <div className="text-4xl font-bold text-primary mb-2">{sentences}</div>
               <div className="text-sm text-muted-foreground">Sentences</div>
             </Card>
-            
+
             <Card className="p-6 text-center">
               <div className="text-4xl font-bold text-primary mb-2">{paragraphs}</div>
               <div className="text-sm text-muted-foreground">Paragraphs</div>
             </Card>
-            
+
             <Card className="p-6 text-center">
               <div className="text-4xl font-bold text-primary mb-2">{readingTime}</div>
               <div className="text-sm text-muted-foreground">Min Read Time</div>
             </Card>
           </div>
+
+          {/* Ad placement */}
+          <AdRow className="mt-8" />
         </div>
       </ToolLayout>
     </>

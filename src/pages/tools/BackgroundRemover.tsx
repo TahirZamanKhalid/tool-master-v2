@@ -10,6 +10,7 @@ import { Upload, Download, Eraser, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SEOHead } from "@/components/SEOHead";
 import { removeBackground, validateImageFile } from "@/utils/backgroundRemoval";
+import { AdSpace } from "@/components/AdSpace";
 
 const BackgroundRemover = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -86,7 +87,7 @@ const BackgroundRemover = () => {
         setIsProcessing(false);
         setProgress(100);
         setProcessingStage("Complete!");
-        
+
         toast({
           title: "Success!",
           description: "Background removed successfully. You can now download or edit the result.",
@@ -97,11 +98,11 @@ const BackgroundRemover = () => {
     } catch (error) {
       console.error("Background removal error:", error);
       setIsProcessing(false);
-      
+
       toast({
         title: "Error",
-        description: error instanceof Error 
-          ? error.message 
+        description: error instanceof Error
+          ? error.message
           : "Failed to remove background. Please try again with a different image.",
         variant: "destructive",
       });
@@ -110,7 +111,7 @@ const BackgroundRemover = () => {
 
   const downloadImage = () => {
     if (!processedImage) return;
-    
+
     const link = document.createElement("a");
     const timestamp = new Date().getTime();
     link.download = `background-removed-${timestamp}.png`;
@@ -170,7 +171,7 @@ const BackgroundRemover = () => {
               onChange={handleImageSelect}
               className="hidden"
             />
-            
+
             {!selectedImage ? (
               <div
                 onClick={() => fileInputRef.current?.click()}
@@ -230,7 +231,7 @@ const BackgroundRemover = () => {
                     </p>
                   </div>
                 )}
-                
+
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <p className="font-medium mb-2 flex items-center gap-2">
@@ -280,7 +281,7 @@ const BackgroundRemover = () => {
                   {isProcessing ? "Processing..." : "Remove Background"}
                 </Button>
               )}
-              
+
               {selectedImage && (
                 <Button
                   onClick={() => fileInputRef.current?.click()}
@@ -292,27 +293,27 @@ const BackgroundRemover = () => {
                   Upload New
                 </Button>
               )}
-              
+
               {processedImage && !showEditor && (
                 <>
-                  <Button 
-                    onClick={downloadImage} 
-                    size="lg" 
+                  <Button
+                    onClick={downloadImage}
+                    size="lg"
                     className="gradient-primary border-0"
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Download
                   </Button>
-                  <Button 
-                    onClick={() => setShowEditor(true)} 
-                    size="lg" 
+                  <Button
+                    onClick={() => setShowEditor(true)}
+                    size="lg"
                     variant="outline"
                   >
                     Edit Result
                   </Button>
-                  <Button 
-                    onClick={resetAll} 
-                    size="lg" 
+                  <Button
+                    onClick={resetAll}
+                    size="lg"
                     variant="ghost"
                   >
                     <RefreshCw className="h-4 w-4 mr-2" />
@@ -333,6 +334,9 @@ const BackgroundRemover = () => {
             </p>
           </div>
         </Card>
+
+        {/* Ad placement after results */}
+        {processedImage && <AdSpace size="leaderboard" className="mt-8" />}
       </ToolLayout>
 
       {isProcessing && (
@@ -340,7 +344,7 @@ const BackgroundRemover = () => {
           message={processingStage}
           progress={progress}
           showSkip={false}
-          onSkip={() => {}}
+          onSkip={() => { }}
         />
       )}
     </>

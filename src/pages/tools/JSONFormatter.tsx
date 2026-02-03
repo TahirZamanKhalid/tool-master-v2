@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Copy, Download, FileText } from "lucide-react";
+import { AdRow } from "@/components/AdRow";
 
 const JSONFormatter = () => {
   const [input, setInput] = useState("");
@@ -129,6 +130,9 @@ const JSONFormatter = () => {
             )}
           </Card>
         </div>
+
+        {/* Ad placement */}
+        <AdRow slot="2931558314" className="mt-8" />
       </ToolLayout>
     </>
   );
