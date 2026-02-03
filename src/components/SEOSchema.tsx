@@ -37,10 +37,10 @@ interface HowToSchemaProps {
   estimatedTime?: string;
 }
 
-export const HowToSchema = ({ 
-  name, 
-  description, 
-  steps, 
+export const HowToSchema = ({
+  name,
+  description,
+  steps,
   toolUrl,
   estimatedTime = "PT2M"
 }: HowToSchemaProps) => {
@@ -81,10 +81,10 @@ interface WebApplicationSchemaProps {
   ratingCount?: string;
 }
 
-export const WebApplicationSchema = ({ 
-  name, 
-  description, 
-  category, 
+export const WebApplicationSchema = ({
+  name,
+  description,
+  category,
   url,
   ratingValue = "4.8",
   ratingCount = "1250"
@@ -238,6 +238,57 @@ export const WebSiteSchema = ({
         "@type": "ImageObject",
         "url": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg"
       }
+    }
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+};
+
+interface BlogPostingSchemaProps {
+  title: string;
+  description: string;
+  image: string;
+  datePublished: string;
+  authorName: string;
+  url: string;
+}
+
+export const BlogPostingSchema = ({
+  title,
+  description,
+  image,
+  datePublished,
+  authorName,
+  url,
+}: BlogPostingSchemaProps) => {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": title,
+    "description": description,
+    "image": image,
+    "datePublished": datePublished,
+    "author": {
+      "@type": "Organization",
+      "name": authorName,
+      "url": "https://toolmaster.cloud"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "ToolMaster Pro™",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg"
+      }
+    },
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": url
     }
   };
 

@@ -9,6 +9,8 @@ import { ShareButtons } from "@/components/ShareButtons";
 import { ToolFAQ } from "@/components/ToolFAQ";
 import { SidebarAd } from "@/components/SidebarAd";
 import { useToolAnalytics } from "@/hooks/useToolAnalytics";
+import { blogPosts } from "@/data/blogPosts";
+import { ArrowRight } from "lucide-react";
 
 interface ToolLayoutProps {
   title: string;
@@ -150,22 +152,56 @@ export const ToolLayout = ({
               <ToolFAQ toolName={title} />
 
               {relatedTools && relatedTools.length > 0 && (
-                <div>
-                  <h2 className="text-xl font-semibold mb-4">Related Tools</h2>
+                <div className="bg-muted/30 rounded-xl p-6 border border-border/50">
+                  <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <span className="text-lg">🔗</span>
+                    Related & Similar Tools
+                  </h2>
                   <div className="grid sm:grid-cols-2 gap-4">
                     {relatedTools.map((tool, index) => (
                       <Button
                         key={index}
                         variant="outline"
                         onClick={() => navigate(tool.path)}
-                        className="justify-start h-auto py-4 px-6 hover:border-primary/50 hover:bg-primary/5 transition-all"
+                        className="justify-start h-auto py-4 px-6 hover:border-primary/50 hover:bg-primary/5 transition-all group"
                       >
-                        {tool.name}
+                        <div className="flex flex-col items-start gap-1">
+                          <span className="font-semibold group-hover:text-primary transition-colors">{tool.name}</span>
+                          <span className="text-xs text-muted-foreground">More in {category}</span>
+                        </div>
                       </Button>
                     ))}
                   </div>
                 </div>
               )}
+
+              {/* Internal Linking: Blog Guides */}
+              <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl p-8 border border-primary/10">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <span className="bg-primary/20 p-2 rounded-lg text-primary text-xl">📖</span>
+                  Step-by-Step Training Guides
+                </h2>
+                <p className="text-muted-foreground mb-6">Learn how to master professional workflows using our tools with our expert-written tutorials and industry best practices.</p>
+                <div className="grid sm:grid-cols-2 gap-6">
+                  {blogPosts.slice(0, 2).map((post) => (
+                    <div
+                      key={post.id}
+                      className="cursor-pointer group"
+                      onClick={() => navigate(`/blog/${post.slug}`)}
+                    >
+                      <h4 className="font-semibold mb-1 group-hover:text-primary transition-colors line-clamp-1">{post.title}</h4>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{post.excerpt}</p>
+                    </div>
+                  ))}
+                </div>
+                <Button
+                  variant="link"
+                  onClick={() => navigate("/blog")}
+                  className="mt-6 p-0 h-auto text-primary hover:no-underline font-bold"
+                >
+                  View All Guides & Tutorials <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
             {/* Sidebar Column */}

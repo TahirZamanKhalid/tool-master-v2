@@ -31,6 +31,7 @@ import UnitConverter from "./pages/tools/UnitConverter";
 import PercentageCalculator from "./pages/tools/PercentageCalculator";
 import BMICalculator from "./pages/tools/BMICalculator";
 import Blog from "./pages/Blog";
+import BlogPostDetail from "./pages/BlogPostDetail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Contact from "./pages/Contact";
@@ -389,6 +390,7 @@ const App = () => {
             <Route path="/tools/date-difference-calculator" element={<DateDifferenceCalculator />} />
 
             <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPostDetail />} />
             <Route path="/about" element={<About />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />

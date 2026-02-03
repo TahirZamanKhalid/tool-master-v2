@@ -41,7 +41,7 @@ export const Hero = ({ searchQuery = "", onSearch }: HeroProps) => {
           <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground break-words">
             AI-Powered Web Tools - Instant Access, No Registration Required
           </p>
-          
+
           <form onSubmit={handleSearchSubmit} className="mx-auto max-w-2xl w-full px-2">
             <div className="relative flex items-center gap-2">
               <div className="relative flex-1">
@@ -53,9 +53,9 @@ export const Hero = ({ searchQuery = "", onSearch }: HeroProps) => {
                   onChange={handleSearchChange}
                 />
               </div>
-              <Button 
+              <Button
                 type="submit"
-                size="lg" 
+                size="lg"
                 className="gradient-primary border-0 h-12 sm:h-14 px-4 sm:px-6 whitespace-nowrap"
               >
                 Search
@@ -65,11 +65,11 @@ export const Hero = ({ searchQuery = "", onSearch }: HeroProps) => {
 
           <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm text-muted-foreground px-2">
             <span className="self-center">Trending:</span>
-            {["Background Remover", "QR Generator", "PDF Merger", "AI Chat"].map((term) => (
-              <Button 
-                key={term} 
-                variant="outline" 
-                size="sm" 
+            {["Background Remover", "PDF Merger", "Image Compressor", "QR Generator", "AI Blog Writer", "JSON Formatter", "Essay Writer"].map((term) => (
+              <Button
+                key={term}
+                variant="outline"
+                size="sm"
                 className="h-7 sm:h-8 text-xs sm:text-sm px-2 sm:px-3"
                 onClick={() => handleTrendingClick(term)}
               >
