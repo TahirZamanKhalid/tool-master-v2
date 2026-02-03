@@ -87,9 +87,11 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
       <ins
         ref={adRef}
         className="adsbygoogle"
-        style={{ display: "inline-block", width, height }}
+        style={{ display: "block", width, height }}
         data-ad-client="ca-pub-7382531001943020"
         data-ad-slot={adSlot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
       />
     </div>
   );
