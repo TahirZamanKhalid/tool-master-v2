@@ -169,20 +169,13 @@ const Index = () => {
 
   // Button-triggered search handler
   const handleButtonSearch = (query: string) => {
-    // Sanitize query - prevent domain names or URLs from being treated as tool names
-    const sanitizedQuery = query.toLowerCase().trim();
-    if (sanitizedQuery.includes('.') || sanitizedQuery.length < 2) {
-      setSearchQuery(query);
-      return;
-    }
-
     // Check for direct match first
     const directMatch = allTools.find(t =>
-      t.title.toLowerCase() === sanitizedQuery ||
-      t.title.toLowerCase().replace("free online ", "") === sanitizedQuery
+      t.title.toLowerCase() === query.toLowerCase() ||
+      t.title.toLowerCase().replace("free online ", "") === query.toLowerCase()
     );
 
-    if (directMatch && directMatch.path) {
+    if (directMatch) {
       navigate(directMatch.path);
       return;
     }

@@ -41,19 +41,13 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
   };
 
   const handleTrendingClick = (term: string) => {
-    // Sanitize term - prevent domain-like searches from triggering navigations
-    if (term.includes('.') || term.length < 2) {
-      onSearch?.(term.toLowerCase());
-      return;
-    }
-
     // Try to find a direct path for the trending term
     import("@/data/allTools").then(({ allTools }) => {
       const tool = allTools.find(t =>
-        t.title.toLowerCase() === term.toLowerCase() ||
-        t.title.toLowerCase().includes(term.toLowerCase())
+        t.title.toLowerCase().includes(term.toLowerCase()) ||
+        term.toLowerCase().includes(t.title.toLowerCase().replace("free online ", ""))
       );
-      if (tool && tool.path) {
+      if (tool) {
         window.location.href = tool.path;
       } else {
         onSearch?.(term.toLowerCase());
