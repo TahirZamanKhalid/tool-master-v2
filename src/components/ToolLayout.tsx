@@ -81,10 +81,11 @@ export const ToolLayout = ({
 
       {/* Structured Data for SEO */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <div className="container max-w-[1600px] py-8 px-4">
+
+      <main className="container max-w-[1600px] py-8 px-4">
         <Breadcrumbs
           items={[
-            { label: category },
+            { label: category || "Tools" },
             { label: title }
           ]}
         />
@@ -224,7 +225,7 @@ export const ToolLayout = ({
             )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

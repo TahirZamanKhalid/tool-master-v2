@@ -59,10 +59,10 @@ export const Header = () => {
             </div>
           </div>
           <div className="hidden sm:block">
-            <h1 className="text-xl font-bold tracking-tight text-foreground">
+            <p className="text-xl font-bold tracking-tight text-foreground">
               ToolMaster
               <span className="text-primary ml-1">Pro</span>
-            </h1>
+            </p>
           </div>
         </div>
 
@@ -83,7 +83,7 @@ export const Header = () => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="rounded-full border-primary/20 bg-background/50 hover:bg-primary/10 hover:text-primary transition-colors">
+              <Button aria-label="Change Color Theme" variant="outline" size="icon" className="rounded-full border-primary/20 bg-background/50 hover:bg-primary/10 hover:text-primary transition-colors">
                 <Palette className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
@@ -114,7 +114,7 @@ export const Header = () => {
         <div className="flex items-center gap-2 md:hidden">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button aria-label="Change Color Theme" variant="ghost" size="icon" className="rounded-full">
                 <Palette className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
@@ -134,7 +134,7 @@ export const Header = () => {
 
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
+              <Button aria-label="Toggle Navigation Menu" variant="ghost" size="icon" className="rounded-full">
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>

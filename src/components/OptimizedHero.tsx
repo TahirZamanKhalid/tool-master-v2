@@ -41,13 +41,19 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
   };
 
   const handleTrendingClick = (term: string) => {
+    // Sanitize term - prevent domain-like searches from triggering navigations
+    if (term.includes('.') || term.length < 2) {
+      onSearch?.(term.toLowerCase());
+      return;
+    }
+
     // Try to find a direct path for the trending term
     import("@/data/allTools").then(({ allTools }) => {
       const tool = allTools.find(t =>
-        t.title.toLowerCase().includes(term.toLowerCase()) ||
-        term.toLowerCase().includes(t.title.toLowerCase().replace("free online ", ""))
+        t.title.toLowerCase() === term.toLowerCase() ||
+        t.title.toLowerCase().includes(term.toLowerCase())
       );
-      if (tool) {
+      if (tool && tool.path) {
         window.location.href = tool.path;
       } else {
         onSearch?.(term.toLowerCase());
@@ -89,6 +95,7 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
               <div className="relative flex-1">
                 <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-primary animate-pulse-slow" />
                 <Input
+                  aria-label="Search tools"
                   placeholder="Search 100+ tools..."
                   className="h-12 sm:h-14 pl-10 sm:pl-12 pr-2 text-sm sm:text-base shadow-card-hover hover:shadow-glow border-2 border-primary/20 hover:border-primary/40 w-full transition-smooth focus:scale-105 font-medium"
                   value={localSearch}
@@ -97,6 +104,7 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
               </div>
               <Button
                 type="submit"
+                aria-label="Submit search"
                 size="lg"
                 className="gradient-primary border-0 h-12 sm:h-14 px-4 sm:px-6 whitespace-nowrap shadow-card hover:shadow-card-hover transition-bounce hover:scale-110 font-bold shimmer-effect"
               >

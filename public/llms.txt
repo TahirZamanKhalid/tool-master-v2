@@ -1,0 +1,30 @@
+# ToolMaster Pro
+
+> 100+ Free Online Tools for Professionals, Developers, and Students. No signup required, privacy-first, and browser-based.
+
+## Core Categories
+
+- AI & Content: Blog writers, rephrasers, hashtag generators.
+- Image Tools: Background remover, compressors, resizers, editors.
+- PDF Tools: Merger, splitter, compressor, text extractor.
+- Developer Tools: JSON formatter, Base64, UUID, SQL formatters.
+- SEO & Marketing: Meta tag generators, keyword density, sitemap tools.
+- Calculators: BMI, Currency, Loan, Percentage, TDEE.
+- Text Tools: Word counter, Case converter, Diff checker.
+- Media: Video trimmer, GIF maker, Video to GIF.
+
+## Privacy & Security
+
+Every tool runs locally in the user's browser using technologies like WASM, ffmpeg.wasm, and Transformers.js. Data is never uploaded to a server, ensuring 100% privacy and lightning-fast speed.
+
+## Navigation
+
+- Home: /
+- All Tools: /tools
+- Categories: /category/[category-slug]
+- Blog: /blog
+
+## Contact
+
+- About: /about
+- Contact: /contact

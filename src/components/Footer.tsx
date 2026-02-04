@@ -28,10 +28,18 @@ export const Footer = () => {
               Your all-in-one platform for 100+ free online tools. Professional web-based utilities for developers, designers, and content creators.
             </p>
             <div className="flex gap-4">
-              {[Facebook, Twitter, Linkedin, Mail].map((Icon, i) => (
+              {[
+                { Icon: Facebook, label: "Facebook", href: "https://facebook.com/toolmasterpro" },
+                { Icon: Twitter, label: "Twitter", href: "https://twitter.com/toolmasterpro" },
+                { Icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/company/toolmasterpro" },
+                { Icon: Mail, label: "Email", href: "mailto:contact@toolmaster.cloud" }
+              ].map(({ Icon, label, href }, i) => (
                 <a
                   key={i}
-                  href="#"
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Visit our ${label}`}
                   className="h-10 w-10 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-white transition-all duration-300 hover:scale-110"
                 >
                   <Icon className="h-5 w-5" />
@@ -57,7 +65,7 @@ export const Footer = () => {
           <div className="lg:col-span-2 space-y-6">
             <h4 className="font-bold text-foreground">Company</h4>
             <ul className="space-y-3">
-              {['About Us', 'Blog', 'Contact', 'Careers'].map((item) => (
+              {['About Us', 'Blog', 'Contact'].map((item) => (
                 <li key={item}>
                   <Link to={`/${item.toLowerCase().replace(' ', '-')}`} className="text-muted-foreground hover:text-primary transition-colors text-sm">
                     {item}
@@ -74,10 +82,11 @@ export const Footer = () => {
             </p>
             <div className="flex gap-2">
               <Input
+                aria-label="Newsletter email"
                 placeholder="Enter your email"
                 className="bg-background/50 border-white/10 focus:border-primary/50"
               />
-              <Button className="bg-primary hover:bg-primary/90 text-white">
+              <Button aria-label="Subscribe to newsletter" className="bg-primary hover:bg-primary/90 text-white">
                 Subscribe
               </Button>
             </div>
@@ -101,7 +110,7 @@ export const Footer = () => {
           <div className="flex gap-6 text-sm text-muted-foreground">
             <Link to="/privacy-policy" className="hover:text-foreground transition-colors">Privacy</Link>
             <Link to="/terms-of-service" className="hover:text-foreground transition-colors">Terms</Link>
-            <Link to="/cookies" className="hover:text-foreground transition-colors">Cookies</Link>
+            <Link to="/cookie-policy" className="hover:text-foreground transition-colors">Cookies</Link>
           </div>
         </div>
       </div>
