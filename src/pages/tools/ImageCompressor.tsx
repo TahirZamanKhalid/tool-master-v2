@@ -53,24 +53,24 @@ const ImageCompressor = () => {
 
     const img = new Image();
     img.src = selectedImage;
-    
+
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      
+
       // Calculate new dimensions (reduce by quality factor for better compression)
       const scaleFactor = Math.max(0.5, quality[0] / 100);
       canvas.width = Math.floor(img.width * scaleFactor);
       canvas.height = Math.floor(img.height * scaleFactor);
-      
+
       const ctx = canvas.getContext("2d");
-      
+
       if (!ctx) return;
 
       // Use better image smoothing for quality
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = quality[0] > 70 ? 'high' : quality[0] > 40 ? 'medium' : 'low';
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      
+
       // Use JPEG format with quality parameter
       canvas.toBlob(
         (blob) => {
@@ -80,11 +80,11 @@ const ImageCompressor = () => {
             setCompressedImage(url);
             setShowAdOverlay(true);
             setCanDownload(false);
-            
+
             if (blob.size >= originalSize) {
               toast({
                 title: "Note",
-                description: "Compressed size is similar to original. Try lower quality for better compression.",
+                description: "Image Reduced size is similar to original. Try lower quality for better compression.",
                 variant: "default",
               });
             }
@@ -100,13 +100,13 @@ const ImageCompressor = () => {
     setCanDownload(true);
     toast({
       title: "Success!",
-      description: `Image compressed to ${formatFileSize(compressedSize)}. You can now download it.`,
+      description: `Image Size Reduced to ${formatFileSize(compressedSize)}. You can now download it.`,
     });
   };
 
   const downloadImage = () => {
     if (!compressedImage) return;
-    
+
     const link = document.createElement("a");
     link.download = "compressed-image.jpg";
     link.href = compressedImage;
@@ -121,14 +121,14 @@ const ImageCompressor = () => {
     <>
       <Header />
       <ToolLayout
-        title="Image Compressor"
+        title="Image Size Reducer"
         description="Reduce image file size while maintaining quality"
         category="Image Tools"
         instructions={[
           "Upload your image (PNG, JPG, WebP)",
-          "Adjust quality slider (lower = smaller file)",
+          "Adjust quality slider to reduce image size (lower = smaller file)",
           "Click 'Compress Image' to process",
-          "Download your compressed image",
+          "Download your Image with reduced size",
         ]}
         relatedTools={[
           { name: "Image Resizer", path: "/tools/image-resizer" },
@@ -145,7 +145,7 @@ const ImageCompressor = () => {
               onChange={handleImageSelect}
               className="hidden"
             />
-            
+
             {!selectedImage ? (
               <div
                 onClick={() => fileInputRef.current?.click()}
@@ -200,7 +200,7 @@ const ImageCompressor = () => {
                 Compress Image
               </Button>
             )}
-            
+
             {selectedImage && (
               <Button
                 onClick={() => fileInputRef.current?.click()}
@@ -211,7 +211,7 @@ const ImageCompressor = () => {
                 Upload New
               </Button>
             )}
-            
+
             {compressedImage && canDownload && (
               <Button onClick={downloadImage} size="lg" variant="secondary">
                 <Download className="h-4 w-4 mr-2" />

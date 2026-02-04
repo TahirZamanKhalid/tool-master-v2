@@ -47,11 +47,10 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
   const trendingTerms = [
     "Background Remover",
     "PDF Merger",
-    "Image Compressor",
+    "Image size Reducer",
     "QR Generator",
     "AI Blog Writer",
     "JSON Formatter",
-    "Essay Writer",
     "Video Trimmer"
   ];
 
