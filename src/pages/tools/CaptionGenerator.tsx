@@ -92,7 +92,7 @@ const CaptionGenerator = () => {
       relatedTools={[
         { name: "Meme Generator", path: "/tools/meme-generator" },
         { name: "Background Remover", path: "/tools/background-remover" },
-        { name: "Image Compressor", path: "/tools/image-compressor" },
+        { name: "Image Size Reducer", path: "/tools/image-compressor" },
       ]}
     >
       <div className="grid md:grid-cols-2 gap-6">

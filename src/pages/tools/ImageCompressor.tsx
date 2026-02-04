@@ -221,7 +221,7 @@ const ImageCompressor = () => {
           </div>
         </Card>
         <AdRow className="mt-6" />
-      </ToolLayout>
+      </ToolLayout >
 
       {showAdOverlay && (
         <AdWatchModal
@@ -229,7 +229,8 @@ const ImageCompressor = () => {
           onClose={() => setShowAdOverlay(false)}
           onAdComplete={handleAdComplete}
         />
-      )}
+      )
+      }
     </>
   );
 };

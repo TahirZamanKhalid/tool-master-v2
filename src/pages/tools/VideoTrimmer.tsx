@@ -445,7 +445,7 @@ const VideoTrimmer = () => {
           "Preview and download your edited video",
         ]}
         relatedTools={[
-          { name: "Image Compressor", path: "/tools/image-compressor" },
+          { name: "Image Size Reducer", path: "/tools/image-compressor" },
           { name: "PDF Compressor", path: "/tools/pdf-compressor" },
         ]}
       >

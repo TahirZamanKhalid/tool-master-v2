@@ -157,7 +157,7 @@ const BackgroundRemover = () => {
           "All processing is done locally in your browser - no uploads, maximum privacy!",
         ]}
         relatedTools={[
-          { name: "Image Compressor", path: "/tools/image-compressor" },
+          { name: "Image Size Reducer", path: "/tools/image-compressor" },
           { name: "Image Resizer", path: "/tools/image-resizer" },
           { name: "Image Converter", path: "/tools/image-converter" },
         ]}

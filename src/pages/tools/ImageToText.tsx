@@ -84,7 +84,7 @@ const ImageToText = () => {
       relatedTools={[
         { name: "PDF to Text", path: "/tools/pdf-to-text" },
         { name: "Text to Speech", path: "/tools/text-to-speech" },
-        { name: "Image Compressor", path: "/tools/image-compressor" }
+        { name: "Image Size Reducer", path: "/tools/image-compressor" }
       ]}
     >
       <AdSpace size="leaderboard" className="mb-6" />

@@ -46,7 +46,7 @@ Generate secure, random passwords to protect your accounts and applications.
 ## 5. Color Picker
 Find the perfect colors for your UI designs with hex, RGB, and HSL values.
 
-## 6. Image Compressor
+## 6. Image Size Reducer
 Optimize images for web without losing quality, improving page load times.
 
 ## 7. Hash Generator
@@ -268,9 +268,9 @@ Images are often the largest files on websites. Learn how to optimize them for b
 - Use lazy loading
 - Implement responsive images
 
-## Using Our Image Compressor
+## Using Our Image Size Reducer
 
-Our free image compressor tool:
+Our free Image Size Reducer tool:
 - Supports multiple formats
 - Preserves quality
 - Batch processing

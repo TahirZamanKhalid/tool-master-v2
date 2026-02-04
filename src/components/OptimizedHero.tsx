@@ -41,7 +41,18 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
   };
 
   const handleTrendingClick = (term: string) => {
-    onSearch?.(term.toLowerCase());
+    // Try to find a direct path for the trending term
+    import("@/data/allTools").then(({ allTools }) => {
+      const tool = allTools.find(t =>
+        t.title.toLowerCase().includes(term.toLowerCase()) ||
+        term.toLowerCase().includes(t.title.toLowerCase().replace("free online ", ""))
+      );
+      if (tool) {
+        window.location.href = tool.path;
+      } else {
+        onSearch?.(term.toLowerCase());
+      }
+    });
   };
 
   const trendingTerms = [

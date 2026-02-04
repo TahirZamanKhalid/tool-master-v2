@@ -224,7 +224,7 @@ const WebPToPNG = () => {
         { name: "PNG to JPG", path: "/tools/png-to-jpg" },
         { name: "JPG to PNG", path: "/tools/jpg-to-png" },
         { name: "HEIC to PNG", path: "/tools/heic-to-png" },
-        { name: "Image Compressor", path: "/tools/image-compressor" }
+        { name: "Image Size Reducer", path: "/tools/image-compressor" }
       ]}
     >
       <div className="grid gap-6">

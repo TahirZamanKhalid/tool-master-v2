@@ -215,7 +215,7 @@ interface WebSiteSchemaProps {
 export const WebSiteSchema = ({
   name = "ToolMaster Pro™",
   url = "https://toolmaster.cloud",
-  description = "100+ free online tools - Background remover, PDF merger, QR generator, image compressor & more. No signup needed."
+  description = "100+ free online tools - Background remover, PDF merger, QR generator, Image Size Reducer & more. No signup needed."
 }: WebSiteSchemaProps) => {
   const schema = {
     "@context": "https://schema.org",

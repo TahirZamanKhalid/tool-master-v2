@@ -129,7 +129,7 @@ const AdvancedImageCompressor = () => {
 
   return (
     <ToolLayout
-      title="Advanced Image Compressor"
+      title="Advanced Image Size Reducer"
       description="Compress images with full control over quality, format, and dimensions. Reduce file size by up to 90% while maintaining visual quality. Supports JPG, PNG, and WebP."
       category="Image Tools"
       instructions={[

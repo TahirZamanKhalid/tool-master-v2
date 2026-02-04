@@ -65,7 +65,7 @@ export const Hero = ({ searchQuery = "", onSearch }: HeroProps) => {
 
           <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm text-muted-foreground px-2">
             <span className="self-center">Trending:</span>
-            {["Background Remover", "PDF Merger", "Image Compressor", "QR Generator", "AI Blog Writer", "JSON Formatter", "Essay Writer"].map((term) => (
+            {["Background Remover", "PDF Merger", "Image Size Reducer", "QR Generator", "AI Blog Writer", "JSON Formatter", "Essay Writer"].map((term) => (
               <Button
                 key={term}
                 variant="outline"

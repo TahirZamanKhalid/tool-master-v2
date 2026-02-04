@@ -119,7 +119,7 @@ const ImagesToPDF = () => {
       ]}
       relatedTools={[
         { name: "PDF Merger", path: "/tools/pdf-merger" },
-        { name: "Image Compressor", path: "/tools/image-compressor" },
+        { name: "Image Size Reducer", path: "/tools/image-compressor" },
         { name: "PDF Splitter", path: "/tools/pdf-splitter" },
       ]}
     >

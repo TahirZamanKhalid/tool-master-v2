@@ -122,7 +122,7 @@ const PDFCompressor = () => {
       relatedTools={[
         { name: "PDF Splitter", path: "/tools/pdf-splitter" },
         { name: "PDF Merger", path: "/tools/pdf-merger" },
-        { name: "Image Compressor", path: "/tools/image-compressor" },
+        { name: "Image Size Reducer", path: "/tools/image-compressor" },
       ]}
     >
       <AdSpace size="leaderboard" className="mb-6" />

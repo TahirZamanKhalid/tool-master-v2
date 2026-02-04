@@ -156,7 +156,7 @@ const Index = () => {
     if (query) params.set("q", query);
     if (selectedCategory) params.set("category", selectedCategory);
     setSearchParams(params);
-    
+
     // Track search analytics
     if (query.length >= 3) {
       trackSearch(query);
@@ -169,17 +169,28 @@ const Index = () => {
 
   // Button-triggered search handler
   const handleButtonSearch = (query: string) => {
+    // Check for direct match first
+    const directMatch = allTools.find(t =>
+      t.title.toLowerCase() === query.toLowerCase() ||
+      t.title.toLowerCase().replace("free online ", "") === query.toLowerCase()
+    );
+
+    if (directMatch) {
+      navigate(directMatch.path);
+      return;
+    }
+
     setSearchQuery(query);
     const params = new URLSearchParams();
     if (query) params.set("q", query);
     if (selectedCategory) params.set("category", selectedCategory);
     setSearchParams(params);
-    
+
     // Track search analytics
     if (query.length >= 3) {
       trackSearch(query);
     }
-    
+
     // Scroll to search results when user searches
     if (query) {
       setTimeout(() => {
@@ -195,7 +206,7 @@ const Index = () => {
     const params = new URLSearchParams();
     if (newCategory) params.set("category", newCategory);
     setSearchParams(params);
-    
+
     // Scroll to search results section
     if (newCategory) {
       setTimeout(() => {
@@ -241,7 +252,7 @@ const Index = () => {
     <div className="min-h-screen w-full overflow-x-hidden">
       <SEOHead
         title="ToolMaster Pro - 100+ Free Online Tools | No Registration Required"
-        description="Access 100+ free online tools instantly. Background remover, PDF merger, image compressor, QR generator, text tools, calculators & more. No signup, browser-based, secure."
+        description="Access 100+ free online tools instantly. Background remover, PDF merger, Image Size Reducer, QR generator, text tools, calculators & more. No signup, browser-based, secure."
         keywords="free online tools, web tools, browser tools, no registration, PDF tools, image tools, text converters, calculators, developer tools, online utilities, free web apps"
         canonical="https://toolmaster.cloud"
       />
@@ -262,43 +273,43 @@ const Index = () => {
         {/* Categories Grid - Full width */}
         <div className="max-w-6xl mx-auto">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {categories.map((category, index) => {
-            // Create URL-friendly slugs
-            const categorySlug: Record<string, string> = {
-              "AI & Content": "ai-content",
-              "Image Tools": "image-tools",
-              "Developer Tools": "developer-tools",
-              "QR & Barcodes": "qr-barcodes",
-              "PDF Tools": "pdf-tools",
-              "Text Tools": "text-tools",
-              "Video Tools": "video-tools",
-              "SEO & Marketing": "seo-marketing",
-              "Calculators": "calculators",
-              "Security Tools": "security-tools",
-              "Utilities": "utilities",
-              "File Converters": "file-converters",
-              "Business Tools": "business-tools",
-              "Social Media": "social-media",
-              "Generators": "generators"
-            };
-            
-            return (
-              <div
-                key={index}
-                className="animate-scale-in cursor-pointer"
-                style={{ animationDelay: `${index * 0.05}s` }}
-                onClick={() => navigate(`/category/${categorySlug[category.title]}`)}
-              >
-                <CategoryCard 
-                  {...category}
-                  toolCount={category.toolCount}
-                  isSelected={false}
-                  comingSoon={false}
-                />
-              </div>
-            );
-          })}
-            </div>
+            {categories.map((category, index) => {
+              // Create URL-friendly slugs
+              const categorySlug: Record<string, string> = {
+                "AI & Content": "ai-content",
+                "Image Tools": "image-tools",
+                "Developer Tools": "developer-tools",
+                "QR & Barcodes": "qr-barcodes",
+                "PDF Tools": "pdf-tools",
+                "Text Tools": "text-tools",
+                "Video Tools": "video-tools",
+                "SEO & Marketing": "seo-marketing",
+                "Calculators": "calculators",
+                "Security Tools": "security-tools",
+                "Utilities": "utilities",
+                "File Converters": "file-converters",
+                "Business Tools": "business-tools",
+                "Social Media": "social-media",
+                "Generators": "generators"
+              };
+
+              return (
+                <div
+                  key={index}
+                  className="animate-scale-in cursor-pointer"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                  onClick={() => navigate(`/category/${categorySlug[category.title]}`)}
+                >
+                  <CategoryCard
+                    {...category}
+                    toolCount={category.toolCount}
+                    isSelected={false}
+                    comingSoon={false}
+                  />
+                </div>
+              );
+            })}
+          </div>
 
           {selectedCategory && (
             <div className="text-center mb-8">
@@ -330,7 +341,7 @@ const Index = () => {
             {searchQuery || selectedCategory ? "Search Results" : "Most Popular Free Online Tools"}
           </h2>
           <p className="text-muted-foreground text-lg mb-4">
-            {searchQuery || selectedCategory 
+            {searchQuery || selectedCategory
               ? `Found ${filteredTools.length} tool${filteredTools.length !== 1 ? 's' : ''} - All free, no signup required`
               : "Trusted by thousands of developers, designers, and content creators worldwide"
             }
@@ -350,23 +361,23 @@ const Index = () => {
             {/* Tools Grid - Full width */}
             <div className="max-w-6xl mx-auto">
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredTools.map((tool, index) => {
-              // Insert ad after every 8 tools
-              const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
-              
-              return (
-                <>
-                  <div
-                    key={index}
-                    className="animate-fade-in"
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                    onClick={() => handleToolClick(tool.path)}
-                  >
-                    <ToolCard {...tool} />
-                  </div>
-                </>
-              );
-            })}
+                {filteredTools.map((tool, index) => {
+                  // Insert ad after every 8 tools
+                  const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
+
+                  return (
+                    <>
+                      <div
+                        key={index}
+                        className="animate-fade-in"
+                        style={{ animationDelay: `${index * 0.05}s` }}
+                        onClick={() => handleToolClick(tool.path)}
+                      >
+                        <ToolCard {...tool} />
+                      </div>
+                    </>
+                  );
+                })}
               </div>
             </div>
           </>

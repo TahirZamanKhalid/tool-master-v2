@@ -28,7 +28,7 @@ export const allTools = [
   { icon: Images, title: "Free Online Photo Collage Maker", description: "Best free online collage maker - Create beautiful photo collages with multiple layout templates", category: "Image Tools", path: "/tools/photo-collage-maker", popular: true },
   { icon: Film, title: "Free Online GIF Maker", description: "Best free online GIF maker - Create animated GIFs from images with customizable speed and quality", category: "Image Tools", path: "/tools/gif-maker", popular: true },
   { icon: Eraser, title: "Free Online Background Remover", description: "Best free online background remover - Remove image backgrounds instantly with AI", category: "Image Tools", path: "/tools/background-remover", popular: true },
-  { icon: Image, title: "Free Online Image Compressor", description: "Best free online image compressor - Reduce image file size without losing quality", category: "Image Tools", path: "/tools/image-compressor", popular: true },
+  { icon: Image, title: "Free Online Image Size Reducer", description: "Best free online Image Size Reducer - Reduce image file size without losing quality", category: "Image Tools", path: "/tools/image-compressor", popular: true },
   { icon: Palette, title: "Color Picker", description: "Pick colors and generate palettes", category: "Image Tools", path: "/tools/color-picker" },
   { icon: Image, title: "Image Resizer", description: "Resize images to custom dimensions", category: "Image Tools", path: "/tools/image-resizer" },
   { icon: Crop, title: "Image Cropper", description: "Crop images to your desired size", category: "Image Tools", path: "/tools/image-cropper" },
@@ -153,7 +153,7 @@ export const allTools = [
   { icon: ImageDown, title: "WebP to PNG", description: "Convert WebP images to PNG format", category: "File Converters", path: "/tools/webp-to-png" },
 
   // Advanced Image Tools (2) - NEW
-  { icon: Minimize2, title: "Advanced Image Compressor", description: "Compress images with full control over quality and format", category: "Image Tools", path: "/tools/advanced-image-compressor" },
+  { icon: Minimize2, title: "Advanced Image Size Reducer", description: "Compress images with full control over quality and format", category: "Image Tools", path: "/tools/advanced-image-compressor" },
   { icon: Images, title: "Batch Image Resizer", description: "Resize multiple images at once with social media presets, custom dimensions, and batch export", category: "Image Tools", path: "/tools/premium-plus-batch-image-resizer", popular: true },
 
   // Business Tools (2) - NEW

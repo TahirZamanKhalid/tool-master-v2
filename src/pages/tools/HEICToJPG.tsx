@@ -103,7 +103,7 @@ const HEICToJPG = () => {
       relatedTools={[
         { name: "PNG to JPG", path: "/tools/png-to-jpg" },
         { name: "WebP to JPG", path: "/tools/webp-to-jpg" },
-        { name: "Image Compressor", path: "/tools/image-compressor" }
+        { name: "Image Size Reducer", path: "/tools/image-compressor" }
       ]}
     >
       <div className="grid gap-6">
