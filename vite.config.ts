@@ -36,15 +36,9 @@ export default defineConfig(({ mode }) => {
     build: {
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
-            if (id.includes('node_modules')) {
-              if (id.includes('lucide-react')) return 'icons';
-              if (id.includes('@radix-ui')) return 'ui';
-              if (id.includes('react')) return 'react-vendor';
-              if (id.includes('framer-motion')) return 'animations';
-              if (id.includes('lodash') || id.includes('date-fns')) return 'utils';
-              return 'vendor';
-            }
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom'],
+            ui: ['@radix-ui/react-dialog', '@radix-ui/react-tabs', '@radix-ui/react-accordion', 'lucide-react'],
           },
         },
       },

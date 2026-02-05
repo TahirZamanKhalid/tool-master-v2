@@ -24,7 +24,7 @@ const CategoryTools = lazy(() => import("./pages/CategoryTools"));
 
 // Lazy-loaded tools - Image
 const BackgroundRemover = lazy(() => import("./pages/tools/BackgroundRemover"));
-const ImageCompressor = lazy(() => import("./pages/tools/ImageCompressor"));
+const ImageSizeReducer = lazy(() => import("./pages/tools/ImageSizeReducer"));
 const ImageResizer = lazy(() => import("./pages/tools/ImageResizer"));
 const ImageCropper = lazy(() => import("./pages/tools/ImageCropper"));
 const AdvancedImageEditor = lazy(() => import("./pages/tools/AdvancedImageEditor"));
@@ -37,7 +37,7 @@ const PNGToJPG = lazy(() => import("./pages/tools/PNGToJPG"));
 const JPGToPNG = lazy(() => import("./pages/tools/JPGToPNG"));
 const HEICToJPG = lazy(() => import("./pages/tools/HEICToJPG"));
 const WebPToPNG = lazy(() => import("./pages/tools/WebPToPNG"));
-const AdvancedImageCompressor = lazy(() => import("./pages/tools/AdvancedImageCompressor"));
+const AdvancedImageSizeReducer = lazy(() => import("./pages/tools/AdvancedImageSizeReducer"));
 const SVGToPNG = lazy(() => import("./pages/tools/SVGToPNG"));
 
 // Lazy-loaded tools - PDF
@@ -237,7 +237,7 @@ const App = () => {
               <Route path="/tools/background-remover" element={<BackgroundRemover />} />
               <Route path="/tools/qr-code-generator" element={<QRCodeGenerator />} />
               <Route path="/tools/pdf-merger" element={<PDFMerger />} />
-              <Route path="/tools/image-compressor" element={<ImageCompressor />} />
+              <Route path="/tools/image-size-reducer" element={<ImageSizeReducer />} />
               <Route path="/tools/word-counter" element={<WordCounter />} />
               <Route path="/tools/password-generator" element={<PasswordGenerator />} />
               <Route path="/tools/json-formatter" element={<JSONFormatter />} />
@@ -371,7 +371,7 @@ const App = () => {
               <Route path="/tools/heic-to-jpg" element={<HEICToJPG />} />
               <Route path="/tools/pdf-to-images" element={<PDFToImages />} />
               <Route path="/tools/webp-to-png" element={<WebPToPNG />} />
-              <Route path="/tools/advanced-image-compressor" element={<AdvancedImageCompressor />} />
+              <Route path="/tools/advanced-image-size-reducer" element={<AdvancedImageSizeReducer />} />
               <Route path="/tools/invoice-generator" element={<InvoiceGenerator />} />
               <Route path="/tools/advanced-password-generator" element={<AdvancedPasswordGenerator />} />
               <Route path="/tools/tip-calculator" element={<TipCalculator />} />
