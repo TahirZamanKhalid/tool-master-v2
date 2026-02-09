@@ -24,7 +24,10 @@ export const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
         "@type": "ListItem",
         "position": index + 2,
         "name": item.label,
-        "item": item.path ? `https://toolmaster.cloud${item.path}` : undefined
+        // Always provide a valid URL - use current page URL if no path specified
+        "item": item.path
+          ? `https://toolmaster.cloud${item.path}`
+          : (typeof window !== 'undefined' ? window.location.href : "https://toolmaster.cloud")
       }))
     ];
 
@@ -38,25 +41,25 @@ export const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
   return (
     <>
       {/* Schema.org structured data for breadcrumbs */}
-      <script 
-        type="application/ld+json" 
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(generateSchema()) }} 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(generateSchema()) }}
       />
-      
+
       {/* Visual breadcrumb navigation */}
       <nav aria-label="Breadcrumb" className="mb-6">
-        <ol 
+        <ol
           className="flex items-center gap-2 text-sm text-muted-foreground"
-          itemScope 
+          itemScope
           itemType="https://schema.org/BreadcrumbList"
         >
-          <li 
-            itemProp="itemListElement" 
-            itemScope 
+          <li
+            itemProp="itemListElement"
+            itemScope
             itemType="https://schema.org/ListItem"
           >
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="hover:text-foreground transition-colors flex items-center gap-1"
               itemProp="item"
             >
@@ -66,17 +69,17 @@ export const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
             <meta itemProp="position" content="1" />
           </li>
           {items.map((item, index) => (
-            <li 
-              key={index} 
+            <li
+              key={index}
               className="flex items-center gap-2"
-              itemProp="itemListElement" 
-              itemScope 
+              itemProp="itemListElement"
+              itemScope
               itemType="https://schema.org/ListItem"
             >
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
               {item.path && index !== items.length - 1 ? (
                 <>
-                  <Link 
+                  <Link
                     to={item.path}
                     className="hover:text-foreground transition-colors"
                     itemProp="item"
@@ -87,8 +90,13 @@ export const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
                 </>
               ) : (
                 <>
-                  <span className="text-foreground font-medium" itemProp="name">
-                    {item.label}
+                  <span
+                    className="text-foreground font-medium"
+                    itemProp="item"
+                    itemScope
+                    itemType="https://schema.org/WebPage"
+                  >
+                    <span itemProp="name">{item.label}</span>
                   </span>
                   <meta itemProp="position" content={String(index + 2)} />
                 </>

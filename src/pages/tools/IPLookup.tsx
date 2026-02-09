@@ -113,20 +113,20 @@ const fetchIPData = async (url: string): Promise<IPData> => {
     console.warn("ip-api.com failed, trying alternative API:", e);
   }
 
-  // Fallback to ipapi.co (more generous free tier: 30k/month)
+  // Fallback to ipwhois.app (CORS-friendly, 10k/month free tier)
   try {
-    const ipapiUrl = targetIP
-      ? `https://ipapi.co/${targetIP}/json/`
-      : `https://ipapi.co/json/`;
+    const ipwhoisUrl = targetIP
+      ? `https://ipwhois.app/json/${targetIP}`
+      : `https://ipwhois.app/json/`;
 
-    const response = await fetch(ipapiUrl);
+    const response = await fetch(ipwhoisUrl);
     if (response.ok) {
       const data = await response.json();
-      // Transform ipapi.co response to match ip-api.com format
+      // Transform ipwhois.app response to match ip-api.com format
       return {
         query: data.ip,
-        status: "success",
-        country: data.country_name,
+        status: data.success ? "success" : "fail",
+        country: data.country,
         countryCode: data.country_code,
         region: data.region_code,
         regionName: data.region,
@@ -134,8 +134,8 @@ const fetchIPData = async (url: string): Promise<IPData> => {
         zip: data.postal,
         lat: data.latitude,
         lon: data.longitude,
-        timezone: data.timezone,
-        isp: data.org,
+        timezone: data.timezone_name,
+        isp: data.isp,
         org: data.org,
         as: data.asn,
         asname: data.org,
@@ -144,7 +144,7 @@ const fetchIPData = async (url: string): Promise<IPData> => {
       } as IPData;
     }
   } catch (e) {
-    console.warn("ipapi.co fallback failed:", e);
+    console.warn("ipwhois.app fallback failed:", e);
   }
 
   // Last resort: try HTTP ip-api.com (may work on localhost)
