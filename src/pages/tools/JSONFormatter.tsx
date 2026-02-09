@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card } from "@/components/ui/card";
@@ -66,6 +67,12 @@ const JSONFormatter = () => {
 
   return (
     <>
+      <SEOHead
+        title="Online JSON Formatter - Format, Validate & Minify JSON"
+        description="Best free online JSON formatter and validator. Beautify, format, validate, and minify JSON data instantly with this powerful developer tool."
+        keywords="json formatter, json beautifier, json validator, online json tool, minify json"
+        canonical="https://toolmaster.cloud/tools/json-formatter"
+      />
       <Header />
       <ToolLayout
         title="JSON Formatter"

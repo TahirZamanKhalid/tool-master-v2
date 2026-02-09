@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -33,27 +33,47 @@ export const AdWatchModal = ({
 }: AdWatchModalProps) => {
   const [countdown, setCountdown] = useState(15);
   const [adLoaded, setAdLoaded] = useState(false);
+  const [adFailed, setAdFailed] = useState(false);
+  const adRef = useRef<HTMLModElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const modalOpen = isOpen ?? open ?? false;
   const handleClose = onClose || (() => onOpenChange?.(false));
-  const handleComplete = onAdComplete || onAdWatched || (() => {});
+  const handleComplete = onAdComplete || onAdWatched || (() => { });
 
   useEffect(() => {
     if (modalOpen) {
       setCountdown(15);
       setAdLoaded(false);
-      
-      // Initialize AdSense ad
+      setAdFailed(false);
+
+      // Wait for dialog to render and have dimensions
       const timer = setTimeout(() => {
         try {
-          // @ts-ignore
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
-          setAdLoaded(true);
+          if (adRef.current && containerRef.current) {
+            const width = containerRef.current.offsetWidth;
+            if (width > 0) {
+              (window.adsbygoogle = window.adsbygoogle || []).push({});
+              setAdLoaded(true);
+            } else {
+              // Retry after another delay
+              setTimeout(() => {
+                try {
+                  (window.adsbygoogle = window.adsbygoogle || []).push({});
+                  setAdLoaded(true);
+                } catch (err) {
+                  console.error("AdSense retry error:", err);
+                  setAdFailed(true);
+                }
+              }, 500);
+            }
+          }
         } catch (err) {
           console.error("AdSense error:", err);
+          setAdFailed(true);
           setAdLoaded(true);
         }
-      }, 100);
+      }, 300);
 
       return () => clearTimeout(timer);
     }
@@ -84,18 +104,37 @@ export const AdWatchModal = ({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Ad Container */}
-          <div className="flex items-center justify-center min-h-[280px] bg-muted/30 rounded-lg border-2 border-dashed border-border/50">
-            <ins
-              className="adsbygoogle"
-              style={{
-                display: "block",
-                width: "728px",
-                height: "250px",
-              }}
-              data-ad-client="ca-pub-7382531001943020"
-              data-ad-slot="4838473293"
-            />
+          {/* Ad Container - with guaranteed dimensions */}
+          <div
+            ref={containerRef}
+            className="flex items-center justify-center bg-muted/30 rounded-lg border-2 border-dashed border-border/50"
+            style={{
+              width: "100%",
+              minWidth: "300px",
+              minHeight: "280px",
+              overflow: "hidden",
+            }}
+          >
+            {adFailed ? (
+              <div className="text-muted-foreground text-sm">
+                Advertisement
+              </div>
+            ) : (
+              <ins
+                ref={adRef}
+                className="adsbygoogle"
+                style={{
+                  display: "block",
+                  width: "100%",
+                  minWidth: "300px",
+                  height: "250px",
+                }}
+                data-ad-client="ca-pub-7382531001943020"
+                data-ad-slot="4838473293"
+                data-ad-format="auto"
+                data-full-width-responsive="true"
+              />
+            )}
           </div>
 
           {/* Countdown and Progress */}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { SEOHead } from "@/components/SEOHead";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -115,6 +116,12 @@ const NumberBaseConverter = () => {
         { name: "Color Converter", path: "/tools/color-converter" },
       ]}
     >
+      <SEOHead
+        title="Number Base Converter - Binary, Hex, Decimal & Octal"
+        description="Free online number base converter. Convert between binary, decimal, hexadecimal, and octal formats instantly with real-time updates."
+        keywords="number base converter, binary to hex, hex to decimal, decimal to binary, octal converter"
+        canonical="https://toolmaster.cloud/tools/number-base-converter"
+      />
       <div className="space-y-6">
         <div className="flex justify-end">
           <Button variant="outline" onClick={clearAll}>

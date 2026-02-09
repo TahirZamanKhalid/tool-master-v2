@@ -38,7 +38,7 @@ const PNGToJPG = lazy(() => import("./pages/tools/PNGToJPG"));
 const JPGToPNG = lazy(() => import("./pages/tools/JPGToPNG"));
 const HEICToJPG = lazy(() => import("./pages/tools/HEICToJPG"));
 const WebPToPNG = lazy(() => import("./pages/tools/WebPToPNG"));
-const AdvancedImageSizeReducer = lazy(() => import("./pages/tools/AdvancedImageSizeReducer"));
+const AdvancedImageCompressor = lazy(() => import("./pages/tools/AdvancedImageCompressor"));
 const SVGToPNG = lazy(() => import("./pages/tools/SVGToPNG"));
 
 // Lazy-loaded tools - PDF
@@ -373,7 +373,7 @@ const App = () => {
                 <Route path="/tools/heic-to-jpg" element={<HEICToJPG />} />
                 <Route path="/tools/pdf-to-images" element={<PDFToImages />} />
                 <Route path="/tools/webp-to-png" element={<WebPToPNG />} />
-                <Route path="/tools/advanced-image-size-reducer" element={<AdvancedImageSizeReducer />} />
+                <Route path="/tools/advanced-image-compressor" element={<AdvancedImageCompressor />} />
                 <Route path="/tools/invoice-generator" element={<InvoiceGenerator />} />
                 <Route path="/tools/advanced-password-generator" element={<AdvancedPasswordGenerator />} />
                 <Route path="/tools/tip-calculator" element={<TipCalculator />} />

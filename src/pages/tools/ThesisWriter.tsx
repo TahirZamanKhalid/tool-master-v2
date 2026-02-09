@@ -19,7 +19,7 @@ const ThesisWriter = () => {
   const [showAdModal, setShowAdModal] = useState(false);
   const wordCountRef = useRef(0);
   const lastAdWordCount = useRef(0);
-  
+
   const [formData, setFormData] = useState({
     researchTopic: "",
     fieldOfStudy: "",
@@ -46,14 +46,15 @@ const ThesisWriter = () => {
     lastAdWordCount.current = 0;
 
     try {
-      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-thesis`, {
+      const response = await fetch("/api-proxy.php", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          action: 'generate-thesis',
+          ...formData
+        }),
       });
 
       if (!response.ok || !response.body) {
@@ -186,9 +187,9 @@ const ThesisWriter = () => {
         title="AI Thesis Writer - Generate Academic Thesis & Dissertation Content"
         description="Create comprehensive thesis and dissertation chapters with our AI thesis writer. Generate research-quality content for literature reviews, methodology, and more. Free academic writing tool."
         keywords="thesis writer, dissertation writer, AI thesis generator, academic writing, research paper, thesis help, dissertation generator"
-        canonical="https://yourdomain.com/tools/thesis-writer"
+        canonical="https://toolmaster.cloud/tools/thesis-writer"
       />
-      
+
       <ToolLayout
         title="AI Thesis Writer"
         description="Generate comprehensive thesis and dissertation chapters with AI. Perfect for graduate students and researchers working on academic projects."
@@ -202,14 +203,14 @@ const ThesisWriter = () => {
                 <Input
                   id="researchTopic"
                   value={formData.researchTopic}
-                  onChange={(e) => setFormData({...formData, researchTopic: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, researchTopic: e.target.value })}
                   placeholder="Enter your research topic..."
                 />
               </div>
 
               <div>
                 <Label htmlFor="fieldOfStudy">Field of Study *</Label>
-                <Select value={formData.fieldOfStudy} onValueChange={(value) => setFormData({...formData, fieldOfStudy: value})}>
+                <Select value={formData.fieldOfStudy} onValueChange={(value) => setFormData({ ...formData, fieldOfStudy: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select field" />
                   </SelectTrigger>
@@ -231,7 +232,7 @@ const ThesisWriter = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="chapterType">Chapter/Section Type *</Label>
-                <Select value={formData.chapterType} onValueChange={(value) => setFormData({...formData, chapterType: value})}>
+                <Select value={formData.chapterType} onValueChange={(value) => setFormData({ ...formData, chapterType: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select chapter type" />
                   </SelectTrigger>
@@ -249,7 +250,7 @@ const ThesisWriter = () => {
 
               <div>
                 <Label htmlFor="wordCount">Word Count *</Label>
-                <Select value={formData.wordCount} onValueChange={(value) => setFormData({...formData, wordCount: value})}>
+                <Select value={formData.wordCount} onValueChange={(value) => setFormData({ ...formData, wordCount: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select word count" />
                   </SelectTrigger>
@@ -269,7 +270,7 @@ const ThesisWriter = () => {
               <Textarea
                 id="researchQuestions"
                 value={formData.researchQuestions}
-                onChange={(e) => setFormData({...formData, researchQuestions: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, researchQuestions: e.target.value })}
                 placeholder="List your research questions..."
                 rows={3}
               />
@@ -280,7 +281,7 @@ const ThesisWriter = () => {
               <Textarea
                 id="methodology"
                 value={formData.methodology}
-                onChange={(e) => setFormData({...formData, methodology: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, methodology: e.target.value })}
                 placeholder="Describe your research methodology..."
                 rows={3}
               />
@@ -291,7 +292,7 @@ const ThesisWriter = () => {
               <Textarea
                 id="additionalContext"
                 value={formData.additionalContext}
-                onChange={(e) => setFormData({...formData, additionalContext: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, additionalContext: e.target.value })}
                 placeholder="Any additional context, frameworks, or specific requirements..."
                 rows={4}
               />
@@ -321,7 +322,7 @@ const ThesisWriter = () => {
                   Download
                 </Button>
               </div>
-              
+
               <div className="bg-muted p-6 rounded-lg">
                 <h3 className="font-semibold mb-4 text-lg">Generated Content:</h3>
                 <div className="prose prose-sm max-w-none">
@@ -332,10 +333,10 @@ const ThesisWriter = () => {
           )}
         </div>
       </ToolLayout>
-      
-      <GeneratingAdModal 
-        open={showAdModal} 
-        onComplete={() => setShowAdModal(false)} 
+
+      <GeneratingAdModal
+        open={showAdModal}
+        onComplete={() => setShowAdModal(false)}
       />
     </>
   );

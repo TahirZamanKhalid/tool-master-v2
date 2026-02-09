@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
@@ -74,6 +75,12 @@ const QRCodeGenerator = () => {
 
   return (
     <>
+      <SEOHead
+        title="Free Online QR Code Generator - Create Custom QR Codes"
+        description="Professional free online QR code generator. Create custom QR codes with logos, colors, and varying error correction levels instantly."
+        keywords="qr code generator, create qr code, free qr code maker, custom qr code, online qr code"
+        canonical="https://toolmaster.cloud/tools/qr-code-generator"
+      />
       <Header />
       <ToolLayout
         title="QR Code Generator"

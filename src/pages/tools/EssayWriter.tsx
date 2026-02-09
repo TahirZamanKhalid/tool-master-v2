@@ -19,7 +19,7 @@ const EssayWriter = () => {
   const [showAdModal, setShowAdModal] = useState(false);
   const wordCountRef = useRef(0);
   const lastAdWordCount = useRef(0);
-  
+
   const [formData, setFormData] = useState({
     essayType: "",
     topic: "",
@@ -45,14 +45,15 @@ const EssayWriter = () => {
     lastAdWordCount.current = 0;
 
     try {
-      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-essay`, {
+      const response = await fetch("/api-proxy.php", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          action: 'generate-essay',
+          ...formData
+        }),
       });
 
       if (!response.ok || !response.body) {
@@ -188,9 +189,9 @@ const EssayWriter = () => {
         title="AI Essay Writer - Generate Academic Essays Online Free"
         description="Create high-quality academic essays with our AI essay writer. Generate well-structured essays for any topic, academic level, and word count. Free online essay generator tool."
         keywords="essay writer, AI essay generator, academic essay, essay maker, free essay writer, essay writing tool, automatic essay writer"
-        canonical="https://yourdomain.com/tools/essay-writer"
+        canonical="https://toolmaster.cloud/tools/essay-writer"
       />
-      
+
       <ToolLayout
         title="AI Essay Writer"
         description="Generate well-structured, academic essays on any topic with AI assistance. Perfect for students and researchers."
@@ -201,7 +202,7 @@ const EssayWriter = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="essayType">Essay Type *</Label>
-                <Select value={formData.essayType} onValueChange={(value) => setFormData({...formData, essayType: value})}>
+                <Select value={formData.essayType} onValueChange={(value) => setFormData({ ...formData, essayType: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select essay type" />
                   </SelectTrigger>
@@ -223,7 +224,7 @@ const EssayWriter = () => {
                 <Input
                   id="topic"
                   value={formData.topic}
-                  onChange={(e) => setFormData({...formData, topic: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
                   placeholder="Enter your essay topic..."
                 />
               </div>
@@ -232,7 +233,7 @@ const EssayWriter = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="wordCount">Word Count *</Label>
-                <Select value={formData.wordCount} onValueChange={(value) => setFormData({...formData, wordCount: value})}>
+                <Select value={formData.wordCount} onValueChange={(value) => setFormData({ ...formData, wordCount: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select word count" />
                   </SelectTrigger>
@@ -250,7 +251,7 @@ const EssayWriter = () => {
 
               <div>
                 <Label htmlFor="academicLevel">Academic Level *</Label>
-                <Select value={formData.academicLevel} onValueChange={(value) => setFormData({...formData, academicLevel: value})}>
+                <Select value={formData.academicLevel} onValueChange={(value) => setFormData({ ...formData, academicLevel: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select academic level" />
                   </SelectTrigger>
@@ -265,7 +266,7 @@ const EssayWriter = () => {
 
               <div>
                 <Label htmlFor="tone">Writing Tone *</Label>
-                <Select value={formData.tone} onValueChange={(value) => setFormData({...formData, tone: value})}>
+                <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select tone" />
                   </SelectTrigger>
@@ -284,7 +285,7 @@ const EssayWriter = () => {
               <Textarea
                 id="additionalInstructions"
                 value={formData.additionalInstructions}
-                onChange={(e) => setFormData({...formData, additionalInstructions: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, additionalInstructions: e.target.value })}
                 placeholder="Any specific requirements, sources to include, or special instructions..."
                 rows={4}
               />
@@ -314,7 +315,7 @@ const EssayWriter = () => {
                   Download
                 </Button>
               </div>
-              
+
               <div className="bg-muted p-6 rounded-lg">
                 <h3 className="font-semibold mb-4 text-lg">Generated Essay:</h3>
                 <div className="prose prose-sm max-w-none">
@@ -325,10 +326,10 @@ const EssayWriter = () => {
           )}
         </div>
       </ToolLayout>
-      
-      <GeneratingAdModal 
-        open={showAdModal} 
-        onComplete={() => setShowAdModal(false)} 
+
+      <GeneratingAdModal
+        open={showAdModal}
+        onComplete={() => setShowAdModal(false)}
       />
     </>
   );

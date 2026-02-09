@@ -7,7 +7,6 @@ import { ToolCard } from "@/components/ToolCard";
 import { HowItWorks } from "@/components/HowItWorks";
 import { FAQ } from "@/components/FAQ";
 import { SEOHead } from "@/components/SEOHead";
-import { trackSearch } from "@/hooks/useToolAnalytics";
 import { AdRow } from "@/components/AdRow";
 import { useState, useEffect, useMemo } from "react";
 import { allTools } from "@/data/allTools";
@@ -157,14 +156,10 @@ const Index = () => {
     if (selectedCategory) params.set("category", selectedCategory);
     setSearchParams(params);
 
-    // Track search analytics
-    if (query.length >= 3) {
-      trackSearch(query);
-      // Scroll to search results when user searches
-      setTimeout(() => {
-        document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 100);
-    }
+    // Scroll to search results when user searches
+    setTimeout(() => {
+      document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   };
 
   // Button-triggered search handler
@@ -186,10 +181,6 @@ const Index = () => {
     if (selectedCategory) params.set("category", selectedCategory);
     setSearchParams(params);
 
-    // Track search analytics
-    if (query.length >= 3) {
-      trackSearch(query);
-    }
 
     // Scroll to search results when user searches
     if (query) {
@@ -296,7 +287,7 @@ const Index = () => {
 
                 return (
                   <div
-                    key={index}
+                    key={category.title}
                     className="animate-scale-in cursor-pointer"
                     style={{ animationDelay: `${index * 0.05}s` }}
                     onClick={() => navigate(`/category/${categorySlug[category.title]}`)}
@@ -367,16 +358,14 @@ const Index = () => {
                     const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
 
                     return (
-                      <>
-                        <div
-                          key={index}
-                          className="animate-fade-in"
-                          style={{ animationDelay: `${index * 0.05}s` }}
-                          onClick={() => handleToolClick(tool.path)}
-                        >
-                          <ToolCard {...tool} />
-                        </div>
-                      </>
+                      <div
+                        key={tool.path}
+                        className="animate-fade-in"
+                        style={{ animationDelay: `${index * 0.05}s` }}
+                        onClick={() => handleToolClick(tool.path)}
+                      >
+                        <ToolCard {...tool} />
+                      </div>
                     );
                   })}
                 </div>

@@ -3,12 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { ToolRating } from "@/components/ToolRating";
 import { SEOHead } from "@/components/SEOHead";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ToolFAQ } from "@/components/ToolFAQ";
 import { SidebarAd } from "@/components/SidebarAd";
-import { useToolAnalytics } from "@/hooks/useToolAnalytics";
 import { blogPosts } from "@/data/blogPosts";
 import { ArrowRight } from "lucide-react";
 
@@ -34,8 +32,6 @@ export const ToolLayout = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Track tool view
-  useToolAnalytics(location.pathname);
 
   // Enhanced keywords with variations for better search coverage
   const enhancedKeywords = `${title}, ${category}, free ${title.toLowerCase()}, online ${title.toLowerCase()}, ${title.toLowerCase()} tool, ${category.toLowerCase()} tools, free online tools, no signup, no registration, web tools, instant tools`;
@@ -147,8 +143,6 @@ export const ToolLayout = ({
                   <li className="pl-2">Privacy focused - Your data never leaves your device</li>
                 </ul>
               </div>
-
-              <ToolRating toolPath={location.pathname} />
 
               <ToolFAQ toolName={title} />
 

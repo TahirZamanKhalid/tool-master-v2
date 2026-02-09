@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { AdWatchModal } from "@/components/AdWatchModal";
@@ -104,6 +105,12 @@ const ImageSizeReducer = () => {
 
     return (
         <>
+            <SEOHead
+                title="Free Online Image Size Reducer - Reduce Image File Size"
+                description="Reduce image file size while maintaining quality. Fast, free, and works entirely in your browser. Supports PNG, JPG, and WebP."
+                keywords="image size reducer, reduce image size, compress image, online image compressor, free image tools"
+                canonical="https://toolmaster.cloud/tools/image-size-reducer"
+            />
             <Header />
             <ToolLayout
                 title="Image Size Reducer"

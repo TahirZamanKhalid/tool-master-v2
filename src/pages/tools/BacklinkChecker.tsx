@@ -1,5 +1,4 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -107,14 +106,20 @@ const analyzeUrl = async (url: string): Promise<BacklinkData> => {
   // Try to get real data via proxy
   let realData: any = null;
   try {
-    const { data, error } = await supabase.functions.invoke("api-proxy", {
-      body: {
+    const response = await fetch("/api-proxy.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         url: `https://api.commonbacklinks.com/check?url=${encodeURIComponent(url)}&output=json`,
         method: "GET",
-      },
+      }),
     });
-    if (!error && data?.data) {
-      realData = data.data;
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data?.data) {
+        realData = data.data;
+      }
     }
   } catch {
     // Fall through to estimation
@@ -827,8 +832,8 @@ const BacklinkChecker = () => {
                           <div
                             key={item.id}
                             className={`p-4 rounded-xl border-2 ${item.good
-                                ? "border-green-200 bg-green-50/30 dark:border-green-900/50 dark:bg-green-950/20"
-                                : "border-orange-200 bg-orange-50/30 dark:border-orange-900/50 dark:bg-orange-950/20"
+                              ? "border-green-200 bg-green-50/30 dark:border-green-900/50 dark:bg-green-950/20"
+                              : "border-orange-200 bg-orange-50/30 dark:border-orange-900/50 dark:bg-orange-950/20"
                               }`}
                           >
                             <div className="flex items-center gap-2 mb-2">

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { SEOHead } from "@/components/SEOHead";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -139,6 +140,12 @@ const UserAgentParser = () => {
         { name: "Meta Tag Generator", path: "/tools/meta-tag-generator" },
       ]}
     >
+      <SEOHead
+        title="User Agent Parser - Parse UA Strings Online Free"
+        description="Best free online user agent parser. Identify browser, OS, version, and device type from any UA string instantly. Useful for developer debugging."
+        keywords="user agent parser, ua parser, parse user agent, browser detection, device detector"
+        canonical="https://toolmaster.cloud/tools/user-agent-parser"
+      />
       <div className="space-y-6">
         <Card>
           <CardContent className="pt-6 space-y-4">

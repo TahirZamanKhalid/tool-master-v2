@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo, memo } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -86,16 +85,22 @@ const fetchIPData = async (url: string): Promise<IPData> => {
   const ipMatch = url.match(/\/json\/([^?]+)/);
   const targetIP = ipMatch ? ipMatch[1] : "";
 
-  // Try Supabase Edge Function first
+  // Try Hostinger PHP proxy first (Replacing Supabase Edge Function)
   try {
-    const { data, error } = await supabase.functions.invoke("api-proxy", {
-      body: { url, method: "GET" },
+    const response = await fetch("/api-proxy.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url, method: "GET" }),
     });
-    if (!error && data?.data) {
-      return data.data as IPData;
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data?.data) {
+        return data.data as IPData;
+      }
     }
   } catch (e) {
-    console.warn("Supabase proxy unavailable, falling back to direct API call:", e);
+    console.warn("PHP proxy unavailable for IP lookup:", e);
   }
 
   // Try ip-api.com (HTTPS)

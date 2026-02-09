@@ -20,7 +20,7 @@ const BlogArticleWriter = () => {
   const [showAdModal, setShowAdModal] = useState(false);
   const wordCountRef = useRef(0);
   const lastAdWordCount = useRef(0);
-  
+
   const [formData, setFormData] = useState({
     topic: "",
     blogType: "",
@@ -48,14 +48,15 @@ const BlogArticleWriter = () => {
     lastAdWordCount.current = 0;
 
     try {
-      const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/generate-blog`, {
+      const response = await fetch("/api-proxy.php", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          action: 'generate-blog',
+          ...formData
+        }),
       });
 
       if (!response.ok || !response.body) {
@@ -188,9 +189,9 @@ const BlogArticleWriter = () => {
         title="AI Blog Article Writer - Generate SEO-Optimized Blog Posts Free"
         description="Create engaging, SEO-optimized blog articles with our AI blog writer. Generate professional blog posts for any topic, audience, and word count. Free online blog generator tool."
         keywords="blog writer, AI blog generator, blog post generator, content writer, SEO blog, article writer, free blog generator"
-        canonical="https://yourdomain.com/tools/blog-article-writer"
+        canonical="https://toolmaster.cloud/tools/blog-article-writer"
       />
-      
+
       <ToolLayout
         title="AI Blog Article Writer"
         description="Generate engaging, SEO-optimized blog articles with AI. Perfect for bloggers, marketers, and content creators."
@@ -204,14 +205,14 @@ const BlogArticleWriter = () => {
                 <Input
                   id="topic"
                   value={formData.topic}
-                  onChange={(e) => setFormData({...formData, topic: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
                   placeholder="Enter your blog topic..."
                 />
               </div>
 
               <div>
                 <Label htmlFor="blogType">Blog Type *</Label>
-                <Select value={formData.blogType} onValueChange={(value) => setFormData({...formData, blogType: value})}>
+                <Select value={formData.blogType} onValueChange={(value) => setFormData({ ...formData, blogType: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select blog type" />
                   </SelectTrigger>
@@ -232,7 +233,7 @@ const BlogArticleWriter = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="wordCount">Word Count *</Label>
-                <Select value={formData.wordCount} onValueChange={(value) => setFormData({...formData, wordCount: value})}>
+                <Select value={formData.wordCount} onValueChange={(value) => setFormData({ ...formData, wordCount: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select word count" />
                   </SelectTrigger>
@@ -249,7 +250,7 @@ const BlogArticleWriter = () => {
 
               <div>
                 <Label htmlFor="targetAudience">Target Audience *</Label>
-                <Select value={formData.targetAudience} onValueChange={(value) => setFormData({...formData, targetAudience: value})}>
+                <Select value={formData.targetAudience} onValueChange={(value) => setFormData({ ...formData, targetAudience: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select target audience" />
                   </SelectTrigger>
@@ -266,7 +267,7 @@ const BlogArticleWriter = () => {
 
               <div>
                 <Label htmlFor="tone">Writing Tone *</Label>
-                <Select value={formData.tone} onValueChange={(value) => setFormData({...formData, tone: value})}>
+                <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select tone" />
                   </SelectTrigger>
@@ -287,7 +288,7 @@ const BlogArticleWriter = () => {
               <Input
                 id="keywords"
                 value={formData.keywords}
-                onChange={(e) => setFormData({...formData, keywords: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
                 placeholder="Enter keywords separated by commas..."
               />
             </div>
@@ -296,7 +297,7 @@ const BlogArticleWriter = () => {
               <Checkbox
                 id="includeImages"
                 checked={formData.includeImages}
-                onCheckedChange={(checked) => setFormData({...formData, includeImages: checked as boolean})}
+                onCheckedChange={(checked) => setFormData({ ...formData, includeImages: checked as boolean })}
               />
               <Label htmlFor="includeImages" className="cursor-pointer">
                 Include image placeholders
@@ -308,7 +309,7 @@ const BlogArticleWriter = () => {
               <Textarea
                 id="additionalNotes"
                 value={formData.additionalNotes}
-                onChange={(e) => setFormData({...formData, additionalNotes: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, additionalNotes: e.target.value })}
                 placeholder="Any specific requirements, examples to include, or special instructions..."
                 rows={4}
               />
@@ -338,7 +339,7 @@ const BlogArticleWriter = () => {
                   Download
                 </Button>
               </div>
-              
+
               <div className="bg-muted p-6 rounded-lg">
                 <h3 className="font-semibold mb-4 text-lg">Generated Blog Article:</h3>
                 <div className="prose prose-sm max-w-none">
@@ -349,10 +350,10 @@ const BlogArticleWriter = () => {
           )}
         </div>
       </ToolLayout>
-      
-      <GeneratingAdModal 
-        open={showAdModal} 
-        onComplete={() => setShowAdModal(false)} 
+
+      <GeneratingAdModal
+        open={showAdModal}
+        onComplete={() => setShowAdModal(false)}
       />
     </>
   );

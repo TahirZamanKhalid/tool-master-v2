@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Copy, RefreshCw, Image as ImageIcon } from "lucide-react";
 
 const CaptionGenerator = () => {
@@ -36,19 +35,25 @@ const CaptionGenerator = () => {
     setCaptions([]);
 
     try {
-      const { data, error } = await supabase.functions.invoke("generate-caption", {
-        body: {
+      const response = await fetch("/api-proxy.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "generate-caption",
           imageUrl: imageUrl || null,
           description,
           style,
-        },
+        }),
       });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Proxy error");
+      const data = await response.json();
+
+      if (data.error) throw new Error(data.error);
 
       if (data?.captions && Array.isArray(data.captions)) {
         setCaptions(data.captions);
-        
+
         // Show different message if cached
         if (data.cached) {
           toast.success("Loaded cached captions (no credits used!) 🎉");

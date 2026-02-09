@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Copy, Camera, Upload, ScanLine, CheckCircle2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
-import { supabase } from "@/integrations/supabase/client";
 import { AdSpace } from "@/components/AdSpace";
 
 const BarcodeScanner = () => {
@@ -145,11 +144,21 @@ const BarcodeScanner = () => {
     setProductInfo(null);
 
     try {
-      const { data, error } = await supabase.functions.invoke('lookup-barcode', {
-        body: { barcode }
+      const response = await fetch("/api-proxy.php", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'lookup-barcode',
+          barcode
+        }),
       });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Proxy error");
+      const data = await response.json();
+
+      if (data.error) throw new Error(data.error);
 
       if (data) {
         setProductInfo(data);
@@ -337,11 +346,11 @@ const BarcodeScanner = () => {
           {productInfo && !loading && (
             <div className="p-4 bg-muted/50 rounded-lg space-y-3">
               <h4 className="font-semibold text-sm">Product Information:</h4>
-              
+
               {productInfo.image && (
-                <img 
-                  src={productInfo.image} 
-                  alt="Product" 
+                <img
+                  src={productInfo.image}
+                  alt="Product"
                   className="w-full max-w-[200px] mx-auto rounded-lg"
                 />
               )}
@@ -354,7 +363,7 @@ const BarcodeScanner = () => {
                       <p className="text-sm font-medium">{productInfo.name}</p>
                     </div>
                   )}
-                  
+
                   {productInfo.brand && (
                     <div>
                       <p className="text-xs text-muted-foreground">Brand:</p>

@@ -5,7 +5,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { AdSpace } from "@/components/AdSpace";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Copy, RefreshCw } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -24,19 +23,28 @@ const TextRephraser = () => {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('rephrase-text', {
-        body: { text: input, tone }
+      const response = await fetch("/api-proxy.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "rephrase-text",
+          text: input,
+          tone
+        })
       });
 
-      if (error) throw error;
+      if (!response.ok) throw new Error("Proxy error");
+      const data = await response.json();
 
-      setOutput(data.rephrasedText);
+      if (data.error) throw new Error(data.error);
+
+      setOutput(data.data?.rephrasedText || "");
       toast({ description: "Text rephrased successfully!" });
     } catch (error: any) {
       console.error('Error:', error);
-      toast({ 
-        description: error.message || "Failed to rephrase text. Please try again.", 
-        variant: "destructive" 
+      toast({
+        description: error.message || "Failed to rephrase text. Please try again.",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
@@ -95,8 +103,8 @@ const TextRephraser = () => {
             </Select>
           </div>
 
-          <Button 
-            onClick={rephraseText} 
+          <Button
+            onClick={rephraseText}
             className="w-full"
             disabled={loading || !input.trim()}
           >
@@ -116,18 +124,18 @@ const TextRephraser = () => {
           {output && (
             <div className="space-y-3">
               <label className="text-sm font-medium block">Rephrased Text</label>
-              <Textarea 
-                value={output} 
-                readOnly 
+              <Textarea
+                value={output}
+                readOnly
                 rows={8}
                 className="font-mono"
               />
               <p className="text-sm text-muted-foreground">
                 {output.length} characters, {output.split(/\s+/).filter(w => w).length} words
               </p>
-              <Button 
-                onClick={copyToClipboard} 
-                variant="outline" 
+              <Button
+                onClick={copyToClipboard}
+                variant="outline"
                 className="w-full"
               >
                 <Copy className="mr-2 h-4 w-4" />

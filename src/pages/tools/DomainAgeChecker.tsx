@@ -1,5 +1,9 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { AdSpace } from "@/components/AdSpace";
+import { AdRow } from "@/components/AdRow";
+import { InFeedAd } from "@/components/InFeedAd";
+import { LazyAdSpace } from "@/components/LazyAdSpace";
+import { SidebarAd } from "@/components/SidebarAd";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -206,7 +210,6 @@ const parseWhoisText = (text: string): WhoisData => {
     "Registrant State",
   ]);
 
-  // Parse status lines
   const statusMatches = text.match(/(?:Domain )?Status\s*:\s*(.+)/gim);
   if (statusMatches) {
     data.status = statusMatches.map((s) =>
@@ -214,7 +217,6 @@ const parseWhoisText = (text: string): WhoisData => {
     );
   }
 
-  // Parse name servers
   const nsMatches = text.match(/Name Server\s*:\s*(.+)/gim);
   if (nsMatches) {
     data.nameServers = nsMatches.map((s) =>
@@ -229,29 +231,32 @@ const parseWhoisText = (text: string): WhoisData => {
 // ─── Fetch WHOIS data with fallback ──────────────────────────────────────────
 
 const fetchWhoisData = async (domain: string): Promise<WhoisData> => {
-  // Try Supabase Edge Function proxy first
   try {
-    const { data, error } = await supabase.functions.invoke("api-proxy", {
-      body: {
+    const response = await fetch("/api-proxy.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         url: `https://whois.freeaitools.me/?domain=${encodeURIComponent(domain)}`,
         method: "GET",
-      },
+      }),
     });
-    if (!error && data?.data) {
-      if (typeof data.data === "string") {
-        return parseWhoisText(data.data);
-      }
-      if (typeof data.data === "object") {
-        return data.data as WhoisData;
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data?.data) {
+        if (typeof data.data === "string") {
+          return parseWhoisText(data.data);
+        }
+        if (typeof data.data === "object") {
+          return data.data as WhoisData;
+        }
       }
     }
   } catch (e) {
-    console.warn("Supabase proxy unavailable for WHOIS:", e);
+    console.warn("PHP proxy unavailable for WHOIS:", e);
   }
 
-  // Fallback 1: Try direct RDAP lookup (IANA standard, CORS-friendly)
   try {
-    // First get the TLD's RDAP server
     const tld = domain.split(".").pop()?.toLowerCase();
     const rdapBootstrap = await fetch("https://data.iana.org/rdap/dns.json");
     const bootstrap = await rdapBootstrap.json();
@@ -283,13 +288,12 @@ const fetchWhoisData = async (domain: string): Promise<WhoisData> => {
     console.warn("RDAP lookup failed:", e);
   }
 
-  // Fallback 2: Try alternative WHOIS API
   try {
     const response = await fetch(
       `https://api.api-ninjas.com/v1/whois?domain=${encodeURIComponent(domain)}`,
       {
         headers: {
-          "X-Api-Key": "free", // Some endpoints work with a placeholder
+          "X-Api-Key": "free",
         },
       }
     );
@@ -313,7 +317,6 @@ const fetchWhoisData = async (domain: string): Promise<WhoisData> => {
 const parseRDAPData = (rdap: any, domain: string): WhoisData => {
   const data: WhoisData = { domainName: rdap.ldhName || domain };
 
-  // Extract dates from events
   if (rdap.events) {
     for (const event of rdap.events) {
       switch (event.eventAction) {
@@ -331,19 +334,16 @@ const parseRDAPData = (rdap: any, domain: string): WhoisData => {
     }
   }
 
-  // Extract status
   if (rdap.status) {
     data.status = rdap.status;
   }
 
-  // Extract nameservers
   if (rdap.nameservers) {
     data.nameServers = rdap.nameservers.map(
       (ns: any) => ns.ldhName?.toLowerCase() || ns.objectClassName
     );
   }
 
-  // Extract entities (registrar, registrant)
   if (rdap.entities) {
     for (const entity of rdap.entities) {
       if (entity.roles?.includes("registrar")) {
@@ -368,12 +368,10 @@ const parseRDAPData = (rdap: any, domain: string): WhoisData => {
     }
   }
 
-  // DNSSEC
   if (rdap.secureDNS) {
     data.dnssec = rdap.secureDNS.delegationSigned ? "signed" : "unsigned";
   }
 
-  // Port43 WHOIS server
   if (rdap.port43) {
     data.whoisServer = rdap.port43;
   }
@@ -467,7 +465,6 @@ const DomainAgeChecker = () => {
   const [history, setHistory] = useState<DomainHistory[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Load history
   useEffect(() => {
     try {
       const saved = localStorage.getItem("domain-age-history");
@@ -497,7 +494,6 @@ const DomainAgeChecker = () => {
     });
   }, []);
 
-  // Perform lookup
   const checkDomain = useCallback(
     async (domainToCheck?: string) => {
       const raw = domainToCheck || domain;
@@ -528,7 +524,6 @@ const DomainAgeChecker = () => {
 
         setResult(whoisData);
 
-        // Calculate age for history
         const age = whoisData.creationDate
           ? calculateAge(whoisData.creationDate)
           : null;
@@ -550,7 +545,6 @@ const DomainAgeChecker = () => {
     [domain, addToHistory]
   );
 
-  // Computed values
   const domainAge = useMemo(() => {
     if (!result?.creationDate) return null;
     return calculateAge(result.creationDate);
@@ -579,7 +573,6 @@ const DomainAgeChecker = () => {
     return { label: "Active", color: "text-green-600", variant: "default" as const };
   }, [expiryDays]);
 
-  // Export functions
   const exportAsJSON = useCallback(() => {
     if (!result) return;
     const exportData = { ...result, domainAge, expiryDays };
@@ -650,7 +643,6 @@ const DomainAgeChecker = () => {
     toast.success("History cleared");
   }, []);
 
-  // Quick lookup domains
   const quickDomains = useMemo(
     () => [
       { label: "Google", domain: "google.com" },
@@ -668,731 +660,808 @@ const DomainAgeChecker = () => {
       description="Check any domain's age, registration date, expiration, registrar, name servers, and WHOIS information instantly. Free domain age checker tool for SEO analysis."
       category="SEO & Marketing"
     >
-      <div className="space-y-6 max-w-6xl mx-auto">
-        {/* ── Input Section ──────────────────────────────────── */}
-        <Card className="border-2 border-primary/20 shadow-lg">
-          <CardContent className="p-6 space-y-4">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1 relative">
-                <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  value={domain}
-                  onChange={(e) => {
-                    setDomain(e.target.value);
-                    setError("");
-                  }}
-                  placeholder="Enter domain name (e.g., example.com)"
-                  onKeyDown={(e) => e.key === "Enter" && checkDomain()}
-                  className={`pl-10 h-12 text-base ${error ? "border-red-500 focus-visible:ring-red-500" : ""}`}
-                  aria-label="Domain name input"
-                />
-              </div>
-              <Button
-                onClick={() => checkDomain()}
-                disabled={loading}
-                size="lg"
-                className="h-12 px-6 font-semibold"
-              >
-                {loading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Search className="mr-2 h-4 w-4" />
-                )}
-                {loading ? "Checking..." : "Check Domain Age"}
-              </Button>
-            </div>
+      {/* Main content + Sidebar layout */}
+      <div className="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto">
 
-            {error && (
-              <p className="text-sm text-red-500 flex items-center gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                {error}
-              </p>
-            )}
+        {/* ── Main Content Column ──────────────────────────── */}
+        <div className="flex-1 min-w-0 space-y-6">
 
-            {/* Quick lookups */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-muted-foreground font-medium">Try:</span>
-              {quickDomains.map((q) => (
+          {/* ── Top Leaderboard Ad ──────────────────────────── */}
+          <AdSpace slot="9769564871" size="leaderboard" className="w-full" />
+
+          {/* ── Input Section ──────────────────────────────────── */}
+          <Card className="border-2 border-primary/20 shadow-lg">
+            <CardContent className="p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex-1 relative">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <Input
+                    value={domain}
+                    onChange={(e) => {
+                      setDomain(e.target.value);
+                      setError("");
+                    }}
+                    placeholder="Enter domain name (e.g., example.com)"
+                    onKeyDown={(e) => e.key === "Enter" && checkDomain()}
+                    className={`pl-10 h-12 text-base ${error ? "border-red-500 focus-visible:ring-red-500" : ""}`}
+                    aria-label="Domain name input"
+                  />
+                </div>
                 <Button
-                  key={q.domain}
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 text-xs px-2.5 bg-muted/50 hover:bg-muted"
-                  onClick={() => {
-                    setDomain(q.domain);
-                    checkDomain(q.domain);
-                  }}
+                  onClick={() => checkDomain()}
+                  disabled={loading}
+                  size="lg"
+                  className="h-12 px-6 font-semibold"
                 >
-                  {q.label}
-                  <ChevronRight className="w-3 h-3 ml-1" />
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* ── History ─────────────────────────────────────────── */}
-        {history.length > 0 && !result && (
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <History className="w-4 h-4" />
-                  Recent Lookups
-                </CardTitle>
-                <Button variant="ghost" size="sm" className="text-xs h-7" onClick={clearHistory}>
-                  Clear
+                  {loading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Search className="mr-2 h-4 w-4" />
+                  )}
+                  {loading ? "Checking..." : "Check Domain Age"}
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex flex-wrap gap-2">
-                {history.map((h) => (
+
+              {error && (
+                <p className="text-sm text-red-500 flex items-center gap-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                  {error}
+                </p>
+              )}
+
+              {/* Quick lookups */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs text-muted-foreground font-medium">Try:</span>
+                {quickDomains.map((q) => (
                   <Button
-                    key={`${h.domain}-${h.timestamp}`}
-                    variant="outline"
+                    key={q.domain}
+                    variant="ghost"
                     size="sm"
-                    className="h-8 text-xs"
+                    className="h-7 text-xs px-2.5 bg-muted/50 hover:bg-muted"
                     onClick={() => {
-                      setDomain(h.domain);
-                      checkDomain(h.domain);
+                      setDomain(q.domain);
+                      checkDomain(q.domain);
                     }}
                   >
-                    <Globe className="w-3 h-3 mr-1.5" />
-                    {h.domain}
-                    <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">
-                      {h.age}
-                    </Badge>
+                    {q.label}
+                    <ChevronRight className="w-3 h-3 ml-1" />
                   </Button>
                 ))}
               </div>
             </CardContent>
           </Card>
-        )}
 
-        {/* ── Results ─────────────────────────────────────────── */}
-        {result && (
-          <>
-            {/* Result Header with Age Display */}
-            <Card className="border-2 overflow-hidden">
-              <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 p-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <h2 className="text-2xl font-bold">{result.domainName}</h2>
-                      {ageTrustLevel.level !== "unknown" && (
-                        <Badge
-                          variant={
-                            ageTrustLevel.level === "excellent" || ageTrustLevel.level === "good"
-                              ? "default"
-                              : "outline"
-                          }
-                          className="text-xs"
-                        >
-                          <Award className="w-3 h-3 mr-1" />
-                          {ageTrustLevel.label}
-                        </Badge>
+          {/* ── In-Feed Ad after Input ──────────────────────── */}
+          <InFeedAd slot="4739066253" layout="desktop" className="w-full" />
+
+          {/* ── History ─────────────────────────────────────────── */}
+          {history.length > 0 && !result && (
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                    <History className="w-4 h-4" />
+                    Recent Lookups
+                  </CardTitle>
+                  <Button variant="ghost" size="sm" className="text-xs h-7" onClick={clearHistory}>
+                    Clear
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="flex flex-wrap gap-2">
+                  {history.map((h) => (
+                    <Button
+                      key={`${h.domain}-${h.timestamp}`}
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs"
+                      onClick={() => {
+                        setDomain(h.domain);
+                        checkDomain(h.domain);
+                      }}
+                    >
+                      <Globe className="w-3 h-3 mr-1.5" />
+                      {h.domain}
+                      <Badge variant="secondary" className="ml-1.5 text-[10px] px-1.5 py-0">
+                        {h.age}
+                      </Badge>
+                    </Button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ── Results ─────────────────────────────────────────── */}
+          {result && (
+            <>
+              {/* Result Header with Age Display */}
+              <Card className="border-2 overflow-hidden">
+                <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 p-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <h2 className="text-2xl font-bold">{result.domainName}</h2>
+                        {ageTrustLevel.level !== "unknown" && (
+                          <Badge
+                            variant={
+                              ageTrustLevel.level === "excellent" || ageTrustLevel.level === "good"
+                                ? "default"
+                                : "outline"
+                            }
+                            className="text-xs"
+                          >
+                            <Award className="w-3 h-3 mr-1" />
+                            {ageTrustLevel.label}
+                          </Badge>
+                        )}
+                      </div>
+                      {domainAge && (
+                        <p className="text-sm text-muted-foreground">
+                          Registered {formatDate(result.creationDate)}
+                          {result.registrar && ` via ${result.registrar}`}
+                        </p>
+                      )}
+                      {lookupTime > 0 && (
+                        <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                          <Zap className="w-3 h-3" />
+                          Lookup completed in {lookupTime}ms
+                        </p>
                       )}
                     </div>
-                    {domainAge && (
-                      <p className="text-sm text-muted-foreground">
-                        Registered {formatDate(result.creationDate)}
-                        {result.registrar && ` via ${result.registrar}`}
-                      </p>
-                    )}
-                    {lookupTime > 0 && (
-                      <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                        <Zap className="w-3 h-3" />
-                        Lookup completed in {lookupTime}ms
-                      </p>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Button onClick={() => checkDomain(result.domainName)} variant="outline" size="sm">
-                      <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Refresh
-                    </Button>
-                    <Button onClick={shareResult} variant="outline" size="sm">
-                      <Share2 className="h-3.5 w-3.5 mr-1.5" /> Share
-                    </Button>
-                    <Button onClick={exportAsJSON} variant="outline" size="sm">
-                      <FileJson className="h-3.5 w-3.5 mr-1.5" /> JSON
-                    </Button>
-                    <Button onClick={exportAsText} variant="outline" size="sm">
-                      <FileText className="h-3.5 w-3.5 mr-1.5" /> Report
-                    </Button>
+                    <div className="flex flex-wrap gap-2">
+                      <Button onClick={() => checkDomain(result.domainName)} variant="outline" size="sm">
+                        <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Refresh
+                      </Button>
+                      <Button onClick={shareResult} variant="outline" size="sm">
+                        <Share2 className="h-3.5 w-3.5 mr-1.5" /> Share
+                      </Button>
+                      <Button onClick={exportAsJSON} variant="outline" size="sm">
+                        <FileJson className="h-3.5 w-3.5 mr-1.5" /> JSON
+                      </Button>
+                      <Button onClick={exportAsText} variant="outline" size="sm">
+                        <FileText className="h-3.5 w-3.5 mr-1.5" /> Report
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Age Display Bar */}
-              {domainAge && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 border-t divide-x">
-                  <div className="p-4 text-center">
-                    <p className="text-3xl font-bold text-primary">{domainAge.years}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Years</p>
+                {/* Age Display Bar */}
+                {domainAge && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 border-t divide-x">
+                    <div className="p-4 text-center">
+                      <p className="text-3xl font-bold text-primary">{domainAge.years}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Years</p>
+                    </div>
+                    <div className="p-4 text-center">
+                      <p className="text-3xl font-bold text-primary">{domainAge.months}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Months</p>
+                    </div>
+                    <div className="p-4 text-center">
+                      <p className="text-3xl font-bold text-primary">{domainAge.days}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Days</p>
+                    </div>
+                    <div className="p-4 text-center">
+                      <p className="text-3xl font-bold text-muted-foreground">{domainAge.totalDays.toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Total Days</p>
+                    </div>
                   </div>
-                  <div className="p-4 text-center">
-                    <p className="text-3xl font-bold text-primary">{domainAge.months}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Months</p>
-                  </div>
-                  <div className="p-4 text-center">
-                    <p className="text-3xl font-bold text-primary">{domainAge.days}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Days</p>
-                  </div>
-                  <div className="p-4 text-center">
-                    <p className="text-3xl font-bold text-muted-foreground">{domainAge.totalDays.toLocaleString()}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Total Days</p>
-                  </div>
-                </div>
-              )}
+                )}
 
-              {/* Expiry Warning */}
-              {expiryStatus && expiryDays !== null && (
-                <div className="border-t p-3">
-                  <Alert
-                    variant={expiryStatus.variant === "destructive" ? "destructive" : "default"}
-                    className={
-                      expiryStatus.variant !== "destructive"
-                        ? "border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-950/30"
-                        : ""
-                    }
-                  >
-                    {expiryDays < 30 ? (
-                      <AlertTriangle className="h-4 w-4" />
-                    ) : (
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    )}
-                    <AlertDescription>
-                      {expiryDays < 0 ? (
-                        <span><strong>Domain Expired!</strong> This domain expired {Math.abs(expiryDays)} days ago.</span>
+                {/* Expiry Warning */}
+                {expiryStatus && expiryDays !== null && (
+                  <div className="border-t p-3">
+                    <Alert
+                      variant={expiryStatus.variant === "destructive" ? "destructive" : "default"}
+                      className={
+                        expiryStatus.variant !== "destructive"
+                          ? "border-green-200 bg-green-50/50 dark:border-green-900 dark:bg-green-950/30"
+                          : ""
+                      }
+                    >
+                      {expiryDays < 30 ? (
+                        <AlertTriangle className="h-4 w-4" />
                       ) : (
-                        <span>
-                          <strong>{expiryStatus.label}:</strong> Domain expires in{" "}
-                          <strong>{expiryDays.toLocaleString()} days</strong> ({formatDate(result.expirationDate)})
-                        </span>
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
                       )}
-                    </AlertDescription>
-                  </Alert>
-                </div>
-              )}
-            </Card>
+                      <AlertDescription>
+                        {expiryDays < 0 ? (
+                          <span><strong>Domain Expired!</strong> This domain expired {Math.abs(expiryDays)} days ago.</span>
+                        ) : (
+                          <span>
+                            <strong>{expiryStatus.label}:</strong> Domain expires in{" "}
+                            <strong>{expiryDays.toLocaleString()} days</strong> ({formatDate(result.expirationDate)})
+                          </span>
+                        )}
+                      </AlertDescription>
+                    </Alert>
+                  </div>
+                )}
+              </Card>
 
-            {/* Detailed Tabs */}
-            <Card>
-              <CardContent className="p-0">
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="w-full grid grid-cols-4 rounded-none border-b bg-muted/30 h-12">
-                    <TabsTrigger value="overview" className="text-xs sm:text-sm">
-                      <CalendarDays className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
-                      Overview
-                    </TabsTrigger>
-                    <TabsTrigger value="technical" className="text-xs sm:text-sm">
-                      <Server className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
-                      Technical
-                    </TabsTrigger>
-                    <TabsTrigger value="seo" className="text-xs sm:text-sm">
-                      <TrendingUp className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
-                      SEO Impact
-                    </TabsTrigger>
-                    <TabsTrigger value="raw" className="text-xs sm:text-sm">
-                      <Hash className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
-                      Raw Data
-                    </TabsTrigger>
-                  </TabsList>
+              {/* ── Display Ad after Result Header ────────────── */}
+              <AdSpace slot="2918331088" size="leaderboard" className="w-full" />
 
-                  {/* Overview Tab */}
-                  <TabsContent value="overview" className="p-6 mt-0">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <InfoRow
-                        icon={Globe}
-                        label="Domain Name"
-                        value={result.domainName}
-                        copyable
-                      />
-                      {result.creationDate && (
-                        <InfoRow
-                          icon={CalendarDays}
-                          label="Registration Date"
-                          value={formatDate(result.creationDate)}
-                          copyable
-                        />
-                      )}
-                      {result.expirationDate && (
-                        <InfoRow
-                          icon={CalendarClock}
-                          label="Expiration Date"
-                          value={formatDate(result.expirationDate)}
-                          badge={
-                            expiryStatus
-                              ? { text: expiryStatus.label, variant: expiryStatus.variant }
-                              : undefined
-                          }
-                          copyable
-                        />
-                      )}
-                      {result.updatedDate && (
-                        <InfoRow
-                          icon={RefreshCw}
-                          label="Last Updated"
-                          value={formatDate(result.updatedDate)}
-                        />
-                      )}
-                      {result.registrar && (
-                        <InfoRow
-                          icon={Building2}
-                          label="Registrar"
-                          value={result.registrar}
-                          copyable
-                        />
-                      )}
-                      {result.registrarUrl && (
-                        <InfoRow
-                          icon={Link2}
-                          label="Registrar URL"
-                          value={result.registrarUrl}
-                          copyable
-                        />
-                      )}
-                      {result.registrantOrg && (
-                        <InfoRow
-                          icon={Building2}
-                          label="Registrant Organization"
-                          value={result.registrantOrg}
-                          copyable
-                        />
-                      )}
-                      {result.registrantCountry && (
+              {/* Detailed Tabs */}
+              <Card>
+                <CardContent className="p-0">
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="w-full grid grid-cols-4 rounded-none border-b bg-muted/30 h-12">
+                      <TabsTrigger value="overview" className="text-xs sm:text-sm">
+                        <CalendarDays className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
+                        Overview
+                      </TabsTrigger>
+                      <TabsTrigger value="technical" className="text-xs sm:text-sm">
+                        <Server className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
+                        Technical
+                      </TabsTrigger>
+                      <TabsTrigger value="seo" className="text-xs sm:text-sm">
+                        <TrendingUp className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
+                        SEO Impact
+                      </TabsTrigger>
+                      <TabsTrigger value="raw" className="text-xs sm:text-sm">
+                        <Hash className="w-3.5 h-3.5 mr-1.5 hidden sm:inline" />
+                        Raw Data
+                      </TabsTrigger>
+                    </TabsList>
+
+                    {/* Overview Tab */}
+                    <TabsContent value="overview" className="p-6 mt-0">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <InfoRow
                           icon={Globe}
-                          label="Registrant Country"
-                          value={result.registrantCountry}
+                          label="Domain Name"
+                          value={result.domainName}
+                          copyable
                         />
-                      )}
-                      {domainAge && (
-                        <InfoRow
-                          icon={Timer}
-                          label="Domain Age"
-                          value={`${domainAge.years} years, ${domainAge.months} months, ${domainAge.days} days`}
-                          badge={{ text: ageTrustLevel.label, variant: ageTrustLevel.level === "excellent" || ageTrustLevel.level === "good" ? "default" : "outline" }}
-                        />
-                      )}
-                    </div>
-                  </TabsContent>
-
-                  {/* Technical Tab */}
-                  <TabsContent value="technical" className="p-6 mt-0">
-                    <div className="space-y-6">
-                      {/* Name Servers */}
-                      {result.nameServers && result.nameServers.length > 0 && (
-                        <div>
-                          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                            <Server className="w-4 h-4 text-primary" />
-                            Name Servers ({result.nameServers.length})
-                          </h3>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            {result.nameServers.map((ns, index) => (
-                              <div
-                                key={`ns-${index}-${ns}`}
-                                className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border text-sm font-mono"
-                              >
-                                <span className="truncate">{ns}</span>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-6 w-6 p-0 shrink-0 ml-2"
-                                  onClick={() => {
-                                    navigator.clipboard.writeText(ns);
-                                    toast.success("Name server copied!");
-                                  }}
-                                >
-                                  <Copy className="w-3 h-3" />
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Domain Status */}
-                      {result.status && result.status.length > 0 && (
-                        <div>
-                          <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                            <Shield className="w-4 h-4 text-primary" />
-                            Domain Status ({result.status.length})
-                          </h3>
-                          <div className="space-y-2">
-                            {result.status.map((status, index) => {
-                              const statusName = status.split(" ")[0];
-                              const isLocked = statusName.toLowerCase().includes("lock") || statusName.toLowerCase().includes("prohibited");
-                              return (
-                                <div
-                                  key={`status-${index}-${statusName}`}
-                                  className="flex items-center gap-2 p-2.5 bg-muted/30 rounded-lg border text-sm"
-                                >
-                                  {isLocked ? (
-                                    <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
-                                  ) : (
-                                    <Info className="w-4 h-4 text-blue-600 shrink-0" />
-                                  )}
-                                  <span className="break-all">{status}</span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Other Technical Info */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {result.dnssec && (
+                        {result.creationDate && (
                           <InfoRow
-                            icon={Shield}
-                            label="DNSSEC"
-                            value={result.dnssec}
-                            badge={{
-                              text: result.dnssec.toLowerCase().includes("signed") ? "Signed" : "Unsigned",
-                              variant: result.dnssec.toLowerCase().includes("signed") ? "default" : "outline",
-                            }}
-                          />
-                        )}
-                        {result.whoisServer && (
-                          <InfoRow
-                            icon={Server}
-                            label="WHOIS Server"
-                            value={result.whoisServer}
+                            icon={CalendarDays}
+                            label="Registration Date"
+                            value={formatDate(result.creationDate)}
                             copyable
                           />
                         )}
-                      </div>
-                    </div>
-                  </TabsContent>
-
-                  {/* SEO Impact Tab */}
-                  <TabsContent value="seo" className="p-6 mt-0">
-                    <div className="space-y-6">
-                      {/* Trust Score */}
-                      <div className="text-center p-6 rounded-xl bg-muted/30 border">
-                        <p className="text-sm text-muted-foreground mb-2">Domain Age Trust Score</p>
-                        <div className={`text-5xl font-bold ${ageTrustLevel.color}`}>
-                          {domainAge
-                            ? domainAge.totalDays >= 3650
-                              ? "A+"
-                              : domainAge.totalDays >= 1825
-                                ? "A"
-                                : domainAge.totalDays >= 730
-                                  ? "B"
-                                  : domainAge.totalDays >= 365
-                                    ? "C"
-                                    : "D"
-                            : "?"}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          {ageTrustLevel.label}
-                        </p>
+                        {result.expirationDate && (
+                          <InfoRow
+                            icon={CalendarClock}
+                            label="Expiration Date"
+                            value={formatDate(result.expirationDate)}
+                            badge={
+                              expiryStatus
+                                ? { text: expiryStatus.label, variant: expiryStatus.variant }
+                                : undefined
+                            }
+                            copyable
+                          />
+                        )}
+                        {result.updatedDate && (
+                          <InfoRow
+                            icon={RefreshCw}
+                            label="Last Updated"
+                            value={formatDate(result.updatedDate)}
+                          />
+                        )}
+                        {result.registrar && (
+                          <InfoRow
+                            icon={Building2}
+                            label="Registrar"
+                            value={result.registrar}
+                            copyable
+                          />
+                        )}
+                        {result.registrarUrl && (
+                          <InfoRow
+                            icon={Link2}
+                            label="Registrar URL"
+                            value={result.registrarUrl}
+                            copyable
+                          />
+                        )}
+                        {result.registrantOrg && (
+                          <InfoRow
+                            icon={Building2}
+                            label="Registrant Organization"
+                            value={result.registrantOrg}
+                            copyable
+                          />
+                        )}
+                        {result.registrantCountry && (
+                          <InfoRow
+                            icon={Globe}
+                            label="Registrant Country"
+                            value={result.registrantCountry}
+                          />
+                        )}
                         {domainAge && (
-                          <div className="w-full bg-muted rounded-full h-2.5 mt-4 max-w-xs mx-auto">
-                            <div
-                              className={`h-2.5 rounded-full transition-all duration-500 ${domainAge.totalDays >= 3650
+                          <InfoRow
+                            icon={Timer}
+                            label="Domain Age"
+                            value={`${domainAge.years} years, ${domainAge.months} months, ${domainAge.days} days`}
+                            badge={{ text: ageTrustLevel.label, variant: ageTrustLevel.level === "excellent" || ageTrustLevel.level === "good" ? "default" : "outline" }}
+                          />
+                        )}
+                      </div>
+
+                      {/* ── In-Feed Ad inside Overview Tab ───────── */}
+                      <div className="mt-6">
+                        <InFeedAd slot="1968211491" layout="desktop" className="w-full" />
+                      </div>
+                    </TabsContent>
+
+                    {/* Technical Tab */}
+                    <TabsContent value="technical" className="p-6 mt-0">
+                      <div className="space-y-6">
+                        {/* Name Servers */}
+                        {result.nameServers && result.nameServers.length > 0 && (
+                          <div>
+                            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                              <Server className="w-4 h-4 text-primary" />
+                              Name Servers ({result.nameServers.length})
+                            </h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {result.nameServers.map((ns, index) => (
+                                <div
+                                  key={`ns-${index}-${ns}`}
+                                  className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border text-sm font-mono"
+                                >
+                                  <span className="truncate">{ns}</span>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-6 w-6 p-0 shrink-0 ml-2"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(ns);
+                                      toast.success("Name server copied!");
+                                    }}
+                                  >
+                                    <Copy className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ── Display Ad between Technical sections ─ */}
+                        <AdSpace slot="4402803148" size="leaderboard" className="w-full" />
+
+                        {/* Domain Status */}
+                        {result.status && result.status.length > 0 && (
+                          <div>
+                            <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                              <Shield className="w-4 h-4 text-primary" />
+                              Domain Status ({result.status.length})
+                            </h3>
+                            <div className="space-y-2">
+                              {result.status.map((status, index) => {
+                                const statusName = status.split(" ")[0];
+                                const isLocked = statusName.toLowerCase().includes("lock") || statusName.toLowerCase().includes("prohibited");
+                                return (
+                                  <div
+                                    key={`status-${index}-${statusName}`}
+                                    className="flex items-center gap-2 p-2.5 bg-muted/30 rounded-lg border text-sm"
+                                  >
+                                    {isLocked ? (
+                                      <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                                    ) : (
+                                      <Info className="w-4 h-4 text-blue-600 shrink-0" />
+                                    )}
+                                    <span className="break-all">{status}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Other Technical Info */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {result.dnssec && (
+                            <InfoRow
+                              icon={Shield}
+                              label="DNSSEC"
+                              value={result.dnssec}
+                              badge={{
+                                text: result.dnssec.toLowerCase().includes("signed") ? "Signed" : "Unsigned",
+                                variant: result.dnssec.toLowerCase().includes("signed") ? "default" : "outline",
+                              }}
+                            />
+                          )}
+                          {result.whoisServer && (
+                            <InfoRow
+                              icon={Server}
+                              label="WHOIS Server"
+                              value={result.whoisServer}
+                              copyable
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    {/* SEO Impact Tab */}
+                    <TabsContent value="seo" className="p-6 mt-0">
+                      <div className="space-y-6">
+                        {/* Trust Score */}
+                        <div className="text-center p-6 rounded-xl bg-muted/30 border">
+                          <p className="text-sm text-muted-foreground mb-2">Domain Age Trust Score</p>
+                          <div className={`text-5xl font-bold ${ageTrustLevel.color}`}>
+                            {domainAge
+                              ? domainAge.totalDays >= 3650
+                                ? "A+"
+                                : domainAge.totalDays >= 1825
+                                  ? "A"
+                                  : domainAge.totalDays >= 730
+                                    ? "B"
+                                    : domainAge.totalDays >= 365
+                                      ? "C"
+                                      : "D"
+                              : "?"}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {ageTrustLevel.label}
+                          </p>
+                          {domainAge && (
+                            <div className="w-full bg-muted rounded-full h-2.5 mt-4 max-w-xs mx-auto">
+                              <div
+                                className={`h-2.5 rounded-full transition-all duration-500 ${domainAge.totalDays >= 3650
                                   ? "bg-green-500"
                                   : domainAge.totalDays >= 1825
                                     ? "bg-blue-500"
                                     : domainAge.totalDays >= 365
                                       ? "bg-yellow-500"
                                       : "bg-orange-500"
-                                }`}
-                              style={{
-                                width: `${Math.min(100, (domainAge.totalDays / 3650) * 100)}%`,
-                              }}
-                            />
-                          </div>
-                        )}
-                      </div>
+                                  }`}
+                                style={{
+                                  width: `${Math.min(100, (domainAge.totalDays / 3650) * 100)}%`,
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
 
-                      {/* SEO Insights */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {[
-                          {
-                            id: "age-factor",
-                            title: "Domain Age as Ranking Factor",
-                            description:
-                              domainAge && domainAge.totalDays >= 1825
-                                ? "This domain is well-established. Search engines generally trust older domains more, which can positively impact search rankings."
-                                : domainAge && domainAge.totalDays >= 365
-                                  ? "This domain has been around for a reasonable time. Continue building quality backlinks and content to establish more authority."
-                                  : "This is a relatively new domain. Focus on high-quality content, strong backlink profile, and consistent publishing to build trust over time.",
-                            icon: TrendingUp,
-                            status: domainAge && domainAge.totalDays >= 1825 ? "positive" : domainAge && domainAge.totalDays >= 365 ? "neutral" : "negative",
-                          },
-                          {
-                            id: "expiry-factor",
-                            title: "Domain Expiration & SEO",
-                            description:
-                              expiryDays && expiryDays > 365
-                                ? "Domain is registered well into the future. Long registration periods signal legitimacy to search engines."
-                                : expiryDays && expiryDays > 0
-                                  ? "Consider extending your domain registration. Domains registered for longer periods may receive a slight trust boost."
-                                  : "Domain expiration information is not available or the domain may be expired.",
-                            icon: CalendarClock,
-                            status: expiryDays && expiryDays > 365 ? "positive" : expiryDays && expiryDays > 0 ? "neutral" : "negative",
-                          },
-                          {
-                            id: "dnssec-factor",
-                            title: "DNSSEC & Security",
-                            description:
-                              result.dnssec?.toLowerCase().includes("signed")
-                                ? "DNSSEC is enabled, providing an additional layer of security. This signals trustworthiness to both users and search engines."
-                                : "DNSSEC is not enabled. While not a direct ranking factor, enabling DNSSEC improves security and trust.",
-                            icon: Shield,
-                            status: result.dnssec?.toLowerCase().includes("signed") ? "positive" : "neutral",
-                          },
-                          {
-                            id: "registrar-factor",
-                            title: "Registrar Reputation",
-                            description: result.registrar
-                              ? `Registered with ${result.registrar}. Using a reputable registrar is a positive trust signal.`
-                              : "Registrar information is not available.",
-                            icon: Building2,
-                            status: result.registrar ? "positive" : "neutral",
-                          },
-                        ].map((insight) => (
-                          <div
-                            key={insight.id}
-                            className={`p-4 rounded-xl border-2 ${insight.status === "positive"
+                        {/* ── Display Ad in SEO Tab ──────────────── */}
+                        <AdSpace slot="9239216915" size="leaderboard" className="w-full" />
+
+                        {/* SEO Insights */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {[
+                            {
+                              id: "age-factor",
+                              title: "Domain Age as Ranking Factor",
+                              description:
+                                domainAge && domainAge.totalDays >= 1825
+                                  ? "This domain is well-established. Search engines generally trust older domains more, which can positively impact search rankings."
+                                  : domainAge && domainAge.totalDays >= 365
+                                    ? "This domain has been around for a reasonable time. Continue building quality backlinks and content to establish more authority."
+                                    : "This is a relatively new domain. Focus on high-quality content, strong backlink profile, and consistent publishing to build trust over time.",
+                              icon: TrendingUp,
+                              status: domainAge && domainAge.totalDays >= 1825 ? "positive" : domainAge && domainAge.totalDays >= 365 ? "neutral" : "negative",
+                            },
+                            {
+                              id: "expiry-factor",
+                              title: "Domain Expiration & SEO",
+                              description:
+                                expiryDays && expiryDays > 365
+                                  ? "Domain is registered well into the future. Long registration periods signal legitimacy to search engines."
+                                  : expiryDays && expiryDays > 0
+                                    ? "Consider extending your domain registration. Domains registered for longer periods may receive a slight trust boost."
+                                    : "Domain expiration information is not available or the domain may be expired.",
+                              icon: CalendarClock,
+                              status: expiryDays && expiryDays > 365 ? "positive" : expiryDays && expiryDays > 0 ? "neutral" : "negative",
+                            },
+                            {
+                              id: "dnssec-factor",
+                              title: "DNSSEC & Security",
+                              description:
+                                result.dnssec?.toLowerCase().includes("signed")
+                                  ? "DNSSEC is enabled, providing an additional layer of security. This signals trustworthiness to both users and search engines."
+                                  : "DNSSEC is not enabled. While not a direct ranking factor, enabling DNSSEC improves security and trust.",
+                              icon: Shield,
+                              status: result.dnssec?.toLowerCase().includes("signed") ? "positive" : "neutral",
+                            },
+                            {
+                              id: "registrar-factor",
+                              title: "Registrar Reputation",
+                              description: result.registrar
+                                ? `Registered with ${result.registrar}. Using a reputable registrar is a positive trust signal.`
+                                : "Registrar information is not available.",
+                              icon: Building2,
+                              status: result.registrar ? "positive" : "neutral",
+                            },
+                          ].map((insight) => (
+                            <div
+                              key={insight.id}
+                              className={`p-4 rounded-xl border-2 ${insight.status === "positive"
                                 ? "border-green-200 bg-green-50/30 dark:border-green-900/50 dark:bg-green-950/20"
                                 : insight.status === "negative"
                                   ? "border-orange-200 bg-orange-50/30 dark:border-orange-900/50 dark:bg-orange-950/20"
                                   : "border-border bg-muted/20"
-                              }`}
-                          >
-                            <div className="flex items-center gap-2 mb-2">
-                              <insight.icon className={`w-5 h-5 ${insight.status === "positive"
+                                }`}
+                            >
+                              <div className="flex items-center gap-2 mb-2">
+                                <insight.icon className={`w-5 h-5 ${insight.status === "positive"
                                   ? "text-green-600"
                                   : insight.status === "negative"
                                     ? "text-orange-600"
                                     : "text-muted-foreground"
-                                }`} />
-                              <h4 className="font-semibold text-sm">{insight.title}</h4>
+                                  }`} />
+                                <h4 className="font-semibold text-sm">{insight.title}</h4>
+                              </div>
+                              <p className="text-xs text-muted-foreground leading-relaxed">
+                                {insight.description}
+                              </p>
                             </div>
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                              {insight.description}
-                            </p>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </TabsContent>
+                    </TabsContent>
 
-                  {/* Raw Data Tab */}
-                  <TabsContent value="raw" className="p-6 mt-0">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-muted-foreground">Complete WHOIS data</p>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 text-xs"
-                          onClick={() => {
-                            const rawData = result.rawText || JSON.stringify(result, null, 2);
-                            navigator.clipboard.writeText(rawData);
-                            toast.success("Raw data copied!");
-                          }}
-                        >
-                          <Copy className="w-3 h-3 mr-1" /> Copy All
-                        </Button>
-                      </div>
-                      {result.rawText ? (
-                        <pre className="bg-muted/50 border rounded-xl p-4 overflow-x-auto text-xs font-mono leading-relaxed max-h-96 whitespace-pre-wrap">
-                          {result.rawText}
-                        </pre>
-                      ) : (
-                        <>
-                          <pre className="bg-muted/50 border rounded-xl p-4 overflow-x-auto text-xs font-mono leading-relaxed max-h-96">
-                            {JSON.stringify(result, null, 2)}
+                    {/* Raw Data Tab */}
+                    <TabsContent value="raw" className="p-6 mt-0">
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-muted-foreground">Complete WHOIS data</p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() => {
+                              const rawData = result.rawText || JSON.stringify(result, null, 2);
+                              navigator.clipboard.writeText(rawData);
+                              toast.success("Raw data copied!");
+                            }}
+                          >
+                            <Copy className="w-3 h-3 mr-1" /> Copy All
+                          </Button>
+                        </div>
+                        {result.rawText ? (
+                          <pre className="bg-muted/50 border rounded-xl p-4 overflow-x-auto text-xs font-mono leading-relaxed max-h-96 whitespace-pre-wrap">
+                            {result.rawText}
                           </pre>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {Object.entries(result)
-                              .filter(([key]) => key !== "rawText")
-                              .map(([key, value]) => (
-                                <div
-                                  key={key}
-                                  className="flex items-center justify-between p-2.5 bg-muted/30 rounded-lg border text-sm"
-                                >
-                                  <span className="font-mono text-xs text-muted-foreground">{key}</span>
-                                  <span className="font-mono text-xs font-medium truncate ml-4 max-w-[60%] text-right">
-                                    {Array.isArray(value) ? value.join(", ") : String(value)}
-                                  </span>
-                                </div>
-                              ))}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
+                        ) : (
+                          <>
+                            <pre className="bg-muted/50 border rounded-xl p-4 overflow-x-auto text-xs font-mono leading-relaxed max-h-96">
+                              {JSON.stringify(result, null, 2)}
+                            </pre>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {Object.entries(result)
+                                .filter(([key]) => key !== "rawText")
+                                .map(([key, value]) => (
+                                  <div
+                                    key={key}
+                                    className="flex items-center justify-between p-2.5 bg-muted/30 rounded-lg border text-sm"
+                                  >
+                                    <span className="font-mono text-xs text-muted-foreground">{key}</span>
+                                    <span className="font-mono text-xs font-medium truncate ml-4 max-w-[60%] text-right">
+                                      {Array.isArray(value) ? value.join(", ") : String(value)}
+                                    </span>
+                                  </div>
+                                ))}
+                            </div>
+                          </>
+                        )}
 
-            {/* External WHOIS Links */}
+                        {/* ── Display Ad at bottom of Raw Tab ────── */}
+                        <div className="mt-4">
+                          <AdSpace slot="8923135106" size="leaderboard" className="w-full" />
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
+
+              {/* ── Multiplex Ad after Tabs ─────────────────────── */}
+              <AdRow slot="2127993591" className="w-full" />
+
+              {/* External WHOIS Links */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <ExternalLink className="w-4 h-4" />
+                    Verify with External WHOIS Tools
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {[
+                      { name: "WHOIS.com", url: `https://www.whois.com/whois/${result.domainName}` },
+                      { name: "ICANN WHOIS", url: `https://lookup.icann.org/en/lookup?name=${result.domainName}` },
+                      { name: "DomainTools", url: `https://whois.domaintools.com/${result.domainName}` },
+                    ].map((tool) => (
+                      <a
+                        key={tool.name}
+                        href={tool.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors text-sm"
+                      >
+                        <span className="font-medium">{tool.name}</span>
+                        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                      </a>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* ── Display Ad after External Links ──────────── */}
+              <AdSpace slot="4202125614" size="leaderboard" className="w-full" />
+            </>
+          )}
+
+          {/* ── Multiplex Ad before SEO Content ─────────────── */}
+          <AdRow slot="4356563508" className="w-full" />
+
+          {/* ── SEO Content ─────────────────────────────────────── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <ExternalLink className="w-4 h-4" />
-                  Verify with External WHOIS Tools
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Info className="w-5 h-5 text-primary" />
+                  What is Domain Age?
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {[
-                    { name: "WHOIS.com", url: `https://www.whois.com/whois/${result.domainName}` },
-                    { name: "ICANN WHOIS", url: `https://lookup.icann.org/en/lookup?name=${result.domainName}` },
-                    { name: "DomainTools", url: `https://whois.domaintools.com/${result.domainName}` },
-                  ].map((tool) => (
-                    <a
-                      key={tool.name}
-                      href={tool.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors text-sm"
-                    >
-                      <span className="font-medium">{tool.name}</span>
-                      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
-                    </a>
-                  ))}
-                </div>
+              <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+                <p>
+                  <strong>Domain age</strong> refers to the length of time a domain name has been registered
+                  and active on the internet. It is calculated from the <em>domain registration date</em>{" "}
+                  (also called the creation date) found in the WHOIS database.
+                </p>
+                <p>
+                  Domain age is considered an important factor in <strong>search engine optimization (SEO)</strong>.
+                  Older domains tend to have more backlinks, established authority, and higher trust scores
+                  with search engines like Google and Bing.
+                </p>
+                <p>
+                  Our free domain age checker performs a real-time <strong>WHOIS lookup</strong> to retrieve
+                  the exact registration date, expiration date, registrar information, name servers, and
+                  domain status codes—all without leaving the page.
+                </p>
               </CardContent>
             </Card>
-          </>
-        )}
 
-        {/* ── SEO Content ─────────────────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                  Why Domain Age Matters for SEO
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">
+                <ul className="space-y-2.5">
+                  {[
+                    {
+                      icon: Award,
+                      id: "trust",
+                      text: "Older domains are generally seen as more trustworthy by search engines",
+                    },
+                    {
+                      icon: TrendingUp,
+                      id: "ranking",
+                      text: "Established domains often rank better for competitive keywords",
+                    },
+                    {
+                      icon: Shield,
+                      id: "spam",
+                      text: "New domains undergo a 'sandbox' period where rankings may be suppressed",
+                    },
+                    {
+                      icon: Clock,
+                      id: "history",
+                      text: "Domain history and age contribute to overall domain authority scores",
+                    },
+                    {
+                      icon: Calendar,
+                      id: "expiry",
+                      text: "Longer registration periods signal commitment and legitimacy",
+                    },
+                    {
+                      icon: Globe,
+                      id: "backlinks",
+                      text: "Older domains have more time to accumulate quality backlinks",
+                    },
+                  ].map(({ icon: Icon, id, text }) => (
+                    <li key={id} className="flex items-start gap-2.5">
+                      <Icon className="w-4 h-4 mt-0.5 text-primary shrink-0" />
+                      <span>{text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* ── In-Feed Ad between SEO content and FAQ ──────── */}
+          <InFeedAd slot="4739066253" layout="desktop" className="w-full" />
+
+          {/* FAQ Section */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Info className="w-5 h-5 text-primary" />
-                What is Domain Age?
-              </CardTitle>
+              <CardTitle className="text-lg">Frequently Asked Questions</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground leading-relaxed">
-              <p>
-                <strong>Domain age</strong> refers to the length of time a domain name has been registered
-                and active on the internet. It is calculated from the <em>domain registration date</em>{" "}
-                (also called the creation date) found in the WHOIS database.
-              </p>
-              <p>
-                Domain age is considered an important factor in <strong>search engine optimization (SEO)</strong>.
-                Older domains tend to have more backlinks, established authority, and higher trust scores
-                with search engines like Google and Bing.
-              </p>
-              <p>
-                Our free domain age checker performs a real-time <strong>WHOIS lookup</strong> to retrieve
-                the exact registration date, expiration date, registrar information, name servers, and
-                domain status codes—all without leaving the page.
-              </p>
+            <CardContent className="space-y-4 text-sm">
+              {[
+                {
+                  id: "how-check",
+                  q: "How do I check the age of a domain?",
+                  a: "Enter any domain name in the search box above and click 'Check Domain Age'. Our tool performs a real-time WHOIS lookup to find the exact registration date and calculates the domain's age automatically.",
+                },
+                {
+                  id: "what-whois",
+                  q: "What is WHOIS data?",
+                  a: "WHOIS is a public database that stores registration information about domain names. It includes the registration date, expiration date, registrar, name servers, and sometimes registrant contact details.",
+                },
+                {
+                  id: "seo-impact",
+                  q: "Does domain age directly affect SEO rankings?",
+                  a: "While Google has stated that domain age is not a direct ranking factor, older domains tend to have more backlinks, content, and established authority—all of which positively influence rankings. It's more of a correlation than a direct cause.",
+                },
+                {
+                  id: "expired",
+                  q: "Can I buy an expired domain for SEO benefits?",
+                  a: "Buying an expired domain can provide SEO benefits if the domain has a clean history, quality backlinks, and relevant content history. However, domains with spammy history can actually harm your SEO.",
+                },
+                {
+                  id: "accuracy",
+                  q: "How accurate is the domain age data?",
+                  a: "Our tool uses real-time WHOIS/RDAP lookups from official registry databases, providing the most accurate registration dates available. Some registries may have different date formats or redacted information due to privacy regulations.",
+                },
+              ].map(({ id, q, a }, index) => (
+                <>
+                  <div key={id} className="p-4 bg-muted/30 rounded-lg border">
+                    <h3 className="font-semibold text-foreground mb-1.5">{q}</h3>
+                    <p className="text-muted-foreground leading-relaxed">{a}</p>
+                  </div>
+                  {/* Ad after 3rd FAQ item */}
+                  {index === 2 && (
+                    <div key="faq-ad" className="py-2">
+                      <AdSpace slot="2889043946" size="leaderboard" className="w-full" />
+                    </div>
+                  )}
+                </>
+              ))}
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-primary" />
-                Why Domain Age Matters for SEO
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              <ul className="space-y-2.5">
-                {[
-                  {
-                    icon: Award,
-                    id: "trust",
-                    text: "Older domains are generally seen as more trustworthy by search engines",
-                  },
-                  {
-                    icon: TrendingUp,
-                    id: "ranking",
-                    text: "Established domains often rank better for competitive keywords",
-                  },
-                  {
-                    icon: Shield,
-                    id: "spam",
-                    text: "New domains undergo a 'sandbox' period where rankings may be suppressed",
-                  },
-                  {
-                    icon: Clock,
-                    id: "history",
-                    text: "Domain history and age contribute to overall domain authority scores",
-                  },
-                  {
-                    icon: Calendar,
-                    id: "expiry",
-                    text: "Longer registration periods signal commitment and legitimacy",
-                  },
-                  {
-                    icon: Globe,
-                    id: "backlinks",
-                    text: "Older domains have more time to accumulate quality backlinks",
-                  },
-                ].map(({ icon: Icon, id, text }) => (
-                  <li key={id} className="flex items-start gap-2.5">
-                    <Icon className="w-4 h-4 mt-0.5 text-primary shrink-0" />
-                    <span>{text}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+          {/* ── Multiplex Ad after FAQ ──────────────────────── */}
+          <AdRow slot="7202218695" className="w-full" />
+
+          {/* Privacy Note */}
+          <Alert className="border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/30">
+            <Shield className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-800 dark:text-blue-300 text-sm">
+              <strong>Privacy & Accuracy:</strong> This tool performs real-time WHOIS/RDAP lookups using public
+              registry databases. No search data is stored on our servers. Lookup history is saved locally in
+              your browser only. Some domains may have limited WHOIS data due to privacy protection services.
+            </AlertDescription>
+          </Alert>
+
+          {/* ── Bottom Leaderboard Ad ──────────────────────── */}
+          <AdSpace slot="1575962277" size="banner" className="w-full" />
         </div>
 
-        {/* FAQ Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Frequently Asked Questions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            {[
-              {
-                id: "how-check",
-                q: "How do I check the age of a domain?",
-                a: "Enter any domain name in the search box above and click 'Check Domain Age'. Our tool performs a real-time WHOIS lookup to find the exact registration date and calculates the domain's age automatically.",
-              },
-              {
-                id: "what-whois",
-                q: "What is WHOIS data?",
-                a: "WHOIS is a public database that stores registration information about domain names. It includes the registration date, expiration date, registrar, name servers, and sometimes registrant contact details.",
-              },
-              {
-                id: "seo-impact",
-                q: "Does domain age directly affect SEO rankings?",
-                a: "While Google has stated that domain age is not a direct ranking factor, older domains tend to have more backlinks, content, and established authority—all of which positively influence rankings. It's more of a correlation than a direct cause.",
-              },
-              {
-                id: "expired",
-                q: "Can I buy an expired domain for SEO benefits?",
-                a: "Buying an expired domain can provide SEO benefits if the domain has a clean history, quality backlinks, and relevant content history. However, domains with spammy history can actually harm your SEO.",
-              },
-              {
-                id: "accuracy",
-                q: "How accurate is the domain age data?",
-                a: "Our tool uses real-time WHOIS/RDAP lookups from official registry databases, providing the most accurate registration dates available. Some registries may have different date formats or redacted information due to privacy regulations.",
-              },
-            ].map(({ id, q, a }) => (
-              <div key={id} className="p-4 bg-muted/30 rounded-lg border">
-                <h3 className="font-semibold text-foreground mb-1.5">{q}</h3>
-                <p className="text-muted-foreground leading-relaxed">{a}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+        {/* ── Sidebar Column (Desktop only) ────────────────── */}
+        <aside className="hidden lg:block w-[300px] shrink-0 space-y-6">
+          {/* Sticky Sidebar Ad 1 */}
+          <div className="sticky top-4 space-y-6">
+            <AdSpace slot="5628599414" size="sidebar" />
 
-        {/* Privacy Note */}
-        <Alert className="border-blue-200 bg-blue-50/50 dark:border-blue-900 dark:bg-blue-950/30">
-          <Shield className="h-4 w-4 text-blue-600" />
-          <AlertDescription className="text-blue-800 dark:text-blue-300 text-sm">
-            <strong>Privacy & Accuracy:</strong> This tool performs real-time WHOIS/RDAP lookups using public
-            registry databases. No search data is stored on our servers. Lookup history is saved locally in
-            your browser only. Some domains may have limited WHOIS data due to privacy protection services.
-          </AlertDescription>
-        </Alert>
+            {/* Sidebar Ad 2 */}
+            <AdSpace slot="1212397554" size="skyscraper" />
+
+            {/* Sidebar 300x300 */}
+            <AdSpace slot="4153181237" size="square-300" />
+
+            {/* Sidebar 300x250 */}
+            <AdSpace slot="7713152297" size="medium-rect" />
+
+            {/* Sidebar Alt 300x600 */}
+            <LazyAdSpace slot="7110517063" format="vertical" />
+          </div>
+        </aside>
       </div>
     </ToolLayout>
   );

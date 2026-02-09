@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { SEOHead } from "@/components/SEOHead";
 import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay";
@@ -23,7 +24,7 @@ const PDFMerger = () => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     const pdfFiles = selectedFiles.filter((file) => file.type === "application/pdf");
-    
+
     if (pdfFiles.length !== selectedFiles.length) {
       toast({
         title: "Warning",
@@ -31,7 +32,7 @@ const PDFMerger = () => {
         variant: "destructive",
       });
     }
-    
+
     setFiles((prev) => [...prev, ...pdfFiles]);
   };
 
@@ -57,10 +58,10 @@ const PDFMerger = () => {
       setTimeout(() => setShowSkip(true), 3000);
 
       const mergedPdf = await PDFDocument.create();
-      
+
       for (let i = 0; i < files.length; i++) {
         setProgress(Math.round(((i + 1) / files.length) * 80));
-        
+
         const arrayBuffer = await files[i].arrayBuffer();
         const pdf = await PDFDocument.load(arrayBuffer);
         const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
@@ -96,7 +97,7 @@ const PDFMerger = () => {
   const downloadPDF = (pdfBytes: Uint8Array) => {
     const blob = new Blob([pdfBytes as unknown as Blob], { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
-    
+
     const link = document.createElement("a");
     link.href = url;
     link.download = "merged-document.pdf";
@@ -111,6 +112,12 @@ const PDFMerger = () => {
 
   return (
     <>
+      <SEOHead
+        title="Free Online PDF Merger - Combine Multiple PDFs Fast"
+        description="Best free online PDF merger tool. Combine multiple PDF documents into a single file easily and securely. 100% free and easy to use."
+        keywords="pdf merger, combine pdf, merge pdf files, online pdf tool, free pdf merger"
+        canonical="https://toolmaster.cloud/tools/pdf-merger"
+      />
       <Header />
       <ToolLayout
         title="PDF Merger"
@@ -124,11 +131,11 @@ const PDFMerger = () => {
         ]}
         relatedTools={[
           { name: "PDF Splitter", path: "/tools/pdf-splitter" },
-         { name: "PDF Compressor", path: "/tools/pdf-compressor" },
+          { name: "PDF Compressor", path: "/tools/pdf-compressor" },
         ]}
       >
         <AdRow className="mb-6" />
-        
+
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
             <input
@@ -139,7 +146,7 @@ const PDFMerger = () => {
               onChange={handleFileSelect}
               className="hidden"
             />
-            
+
             <div
               onClick={() => fileInputRef.current?.click()}
               className="border-2 border-dashed rounded-lg p-12 text-center cursor-pointer hover:border-primary transition-smooth"
@@ -190,7 +197,7 @@ const PDFMerger = () => {
               <Upload className="h-4 w-4 mr-2" />
               Add More Files
             </Button>
-            
+
             {files.length >= 2 && (
               <Button
                 onClick={mergePDFs}
