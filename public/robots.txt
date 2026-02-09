@@ -1,24 +1,48 @@
-# ToolMaster Pro - Optimized for Search Engine Crawling
-# All tools are free and public - allow full access to all search engines
+# ToolMaster.cloud - Robots.txt
+# Last Updated: 2025-07-14
 
-# Google Bot Configuration
+# ─── Google (Primary Priority) ────────────────────────
 User-agent: Googlebot
 Allow: /
-Allow: /tools/
-Allow: /category/
-Allow: /blog/
-Allow: /ads.txt
-Crawl-delay: 0.2
+Crawl-delay: 0
 
-# Bing Bot Configuration
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-Video
+Allow: /
+
+User-agent: Google-InspectionTool
+Allow: /
+
+User-agent: Storebot-Google
+Allow: /
+
+# ─── Bing ─────────────────────────────────────────────
 User-agent: Bingbot
 Allow: /
-Allow: /tools/
-Allow: /category/
-Allow: /blog/
-Crawl-delay: 0.3
+Crawl-delay: 1
 
-# Social Media Bots (for previews and sharing)
+User-agent: MSNBot
+Allow: /
+
+# ─── Other Search Engines ─────────────────────────────
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 2
+
+# ─── Social Media Bots (Link Previews) ────────────────
 User-agent: Twitterbot
 Allow: /
 
@@ -31,30 +55,110 @@ Allow: /
 User-agent: Pinterestbot
 Allow: /
 
-# Other Major Search Engines
-User-agent: Slurp
-Allow: /
-Crawl-delay: 0.5
-
-User-agent: DuckDuckBot
+User-agent: Slackbot
 Allow: /
 
-User-agent: Baiduspider
+User-agent: WhatsApp
 Allow: /
 
-# Allow all other bots
+User-agent: TelegramBot
+Allow: /
+
+User-agent: Discordbot
+Allow: /
+
+# ─── SEO & Analytics Bots ─────────────────────────────
+User-agent: AhrefsBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: SemrushBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: MJ12bot
+Allow: /
+Crawl-delay: 3
+
+User-agent: DotBot
+Allow: /
+Crawl-delay: 3
+
+# ─── AI Crawlers (Block to protect content) ───────────
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+# ─── Bad Bots (Block scrapers & spam) ─────────────────
+User-agent: MJ12bot
+Crawl-delay: 10
+
+User-agent: AhrefsBot
+Crawl-delay: 5
+
+User-agent: SemrushBot
+Crawl-delay: 5
+
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: magpie-crawler
+Disallow: /
+
+User-agent: Sogou
+Disallow: /
+
+# ─── Default Rule (All Other Bots) ────────────────────
 User-agent: *
 Allow: /
 Allow: /tools/
 Allow: /category/
 Allow: /blog/
-Allow: /assets/
-Allow: /~api/
+Allow: /about
+Allow: /contact
 Disallow: /auth/
 Disallow: /admin/
+Disallow: /api/
 Disallow: /.git/
+Disallow: /.env
+Disallow: /node_modules/
+Disallow: /src/
+Disallow: /build/
+Disallow: /dist/
+Disallow: /*.json$
+Disallow: /404
+Disallow: /500
+Disallow: /*?sessionid=
+Disallow: /*?utm_*
+Disallow: /*?ref=
+Disallow: /*?sort=
+Disallow: /*?filter=
+Crawl-delay: 1
 
-# Sitemap location
+# ─── Sitemaps ─────────────────────────────────────────
 Sitemap: https://toolmaster.cloud/sitemap.xml
 
 # Host declaration
