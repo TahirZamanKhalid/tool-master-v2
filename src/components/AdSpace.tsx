@@ -46,7 +46,6 @@ const AD_SLOTS = {
   "blog-ad": "8907016752",
 };
 
-// Size configurations
 const SIZE_CONFIG: Record<string, { width: string; height: string; minWidth: string; minHeight: string }> = {
   leaderboard: { width: "100%", height: "auto", minWidth: "320px", minHeight: "100px" },
   banner: { width: "100%", height: "auto", minWidth: "320px", minHeight: "60px" },
@@ -62,21 +61,23 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [adFailed, setAdFailed] = useState(false);
-  const [adLoaded, setAdLoaded] = useState(false);
+  const [adPushed, setAdPushed] = useState(false);
 
   useEffect(() => {
-    let observer: ResizeObserver | null = null;
-    let timer: ReturnType<typeof setTimeout>;
+    if (adPushed) return;
 
-    const pushAd = () => {
+    let observer: ResizeObserver | null = null;
+    let retryTimer: ReturnType<typeof setTimeout>;
+
+    const pushAd = (): boolean => {
       try {
         if (adRef.current && containerRef.current) {
-          const containerWidth = containerRef.current.offsetWidth;
+          const rect = containerRef.current.getBoundingClientRect();
+          console.log(`[AdSpace] slot=${slot || size}, width=${rect.width}, height=${rect.height}`);
 
-          // Only push ad if container has actual width
-          if (containerWidth > 0) {
+          if (rect.width > 0) {
             (window.adsbygoogle = window.adsbygoogle || []).push({});
-            setAdLoaded(true);
+            setAdPushed(true);
             return true;
           }
         }
@@ -84,19 +85,19 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
       } catch (error) {
         console.error("AdSense error:", error);
         setAdFailed(true);
-        return true; // Stop retrying on error
+        return true;
       }
     };
 
-    // Try pushing ad after a short delay
-    timer = setTimeout(() => {
+    const initialTimer = setTimeout(() => {
       if (!pushAd()) {
-        // If container has no width yet, observe for resize
+        // Observe for width changes
         observer = new ResizeObserver((entries) => {
           for (const entry of entries) {
-            if (entry.contentRect.width > 0) {
-              pushAd();
-              observer?.disconnect();
+            if (entry.contentRect.width > 0 && !adPushed) {
+              if (pushAd()) {
+                observer?.disconnect();
+              }
             }
           }
         });
@@ -105,30 +106,40 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
           observer.observe(containerRef.current);
         }
 
-        // Fallback: try again after 2 seconds
-        setTimeout(() => {
-          if (!adLoaded) {
-            pushAd();
-            observer?.disconnect();
+        // Final retry
+        retryTimer = setTimeout(() => {
+          if (!adPushed) {
+            if (!pushAd()) {
+              console.warn(`[AdSpace] Still 0 width after 3s: slot=${slot || size}`);
+              setAdFailed(true);
+            }
           }
-        }, 2000);
+          observer?.disconnect();
+        }, 3000);
       }
-    }, 200);
+    }, 300);
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(initialTimer);
+      clearTimeout(retryTimer);
       observer?.disconnect();
     };
-  }, []);
+  }, [slot, size, adPushed]);
 
   const config = SIZE_CONFIG[size] || SIZE_CONFIG.leaderboard;
   const adSlot = slot || AD_SLOTS[size as keyof typeof AD_SLOTS] || AD_SLOTS.leaderboard;
 
+  // For sidebar sizes, use fixed width; for others, use 100%
+  const isSidebarSize = ["skyscraper", "sidebar", "sidebar-alt", "square-300", "medium-rect"].includes(size);
+  const containerWidth = isSidebarSize ? config.width : "100%";
+
   return (
     <div
       ref={containerRef}
-      className={`ad-container w-full ${className || ""}`}
+      className={`ad-container ${className || ""}`}
       style={{
+        display: "block",
+        width: containerWidth,
         minWidth: config.minWidth,
         minHeight: config.minHeight,
         overflow: "hidden",
@@ -148,15 +159,15 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
           className="adsbygoogle"
           style={{
             display: "block",
-            width: config.width,
-            height: config.height,
+            width: isSidebarSize ? config.width : "100%",
+            height: isSidebarSize ? config.height : "auto",
             minWidth: config.minWidth,
             minHeight: config.minHeight,
           }}
           data-ad-client="ca-pub-7382531001943020"
           data-ad-slot={adSlot}
-          data-ad-format="auto"
-          data-full-width-responsive="true"
+          data-ad-format={isSidebarSize ? "vertical" : "auto"}
+          data-full-width-responsive={isSidebarSize ? "false" : "true"}
         />
       )}
     </div>

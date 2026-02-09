@@ -1444,22 +1444,35 @@ const DomainAgeChecker = () => {
         </div>
 
         {/* ── Sidebar Column (Desktop only) ────────────────── */}
-        <aside className="hidden lg:block w-[300px] shrink-0 space-y-6">
-          {/* Sticky Sidebar Ad 1 */}
-          <div className="sticky top-4 space-y-6">
-            <AdSpace slot="5628599414" size="sidebar" />
+        {/* ── Sidebar Column (Desktop only) ────────────────── */}
+        <aside className="hidden lg:block w-[300px] shrink-0">
+          <div className="space-y-6">
+            {/* First sidebar ad - sticky */}
+            <div className="sticky top-4">
+              <div style={{ width: "300px", minHeight: "600px" }}>
+                <AdSpace slot="5628599414" size="sidebar" />
+              </div>
+            </div>
 
-            {/* Sidebar Ad 2 */}
-            <AdSpace slot="1212397554" size="skyscraper" />
+            {/* Second sidebar ad - NOT sticky, flows naturally */}
+            <div style={{ width: "300px", minHeight: "600px" }}>
+              <AdSpace slot="1212397554" size="skyscraper" />
+            </div>
 
-            {/* Sidebar 300x300 */}
-            <AdSpace slot="4153181237" size="square-300" />
+            {/* Third sidebar ad */}
+            <div style={{ width: "300px", minHeight: "300px" }}>
+              <AdSpace slot="4153181237" size="square-300" />
+            </div>
 
-            {/* Sidebar 300x250 */}
-            <AdSpace slot="7713152297" size="medium-rect" />
+            {/* Fourth sidebar ad */}
+            <div style={{ width: "300px", minHeight: "250px" }}>
+              <AdSpace slot="7713152297" size="medium-rect" />
+            </div>
 
-            {/* Sidebar Alt 300x600 */}
-            <LazyAdSpace slot="7110517063" format="vertical" />
+            {/* Fifth sidebar ad - lazy loaded */}
+            <div style={{ width: "300px", minHeight: "600px" }}>
+              <LazyAdSpace slot="7110517063" format="vertical" />
+            </div>
           </div>
         </aside>
       </div>

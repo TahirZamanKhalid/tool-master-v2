@@ -27,20 +27,23 @@ export const AdRow = ({ className, style, slot }: AdRowProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [adFailed, setAdFailed] = useState(false);
-  const [adLoaded, setAdLoaded] = useState(false);
+  const [adPushed, setAdPushed] = useState(false);
 
   useEffect(() => {
-    let observer: ResizeObserver | null = null;
-    let timer: ReturnType<typeof setTimeout>;
+    if (adPushed) return;
 
-    const pushAd = () => {
+    let observer: ResizeObserver | null = null;
+    let retryTimer: ReturnType<typeof setTimeout>;
+
+    const pushAd = (): boolean => {
       try {
         if (adRef.current && containerRef.current) {
-          const containerWidth = containerRef.current.offsetWidth;
+          const containerWidth = containerRef.current.getBoundingClientRect().width;
+          console.log(`[AdRow] Container width for slot ${slot}: ${containerWidth}px`);
 
           if (containerWidth > 0) {
             (window.adsbygoogle = window.adsbygoogle || []).push({});
-            setAdLoaded(true);
+            setAdPushed(true);
             return true;
           }
         }
@@ -52,13 +55,16 @@ export const AdRow = ({ className, style, slot }: AdRowProps) => {
       }
     };
 
-    timer = setTimeout(() => {
+    // Initial attempt after DOM paint
+    const initialTimer = setTimeout(() => {
       if (!pushAd()) {
+        // Watch for container to get width
         observer = new ResizeObserver((entries) => {
           for (const entry of entries) {
             if (entry.contentRect.width > 0) {
-              pushAd();
-              observer?.disconnect();
+              if (pushAd()) {
+                observer?.disconnect();
+              }
             }
           }
         });
@@ -67,36 +73,45 @@ export const AdRow = ({ className, style, slot }: AdRowProps) => {
           observer.observe(containerRef.current);
         }
 
-        setTimeout(() => {
-          if (!adLoaded) {
-            pushAd();
-            observer?.disconnect();
+        // Final fallback after 3 seconds
+        retryTimer = setTimeout(() => {
+          if (!adPushed) {
+            if (!pushAd()) {
+              console.warn(`[AdRow] Container still has 0 width after 3s for slot ${slot}`);
+              setAdFailed(true);
+            }
           }
-        }, 2000);
+          observer?.disconnect();
+        }, 3000);
       }
-    }, 200);
+    }, 300);
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(initialTimer);
+      clearTimeout(retryTimer);
       observer?.disconnect();
     };
-  }, []);
+  }, [slot, adPushed]);
 
   const adSlot = slot || MULTIPLEX_SLOTS["multiplex-1"];
 
   return (
     <div
       ref={containerRef}
-      className={`ad-row-container w-full ${className || ""}`}
+      className={`ad-row-container ${className || ""}`}
       style={{
+        display: "block",
+        width: "100%",
         minWidth: "300px",
-        minHeight: "250px",
+        minHeight: "280px",
         overflow: "hidden",
         ...style,
       }}
     >
       {adFailed ? (
-        <div className="flex items-center justify-center bg-muted/20 rounded-lg border border-dashed border-border/40 text-muted-foreground text-xs w-full min-h-[250px]">
+        <div className="flex items-center justify-center bg-muted/20 rounded-lg border border-dashed border-border/40 text-muted-foreground text-xs w-full"
+          style={{ minHeight: "280px" }}
+        >
           Advertisement
         </div>
       ) : (
@@ -107,7 +122,7 @@ export const AdRow = ({ className, style, slot }: AdRowProps) => {
             display: "block",
             width: "100%",
             minWidth: "300px",
-            minHeight: "250px",
+            minHeight: "280px",
           }}
           data-ad-format="autorelaxed"
           data-ad-client="ca-pub-7382531001943020"
