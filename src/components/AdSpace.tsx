@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, memo } from "react";
-import type { CSSProperties, ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 
 declare global {
   interface Window {
@@ -8,10 +8,6 @@ declare global {
 }
 
 export interface AdSpaceProps {
-  type?: string;
-  slot?: string;
-  position?: string;
-  layoutKey?: string;
   size?:
   | "leaderboard"
   | "banner"
@@ -21,11 +17,10 @@ export interface AdSpaceProps {
   | "square-300"
   | "medium-rect"
   | "custom";
+  slot?: string;
   className?: string;
   style?: CSSProperties;
-  children?: ReactNode;
-  lazy?: boolean; // Enable lazy loading
-  [key: string]: any;
+  lazy?: boolean;
 }
 
 const AD_SLOTS = {
@@ -36,15 +31,6 @@ const AD_SLOTS = {
   "sidebar-alt": "7110517063",
   "square-300": "4153181237",
   "medium-rect": "7713152297",
-  "video-1": "8364314011",
-  "video-2": "5105501959",
-  "display-2": "2918331088",
-  "display-3": "4402803148",
-  "display-6": "9239216915",
-  "display-7": "8923135106",
-  "display-8": "4202125614",
-  "display-9": "2889043946",
-  "blog-ad": "8907016752",
 };
 
 const SIZE_CONFIG: Record<
@@ -62,120 +48,85 @@ const SIZE_CONFIG: Record<
 };
 
 export const AdSpace = ({
-  className,
-  style,
   size = "leaderboard",
   slot,
-  lazy = true, // Default to lazy loading
+  className,
+  style,
+  lazy = true,
 }: AdSpaceProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [adFailed, setAdFailed] = useState(false);
-  const [isVisible, setIsVisible] = useState(!lazy); // Immediately visible if not lazy
-  const isPushedRef = useRef(false); // ✅ Use ref instead of state to prevent race conditions
+  const [isVisible, setIsVisible] = useState(!lazy);
+  const isPushedRef = useRef(false);
 
-  // Get config and slot early for use in effects
   const config = SIZE_CONFIG[size] || SIZE_CONFIG.leaderboard;
   const adSlot = slot || AD_SLOTS[size as keyof typeof AD_SLOTS] || AD_SLOTS.leaderboard;
   const isSidebarSize = ["skyscraper", "sidebar", "sidebar-alt", "square-300", "medium-rect"].includes(size);
 
-  // ✅ Lazy loading with Intersection Observer
+  // Lazy loading
   useEffect(() => {
-    if (!lazy || isVisible) return;
+    if (!lazy) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          console.log(`[AdSpace] Ad slot ${adSlot} (${size}) became visible`);
+          console.log(`[AdSpace] Slot ${adSlot} (${size}) visible`);
           setIsVisible(true);
           observer.disconnect();
         }
       },
-      {
-        rootMargin: "200px", // Load 200px before visible
-        threshold: 0.01,
-      }
+      { rootMargin: "200px", threshold: 0.01 }
     );
 
     if (containerRef.current) {
       observer.observe(containerRef.current);
     }
 
-    return () => {
-      observer.disconnect();
-    };
-  }, [lazy, isVisible, adSlot, size]);
+    return () => observer.disconnect();
+  }, [lazy, adSlot, size]);
 
-  // ✅ Push ad when visible and container has width
+  // Push ad
   useEffect(() => {
-    // Don't proceed if not visible or already pushed
     if (!isVisible || isPushedRef.current) return;
 
-    let pushAttemptTimer: ReturnType<typeof setTimeout>;
-    let retryTimer: ReturnType<typeof setTimeout>;
-
-    const pushAd = (): boolean => {
-      // Double-check to prevent duplicate pushes
-      if (isPushedRef.current) {
-        console.warn(`[AdSpace] Ad already pushed for slot ${adSlot}`);
-        return true;
-      }
+    const pushAd = () => {
+      if (isPushedRef.current) return;
 
       try {
-        if (!adRef.current || !containerRef.current) {
-          console.log(`[AdSpace] Refs not ready for slot ${adSlot}`);
-          return false;
+        if (!adRef.current || !containerRef.current) return;
+
+        const width = containerRef.current.getBoundingClientRect().width;
+        console.log(`[AdSpace] Pushing ad - Slot: ${adSlot} (${size}), Width: ${width}px`);
+
+        if (width < 10) {
+          console.warn(`[AdSpace] Container too narrow: ${width}px`);
+          setTimeout(pushAd, 500);
+          return;
         }
 
-        const rect = containerRef.current.getBoundingClientRect();
-        console.log(`[AdSpace] Attempting push for slot ${adSlot} (${size}), width: ${rect.width}px`);
-
-        if (rect.width < 10) {
-          console.log(`[AdSpace] Container too narrow (${rect.width}px) for slot ${adSlot}`);
-          return false;
-        }
-
-        // ✅ Mark as pushed BEFORE the actual push to prevent race conditions
         isPushedRef.current = true;
-
-        // Push the ad
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log(`[AdSpace] ✅ Successfully pushed ad for slot ${adSlot} (${size})`);
+        console.log(`[AdSpace] ✅ Ad pushed for slot ${adSlot} (${size})`);
 
-        return true;
-      } catch (error) {
-        console.error(`[AdSpace] Error pushing ad for slot ${adSlot}:`, error);
-        setAdFailed(true);
-        isPushedRef.current = true; // ✅ Prevent retry on error
-        return false;
-      }
-    };
-
-    // Initial attempt after a short delay for DOM to settle
-    pushAttemptTimer = setTimeout(() => {
-      if (!pushAd()) {
-        // If first attempt failed due to width, retry once after delay
-        console.log(`[AdSpace] First attempt failed for slot ${adSlot}, scheduling retry...`);
-
-        retryTimer = setTimeout(() => {
-          if (!isPushedRef.current) {
-            if (!pushAd()) {
-              console.warn(`[AdSpace] Failed to load ad for slot ${adSlot} after retry`);
-              setAdFailed(true);
-            }
+        // Debug after 3 seconds
+        setTimeout(() => {
+          if (adRef.current) {
+            const hasIframe = adRef.current.querySelector('iframe') !== null;
+            const status = adRef.current.getAttribute('data-ad-status');
+            console.log(`[AdSpace] Ad status - Slot: ${adSlot}, HasIframe: ${hasIframe}, Status: ${status}`);
           }
-        }, 2000); // Retry after 2 seconds
-      }
-    }, 100); // Small initial delay
+        }, 3000);
 
-    // Cleanup timers
-    return () => {
-      clearTimeout(pushAttemptTimer);
-      clearTimeout(retryTimer);
+      } catch (error) {
+        console.error(`[AdSpace] Error:`, error);
+        isPushedRef.current = true;
+      }
     };
+
+    const timer = setTimeout(pushAd, 100);
+    return () => clearTimeout(timer);
   }, [isVisible, adSlot, size]);
 
-  // Container width calculation
   const containerWidth = isSidebarSize ? config.width : "100%";
 
   return (
@@ -187,63 +138,28 @@ export const AdSpace = ({
         width: containerWidth,
         minWidth: config.minWidth,
         minHeight: config.minHeight,
-        overflow: "hidden",
+        margin: "0 auto",
         backgroundColor: "transparent",
         ...style,
       }}
-      data-ad-slot={adSlot} // For debugging
+      data-ad-slot={adSlot}
       data-ad-size={size}
     >
-      {adFailed ? (
-        // ✅ Error/fallback state
-        <div
-          className="flex items-center justify-center bg-muted/20 rounded-lg border border-dashed border-border/40 text-muted-foreground text-xs"
-          style={{
-            width: "100%",
-            minHeight: config.minHeight,
-            padding: "20px",
-          }}
-        >
-          <span>Advertisement space</span>
-        </div>
-      ) : isVisible ? (
-        // ✅ Ad is visible, render the ins element
-        <ins
-          ref={adRef}
-          className="adsbygoogle"
-          style={{
-            display: "block",
-            width: isSidebarSize ? config.width : "100%",
-            height: isSidebarSize ? config.height : "auto",
-            minWidth: config.minWidth,
-            minHeight: config.minHeight,
-          }}
-          data-ad-client="ca-pub-7382531001943020"
-          data-ad-slot={adSlot}
-          data-ad-format={isSidebarSize ? "vertical" : "auto"}
-          data-full-width-responsive={isSidebarSize ? "false" : "true"}
-        />
-      ) : (
-        // ✅ Loading placeholder (before lazy load triggers)
-        <div
-          className="flex items-center justify-center bg-muted/10 rounded-lg animate-pulse"
-          style={{
-            width: "100%",
-            minHeight: config.minHeight,
-          }}
-        >
-          <span className="text-muted-foreground text-xs">Loading ad...</span>
-        </div>
-      )}
+      <ins
+        ref={adRef}
+        className="adsbygoogle"
+        style={{
+          display: "block",
+          width: isSidebarSize ? config.width : "100%",
+          height: isSidebarSize ? config.height : "auto",
+          minWidth: config.minWidth,
+          minHeight: config.minHeight,
+        }}
+        data-ad-client="ca-pub-7382531001943020"
+        data-ad-slot={adSlot}
+        data-ad-format={isSidebarSize ? "vertical" : "auto"}
+        data-full-width-responsive={isSidebarSize ? "false" : "true"}
+      />
     </div>
   );
 };
-
-// ✅ Memoized version to prevent unnecessary re-renders
-export const MemoizedAdSpace = memo(AdSpace, (prevProps, nextProps) => {
-  return (
-    prevProps.slot === nextProps.slot &&
-    prevProps.size === nextProps.size &&
-    prevProps.lazy === nextProps.lazy
-  );
-});

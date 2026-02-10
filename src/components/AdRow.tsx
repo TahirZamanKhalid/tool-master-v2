@@ -12,8 +12,9 @@ export interface AdRowProps {
   className?: string;
   style?: CSSProperties;
   children?: ReactNode;
-  lazy?: boolean; // Optional: Enable lazy loading
-  format?: "auto" | "autorelaxed" | "fluid"; // Ad format type
+  lazy?: boolean;
+  format?: "auto" | "autorelaxed" | "fluid";
+  isMultiplex?: boolean; // Add this to identify multiplex ads
 }
 
 const MULTIPLEX_SLOTS = {
@@ -29,115 +30,86 @@ export const AdRow = ({
   className,
   style,
   slot,
-  lazy = true, // Enable lazy loading by default
-  format = "auto" // Use 'auto' instead of 'autorelaxed' to reduce data usage
+  lazy = true,
+  format = "auto",
+  isMultiplex = false, // Default to false
 }: AdRowProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [adFailed, setAdFailed] = useState(false);
-  const [isVisible, setIsVisible] = useState(!lazy); // If not lazy, immediately visible
+  const [isVisible, setIsVisible] = useState(!lazy);
   const isPushedRef = useRef(false);
-  const observerRef = useRef<IntersectionObserver | null>(null);
 
-  // Lazy loading with Intersection Observer
+  // Auto-detect if slot is multiplex
+  const slotId = slot || MULTIPLEX_SLOTS["multiplex-1"];
+  const isMultiplexAd = isMultiplex || Object.values(MULTIPLEX_SLOTS).includes(slotId);
+  const adFormat = isMultiplexAd ? "autorelaxed" : format;
+
+  // Lazy loading
   useEffect(() => {
     if (!lazy) return;
 
-    observerRef.current = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !isVisible) {
-          console.log(`[AdRow] Ad slot ${slot} became visible`);
+        if (entry.isIntersecting) {
+          console.log(`[AdRow] Slot ${slotId} visible`);
           setIsVisible(true);
-          observerRef.current?.disconnect();
+          observer.disconnect();
         }
       },
-      {
-        rootMargin: '200px', // Load 200px before visible
-        threshold: 0.01
-      }
+      { rootMargin: '200px', threshold: 0.01 }
     );
 
     if (containerRef.current) {
-      observerRef.current.observe(containerRef.current);
+      observer.observe(containerRef.current);
     }
 
-    return () => {
-      observerRef.current?.disconnect();
-    };
-  }, [lazy, slot, isVisible]);
+    return () => observer.disconnect();
+  }, [lazy, slotId]);
 
-  // Push ad when visible and container has width
+  // Push ad
   useEffect(() => {
-    // Don't proceed if not visible or already pushed
     if (!isVisible || isPushedRef.current) return;
 
-    let pushAttemptTimer: ReturnType<typeof setTimeout>;
-    let retryTimer: ReturnType<typeof setTimeout>;
-
-    const pushAd = (): boolean => {
-      // Double-check to prevent duplicate pushes
-      if (isPushedRef.current) {
-        console.warn(`[AdRow] Ad already pushed for slot ${slot}`);
-        return true;
-      }
+    const pushAd = () => {
+      if (isPushedRef.current) return;
 
       try {
         if (!adRef.current || !containerRef.current) {
-          console.log(`[AdRow] Refs not ready for slot ${slot}`);
-          return false;
+          console.log('[AdRow] Refs not ready');
+          return;
         }
 
-        const containerWidth = containerRef.current.getBoundingClientRect().width;
-        console.log(`[AdRow] Attempting push for slot ${slot}, width: ${containerWidth}px`);
+        const width = containerRef.current.getBoundingClientRect().width;
+        console.log(`[AdRow] Pushing ad - Slot: ${slotId}, Width: ${width}px, Format: ${adFormat}`);
 
-        if (containerWidth < 10) {
-          console.log(`[AdRow] Container too narrow (${containerWidth}px) for slot ${slot}`);
-          return false;
+        if (width < 10) {
+          console.warn(`[AdRow] Container too narrow: ${width}px`);
+          setTimeout(pushAd, 500);
+          return;
         }
 
-        // Mark as pushed BEFORE the actual push to prevent race conditions
         isPushedRef.current = true;
-
-        // Push the ad
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log(`[AdRow] ✅ Successfully pushed ad for slot ${slot}`);
+        console.log(`[AdRow] ✅ Ad pushed for slot ${slotId}`);
 
-        return true;
-      } catch (error) {
-        console.error(`[AdRow] Error pushing ad for slot ${slot}:`, error);
-        setAdFailed(true);
-        // Keep isPushedRef true to prevent retries after error
-        isPushedRef.current = true;
-        return false;
-      }
-    };
-
-    // Initial attempt after a short delay for DOM to settle
-    pushAttemptTimer = setTimeout(() => {
-      if (!pushAd()) {
-        // If first attempt failed due to width, retry once after delay
-        console.log(`[AdRow] First attempt failed for slot ${slot}, scheduling retry...`);
-
-        retryTimer = setTimeout(() => {
-          if (!isPushedRef.current) {
-            if (!pushAd()) {
-              console.warn(`[AdRow] Failed to load ad for slot ${slot} after retry`);
-              setAdFailed(true);
-            }
+        // Debug after 3 seconds
+        setTimeout(() => {
+          if (adRef.current) {
+            const hasIframe = adRef.current.querySelector('iframe') !== null;
+            const status = adRef.current.getAttribute('data-ad-status');
+            console.log(`[AdRow] Ad status - Slot: ${slotId}, HasIframe: ${hasIframe}, Status: ${status}`);
           }
-        }, 2000); // Retry after 2 seconds
+        }, 3000);
+
+      } catch (error) {
+        console.error(`[AdRow] Error:`, error);
+        isPushedRef.current = true;
       }
-    }, 100); // Small initial delay
-
-    // Cleanup timers
-    return () => {
-      clearTimeout(pushAttemptTimer);
-      clearTimeout(retryTimer);
     };
-  }, [isVisible, slot]);
 
-  // Get the ad slot ID
-  const adSlot = slot || MULTIPLEX_SLOTS["multiplex-1"];
+    const timer = setTimeout(pushAd, 100);
+    return () => clearTimeout(timer);
+  }, [isVisible, slotId, adFormat]);
 
   return (
     <div
@@ -147,58 +119,27 @@ export const AdRow = ({
         display: "block",
         width: "100%",
         minWidth: "300px",
-        minHeight: "250px", // Reduced from 280px to standard banner height
+        minHeight: isMultiplexAd ? "280px" : "250px",
+        margin: "0 auto",
         backgroundColor: "transparent",
         ...style,
       }}
-      data-ad-slot={adSlot} // For debugging
+      data-ad-slot={slotId}
     >
-      {adFailed ? (
-        <div
-          className="flex items-center justify-center bg-muted/20 rounded-lg border border-dashed border-border/40 text-muted-foreground text-xs"
-          style={{
-            width: "100%",
-            minHeight: "250px",
-            padding: "20px"
-          }}
-        >
-          <span>Advertisement space</span>
-        </div>
-      ) : isVisible ? (
-        <ins
-          ref={adRef}
-          className="adsbygoogle"
-          style={{
-            display: "block",
-            width: "100%",
-            minWidth: "300px",
-            minHeight: "250px",
-          }}
-          data-ad-format={format}
-          data-full-width-responsive="true"
-          data-ad-client="ca-pub-7382531001943020"
-          data-ad-slot={adSlot}
-        />
-      ) : (
-        // Placeholder while loading
-        <div
-          className="flex items-center justify-center bg-muted/10 rounded-lg animate-pulse"
-          style={{
-            width: "100%",
-            minHeight: "250px"
-          }}
-        >
-          <span className="text-muted-foreground text-xs">Loading ad...</span>
-        </div>
-      )}
+      <ins
+        ref={adRef}
+        className="adsbygoogle"
+        style={{
+          display: "block",
+          width: "100%",
+          minWidth: "300px",
+          minHeight: isMultiplexAd ? "280px" : "250px",
+        }}
+        data-ad-format={adFormat}
+        data-full-width-responsive="true"
+        data-ad-client="ca-pub-7382531001943020"
+        data-ad-slot={slotId}
+      />
     </div>
   );
 };
-
-// Optional: Export a memoized version for better performance
-import { memo } from "react";
-
-export const MemoizedAdRow = memo(AdRow, (prevProps, nextProps) => {
-  // Only re-render if slot changes
-  return prevProps.slot === nextProps.slot;
-});
