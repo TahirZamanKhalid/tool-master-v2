@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { ensureAdSenseLoaded } from "@/utils/adsense";
 
 declare global {
   interface Window {
@@ -48,6 +47,9 @@ const SIZE_CONFIG: Record<
   custom: { width: "100%", height: "auto", minWidth: "250px", minHeight: "100px" },
 };
 
+// Global Set to track pushed slots
+const pushedSlots = new Set<string>();
+
 export const AdSpace = ({
   size = "leaderboard",
   slot,
@@ -64,10 +66,7 @@ export const AdSpace = ({
   const adSlot = slot || AD_SLOTS[size as keyof typeof AD_SLOTS] || AD_SLOTS.leaderboard;
   const isSidebarSize = ["skyscraper", "sidebar", "sidebar-alt", "square-300", "medium-rect"].includes(size);
 
-  useEffect(() => {
-    ensureAdSenseLoaded();
-  }, []);
-
+  // Lazy loading
   useEffect(() => {
     if (!lazy || isVisible) return;
 
@@ -88,17 +87,30 @@ export const AdSpace = ({
     return () => observer.disconnect();
   }, [lazy, isVisible]);
 
+  // Push ad when visible
   useEffect(() => {
     if (!isVisible || isPushedRef.current) return;
 
     const pushAd = () => {
       if (isPushedRef.current) return;
 
+      // Check if this slot was already pushed globally
+      if (pushedSlots.has(adSlot)) {
+        console.warn(`[AdSpace] Slot ${adSlot} already pushed globally, skipping`);
+        isPushedRef.current = true;
+        return;
+      }
+
       try {
-        ensureAdSenseLoaded();
+        // Check if AdSense is available
+        if (typeof window === 'undefined' || !window.adsbygoogle) {
+          console.log('[AdSpace] AdSense not ready yet, retrying...');
+          setTimeout(pushAd, 1000);
+          return;
+        }
 
         if (!adRef.current || !containerRef.current) {
-          setTimeout(pushAd, 300);
+          setTimeout(pushAd, 500);
           return;
         }
 
@@ -110,17 +122,33 @@ export const AdSpace = ({
           return;
         }
 
+        // Mark as pushed BEFORE the actual push
         isPushedRef.current = true;
+        pushedSlots.add(adSlot);
+
+        // Push the ad
+        console.log(`[AdSpace] Pushing ad for slot ${adSlot} (${size}), width: ${width}px`);
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log(`[AdSpace] ✅ Pushed slot ${adSlot} (${size}), width: ${width}px`);
+        console.log(`[AdSpace] ✅ Pushed slot ${adSlot}, total pushed: ${window.adsbygoogle.length}`);
+
+        // Verify after push
+        setTimeout(() => {
+          if (adRef.current) {
+            const status = adRef.current.getAttribute('data-ad-status');
+            const hasContent = adRef.current.innerHTML.length > 10;
+            console.log(`[AdSpace] Verification - Slot: ${adSlot}, Status: ${status}, HasContent: ${hasContent}`);
+          }
+        }, 3000);
 
       } catch (error) {
-        console.error(`[AdSpace] Error:`, error);
+        console.error(`[AdSpace] Error pushing ad:`, error);
         isPushedRef.current = true;
+        pushedSlots.add(adSlot);
       }
     };
 
-    const timer = setTimeout(pushAd, 800);
+    // Wait for page to be ready
+    const timer = setTimeout(pushAd, 1500);
     return () => clearTimeout(timer);
   }, [isVisible, adSlot, size]);
 
@@ -138,6 +166,7 @@ export const AdSpace = ({
         margin: "0 auto",
         ...style,
       }}
+      data-ad-container-slot={adSlot}
     >
       <ins
         ref={adRef}

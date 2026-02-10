@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
-import { ensureAdSenseLoaded } from "@/utils/adsense";
 
 declare global {
   interface Window {
@@ -27,6 +26,9 @@ const MULTIPLEX_SLOTS = {
   "multiplex-3": "7202218695",
 };
 
+// Global Set to track pushed slots
+const pushedSlots = new Set<string>();
+
 export const AdRow = ({
   className,
   style,
@@ -43,11 +45,6 @@ export const AdRow = ({
   const slotId = slot || MULTIPLEX_SLOTS["multiplex-1"];
   const isMultiplexAd = isMultiplex || Object.values(MULTIPLEX_SLOTS).includes(slotId);
   const adFormat = isMultiplexAd ? "autorelaxed" : format;
-
-  // Ensure AdSense is initialized
-  useEffect(() => {
-    ensureAdSenseLoaded();
-  }, []);
 
   // Lazy loading
   useEffect(() => {
@@ -77,11 +74,23 @@ export const AdRow = ({
     const pushAd = () => {
       if (isPushedRef.current) return;
 
+      // Check if this slot was already pushed globally
+      if (pushedSlots.has(slotId)) {
+        console.warn(`[AdRow] Slot ${slotId} already pushed globally, skipping`);
+        isPushedRef.current = true;
+        return;
+      }
+
       try {
-        ensureAdSenseLoaded();
+        // Check if AdSense is available
+        if (typeof window === 'undefined' || !window.adsbygoogle) {
+          console.log('[AdRow] AdSense not ready yet, retrying...');
+          setTimeout(pushAd, 1000);
+          return;
+        }
 
         if (!adRef.current || !containerRef.current) {
-          setTimeout(pushAd, 300);
+          setTimeout(pushAd, 500);
           return;
         }
 
@@ -93,17 +102,33 @@ export const AdRow = ({
           return;
         }
 
+        // Mark as pushed BEFORE the actual push
         isPushedRef.current = true;
+        pushedSlots.add(slotId);
+
+        // Push the ad
+        console.log(`[AdRow] Pushing ad for slot ${slotId}, width: ${width}px`);
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log(`[AdRow] ✅ Pushed slot ${slotId}, width: ${width}px`);
+        console.log(`[AdRow] ✅ Pushed slot ${slotId}, total pushed: ${window.adsbygoogle.length}`);
+
+        // Verify after push
+        setTimeout(() => {
+          if (adRef.current) {
+            const status = adRef.current.getAttribute('data-ad-status');
+            const hasContent = adRef.current.innerHTML.length > 10;
+            console.log(`[AdRow] Verification - Slot: ${slotId}, Status: ${status}, HasContent: ${hasContent}`);
+          }
+        }, 3000);
 
       } catch (error) {
-        console.error(`[AdRow] Error:`, error);
+        console.error(`[AdRow] Error pushing ad:`, error);
         isPushedRef.current = true;
+        pushedSlots.add(slotId);
       }
     };
 
-    const timer = setTimeout(pushAd, 800);
+    // Wait for page to be ready
+    const timer = setTimeout(pushAd, 1500);
     return () => clearTimeout(timer);
   }, [isVisible, slotId]);
 
@@ -119,6 +144,7 @@ export const AdRow = ({
         margin: "0 auto",
         ...style,
       }}
+      data-ad-container-slot={slotId}
     >
       <ins
         ref={adRef}
