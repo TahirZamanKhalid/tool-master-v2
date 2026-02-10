@@ -6,16 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#9b87f5" />
   <meta name="google-adsense-account" content="ca-pub-7382531001943020" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; 
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net https://staticimgly.com https://*.staticimgly.com https://*.googlesyndication.com https://pagead2.googlesyndication.com https://*.google.com https://*.gstatic.com https://*.google-analytics.com https://*.doubleclick.net https://googleads.g.doubleclick.net https://partner.googleadservices.com https://ep2.adtrafficquality.google https://*.adtrafficquality.google http://ip-api.com https://ip-api.com https://ipwhois.app https://data.iana.org https://api.api-ninjas.com https://whois.freeaitools.me https://rdap.verisign.com https://rdap.registry.cloud https://*.rdap.org; 
-  worker-src 'self' blob:; 
-  connect-src 'self' blob: data: https: http:; 
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.googlesyndication.com; 
-  font-src 'self' https://fonts.gstatic.com data:; 
-  img-src 'self' data: blob: https: http:; 
-  media-src 'self' blob: data: https:; 
-  frame-src 'self' https://*.google.com https://*.doubleclick.net https://googleads.g.doubleclick.net https://*.googlesyndication.com https://pagead2.googlesyndication.com; 
-  child-src 'self' blob: https://*.google.com https://*.doubleclick.net;" />
+
+  <!-- ✅ FIXED CSP - Added missing domains for AdSense -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net https://staticimgly.com https://*.staticimgly.com https://*.googlesyndication.com https://tpc.googlesyndication.com https://pagead2.googlesyndication.com https://*.google.com https://*.gstatic.com https://*.google-analytics.com https://*.adtrafficquality.google https://*.doubleclick.net https://googleads.g.doubleclick.net https://partner.googleadservices.com https://ep2.adtrafficquality.google https://*.googletagservices.com http://ip-api.com https://ip-api.com https://ipwhois.app https://data.iana.org https://api.api-ninjas.com https://whois.freeaitools.me https://rdap.verisign.com https://rdap.registry.cloud https://*.rdap.org; worker-src 'self' blob:; connect-src 'self' blob: data: https: http:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.googleapis.com https://*.googlesyndication.com https://googleads.g.doubleclick.net; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https: http:; media-src 'self' blob: data: https:; frame-src 'self' https://*.google.com https://*.doubleclick.net https://googleads.g.doubleclick.net https://*.googlesyndication.com https://tpc.googlesyndication.com https://pagead2.googlesyndication.com https://*.g.doubleclick.net https://*.adtrafficquality.google https://ep2.adtrafficquality.google https://td.doubleclick.net https://www.openstreetmap.org; child-src 'self' blob: https://*.google.com https://*.doubleclick.net https://googleads.g.doubleclick.net https://*.googlesyndication.com;" />
+
   <link rel="icon" type="image/x-icon" crossorigin="anonymous"
     href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
   <link rel="apple-touch-icon" sizes="180x180" crossorigin="anonymous"
@@ -38,80 +33,91 @@
   <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
   <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
   <link rel="dns-prefetch" href="https://tpc.googlesyndication.com" />
+  <link rel="dns-prefetch" href="https://partner.googleadservices.com" />
+  <link rel="dns-prefetch" href="https://ep2.adtrafficquality.google" />
 
+  <!-- Preconnect for faster ad loading -->
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+  <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossorigin />
+
+  <!-- ✅ AdSense Script -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7382531001943020"
     crossorigin="anonymous"></script>
-  <!-- Removed duplicate AdSense script include to avoid conflicts -->
 
   <!-- Organization & WebSite Structured Data for Rich Results -->
   <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ToolMaster Pro™",
+      "alternateName": "TM",
+      "legalName": "ToolMaster Pro",
+      "url": "https://toolmaster.cloud",
+      "logo": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg",
+      "description": "Access 100+ free AI-powered online tools instantly. No signup required.",
+      "sameAs": [
+        "https://toolmaster.cloud"
+      ],
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "8543",
+        "bestRating": "5"
+      }
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "ToolMaster Pro™",
+      "url": "https://toolmaster.cloud",
+      "description": "100+ free online tools - Background remover, PDF merger, QR generator, image compressor & more. No signup needed.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://toolmaster.cloud/?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      },
+      "publisher": {
         "@type": "Organization",
         "name": "ToolMaster Pro™",
-        "alternateName": "TM",
-        "legalName": "ToolMaster Pro",
-        "url": "https://toolmaster.cloud",
-        "logo": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg",
-        "description": "Access 100+ free AI-powered online tools instantly. No signup required.",
-        "sameAs": [
-          "https://toolmaster.cloud"
-        ],
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.9",
-          "ratingCount": "8543",
-          "bestRating": "5"
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg"
         }
       }
-    </script>
-  <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "ToolMaster Pro™",
-        "url": "https://toolmaster.cloud",
-        "description": "100+ free online tools - Background remover, PDF merger, QR generator, image compressor & more. No signup needed.",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": {
-            "@type": "EntryPoint",
-            "urlTemplate": "https://toolmaster.cloud/?q={search_term_string}"
-          },
-          "query-input": "required name=search_term_string"
-        },
-        "publisher": {
-          "@type": "Organization",
-          "name": "ToolMaster Pro™",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg"
-          }
-        }
-      }
-    </script>
+    }
+  </script>
 
   <meta property="og:type" content="website" />
   <meta property="og:image"
     content="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg" />
+  <meta property="og:title" content="ToolMaster Pro™ - 100+ Free Online Tools | No Signup Required" />
+  <meta property="og:site_name" content="ToolMaster Pro™" />
+  <meta property="og:description"
+    content="Access 100+ free online tools instantly. Image converter, PDF editor, QR generator, text formatter, calculator & more. Browser-based, no download, no registration." />
+  <meta property="og:url" content="https://toolmaster.cloud" />
 
   <meta name="twitter:card" content="summary_large_image" />
-
+  <meta name="twitter:title" content="ToolMaster Pro™ - 100+ Free Online Tools | No Signup" />
+  <meta name="twitter:description"
+    content="Access 100+ free online tools instantly. Image converter, PDF editor, QR generator, text formatter, calculator & more. Browser-based, no download." />
   <meta name="twitter:image"
     content="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg" />
+
+  <link rel="canonical" href="https://toolmaster.cloud/" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <meta property="og:title" content="ToolMaster Pro™ - 100+ Free Online Tools | No Signup Required" />
-  <meta name="twitter:title" content="ToolMaster Pro™ - 100+ Free Online Tools | No Signup" />
-  <meta property="og:site_name" content="ToolMaster Pro™" />
-  <meta property="og:description"
-    content="Access 100+ free online tools instantly. Image converter, PDF editor, QR generator, text formatter, calculator & more. Browser-based, no download, no registration." />
-  <meta name="twitter:description"
-    content="Access 100+ free online tools instantly. Image converter, PDF editor, QR generator, text formatter, calculator & more. Browser-based, no download." />
-  <meta property="og:url" content="https://toolmaster.cloud" />
-  <link rel="canonical" href="https://toolmaster.cloud/" />
+
+  <!-- ✅ Initialize AdSense array before page loads -->
+  <script>
+    window.adsbygoogle = window.adsbygoogle || [];
+  </script>
 </head>
 
 <body>
@@ -131,6 +137,7 @@
       </ul>
     </div>
   </noscript>
+
   <div id="root">
     <!-- Initial content for crawlers -->
     <div style="opacity: 0; position: absolute; pointer-events: none;">
@@ -147,6 +154,7 @@
       </nav>
     </div>
   </div>
+
   <script type="module" src="/src/main.tsx"></script>
 </body>
 
