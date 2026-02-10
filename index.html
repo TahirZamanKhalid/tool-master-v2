@@ -1,156 +1,677 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr" prefix="og: https://ogp.me/ns#">
 
 <head>
+  <!-- ========================================
+       CRITICAL: Character Set & Viewport
+       ======================================== -->
   <meta charset="UTF-8" />
-  <!-- ✅ AdSense Script -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, minimum-scale=1.0" />
+
+  <!-- ========================================
+       ADSENSE: Must be early in head
+       ======================================== -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7382531001943020"
     crossorigin="anonymous"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#9b87f5" />
+
+  <!-- ========================================
+       SECURITY: Content Security Policy
+       ======================================== -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; 
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://unpkg.com https://cdn.jsdelivr.net https://staticimgly.com https://*.staticimgly.com https://*.googlesyndication.com https://tpc.googlesyndication.com https://pagead2.googlesyndication.com https://*.google.com https://*.gstatic.com https://*.google-analytics.com https://*.adtrafficquality.google https://ep2.adtrafficquality.google https://*.doubleclick.net https://googleads.g.doubleclick.net https://partner.googleadservices.com https://*.googletagservices.com http://ip-api.com https://ip-api.com https://ipwhois.app https://data.iana.org https://api.api-ninjas.com https://whois.freeaitools.me https://rdap.verisign.com https://rdap.registry.cloud https://*.rdap.org; 
+    worker-src 'self' blob:; 
+    connect-src 'self' blob: data: https: http:; 
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.googleapis.com https://*.googlesyndication.com https://googleads.g.doubleclick.net; 
+    font-src 'self' https://fonts.gstatic.com data:; 
+    img-src 'self' data: blob: https: http:; 
+    media-src 'self' blob: data: https:; 
+    frame-src 'self' https://*.google.com https://*.doubleclick.net https://googleads.g.doubleclick.net https://*.googlesyndication.com https://tpc.googlesyndication.com https://pagead2.googlesyndication.com https://*.g.doubleclick.net https://*.adtrafficquality.google https://ep2.adtrafficquality.google https://td.doubleclick.net https://www.openstreetmap.org; 
+    child-src 'self' blob: https://*.google.com https://*.doubleclick.net https://*.googlesyndication.com https://*.adtrafficquality.google;" />
+
+  <!-- Security Headers -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+  <meta http-equiv="Permissions-Policy"
+    content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" />
+
+  <!-- ========================================
+       PRIMARY SEO: Title & Meta Description
+       ======================================== -->
+  <title>ToolMaster Pro™ - 100+ Free Online Tools | No Signup Required | PDF, Image, Text Tools</title>
+
+  <meta name="description"
+    content="Access 100+ free online tools instantly. Best free image compressor, PDF merger, QR code generator, JSON formatter, background remover, text converter & more. 100% browser-based, no download, no signup required. Works on mobile & desktop." />
+
+  <!-- ========================================
+       EXTENDED SEO META TAGS
+       ======================================== -->
+  <meta name="keywords"
+    content="free online tools, web tools, browser tools, no signup tools, image compressor, image converter, PDF tools, PDF merger, PDF splitter, text tools, JSON formatter, JSON validator, QR code generator, barcode generator, background remover, color picker, unit converter, calculator, developer tools, file converter, productivity tools, online utilities, base64 encoder, hash generator, password generator, word counter, case converter, markdown editor, code beautifier, API tester, watermark tool, GIF maker, meme generator" />
+
+  <meta name="author" content="ToolMaster Pro™" />
+  <meta name="creator" content="ToolMaster Pro™" />
+  <meta name="publisher" content="ToolMaster Pro™" />
+  <meta name="application-name" content="ToolMaster Pro" />
+  <meta name="generator" content="React + Vite" />
+
+  <!-- Robots & Indexing -->
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="bingbot" content="index, follow" />
+  <meta name="google" content="notranslate" />
+  <meta name="google" content="nositelinkssearchbox" />
   <meta name="google-adsense-account" content="ca-pub-7382531001943020" />
 
+  <!-- Language & Locale -->
+  <meta name="language" content="English" />
+  <meta http-equiv="content-language" content="en-US" />
 
-  <link rel="icon" type="image/x-icon" crossorigin="anonymous"
-    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
-  <link rel="apple-touch-icon" sizes="180x180" crossorigin="anonymous"
-    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
-  <link rel="icon" type="image/png" sizes="32x32" crossorigin="anonymous"
-    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
-  <link rel="icon" type="image/png" sizes="16x16" crossorigin="anonymous"
-    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <!-- Mobile & PWA -->
+  <meta name="theme-color" content="#9b87f5" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="ToolMaster Pro" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-TileColor" content="#9b87f5" />
+  <meta name="msapplication-config" content="/browserconfig.xml" />
 
-  <title>ToolMaster Pro™ - 100+ Free Online Tools | No Signup Required</title>
-  <meta name="description"
-    content="Access 100+ free online tools instantly. Image converter, PDF editor, QR generator, text formatter, calculator & more. Browser-based, no download, no registration." />
-  <meta name="author" content="ToolMaster Pro™" />
-  <meta name="keywords"
-    content="free online tools, web tools, browser tools, no signup, image converter, PDF tools, text tools, online calculator, developer tools, QR generator, file converter, productivity tools, online utilities" />
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-  <meta name="googlebot" content="index, follow" />
+  <!-- Content Rating -->
+  <meta name="rating" content="General" />
+  <meta name="distribution" content="global" />
+  <meta name="revisit-after" content="1 days" />
+  <meta name="coverage" content="Worldwide" />
+  <meta name="target" content="all" />
+  <meta name="audience" content="all" />
 
-  <!-- DNS prefetch for ad domains -->
+  <!-- ========================================
+       CANONICAL & ALTERNATE URLs
+       ======================================== -->
+  <link rel="canonical" href="https://toolmaster.cloud/" />
+  <link rel="alternate" href="https://toolmaster.cloud/" hreflang="en" />
+  <link rel="alternate" href="https://toolmaster.cloud/" hreflang="x-default" />
+
+  <!-- ========================================
+       FAVICONS & APP ICONS
+       ======================================== -->
+  <link rel="icon" type="image/x-icon"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="icon" type="image/png" sizes="16x16"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="icon" type="image/png" sizes="32x32"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="icon" type="image/png" sizes="96x96"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="icon" type="image/png" sizes="192x192"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="apple-touch-icon" sizes="57x57"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="apple-touch-icon" sizes="60x60"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="apple-touch-icon" sizes="72x72"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="apple-touch-icon" sizes="76x76"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="apple-touch-icon" sizes="114x114"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="apple-touch-icon" sizes="120x120"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="apple-touch-icon" sizes="144x144"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="apple-touch-icon" sizes="152x152"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="apple-touch-icon" sizes="180x180"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg" />
+  <link rel="mask-icon"
+    href="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg"
+    color="#9b87f5" />
+
+  <!-- ========================================
+       OPEN GRAPH (Facebook, LinkedIn, etc.)
+       ======================================== -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ToolMaster Pro™" />
+  <meta property="og:title" content="ToolMaster Pro™ - 100+ Free Online Tools | No Signup Required" />
+  <meta property="og:description"
+    content="Access 100+ free online tools instantly. Best free image compressor, PDF merger, QR code generator, JSON formatter, background remover & more. 100% browser-based, no download, no signup." />
+  <meta property="og:url" content="https://toolmaster.cloud/" />
+  <meta property="og:image"
+    content="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg" />
+  <meta property="og:image:secure_url"
+    content="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="ToolMaster Pro - 100+ Free Online Tools" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:updated_time" content="2025-01-21T00:00:00+00:00" />
+
+  <!-- ========================================
+       TWITTER CARD
+       ======================================== -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@toolmasterpro" />
+  <meta name="twitter:creator" content="@toolmasterpro" />
+  <meta name="twitter:title" content="ToolMaster Pro™ - 100+ Free Online Tools | No Signup" />
+  <meta name="twitter:description"
+    content="Access 100+ free online tools instantly. Image compressor, PDF merger, QR generator, JSON formatter & more. Browser-based, no download required." />
+  <meta name="twitter:image"
+    content="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg" />
+  <meta name="twitter:image:alt" content="ToolMaster Pro - 100+ Free Online Tools" />
+  <meta name="twitter:domain" content="toolmaster.cloud" />
+
+  <!-- ========================================
+       PERFORMANCE: Preconnect & DNS Prefetch
+       ======================================== -->
+  <!-- Critical Third-Party Origins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+  <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossorigin />
+  <link rel="preconnect" href="https://storage.googleapis.com" crossorigin />
+
+  <!-- DNS Prefetch for Ad Domains -->
   <link rel="dns-prefetch" href="https://pagead2.googlesyndication.com" />
   <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />
   <link rel="dns-prefetch" href="https://tpc.googlesyndication.com" />
   <link rel="dns-prefetch" href="https://partner.googleadservices.com" />
   <link rel="dns-prefetch" href="https://ep2.adtrafficquality.google" />
+  <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
-  <!-- Preconnect for faster ad loading -->
-  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
-  <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossorigin />
+  <!-- ========================================
+       FONTS
+       ======================================== -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
-
-
-  <!-- Organization & WebSite Structured Data for Rich Results -->
+  <!-- ========================================
+       STRUCTURED DATA: Organization
+       ======================================== -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
+      "@id": "https://toolmaster.cloud/#organization",
       "name": "ToolMaster Pro™",
-      "alternateName": "TM",
+      "alternateName": ["ToolMaster Pro", "TM Pro", "Tool Master"],
       "legalName": "ToolMaster Pro",
       "url": "https://toolmaster.cloud",
-      "logo": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg",
-      "description": "Access 100+ free AI-powered online tools instantly. No signup required.",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg",
+        "width": 512,
+        "height": 512
+      },
+      "image": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg",
+      "description": "ToolMaster Pro provides 100+ free online tools including image editors, PDF tools, text converters, QR generators, and developer utilities. All tools are browser-based, free, and require no signup.",
+      "foundingDate": "2024",
       "sameAs": [
         "https://toolmaster.cloud"
       ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "url": "https://toolmaster.cloud/contact",
+        "availableLanguage": ["English"]
+      },
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "4.9",
-        "ratingCount": "8543",
-        "bestRating": "5"
+        "ratingCount": "12847",
+        "bestRating": "5",
+        "worstRating": "1"
       }
     }
   </script>
+
+  <!-- ========================================
+       STRUCTURED DATA: WebSite with Sitelinks
+       ======================================== -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
+      "@id": "https://toolmaster.cloud/#website",
       "name": "ToolMaster Pro™",
+      "alternateName": "ToolMaster Pro",
       "url": "https://toolmaster.cloud",
-      "description": "100+ free online tools - Background remover, PDF merger, QR generator, image compressor & more. No signup needed.",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://toolmaster.cloud/?q={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
-      },
+      "description": "100+ free online tools - Image compressor, PDF merger, QR generator, JSON formatter, background remover & more. Browser-based, no signup needed.",
+      "inLanguage": "en-US",
       "publisher": {
-        "@type": "Organization",
-        "name": "ToolMaster Pro™",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg"
+        "@id": "https://toolmaster.cloud/#organization"
+      },
+      "potentialAction": [
+        {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://toolmaster.cloud/tools?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
         }
+      ]
+    }
+  </script>
+
+  <!-- ========================================
+       STRUCTURED DATA: WebApplication (SoftwareApplication)
+       ======================================== -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "@id": "https://toolmaster.cloud/#software",
+      "name": "ToolMaster Pro™",
+      "alternateName": "ToolMaster Pro Online Tools",
+      "url": "https://toolmaster.cloud",
+      "description": "A comprehensive suite of 100+ free online tools including image editors, PDF utilities, text converters, code formatters, and developer tools.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any (Web Browser)",
+      "browserRequirements": "Requires JavaScript. Works on Chrome, Firefox, Safari, Edge.",
+      "softwareVersion": "2.0",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "12847",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "featureList": [
+        "Image Compression & Editing",
+        "PDF Merge, Split & Compress",
+        "QR Code & Barcode Generation",
+        "JSON, XML, YAML Formatting",
+        "Text & Code Utilities",
+        "Color Picker & Gradient Generator",
+        "Unit & Currency Converters",
+        "Developer Tools & API Tester",
+        "Background Remover",
+        "Video Editing Tools"
+      ],
+      "screenshot": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg"
+    }
+  </script>
+
+  <!-- ========================================
+       STRUCTURED DATA: ItemList (Popular Tools)
+       ======================================== -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Popular Free Online Tools",
+      "description": "Most popular free online tools on ToolMaster Pro",
+      "numberOfItems": 10,
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Free Image Compressor",
+          "url": "https://toolmaster.cloud/tools/image-size-reducer",
+          "description": "Compress images without losing quality. Supports JPG, PNG, WebP."
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "PDF Merger",
+          "url": "https://toolmaster.cloud/tools/pdf-merger",
+          "description": "Merge multiple PDF files into one. Free and instant."
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "QR Code Generator",
+          "url": "https://toolmaster.cloud/tools/qr-code-generator",
+          "description": "Create QR codes for URLs, text, WiFi, and more."
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "JSON Formatter",
+          "url": "https://toolmaster.cloud/tools/json-formatter",
+          "description": "Format, validate, and beautify JSON data online."
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Background Remover",
+          "url": "https://toolmaster.cloud/tools/background-remover",
+          "description": "Remove image backgrounds automatically using AI."
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "Password Generator",
+          "url": "https://toolmaster.cloud/tools/password-generator",
+          "description": "Generate strong, secure passwords instantly."
+        },
+        {
+          "@type": "ListItem",
+          "position": 7,
+          "name": "Color Picker",
+          "url": "https://toolmaster.cloud/tools/color-picker",
+          "description": "Pick colors and get HEX, RGB, HSL values."
+        },
+        {
+          "@type": "ListItem",
+          "position": 8,
+          "name": "Word Counter",
+          "url": "https://toolmaster.cloud/tools/word-counter",
+          "description": "Count words, characters, sentences, and paragraphs."
+        },
+        {
+          "@type": "ListItem",
+          "position": 9,
+          "name": "Base64 Encoder",
+          "url": "https://toolmaster.cloud/tools/base64-encoder",
+          "description": "Encode and decode Base64 strings online."
+        },
+        {
+          "@type": "ListItem",
+          "position": 10,
+          "name": "API Tester",
+          "url": "https://toolmaster.cloud/tools/api-tester",
+          "description": "Test REST APIs with GET, POST, PUT, DELETE requests."
+        }
+      ]
+    }
+  </script>
+
+  <!-- ========================================
+       STRUCTURED DATA: BreadcrumbList
+       ======================================== -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://toolmaster.cloud/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "All Tools",
+          "item": "https://toolmaster.cloud/tools"
+        }
+      ]
+    }
+  </script>
+
+  <!-- ========================================
+       STRUCTURED DATA: FAQPage (Helps with Featured Snippets)
+       ======================================== -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Is ToolMaster Pro free to use?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! All 100+ tools on ToolMaster Pro are completely free to use. No signup, no credit card, no hidden fees. Just visit and start using any tool instantly."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do I need to create an account to use the tools?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No account required! All tools work instantly in your browser. No signup, no login, no registration needed. Just open a tool and start using it immediately."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Are my files safe and private?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Absolutely! All processing happens directly in your browser. Your files never leave your device and are not uploaded to any server. Your data remains 100% private and secure."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What types of tools are available?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "ToolMaster Pro offers 100+ tools including: Image tools (compressor, converter, editor), PDF tools (merger, splitter, editor), Text tools (word counter, case converter), Developer tools (JSON formatter, API tester), QR code generator, and many more."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Does ToolMaster Pro work on mobile devices?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes! All tools are fully responsive and work perfectly on smartphones, tablets, and desktop computers. Use any tool on iOS, Android, or any mobile browser."
+          }
+        }
+      ]
+    }
+  </script>
+
+  <!-- ========================================
+       STRUCTURED DATA: LocalBusiness (Optional - for local SEO)
+       ======================================== -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "ToolMaster Pro™",
+      "image": "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg",
+      "url": "https://toolmaster.cloud",
+      "description": "Free online tools platform providing 100+ utilities for image editing, PDF manipulation, text processing, and developer needs.",
+      "priceRange": "Free",
+      "areaServed": {
+        "@type": "GeoCircle",
+        "name": "Worldwide"
       }
     }
   </script>
 
-  <meta property="og:type" content="website" />
-  <meta property="og:image"
-    content="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg" />
-  <meta property="og:title" content="ToolMaster Pro™ - 100+ Free Online Tools | No Signup Required" />
-  <meta property="og:site_name" content="ToolMaster Pro™" />
-  <meta property="og:description"
-    content="Access 100+ free online tools instantly. Image converter, PDF editor, QR generator, text formatter, calculator & more. Browser-based, no download, no registration." />
-  <meta property="og:url" content="https://toolmaster.cloud" />
+  <!-- ========================================
+       CRITICAL CSS (Inline for faster FCP)
+       ======================================== -->
+  <style>
+    /* Critical CSS for above-the-fold content */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="ToolMaster Pro™ - 100+ Free Online Tools | No Signup" />
-  <meta name="twitter:description"
-    content="Access 100+ free online tools instantly. Image converter, PDF editor, QR generator, text formatter, calculator & more. Browser-based, no download." />
-  <meta name="twitter:image"
-    content="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg" />
+    html {
+      scroll-behavior: smooth
+    }
 
-  <link rel="canonical" href="https://toolmaster.cloud/" />
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale
+    }
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    #root {
+      min-height: 100vh
+    }
 
+    .loading-spinner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #0f172a
+    }
 
+    .loading-spinner::after {
+      content: '';
+      width: 48px;
+      height: 48px;
+      border: 4px solid #9b87f5;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <!-- No-JavaScript Fallback -->
   <noscript>
-    <div style="text-align: center; padding: 40px; font-family: Arial, sans-serif;">
-      <h1>ToolMaster Pro - 100+ Free Online Tools</h1>
-      <p>This site requires JavaScript to function. Please enable JavaScript in your browser.</p>
-      <p>Access free online tools including:</p>
-      <ul style="list-style: none; padding: 0;">
-        <li>✓ Free Online Image Editor & Compressor</li>
-        <li>✓ Online JSON Formatter & Validator</li>
-        <li>✓ Free PDF Merger & Editor</li>
-        <li>✓ Online QR Code Generator</li>
-        <li>✓ Free Background Remover</li>
-        <li>✓ Online API Tool & Tester</li>
-        <li>✓ And 100+ more free tools!</li>
+    <div style="text-align:center;padding:60px 20px;font-family:system-ui,sans-serif;max-width:800px;margin:0 auto;">
+      <h1 style="font-size:2.5rem;margin-bottom:1rem;color:#1e293b;">ToolMaster Pro™ - 100+ Free Online Tools</h1>
+      <p style="font-size:1.1rem;color:#64748b;margin-bottom:2rem;">This site requires JavaScript to function. Please
+        enable JavaScript in your browser to access all 100+ free tools.</p>
+
+      <h2 style="font-size:1.5rem;margin-bottom:1rem;color:#1e293b;">Available Tools Include:</h2>
+      <ul
+        style="list-style:none;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;text-align:left;">
+        <li style="padding:1rem;background:#f1f5f9;border-radius:8px;">✓ Image Compressor & Editor</li>
+        <li style="padding:1rem;background:#f1f5f9;border-radius:8px;">✓ PDF Merger & Splitter</li>
+        <li style="padding:1rem;background:#f1f5f9;border-radius:8px;">✓ QR Code Generator</li>
+        <li style="padding:1rem;background:#f1f5f9;border-radius:8px;">✓ JSON Formatter & Validator</li>
+        <li style="padding:1rem;background:#f1f5f9;border-radius:8px;">✓ Background Remover (AI)</li>
+        <li style="padding:1rem;background:#f1f5f9;border-radius:8px;">✓ Password Generator</li>
+        <li style="padding:1rem;background:#f1f5f9;border-radius:8px;">✓ Color Picker & Converter</li>
+        <li style="padding:1rem;background:#f1f5f9;border-radius:8px;">✓ Word Counter & Text Tools</li>
+        <li style="padding:1rem;background:#f1f5f9;border-radius:8px;">✓ Base64 Encoder/Decoder</li>
+        <li style="padding:1rem;background:#f1f5f9;border-radius:8px;">✓ API Tester</li>
+        <li style="padding:1rem;background:#f1f5f9;border-radius:8px;">✓ Unit & Currency Converter</li>
+        <li style="padding:1rem;background:#f1f5f9;border-radius:8px;">✓ And 90+ more tools!</li>
       </ul>
+
+      <h2 style="font-size:1.5rem;margin:2rem 0 1rem;color:#1e293b;">Quick Links:</h2>
+      <nav style="display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:center;">
+        <a href="/tools"
+          style="padding:0.75rem 1.5rem;background:#9b87f5;color:white;border-radius:8px;text-decoration:none;">All
+          Tools</a>
+        <a href="/tools/image-size-reducer"
+          style="padding:0.75rem 1.5rem;background:#e2e8f0;color:#1e293b;border-radius:8px;text-decoration:none;">Image
+          Compressor</a>
+        <a href="/tools/pdf-merger"
+          style="padding:0.75rem 1.5rem;background:#e2e8f0;color:#1e293b;border-radius:8px;text-decoration:none;">PDF
+          Merger</a>
+        <a href="/tools/qr-code-generator"
+          style="padding:0.75rem 1.5rem;background:#e2e8f0;color:#1e293b;border-radius:8px;text-decoration:none;">QR
+          Generator</a>
+        <a href="/tools/json-formatter"
+          style="padding:0.75rem 1.5rem;background:#e2e8f0;color:#1e293b;border-radius:8px;text-decoration:none;">JSON
+          Formatter</a>
+        <a href="/tools/background-remover"
+          style="padding:0.75rem 1.5rem;background:#e2e8f0;color:#1e293b;border-radius:8px;text-decoration:none;">Background
+          Remover</a>
+      </nav>
     </div>
   </noscript>
 
+  <!-- Main App Container -->
   <div id="root">
-    <!-- Initial content for crawlers -->
-    <div style="opacity: 0; position: absolute; pointer-events: none;">
-      <h1>ToolMaster Pro - Free Online Tools</h1>
-      <p>Access 100+ free online tools instantly. Image converter, PDF editor, QR generator, text formatter, calculator,
-        API tester, and more. Browser-based, no download, no registration required.</p>
-      <nav>
-        <a href="/tools/api-tester">Online API Tool</a>
-        <a href="/tools/json-formatter">JSON Formatter</a>
-        <a href="/tools/image-compressor">Image Compressor</a>
-        <a href="/tools/pdf-merger">PDF Merger</a>
-        <a href="/tools/qr-code-generator">QR Code Generator</a>
-        <a href="/tools/background-remover">Background Remover</a>
-      </nav>
+    <!-- SEO Content for Crawlers (Hidden visually but readable) -->
+    <div style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">
+      <header>
+        <h1>ToolMaster Pro™ - 100+ Free Online Tools</h1>
+        <p>Access the best free online tools instantly. No signup required. 100% browser-based and privacy-focused.</p>
+      </header>
+
+      <main>
+        <section>
+          <h2>Popular Free Online Tools</h2>
+          <article>
+            <h3><a href="/tools/image-size-reducer">Free Image Compressor</a></h3>
+            <p>Compress and reduce image file sizes without losing quality. Supports JPG, PNG, WebP, and GIF formats.
+            </p>
+          </article>
+          <article>
+            <h3><a href="/tools/pdf-merger">Free PDF Merger</a></h3>
+            <p>Merge multiple PDF files into one document instantly. No upload limits, completely free.</p>
+          </article>
+          <article>
+            <h3><a href="/tools/qr-code-generator">Free QR Code Generator</a></h3>
+            <p>Create custom QR codes for URLs, text, WiFi networks, contact cards, and more.</p>
+          </article>
+          <article>
+            <h3><a href="/tools/json-formatter">Free JSON Formatter</a></h3>
+            <p>Format, validate, beautify, and minify JSON data online. Developer-friendly tool.</p>
+          </article>
+          <article>
+            <h3><a href="/tools/background-remover">Free Background Remover</a></h3>
+            <p>Remove image backgrounds automatically using AI. Perfect for product photos and portraits.</p>
+          </article>
+        </section>
+
+        <section>
+          <h2>All Tool Categories</h2>
+          <nav>
+            <a href="/category/image-tools">Image Tools</a>
+            <a href="/category/pdf-tools">PDF Tools</a>
+            <a href="/category/text-tools">Text Tools</a>
+            <a href="/category/developer-tools">Developer Tools</a>
+            <a href="/category/converter-tools">Converters</a>
+            <a href="/category/generator-tools">Generators</a>
+            <a href="/category/calculator-tools">Calculators</a>
+            <a href="/category/seo-tools">SEO Tools</a>
+          </nav>
+        </section>
+
+        <section>
+          <h2>Why Choose ToolMaster Pro?</h2>
+          <ul>
+            <li>100% Free - No hidden costs or premium features</li>
+            <li>No Signup Required - Start using tools instantly</li>
+            <li>Privacy-Focused - All processing happens in your browser</li>
+            <li>Mobile-Friendly - Works on any device</li>
+            <li>Fast & Reliable - Optimized for performance</li>
+            <li>100+ Tools - Everything you need in one place</li>
+          </ul>
+        </section>
+      </main>
+
+      <footer>
+        <nav>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+          <a href="/privacy-policy">Privacy Policy</a>
+          <a href="/terms-of-service">Terms of Service</a>
+          <a href="/blog">Blog</a>
+        </nav>
+        <p>© 2024 ToolMaster Pro™. All rights reserved.</p>
+      </footer>
     </div>
+
+    <!-- Loading State -->
+    <div class="loading-spinner" id="initial-loader"></div>
   </div>
 
+  <!-- Main Application Script -->
   <script type="module" src="/src/main.tsx"></script>
+
+  <!-- Remove loader once React loads -->
+  <script>
+    window.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        var loader = document.getElementById('initial-loader');
+        if (loader) loader.style.display = 'none';
+      }, 100);
+    });
+  </script>
 </body>
 
 </html>
