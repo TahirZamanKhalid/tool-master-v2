@@ -157,7 +157,7 @@ const AdvancedImageCompressor = () => {
         <div className="flex gap-4">
           {/* Left Sidebar Ad */}
           <div className="hidden xl:block w-40 flex-shrink-0">
-            <SidebarAd position="left" />
+            <SidebarAd slot="5204253730" position="left" index={1} />
           </div>
 
           <div className="flex-1 grid gap-6">
@@ -361,7 +361,7 @@ const AdvancedImageCompressor = () => {
 
           {/* Right Sidebar Ad */}
           <div className="hidden xl:block w-40 flex-shrink-0">
-            <SidebarAd position="right" />
+            <SidebarAd slot="4351073152" position="right" index={1} />
           </div>
         </div>
       </ToolLayout>
