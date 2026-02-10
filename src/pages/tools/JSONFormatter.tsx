@@ -83,14 +83,16 @@ const JSONFormatter = () => {
           { name: "Color Picker", path: "/tools/color-picker" },
         ]}
       >
-        <div className="space-y-6">
+        {/* Explicit width container */}
+        <div className="w-full space-y-6">
+
           {/* Top Ad - Display Ad (leaderboard) */}
-          <div className="w-full">
+          <div className="w-full" style={{ minWidth: '300px' }}>
             <AdSpace size="leaderboard" lazy={false} />
           </div>
 
           {/* Tool UI */}
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-2 gap-6 w-full">
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Input JSON</h3>
               <Textarea
@@ -141,7 +143,7 @@ const JSONFormatter = () => {
           </div>
 
           {/* Bottom Ad - Multiplex Ad */}
-          <div className="w-full">
+          <div className="w-full" style={{ minWidth: '300px' }}>
             <AdRow
               slot="2931558314"
               isMultiplex={true}

@@ -32,11 +32,8 @@ export const ToolLayout = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-
-  // Enhanced keywords with variations for better search coverage
   const enhancedKeywords = `${title}, ${category}, free ${title.toLowerCase()}, online ${title.toLowerCase()}, ${title.toLowerCase()} tool, ${category.toLowerCase()} tools, free online tools, no signup, no registration, web tools, instant tools`;
 
-  // Generate structured data for the tool
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
@@ -75,7 +72,6 @@ export const ToolLayout = ({
         ogImage="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg"
       />
 
-      {/* Structured Data for SEO */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
       <main className="container max-w-[1600px] py-8 px-4">
@@ -88,8 +84,8 @@ export const ToolLayout = ({
 
         <div className="mt-8 w-full">
           <div className={`grid gap-8 ${layout === "with-sidebar" ? "lg:grid-cols-[1fr_300px]" : ""}`}>
-            {/* Main Content Column */}
-            <div className="space-y-8 min-w-0">
+            {/* Main Content Column - FIXED: Removed min-w-0 */}
+            <div className="space-y-8 w-full">
               <div>
                 <div className="flex items-center gap-3 mb-4 flex-wrap">
                   <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
@@ -108,7 +104,8 @@ export const ToolLayout = ({
                 />
               </div>
 
-              <div className="overflow-hidden w-full bg-card rounded-xl border shadow-sm p-1 md:p-6">
+              {/* Tool Content Container - FIXED: Added explicit width */}
+              <div className="w-full overflow-hidden bg-card rounded-xl border shadow-sm p-1 md:p-6">
                 {children}
               </div>
 
@@ -170,7 +167,6 @@ export const ToolLayout = ({
                 </div>
               )}
 
-              {/* Internal Linking: Blog Guides */}
               <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl p-8 border border-primary/10">
                 <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                   <span className="bg-primary/20 p-2 rounded-lg text-primary text-xl">📖</span>
@@ -199,7 +195,6 @@ export const ToolLayout = ({
               </div>
             </div>
 
-            {/* Sidebar Column */}
             {layout === "with-sidebar" && (
               <div className="space-y-8">
                 <div className="sticky top-24 space-y-8">
@@ -207,7 +202,6 @@ export const ToolLayout = ({
                     <SidebarAd />
                   </div>
 
-                  {/* Additional sidebar content can go here */}
                   <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl p-6 border border-primary/10">
                     <h3 className="font-semibold mb-2 text-primary">Pro Tip</h3>
                     <p className="text-sm text-muted-foreground">
