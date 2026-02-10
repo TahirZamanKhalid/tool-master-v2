@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import type { CSSProperties, ReactNode } from "react";
 
 declare global {
@@ -24,6 +24,7 @@ export interface AdSpaceProps {
   className?: string;
   style?: CSSProperties;
   children?: ReactNode;
+  lazy?: boolean; // Enable lazy loading
   [key: string]: any;
 }
 
@@ -46,7 +47,10 @@ const AD_SLOTS = {
   "blog-ad": "8907016752",
 };
 
-const SIZE_CONFIG: Record<string, { width: string; height: string; minWidth: string; minHeight: string }> = {
+const SIZE_CONFIG: Record<
+  string,
+  { width: string; height: string; minWidth: string; minHeight: string }
+> = {
   leaderboard: { width: "100%", height: "auto", minWidth: "320px", minHeight: "100px" },
   banner: { width: "100%", height: "auto", minWidth: "320px", minHeight: "60px" },
   skyscraper: { width: "300px", height: "600px", minWidth: "160px", minHeight: "600px" },
@@ -57,80 +61,121 @@ const SIZE_CONFIG: Record<string, { width: string; height: string; minWidth: str
   custom: { width: "100%", height: "auto", minWidth: "250px", minHeight: "100px" },
 };
 
-export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpaceProps) => {
+export const AdSpace = ({
+  className,
+  style,
+  size = "leaderboard",
+  slot,
+  lazy = true, // Default to lazy loading
+}: AdSpaceProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [adFailed, setAdFailed] = useState(false);
-  const [adPushed, setAdPushed] = useState(false);
+  const [isVisible, setIsVisible] = useState(!lazy); // Immediately visible if not lazy
+  const isPushedRef = useRef(false); // ✅ Use ref instead of state to prevent race conditions
 
+  // Get config and slot early for use in effects
+  const config = SIZE_CONFIG[size] || SIZE_CONFIG.leaderboard;
+  const adSlot = slot || AD_SLOTS[size as keyof typeof AD_SLOTS] || AD_SLOTS.leaderboard;
+  const isSidebarSize = ["skyscraper", "sidebar", "sidebar-alt", "square-300", "medium-rect"].includes(size);
+
+  // ✅ Lazy loading with Intersection Observer
   useEffect(() => {
-    if (adPushed) return;
+    if (!lazy || isVisible) return;
 
-    let observer: ResizeObserver | null = null;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          console.log(`[AdSpace] Ad slot ${adSlot} (${size}) became visible`);
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: "200px", // Load 200px before visible
+        threshold: 0.01,
+      }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [lazy, isVisible, adSlot, size]);
+
+  // ✅ Push ad when visible and container has width
+  useEffect(() => {
+    // Don't proceed if not visible or already pushed
+    if (!isVisible || isPushedRef.current) return;
+
+    let pushAttemptTimer: ReturnType<typeof setTimeout>;
     let retryTimer: ReturnType<typeof setTimeout>;
 
     const pushAd = (): boolean => {
-      try {
-        if (adRef.current && containerRef.current) {
-          const rect = containerRef.current.getBoundingClientRect();
-          console.log(`[AdSpace] slot=${slot || size}, width=${rect.width}, height=${rect.height}`);
-
-          if (rect.width > 0) {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-            setAdPushed(true);
-            return true;
-          }
-        }
-        return false;
-      } catch (error) {
-        console.error("AdSense error:", error);
-        setAdFailed(true);
+      // Double-check to prevent duplicate pushes
+      if (isPushedRef.current) {
+        console.warn(`[AdSpace] Ad already pushed for slot ${adSlot}`);
         return true;
+      }
+
+      try {
+        if (!adRef.current || !containerRef.current) {
+          console.log(`[AdSpace] Refs not ready for slot ${adSlot}`);
+          return false;
+        }
+
+        const rect = containerRef.current.getBoundingClientRect();
+        console.log(`[AdSpace] Attempting push for slot ${adSlot} (${size}), width: ${rect.width}px`);
+
+        if (rect.width < 10) {
+          console.log(`[AdSpace] Container too narrow (${rect.width}px) for slot ${adSlot}`);
+          return false;
+        }
+
+        // ✅ Mark as pushed BEFORE the actual push to prevent race conditions
+        isPushedRef.current = true;
+
+        // Push the ad
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+        console.log(`[AdSpace] ✅ Successfully pushed ad for slot ${adSlot} (${size})`);
+
+        return true;
+      } catch (error) {
+        console.error(`[AdSpace] Error pushing ad for slot ${adSlot}:`, error);
+        setAdFailed(true);
+        isPushedRef.current = true; // ✅ Prevent retry on error
+        return false;
       }
     };
 
-    const initialTimer = setTimeout(() => {
+    // Initial attempt after a short delay for DOM to settle
+    pushAttemptTimer = setTimeout(() => {
       if (!pushAd()) {
-        // Observe for width changes
-        observer = new ResizeObserver((entries) => {
-          for (const entry of entries) {
-            if (entry.contentRect.width > 0 && !adPushed) {
-              if (pushAd()) {
-                observer?.disconnect();
-              }
-            }
-          }
-        });
+        // If first attempt failed due to width, retry once after delay
+        console.log(`[AdSpace] First attempt failed for slot ${adSlot}, scheduling retry...`);
 
-        if (containerRef.current) {
-          observer.observe(containerRef.current);
-        }
-
-        // Final retry
         retryTimer = setTimeout(() => {
-          if (!adPushed) {
+          if (!isPushedRef.current) {
             if (!pushAd()) {
-              console.warn(`[AdSpace] Still 0 width after 3s: slot=${slot || size}`);
+              console.warn(`[AdSpace] Failed to load ad for slot ${adSlot} after retry`);
               setAdFailed(true);
             }
           }
-          observer?.disconnect();
-        }, 3000);
+        }, 2000); // Retry after 2 seconds
       }
-    }, 300);
+    }, 100); // Small initial delay
 
+    // Cleanup timers
     return () => {
-      clearTimeout(initialTimer);
+      clearTimeout(pushAttemptTimer);
       clearTimeout(retryTimer);
-      observer?.disconnect();
     };
-  }, [slot, size, adPushed]);
+  }, [isVisible, adSlot, size]);
 
-  const config = SIZE_CONFIG[size] || SIZE_CONFIG.leaderboard;
-  const adSlot = slot || AD_SLOTS[size as keyof typeof AD_SLOTS] || AD_SLOTS.leaderboard;
-
-  // For sidebar sizes, use fixed width; for others, use 100%
-  const isSidebarSize = ["skyscraper", "sidebar", "sidebar-alt", "square-300", "medium-rect"].includes(size);
+  // Container width calculation
   const containerWidth = isSidebarSize ? config.width : "100%";
 
   return (
@@ -143,17 +188,26 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
         minWidth: config.minWidth,
         minHeight: config.minHeight,
         overflow: "hidden",
+        backgroundColor: "transparent",
         ...style,
       }}
+      data-ad-slot={adSlot} // For debugging
+      data-ad-size={size}
     >
       {adFailed ? (
+        // ✅ Error/fallback state
         <div
           className="flex items-center justify-center bg-muted/20 rounded-lg border border-dashed border-border/40 text-muted-foreground text-xs"
-          style={{ width: "100%", height: config.minHeight }}
+          style={{
+            width: "100%",
+            minHeight: config.minHeight,
+            padding: "20px",
+          }}
         >
-          Advertisement
+          <span>Advertisement space</span>
         </div>
-      ) : (
+      ) : isVisible ? (
+        // ✅ Ad is visible, render the ins element
         <ins
           ref={adRef}
           className="adsbygoogle"
@@ -169,7 +223,27 @@ export const AdSpace = ({ className, style, size = "leaderboard", slot }: AdSpac
           data-ad-format={isSidebarSize ? "vertical" : "auto"}
           data-full-width-responsive={isSidebarSize ? "false" : "true"}
         />
+      ) : (
+        // ✅ Loading placeholder (before lazy load triggers)
+        <div
+          className="flex items-center justify-center bg-muted/10 rounded-lg animate-pulse"
+          style={{
+            width: "100%",
+            minHeight: config.minHeight,
+          }}
+        >
+          <span className="text-muted-foreground text-xs">Loading ad...</span>
+        </div>
       )}
     </div>
   );
 };
+
+// ✅ Memoized version to prevent unnecessary re-renders
+export const MemoizedAdSpace = memo(AdSpace, (prevProps, nextProps) => {
+  return (
+    prevProps.slot === nextProps.slot &&
+    prevProps.size === nextProps.size &&
+    prevProps.lazy === nextProps.lazy
+  );
+});
