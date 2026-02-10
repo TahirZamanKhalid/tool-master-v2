@@ -16,6 +16,7 @@ interface ProcessingOverlayProps {
   isOpen?: boolean;
   showSkip?: boolean;
   onSkip?: () => void;
+  adSlot?: string;
 }
 
 // Track pushed slots to prevent duplicate pushes
@@ -27,6 +28,7 @@ export const ProcessingOverlay = ({
   isOpen = true,
   showSkip,
   onSkip,
+  adSlot = "4159501466", // Default processing ad slot
 }: ProcessingOverlayProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -156,7 +158,7 @@ export const ProcessingOverlay = ({
                 minHeight: "250px",
               }}
               data-ad-client="ca-pub-7382531001943020"
-              data-ad-slot="4159501466"
+              data-ad-slot={adSlot}
               data-ad-format="auto"
               data-full-width-responsive="true"
             />
