@@ -202,7 +202,7 @@ export const ToolLayout = ({
             {layout === "with-sidebar" && (
               <div className="space-y-8">
                 <div className="sticky top-24 space-y-8">
-                  <div className="bg-card rounded-xl border shadow-sm p-4 min-h-[600px] flex items-center justify-center bg-muted/10">
+                  <div className="bg-card rounded-xl border shadow-sm p-4 min-h-[300px] w-full flex items-center justify-center bg-muted/10">
                     <SidebarAd slot={sidebarAdSlot} position="right" index={sidebarAdIndex} />
                   </div>
 

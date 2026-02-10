@@ -156,7 +156,7 @@ const AdvancedImageCompressor = () => {
       >
         <div className="flex gap-4">
           {/* Left Sidebar Ad */}
-          <div className="hidden xl:block w-40 flex-shrink-0">
+          <div className="hidden xl:block w-[200px] flex-shrink-0">
             <SidebarAd slot="5204253730" position="left" index={1} />
           </div>
 
@@ -360,7 +360,7 @@ const AdvancedImageCompressor = () => {
           </div>
 
           {/* Right Sidebar Ad */}
-          <div className="hidden xl:block w-40 flex-shrink-0">
+          <div className="hidden xl:block w-[200px] flex-shrink-0">
             <SidebarAd slot="4351073152" position="right" index={1} />
           </div>
         </div>

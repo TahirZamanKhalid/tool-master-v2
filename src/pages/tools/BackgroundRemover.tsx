@@ -235,7 +235,7 @@ const BackgroundRemover = () => {
           {/* Main Layout - 3 Columns on Desktop */}
           <div className="flex gap-6">
             {/* Left Sidebar - Hidden on mobile/tablet */}
-            <aside className="hidden lg:flex flex-col gap-6 w-[300px] flex-shrink-0">
+            <aside className="hidden lg:flex flex-col gap-6 w-[200px] flex-shrink-0">
               <div className="sticky top-4 space-y-6">
                 <SidebarAd slot={AD_SLOTS.leftSidebar1} position="left" index={1} />
                 <SidebarAd slot={AD_SLOTS.leftSidebar2} position="left" index={2} />
@@ -243,7 +243,7 @@ const BackgroundRemover = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 min-w-0 max-w-4xl mx-auto lg:mx-0">
+            <main className="flex-1 min-w-0 max-w-[1000px] mx-auto lg:mx-0 px-4">
               {/* Hero Section */}
               <header className="text-center mb-8">
                 <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4">
@@ -670,7 +670,7 @@ const BackgroundRemover = () => {
             </main>
 
             {/* Right Sidebar - Hidden on mobile/tablet */}
-            <aside className="hidden lg:flex flex-col gap-6 w-[300px] flex-shrink-0">
+            <aside className="hidden lg:flex flex-col gap-6 w-[200px] flex-shrink-0">
               <div className="sticky top-4 space-y-6">
                 <SidebarAd slot={AD_SLOTS.rightSidebar1} position="right" index={1} />
                 <SidebarAd slot={AD_SLOTS.rightSidebar2} position="right" index={2} />

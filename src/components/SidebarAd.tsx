@@ -96,7 +96,7 @@ export const SidebarAd = ({
     <div
       ref={containerRef}
       className={`bg-gray-50 dark:bg-gray-800/50 rounded-xl overflow-hidden ${className}`}
-      style={{ width: "300px", minHeight: "600px" }}
+      style={{ width: "200px", minHeight: "600px" }}
     >
       <div className="text-center text-xs text-gray-400 py-2 bg-gray-100 dark:bg-gray-800">
         Advertisement
@@ -106,7 +106,7 @@ export const SidebarAd = ({
         className="adsbygoogle"
         style={{
           display: "inline-block",
-          width: "300px",
+          width: "200px",
           height: "600px",
         }}
         data-ad-client="ca-pub-7382531001943020"

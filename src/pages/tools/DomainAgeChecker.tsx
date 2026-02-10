@@ -1445,32 +1445,32 @@ const DomainAgeChecker = () => {
 
         {/* ── Sidebar Column (Desktop only) ────────────────── */}
         {/* ── Sidebar Column (Desktop only) ────────────────── */}
-        <aside className="hidden lg:block w-[300px] shrink-0">
+        <aside className="hidden lg:block w-[200px] shrink-0">
           <div className="space-y-6">
             {/* First sidebar ad - sticky */}
             <div className="sticky top-4">
-              <div style={{ width: "300px", minHeight: "600px" }}>
+              <div style={{ width: "200px", minHeight: "600px" }}>
                 <AdSpace slot="5628599414" size="sidebar" />
               </div>
             </div>
 
             {/* Second sidebar ad - NOT sticky, flows naturally */}
-            <div style={{ width: "300px", minHeight: "600px" }}>
+            <div style={{ width: "200px", minHeight: "600px" }}>
               <AdSpace slot="1212397554" size="skyscraper" />
             </div>
 
             {/* Third sidebar ad */}
-            <div style={{ width: "300px", minHeight: "300px" }}>
+            <div style={{ width: "200px", minHeight: "200px" }}>
               <AdSpace slot="4153181237" size="square-300" />
             </div>
 
             {/* Fourth sidebar ad */}
-            <div style={{ width: "300px", minHeight: "250px" }}>
+            <div style={{ width: "200px", minHeight: "250px" }}>
               <AdSpace slot="7713152297" size="medium-rect" />
             </div>
 
             {/* Fifth sidebar ad - lazy loaded */}
-            <div style={{ width: "300px", minHeight: "600px" }}>
+            <div style={{ width: "200px", minHeight: "600px" }}>
               <LazyAdSpace slot="7110517063" format="vertical" />
             </div>
           </div>

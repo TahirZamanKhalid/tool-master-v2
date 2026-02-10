@@ -39,12 +39,12 @@ const SIZE_CONFIG: Record<
 > = {
   leaderboard: { width: "100%", height: "auto", minWidth: "320px", minHeight: "100px" },
   banner: { width: "100%", height: "auto", minWidth: "320px", minHeight: "60px" },
-  skyscraper: { width: "300px", height: "600px", minWidth: "160px", minHeight: "600px" },
-  sidebar: { width: "300px", height: "600px", minWidth: "160px", minHeight: "250px" },
-  "sidebar-alt": { width: "300px", height: "600px", minWidth: "160px", minHeight: "250px" },
-  "square-300": { width: "300px", height: "300px", minWidth: "250px", minHeight: "250px" },
-  "medium-rect": { width: "300px", height: "250px", minWidth: "250px", minHeight: "250px" },
-  custom: { width: "100%", height: "auto", minWidth: "250px", minHeight: "100px" },
+  skyscraper: { width: "200px", height: "600px", minWidth: "160px", minHeight: "600px" },
+  sidebar: { width: "200px", height: "600px", minWidth: "160px", minHeight: "250px" },
+  "sidebar-alt": { width: "200px", height: "600px", minWidth: "160px", minHeight: "250px" },
+  "square-300": { width: "200px", height: "200px", minWidth: "160px", minHeight: "200px" },
+  "medium-rect": { width: "200px", height: "250px", minWidth: "160px", minHeight: "250px" },
+  custom: { width: "100%", height: "auto", minWidth: "160px", minHeight: "100px" },
 };
 
 // Global Set to track pushed slots
