@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
+import { ensureAdSenseLoaded } from "@/utils/adsense";
 
 declare global {
   interface Window {
@@ -14,7 +15,7 @@ export interface AdRowProps {
   children?: ReactNode;
   lazy?: boolean;
   format?: "auto" | "autorelaxed" | "fluid";
-  isMultiplex?: boolean; // Add this to identify multiplex ads
+  isMultiplex?: boolean;
 }
 
 const MULTIPLEX_SLOTS = {
@@ -32,31 +33,34 @@ export const AdRow = ({
   slot,
   lazy = true,
   format = "auto",
-  isMultiplex = false, // Default to false
+  isMultiplex = false,
 }: AdRowProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(!lazy);
   const isPushedRef = useRef(false);
 
-  // Auto-detect if slot is multiplex
   const slotId = slot || MULTIPLEX_SLOTS["multiplex-1"];
   const isMultiplexAd = isMultiplex || Object.values(MULTIPLEX_SLOTS).includes(slotId);
   const adFormat = isMultiplexAd ? "autorelaxed" : format;
 
+  // Ensure AdSense is initialized
+  useEffect(() => {
+    ensureAdSenseLoaded();
+  }, []);
+
   // Lazy loading
   useEffect(() => {
-    if (!lazy) return;
+    if (!lazy || isVisible) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          console.log(`[AdRow] Slot ${slotId} visible`);
           setIsVisible(true);
           observer.disconnect();
         }
       },
-      { rootMargin: '200px', threshold: 0.01 }
+      { rootMargin: '300px', threshold: 0.01 }
     );
 
     if (containerRef.current) {
@@ -64,9 +68,9 @@ export const AdRow = ({
     }
 
     return () => observer.disconnect();
-  }, [lazy, slotId]);
+  }, [lazy, isVisible]);
 
-  // Push ad
+  // Push ad when visible
   useEffect(() => {
     if (!isVisible || isPushedRef.current) return;
 
@@ -74,32 +78,24 @@ export const AdRow = ({
       if (isPushedRef.current) return;
 
       try {
+        ensureAdSenseLoaded();
+
         if (!adRef.current || !containerRef.current) {
-          console.log('[AdRow] Refs not ready');
+          setTimeout(pushAd, 300);
           return;
         }
 
-        const width = containerRef.current.getBoundingClientRect().width;
-        console.log(`[AdRow] Pushing ad - Slot: ${slotId}, Width: ${width}px, Format: ${adFormat}`);
+        const width = containerRef.current.offsetWidth;
 
         if (width < 10) {
-          console.warn(`[AdRow] Container too narrow: ${width}px`);
+          console.warn(`[AdRow] Container width: ${width}px - retrying...`);
           setTimeout(pushAd, 500);
           return;
         }
 
         isPushedRef.current = true;
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log(`[AdRow] ✅ Ad pushed for slot ${slotId}`);
-
-        // Debug after 3 seconds
-        setTimeout(() => {
-          if (adRef.current) {
-            const hasIframe = adRef.current.querySelector('iframe') !== null;
-            const status = adRef.current.getAttribute('data-ad-status');
-            console.log(`[AdRow] Ad status - Slot: ${slotId}, HasIframe: ${hasIframe}, Status: ${status}`);
-          }
-        }, 3000);
+        console.log(`[AdRow] ✅ Pushed slot ${slotId}, width: ${width}px`);
 
       } catch (error) {
         console.error(`[AdRow] Error:`, error);
@@ -107,24 +103,22 @@ export const AdRow = ({
       }
     };
 
-    const timer = setTimeout(pushAd, 100);
+    const timer = setTimeout(pushAd, 800);
     return () => clearTimeout(timer);
-  }, [isVisible, slotId, adFormat]);
+  }, [isVisible, slotId]);
 
   return (
     <div
       ref={containerRef}
-      className={`ad-row-container ${className || ""}`}
+      className={className}
       style={{
         display: "block",
         width: "100%",
         minWidth: "300px",
         minHeight: isMultiplexAd ? "280px" : "250px",
         margin: "0 auto",
-        backgroundColor: "transparent",
         ...style,
       }}
-      data-ad-slot={slotId}
     >
       <ins
         ref={adRef}
