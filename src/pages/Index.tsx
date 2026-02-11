@@ -358,13 +358,19 @@ const Index = () => {
                     const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
 
                     return (
-                      <div
-                        key={tool.path}
-                        className="animate-fade-in"
-                        style={{ animationDelay: `${index * 0.05}s` }}
-                        onClick={() => handleToolClick(tool.path)}
-                      >
-                        <ToolCard {...tool} />
+                      <div key={tool.path} className="contents">
+                        <div
+                          className="animate-fade-in"
+                          style={{ animationDelay: `${index * 0.05}s` }}
+                          onClick={() => handleToolClick(tool.path)}
+                        >
+                          <ToolCard {...tool} />
+                        </div>
+                        {showAdAfter && (
+                          <div className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4 p-4">
+                            <AdRow slot="2127993591" />
+                          </div>
+                        )}
                       </div>
                     );
                   })}

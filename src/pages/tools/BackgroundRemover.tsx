@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SEOHead } from "@/components/SEOHead";
 import { Breadcrumbs, BREADCRUMB_PRESETS } from "@/components/Breadcrumbs";
 import { SidebarAd } from "@/components/SidebarAd";
+import { FixedSizeAd } from "@/components/FixedSizeAd";
 import { InFeedAd } from "@/components/InFeedAd";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { ImageEditor } from "@/components/ImageEditor";
@@ -233,8 +234,8 @@ const BackgroundRemover = () => {
             {/* Left Sidebar - Hidden on mobile/tablet */}
             <aside className="hidden lg:flex flex-col gap-6 w-[200px] flex-shrink-0">
               <div className="sticky top-4 space-y-6">
-                <SidebarAd slot={AD_SLOTS.leftSidebar1} position="left" index={1} />
-                <SidebarAd slot={AD_SLOTS.leftSidebar2} position="left" index={2} />
+                <SidebarAd slot={AD_SLOTS.leftSidebar1} position="left" index={1} width={200} height={600} />
+                <SidebarAd slot={AD_SLOTS.leftSidebar2} position="left" index={2} width={200} height={600} />
               </div>
             </aside>
 
@@ -480,7 +481,7 @@ const BackgroundRemover = () => {
               </Card>
 
               {/* Middle Ad */}
-              <InFeedAd className="my-8" />
+              <FixedSizeAd slot={AD_SLOTS.middle} width={800} height={150} className="my-8" />
 
               {/* SEO Content Sections */}
               <section className="space-y-8 mt-8">
@@ -671,8 +672,8 @@ const BackgroundRemover = () => {
             {/* Right Sidebar - Hidden on mobile/tablet */}
             <aside className="hidden lg:flex flex-col gap-6 w-[200px] flex-shrink-0">
               <div className="sticky top-4 space-y-6">
-                <SidebarAd slot={AD_SLOTS.rightSidebar1} position="right" index={1} />
-                <SidebarAd slot={AD_SLOTS.rightSidebar2} position="right" index={2} />
+                <SidebarAd slot={AD_SLOTS.rightSidebar1} position="right" index={1} width={200} height={600} />
+                <SidebarAd slot={AD_SLOTS.rightSidebar2} position="right" index={2} width={200} height={600} />
               </div>
             </aside>
           </div>

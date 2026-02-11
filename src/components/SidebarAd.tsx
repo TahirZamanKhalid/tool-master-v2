@@ -12,6 +12,8 @@ interface SidebarAdProps {
   position?: "left" | "right";
   index?: number;
   className?: string;
+  width?: number;
+  height?: number;
 }
 
 // Track pushed sidebar ads
@@ -21,7 +23,9 @@ export const SidebarAd = ({
   slot,
   position = "left",
   index = 1,
-  className = ""
+  className = "",
+  width = 200,
+  height = 600
 }: SidebarAdProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -71,8 +75,8 @@ export const SidebarAd = ({
           return;
         }
 
-        const width = containerRef.current.offsetWidth;
-        if (width < 10) {
+        const containerWidth = containerRef.current.offsetWidth;
+        if (containerWidth < 10) {
           setTimeout(pushAd, 500);
           return;
         }
@@ -80,7 +84,7 @@ export const SidebarAd = ({
         isPushedRef.current = true;
         pushedSidebarAds.add(uniqueId);
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-        console.log(`[SidebarAd] Pushed ${uniqueId}`);
+        console.log(`[SidebarAd] Pushed ${uniqueId} (${width}x${height})`);
       } catch (error) {
         console.error(`[SidebarAd] Error:`, error);
         isPushedRef.current = true;
@@ -90,13 +94,13 @@ export const SidebarAd = ({
 
     const timer = setTimeout(pushAd, 1000);
     return () => clearTimeout(timer);
-  }, [isVisible, uniqueId]);
+  }, [isVisible, uniqueId, width, height]);
 
   return (
     <div
       ref={containerRef}
       className={`bg-gray-50 dark:bg-gray-800/50 rounded-xl overflow-hidden ${className}`}
-      style={{ width: "200px", minHeight: "600px" }}
+      style={{ width: `${width}px`, minHeight: `${height}px` }}
     >
       <div className="text-center text-xs text-gray-400 py-2 bg-gray-100 dark:bg-gray-800">
         Advertisement
@@ -106,8 +110,8 @@ export const SidebarAd = ({
         className="adsbygoogle"
         style={{
           display: "inline-block",
-          width: "200px",
-          height: "600px",
+          width: `${width}px`,
+          height: `${height}px`,
         }}
         data-ad-client="ca-pub-7382531001943020"
         data-ad-slot={slot}

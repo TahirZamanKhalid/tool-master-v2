@@ -1,4 +1,3 @@
-// components/SidebarAd.tsx
 import { useEffect, useRef, useState } from "react";
 
 declare global {
@@ -7,22 +6,22 @@ declare global {
     }
 }
 
-interface SidebarAdProps {
+interface FixedSizeAdProps {
     slot: string;
-    position: "left" | "right";
-    index: number;
+    width: number;
+    height: number;
     className?: string;
 }
 
-const pushedSidebarAds = new Set<string>();
+const pushedFixedAds = new Set<string>();
 
-export const SidebarAd = ({ slot, position, index, className = "" }: SidebarAdProps) => {
+export const FixedSizeAd = ({ slot, width, height, className = "" }: FixedSizeAdProps) => {
     const adRef = useRef<HTMLModElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [isVisible, setIsVisible] = useState(false);
     const isPushedRef = useRef(false);
 
-    const uniqueId = `sidebar-${position}-${index}-${slot}`;
+    const uniqueId = `fixed-${slot}-${width}-${height}`;
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -46,7 +45,7 @@ export const SidebarAd = ({ slot, position, index, className = "" }: SidebarAdPr
         if (!isVisible || isPushedRef.current) return;
 
         const pushAd = () => {
-            if (isPushedRef.current || pushedSidebarAds.has(uniqueId)) return;
+            if (isPushedRef.current || pushedFixedAds.has(uniqueId)) return;
 
             try {
                 if (typeof window === "undefined" || !window.adsbygoogle) {
@@ -60,12 +59,12 @@ export const SidebarAd = ({ slot, position, index, className = "" }: SidebarAdPr
                 }
 
                 isPushedRef.current = true;
-                pushedSidebarAds.add(uniqueId);
+                pushedFixedAds.add(uniqueId);
                 (window.adsbygoogle = window.adsbygoogle || []).push({});
             } catch (error) {
-                console.error(`[SidebarAd] Error:`, error);
+                console.error(`[FixedSizeAd] Error:`, error);
                 isPushedRef.current = true;
-                pushedSidebarAds.add(uniqueId);
+                pushedFixedAds.add(uniqueId);
             }
         };
 
@@ -76,19 +75,21 @@ export const SidebarAd = ({ slot, position, index, className = "" }: SidebarAdPr
     return (
         <div
             ref={containerRef}
-            className={`bg-gray-50 dark:bg-gray-800/50 rounded-xl overflow-hidden ${className}`}
-            style={{ width: "200px", minHeight: "800px" }}
+            className={`flex flex-col items-center justify-center bg-gray-50 dark:bg-gray-800/50 rounded-xl overflow-hidden ${className}`}
+            style={{ width: "100%", minHeight: `${height + 30}px` }}
         >
-            <div className="text-center text-xs text-gray-400 py-2 bg-gray-100 dark:bg-gray-800">
+            <div className="text-center text-xs text-gray-400 py-1 bg-gray-100 dark:bg-gray-800 w-full mb-2">
                 Advertisement
             </div>
-            <ins
-                ref={adRef}
-                className="adsbygoogle"
-                style={{ display: "inline-block", width: "200px", height: "800px" }}
-                data-ad-client="ca-pub-7382531001943020"
-                data-ad-slot={slot}
-            />
+            <div style={{ width: `${width}px`, height: `${height}px`, overflow: "hidden" }}>
+                <ins
+                    ref={adRef}
+                    className="adsbygoogle"
+                    style={{ display: "inline-block", width: `${width}px`, height: `${height}px` }}
+                    data-ad-client="ca-pub-7382531001943020"
+                    data-ad-slot={slot}
+                />
+            </div>
         </div>
     );
 };

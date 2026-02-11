@@ -22,6 +22,8 @@ interface ToolLayoutProps {
   layout?: "full-width" | "with-sidebar";
   sidebarAdSlot?: string;
   sidebarAdIndex?: number;
+  sidebarAdWidth?: number;
+  sidebarAdHeight?: number;
 }
 
 export const ToolLayout = ({
@@ -36,6 +38,8 @@ export const ToolLayout = ({
   layout = "full-width",
   sidebarAdSlot = "4351073152", // Default right sidebar slot
   sidebarAdIndex = 1,
+  sidebarAdWidth = 200,
+  sidebarAdHeight = 600,
 }: ToolLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -235,8 +239,17 @@ export const ToolLayout = ({
             {layout === "with-sidebar" && (
               <div className="space-y-8">
                 <div className="sticky top-24 space-y-8">
-                  <div className="bg-card rounded-xl border shadow-sm p-4 min-h-[300px] w-full flex items-center justify-center bg-muted/10">
-                    <SidebarAd slot={sidebarAdSlot} position="right" index={sidebarAdIndex} />
+                  <div
+                    className="bg-card rounded-xl border shadow-sm p-4 w-full flex items-center justify-center bg-muted/10"
+                    style={{ minHeight: `${sidebarAdHeight}px` }}
+                  >
+                    <SidebarAd
+                      slot={sidebarAdSlot}
+                      position="right"
+                      index={sidebarAdIndex}
+                      width={sidebarAdWidth}
+                      height={sidebarAdHeight}
+                    />
                   </div>
 
                   <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-xl p-6 border border-primary/10">

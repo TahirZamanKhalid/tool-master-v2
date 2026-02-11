@@ -32,7 +32,8 @@ import {
 } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
 import { Breadcrumbs, BREADCRUMB_PRESETS } from "@/components/Breadcrumbs";
-import { SidebarAd } from "@/components/sidebarad200by800";
+import { SidebarAd } from "@/components/SidebarAd";
+import { FixedSizeAd } from "@/components/FixedSizeAd";
 import { InFeedAd } from "@/components/InFeedAd";
 import { DiceAnimation } from "@/components/Dice Roller/DiceAnimation";
 import { RollHistory } from "@/components/Dice Roller/RollHistory";
@@ -274,9 +275,9 @@ const DiceRoller = () => {
           {/* Main Layout */}
           <div className="flex gap-6">
             {/* Left Sidebar Ads */}
-            <aside className="hidden lg:flex flex-col gap-6 w-[200px] flex-shrink-0">
+            <aside className="hidden lg:flex flex-col gap-6 w-[150px] flex-shrink-0">
               <div className="sticky top-4 space-y-6">
-                <SidebarAd slot={AD_SLOTS.leftSidebar1} position="left" index={1} />
+                <SidebarAd slot={AD_SLOTS.leftSidebar1} position="left" index={1} width={150} height={800} />
               </div>
             </aside>
 
@@ -573,7 +574,7 @@ const DiceRoller = () => {
               )}
 
               {/* Middle Ad */}
-              <InFeedAd slot={AD_SLOTS.middle1} className="my-8" />
+              <FixedSizeAd slot={AD_SLOTS.middle1} width={800} height={150} className="my-8" />
 
               {/* SEO Content Sections */}
               <section className="space-y-8 mt-8">
@@ -746,6 +747,7 @@ const DiceRoller = () => {
                     perfect for classic board games.
                   </p>
                 </article>
+                <FixedSizeAd slot={AD_SLOTS.middle2} width={800} height={150} className="mt-8" />
               </section>
               {/* Additional SEO Content Section */}
               <div className="mt-16 space-y-12 text-gray-700 dark:text-gray-300">
@@ -799,9 +801,9 @@ const DiceRoller = () => {
             </main>
 
             {/* Right Sidebar Ads */}
-            <aside className="hidden lg:flex flex-col gap-6 w-[200px] flex-shrink-0">
+            <aside className="hidden lg:flex flex-col gap-6 w-[150px] flex-shrink-0">
               <div className="sticky top-4 space-y-6">
-                <SidebarAd slot={AD_SLOTS.rightSidebar1} position="right" index={1} />
+                <SidebarAd slot={AD_SLOTS.rightSidebar1} position="right" index={1} width={150} height={800} />
               </div>
             </aside>
           </div>
