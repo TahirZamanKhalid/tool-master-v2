@@ -45,7 +45,7 @@ export const ToolCard = ({ icon: Icon, title, description, category, popular, co
           </div>
 
           {/* Category Badge */}
-          <Badge variant="secondary" className="font-medium text-[10px] uppercase tracking-wider bg-secondary/50 text-secondary-foreground">
+          <Badge variant="secondary" className="font-semibold text-[10px] uppercase tracking-wider bg-secondary text-secondary-foreground shadow-sm">
             {category}
           </Badge>
         </div>
@@ -61,9 +61,9 @@ export const ToolCard = ({ icon: Icon, title, description, category, popular, co
         </p>
 
         <Button
-          className={`w-full font-semibold shadow-none transition-all duration-300 ${comingSoon
-              ? 'bg-muted text-muted-foreground'
-              : 'bg-secondary/50 text-secondary-foreground hover:bg-primary hover:text-white'
+          className={`w-full font-bold shadow-sm transition-all duration-300 ${comingSoon
+            ? 'bg-muted text-muted-foreground'
+            : 'bg-secondary text-secondary-foreground hover:bg-primary hover:text-white'
             }`}
           disabled={comingSoon}
         >

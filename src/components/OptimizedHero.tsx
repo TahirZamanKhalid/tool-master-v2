@@ -80,7 +80,7 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
               100+ Free AI-Powered Tools
             </span>
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground break-words animate-fade-in-up font-semibold" style={{ animationDelay: '0.1s' }}>
+          <p className="text-lg sm:text-xl md:text-2xl text-foreground/90 break-words animate-fade-in-up font-bold" style={{ animationDelay: '0.1s' }}>
             ✨ Instant Access, No Signup Required ✨
           </p>
 
@@ -91,7 +91,7 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
                 <Input
                   aria-label="Search tools"
                   placeholder="Search 100+ tools..."
-                  className="h-12 sm:h-14 pl-10 sm:pl-12 pr-2 text-sm sm:text-base shadow-card-hover hover:shadow-glow border-2 border-primary/20 hover:border-primary/40 w-full transition-smooth focus:scale-105 font-medium"
+                  className="h-12 sm:h-14 pl-10 sm:pl-12 pr-2 text-sm sm:text-base shadow-card-hover hover:shadow-glow border-2 border-primary/20 hover:border-primary/40 w-full transition-smooth focus:scale-105 font-bold"
                   value={localSearch}
                   onChange={handleSearchChange}
                 />
@@ -100,15 +100,15 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
                 type="submit"
                 aria-label="Submit search"
                 size="lg"
-                className="gradient-primary border-0 h-12 sm:h-14 px-4 sm:px-6 whitespace-nowrap shadow-card hover:shadow-card-hover transition-bounce hover:scale-110 font-bold shimmer-effect"
+                className="gradient-primary border-0 h-12 sm:h-14 px-4 sm:px-6 whitespace-nowrap shadow-card hover:shadow-card-hover transition-bounce hover:scale-110 font-black shimmer-effect text-white"
               >
                 Search →
               </Button>
             </div>
           </form>
 
-          <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm text-muted-foreground px-2 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-            <span className="self-center font-semibold text-gradient">🔥 Trending:</span>
+          <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm text-foreground animate-fade-in-up px-2" style={{ animationDelay: '0.3s' }}>
+            <span className="self-center font-bold text-primary">🔥 Trending:</span>
             {trendingTerms.map((term, index) => (
               <TrendingButton key={term} term={term} onClick={handleTrendingClick} />
             ))}

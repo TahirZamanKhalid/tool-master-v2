@@ -1035,7 +1035,7 @@ const WatermarkTool = () => {
           {/* Main Layout with Dual Sidebars */}
           <div className="flex flex-col lg:flex-row gap-6 max-w-[1920px] mx-auto">
             {/* Left Sidebar Ads */}
-            <aside className="hidden 2xl:flex flex-col gap-6 w-[150px] flex-shrink-0">
+            <aside className="hidden xl:flex flex-col gap-6 w-[150px] flex-shrink-0">
               <div className="sticky top-4 space-y-6">
                 <SidebarAd slot={AD_SLOTS.leftSidebar1} position="left" index={1} width={150} height={600} />
                 <SidebarAd slot={AD_SLOTS.leftSidebar2} position="left" index={2} width={150} height={600} />
@@ -1866,8 +1866,6 @@ const WatermarkTool = () => {
                                 onMouseUp={handleCanvasMouseUp}
                                 onMouseLeave={handleCanvasMouseUp}
                               />
-                              <canvas ref={canvasRef} className="hidden" />
-                              {showComparison && <canvas ref={comparisonCanvasRef} className="hidden" />}
                             </>
                           ) : (
                             <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
@@ -2098,11 +2096,16 @@ const WatermarkTool = () => {
                     </Link>
                   ))}
                 </div>
+                {/* Hidden processing canvases - kept outside tabs to stay mounted */}
+                <div className="hidden">
+                  <canvas ref={canvasRef} />
+                  {showComparison && <canvas ref={comparisonCanvasRef} />}
+                </div>
               </div>
             </main>
 
             {/* Right Sidebar Ads */}
-            <aside className="hidden 2xl:flex flex-col gap-6 w-[150px] flex-shrink-0">
+            <aside className="hidden xl:flex flex-col gap-6 w-[150px] flex-shrink-0">
               <div className="sticky top-4 space-y-6">
                 <SidebarAd slot={AD_SLOTS.rightSidebar1} position="right" index={1} width={150} height={600} />
                 <SidebarAd slot={AD_SLOTS.rightSidebar2} position="right" index={2} width={150} height={600} />
