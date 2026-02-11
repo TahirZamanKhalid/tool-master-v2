@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 
 interface SEOHeadProps {
   title: string;
@@ -10,84 +10,56 @@ interface SEOHeadProps {
   type?: "website" | "article" | "product";
 }
 
-export const SEOHead = ({ 
-  title, 
-  description, 
+export const SEOHead = ({
+  title,
+  description,
   keywords,
   ogImage = "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg",
   canonical,
   author = "ToolMaster Pro",
   type = "website"
 }: SEOHeadProps) => {
-  useEffect(() => {
-    // Set title - limit to 60 characters for SEO, show just the title for homepage
-    const finalTitle = title === "ToolMaster Pro" ? title : `${title} | ToolMaster Pro`;
-    document.title = finalTitle.substring(0, 60);
+  const finalTitle = title === "ToolMaster Pro" ? title : `${title} | ToolMaster Pro`;
+  const truncatedTitle = finalTitle.substring(0, 60);
+  const truncatedDesc = description.substring(0, 160);
 
-    // Set or update meta tags
-    const updateMetaTag = (property: string, content: string, isName = false) => {
-      const selector = isName ? `meta[name="${property}"]` : `meta[property="${property}"]`;
-      let tag = document.querySelector(selector);
-      
-      if (!tag) {
-        tag = document.createElement("meta");
-        if (isName) {
-          tag.setAttribute("name", property);
-        } else {
-          tag.setAttribute("property", property);
-        }
-        document.head.appendChild(tag);
-      }
-      tag.setAttribute("content", content);
-    };
+  return (
+    <Helmet>
+      {/* Basic meta tags */}
+      <title>{truncatedTitle}</title>
+      <meta name="description" content={truncatedDesc} />
+      {keywords && <meta name="keywords" content={keywords} />}
+      <meta name="author" content={author} />
+      <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    // Basic meta tags
-    updateMetaTag("description", description.substring(0, 160), true);
-    if (keywords) {
-      updateMetaTag("keywords", keywords, true);
-    }
-    updateMetaTag("author", author, true);
-    updateMetaTag("robots", "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1", true);
-    updateMetaTag("viewport", "width=device-width, initial-scale=1.0", true);
+      {/* Canonical URL */}
+      {canonical && <link rel="canonical" href={canonical} />}
 
-    // Open Graph tags for Facebook, LinkedIn, etc.
-    updateMetaTag("og:title", title);
-    updateMetaTag("og:description", description.substring(0, 160));
-    updateMetaTag("og:image", ogImage);
-    updateMetaTag("og:image:width", "1200");
-    updateMetaTag("og:image:height", "630");
-    updateMetaTag("og:image:alt", title);
-    updateMetaTag("og:type", type);
-    updateMetaTag("og:site_name", "ToolMaster Pro");
-    updateMetaTag("og:locale", "en_US");
-    if (canonical) {
-      updateMetaTag("og:url", canonical);
-    }
+      {/* Open Graph tags for Facebook, LinkedIn, etc. */}
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={truncatedDesc} />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={title} />
+      <meta property="og:type" content={type} />
+      <meta property="og:site_name" content="ToolMaster Pro" />
+      <meta property="og:locale" content="en_US" />
+      {canonical && <meta property="og:url" content={canonical} />}
 
-    // Twitter Card tags for enhanced Twitter sharing
-    updateMetaTag("twitter:card", "summary_large_image", true);
-    updateMetaTag("twitter:site", "@ToolMasterPro", true);
-    updateMetaTag("twitter:creator", "@ToolMasterPro", true);
-    updateMetaTag("twitter:title", title, true);
-    updateMetaTag("twitter:description", description.substring(0, 160), true);
-    updateMetaTag("twitter:image", ogImage, true);
-    updateMetaTag("twitter:image:alt", title, true);
+      {/* Twitter Card tags for enhanced Twitter sharing */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content="@ToolMasterPro" />
+      <meta name="twitter:creator" content="@ToolMasterPro" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={truncatedDesc} />
+      <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:image:alt" content={title} />
 
-    // Additional meta tags for better indexing
-    updateMetaTag("theme-color", "#1a1a2e", true);
-    updateMetaTag("msapplication-TileColor", "#1a1a2e", true);
-
-    // Canonical URL
-    if (canonical) {
-      let link = document.querySelector('link[rel="canonical"]');
-      if (!link) {
-        link = document.createElement("link");
-        link.setAttribute("rel", "canonical");
-        document.head.appendChild(link);
-      }
-      link.setAttribute("href", canonical);
-    }
-  }, [title, description, keywords, ogImage, canonical, author, type]);
-
-  return null;
+      {/* Additional meta tags for better indexing */}
+      <meta name="theme-color" content="#1a1a2e" />
+      <meta name="msapplication-TileColor" content="#1a1a2e" />
+    </Helmet>
+  );
 };

@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Breadcrumbs, BREADCRUMB_PRESETS, generateBreadcrumbsFromPath } from "@/components/Breadcrumbs";
 import { SEOHead } from "@/components/SEOHead";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ToolFAQ } from "@/components/ToolFAQ";
@@ -16,6 +16,8 @@ interface ToolLayoutProps {
   category: string;
   children: ReactNode;
   instructions?: string[];
+  features?: string[];
+  extraContent?: ReactNode;
   relatedTools?: { name: string; path: string }[];
   layout?: "full-width" | "with-sidebar";
   sidebarAdSlot?: string;
@@ -28,6 +30,8 @@ export const ToolLayout = ({
   category,
   children,
   instructions,
+  features,
+  extraContent,
   relatedTools,
   layout = "full-width",
   sidebarAdSlot = "4351073152", // Default right sidebar slot
@@ -66,6 +70,26 @@ export const ToolLayout = ({
     }
   };
 
+  const getBreadcrumbs = () => {
+    const path = location.pathname;
+    const cat = (category || "").toLowerCase();
+
+    if (cat.includes("image")) return BREADCRUMB_PRESETS.imageTools(title, path);
+    if (cat.includes("pdf")) return BREADCRUMB_PRESETS.pdfTools(title, path);
+    if (cat.includes("text")) return BREADCRUMB_PRESETS.textTools(title, path);
+    if (cat.includes("video")) return BREADCRUMB_PRESETS.videoTools(title, path);
+    if (cat.includes("calculator")) return BREADCRUMB_PRESETS.calculators(title, path);
+    if (cat.includes("converter")) return BREADCRUMB_PRESETS.converters(title, path);
+    if (cat.includes("generator")) return BREADCRUMB_PRESETS.generators(title, path);
+    if (cat.includes("seo") || cat.includes("marketing")) return BREADCRUMB_PRESETS.seoMarketing(title, path);
+    if (cat.includes("developer")) return BREADCRUMB_PRESETS.developerTools(title, path);
+    if (cat.includes("social")) return BREADCRUMB_PRESETS.socialMedia(title, path);
+    if (cat.includes("utility")) return BREADCRUMB_PRESETS.utilities(title, path);
+
+    // Fallback to auto-generation
+    return generateBreadcrumbsFromPath(path);
+  };
+
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
@@ -79,15 +103,10 @@ export const ToolLayout = ({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
       <main className="container max-w-[1600px] py-8 px-4">
-        <Breadcrumbs
-          items={[
-            { label: category || "Tools" },
-            { label: title }
-          ]}
-        />
+        <Breadcrumbs items={getBreadcrumbs()} />
 
         <div className="mt-8 w-full">
-          <div className={`grid gap-8 ${layout === "with-sidebar" ? "lg:grid-cols-[1fr_300px]" : ""}`}>
+          <div className={`grid gap-8 ${layout === "with-sidebar" ? "lg:grid-cols-[1fr_200px]" : ""}`}>
             {/* Main Content Column - FIXED: Removed min-w-0 */}
             <div className="space-y-8 w-full">
               <div>
@@ -137,13 +156,27 @@ export const ToolLayout = ({
                 </h2>
                 <h3 className="text-lg font-semibold text-muted-foreground mb-4">Key Features & Benefits</h3>
                 <ul className="space-y-3 list-disc list-inside text-muted-foreground">
-                  <li className="pl-2">100% Free online tool - No signup or registration required</li>
-                  <li className="pl-2">Fast and secure processing - All operations performed in your browser</li>
-                  <li className="pl-2">Works on any device - Desktop, tablet, or mobile</li>
-                  <li className="pl-2">Professional results - Enterprise-grade quality for free</li>
-                  <li className="pl-2">Privacy focused - Your data never leaves your device</li>
+                  {features ? (
+                    features.map((feature, index) => (
+                      <li key={index} className="pl-2">{feature}</li>
+                    ))
+                  ) : (
+                    <>
+                      <li className="pl-2">100% Free online {title.toLowerCase()} - No signup or registration required</li>
+                      <li className="pl-2">Fast and secure {category.toLowerCase()} tool - All operations performed in your browser</li>
+                      <li className="pl-2">Works on any device - Desktop, tablet, or mobile {category.toLowerCase()} solution</li>
+                      <li className="pl-2">Professional results - High-quality output for {title.toLowerCase()} for free</li>
+                      <li className="pl-2">Privacy focused - Your data never leaves your device during {title.toLowerCase()} processing</li>
+                    </>
+                  )}
                 </ul>
               </div>
+
+              {extraContent && (
+                <div className="prose dark:prose-invert max-w-none">
+                  {extraContent}
+                </div>
+              )}
 
               <ToolFAQ toolName={title} />
 

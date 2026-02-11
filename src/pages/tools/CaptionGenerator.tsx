@@ -94,10 +94,39 @@ const CaptionGenerator = () => {
         "Copy your favorite captions to use on social media",
         "Generate new captions anytime for fresh ideas",
       ]}
+      features={[
+        "Multiple Styles: Choose from Professional, Funny, Minimal, and more.",
+        "Smart Context: AI understands your image description to craft relevant text.",
+        "One-Click Copy: Quickly grab any caption for Instagram, TikTok, or Twitter.",
+        "High Variation: Get multiple unique options for every generation.",
+        "Privacy First: Your descriptions are used only for generation and never stored.",
+      ]}
+      extraContent={
+        <section className="mt-12 space-y-6">
+          <h2 className="text-2xl font-bold">Why the Right Caption Matters for Social Engagement</h2>
+          <p className="text-muted-foreground leading-relaxed text-lg">
+            In the world of social media, an image might be worth a thousand words, but a <strong>perfect caption</strong> is what drives engagement, comments, and shares. Our AI Caption Generator helps you break through "writer's block" by providing creative, platform-optimized text instantly.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <h3 className="font-bold">Instagram & TikTok Optimization</h3>
+              <p className="text-sm text-muted-foreground">
+                For visual platforms, you need a hook in the first sentence. Our storytelling and casual styles are designed to grab attention before the "more" button.
+              </p>
+            </div>
+            <div className="space-y-3">
+              <h3 className="font-bold">Professional LinkedIn Content</h3>
+              <p className="text-sm text-muted-foreground">
+                Our Professional style ensures your corporate updates sound polished, authoritative, and engaging for your professional network.
+              </p>
+            </div>
+          </div>
+        </section>
+      }
       relatedTools={[
         { name: "Meme Generator", path: "/tools/meme-generator" },
         { name: "Background Remover", path: "/tools/background-remover" },
-        { name: "Image Size Reducer", path: "/tools/image-compressor" },
+        { name: "Image Size Reducer", path: "/tools/image-size-reducer" },
       ]}
     >
       <div className="grid md:grid-cols-2 gap-6">

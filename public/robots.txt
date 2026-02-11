@@ -265,6 +265,7 @@ Disallow: /*?sort=*
 Disallow: /*?filter=*
 Disallow: /*?page=*
 Disallow: /*?search=*
+Disallow: /*?q=*
 
 # General crawl delay for unknown bots
 Crawl-delay: 5
