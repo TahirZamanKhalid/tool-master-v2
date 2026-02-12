@@ -27,34 +27,75 @@ export const InFeedAd = ({
 }: InFeedAdProps) => {
     const adRef = useRef<HTMLModElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const [adFailed, setAdFailed] = useState(false);
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            try {
-                if (adRef.current && containerRef.current) {
-                    const width = containerRef.current.offsetWidth;
-                    if (width > 0) {
-                        (window.adsbygoogle = window.adsbygoogle || []).push({});
-                    } else {
-                        setAdFailed(true);
-                    }
-                }
-            } catch (error) {
-                console.error("AdSense in-feed error:", error);
-                setAdFailed(true);
-            }
-        }, 200);
-
-        return () => clearTimeout(timer);
-    }, []);
+    const [isVisible, setIsVisible] = useState(false);
+    const [adFilled, setAdFilled] = useState(false);
+    const isPushedRef = useRef(false);
 
     const adSlot = slot || IN_FEED_SLOTS[layout];
+    const uniqueId = `in-feed-${adSlot}-${Math.random().toString(36).substr(2, 9)}`;
+
+    // Intersection Observer
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect();
+                }
+            },
+            { rootMargin: "200px" }
+        );
+
+        if (containerRef.current) {
+            observer.observe(containerRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
+
+    // Push ad when visible
+    useEffect(() => {
+        if (!isVisible || isPushedRef.current) return;
+
+        const pushAd = () => {
+            if (isPushedRef.current) return;
+
+            try {
+                if (typeof window === "undefined" || !window.adsbygoogle) {
+                    setTimeout(pushAd, 1000);
+                    return;
+                }
+
+                if (!adRef.current || !containerRef.current) {
+                    setTimeout(pushAd, 500);
+                    return;
+                }
+
+                const width = containerRef.current.offsetWidth;
+                if (width < 100) { // Ensure minimum width
+                    console.log(`[InFeedAd] Container too small (${width}px), retrying...`);
+                    setTimeout(pushAd, 500);
+                    return;
+                }
+
+                isPushedRef.current = true;
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                setAdFilled(true);
+                console.log(`[InFeedAd] Pushed ${uniqueId}`);
+            } catch (error) {
+                console.error(`[InFeedAd] Error:`, error);
+            }
+        };
+
+        // Small delay to ensure layout is stable
+        const timer = setTimeout(pushAd, 500);
+        return () => clearTimeout(timer);
+    }, [isVisible, uniqueId]);
 
     return (
         <div
             ref={containerRef}
-            className={`in-feed-ad w-full ${className || ""}`}
+            className={`in-feed-ad w-full my-4 ${className || ""}`}
             style={{
                 minWidth: "250px",
                 minHeight: "100px",
@@ -62,25 +103,22 @@ export const InFeedAd = ({
                 ...style,
             }}
         >
-            {adFailed ? (
-                <div className="flex items-center justify-center bg-muted/20 rounded-lg border border-dashed border-border/40 text-muted-foreground text-xs w-full min-h-[100px]">
-                    Advertisement
-                </div>
-            ) : (
-                <ins
-                    ref={adRef}
-                    className="adsbygoogle"
-                    style={{
-                        display: "block",
-                        width: "100%",
-                        minHeight: "100px",
-                    }}
-                    data-ad-format="fluid"
-                    data-ad-layout-key="-6t+ed+2i-1n-4w"
-                    data-ad-client="ca-pub-7382531001943020"
-                    data-ad-slot={adSlot}
-                />
-            )}
+            <div className="text-center text-xs text-gray-400 py-1 mb-1 bg-gray-50 dark:bg-gray-800/50 rounded">
+                Advertisement
+            </div>
+            <ins
+                ref={adRef}
+                className="adsbygoogle"
+                style={{
+                    display: "block",
+                    width: "100%",
+                    minHeight: "100px",
+                }}
+                data-ad-format="fluid"
+                data-ad-layout-key="-6t+ed+2i-1n-4w"
+                data-ad-client="ca-pub-7382531001943020"
+                data-ad-slot={adSlot}
+            />
         </div>
     );
 };

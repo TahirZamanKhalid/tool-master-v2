@@ -18,7 +18,7 @@ All colors MUST be HSL.
     --popover: 222 47% 13%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 217 91% 55%;
+    --primary: 217 91% 50%;
     /* Increased darkness for better white text contrast */
     --primary-foreground: 0 0% 100%;
 
