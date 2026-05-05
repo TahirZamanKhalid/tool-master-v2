@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -79,7 +78,6 @@ const PasswordGenerator = () => {
 
   return (
     <>
-      <Header />
       <ToolLayout
         title="Password Generator"
         description="Create secure, random passwords instantly"

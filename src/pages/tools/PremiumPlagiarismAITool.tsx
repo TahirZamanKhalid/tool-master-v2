@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { ToolLayout } from "@/components/ToolLayout";
 import { Shield, RefreshCw, Wand2, Download, Copy, AlertCircle, CheckCircle, TrendingUp, BarChart3, Eye, Zap, FileText, Brain, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -603,8 +604,8 @@ Issues: ${s.issues.join(', ') || 'None'}
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <ToolLayout title="AI Plagiarism Checker" description="Check text for plagiarism and AI-generated content patterns." category="AI & Content">
+      <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
@@ -1075,7 +1076,7 @@ Issues: ${s.issues.join(', ') || 'None'}
           </Card>
         </div>
       </div>
-    </div>
+    </ToolLayout>
   );
 };
 

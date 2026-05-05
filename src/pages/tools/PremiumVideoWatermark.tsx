@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { ToolLayout } from "@/components/ToolLayout";
 import { Shield, Upload, Download, Sparkles, Type, Image as ImageIcon, Play, Pause, Loader2, Droplet } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -221,8 +222,8 @@ const PremiumVideoWatermark = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <ToolLayout title="Video Watermark Tool" description="Add text or image watermarks to your videos easily." category="Video Tools">
+      <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
@@ -624,7 +625,7 @@ const PremiumVideoWatermark = () => {
           </Card>
         </div>
       </div>
-    </div>
+    </ToolLayout>
   );
 };
 

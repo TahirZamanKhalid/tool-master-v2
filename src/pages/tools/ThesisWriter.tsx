@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,339 +6,178 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Download, Copy } from "lucide-react";
-import { LazyAdSpace } from "@/components/LazyAdSpace";
-import { ContentAdBreak } from "@/components/ContentAdBreak";
-import { SEOHead } from "@/components/SEOHead";
-import { GeneratingAdModal } from "@/components/GeneratingAdModal";
+import { Loader2, Download, Copy, BookOpen } from "lucide-react";
+import { streamText } from "@/utils/pollinations";
 
 const ThesisWriter = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [thesis, setThesis] = useState("");
-  const [showAdModal, setShowAdModal] = useState(false);
-  const wordCountRef = useRef(0);
-  const lastAdWordCount = useRef(0);
-
   const [formData, setFormData] = useState({
     researchTopic: "",
-    fieldOfStudy: "",
-    wordCount: "5000",
-    chapterType: "",
+    fieldOfStudy: "computer-science",
+    wordCount: "3000",
+    chapterType: "introduction",
     researchQuestions: "",
     methodology: "",
-    additionalContext: ""
+    additionalContext: "",
   });
 
   const generateThesis = async () => {
-    if (!formData.researchTopic || !formData.fieldOfStudy || !formData.wordCount || !formData.chapterType) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
+    if (!formData.researchTopic.trim()) {
+      toast({ title: "Topic required", description: "Please enter a research topic.", variant: "destructive" });
       return;
     }
-
     setLoading(true);
     setThesis("");
-    wordCountRef.current = 0;
-    lastAdWordCount.current = 0;
-
     try {
-      const response = await fetch("/api-proxy.php", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'generate-thesis',
-          ...formData
-        }),
-      });
+      const prompt = `Write a ${formData.wordCount}-word academic ${formData.chapterType} chapter for a thesis/dissertation.
 
-      if (!response.ok || !response.body) {
-        throw new Error('Failed to start stream');
+Research Topic: ${formData.researchTopic}
+Field of Study: ${formData.fieldOfStudy}
+${formData.researchQuestions ? `Research Questions: ${formData.researchQuestions}` : ""}
+${formData.methodology ? `Methodology: ${formData.methodology}` : ""}
+${formData.additionalContext ? `Additional Context: ${formData.additionalContext}` : ""}
+
+Write in formal academic style with proper citations format (e.g., Author, Year), clear structure, and scholarly language appropriate for a graduate-level thesis. Include relevant headings and subheadings.`;
+
+      let text = "";
+      for await (const chunk of streamText([{ role: "user", content: prompt }], { model: "openai", temperature: 0.6 })) {
+        text += chunk;
+        setThesis(text);
       }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let textBuffer = "";
-      let streamDone = false;
-      let currentContent = "";
-
-      while (!streamDone) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        textBuffer += decoder.decode(value, { stream: true });
-
-        let newlineIndex: number;
-        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
-          let line = textBuffer.slice(0, newlineIndex);
-          textBuffer = textBuffer.slice(newlineIndex + 1);
-
-          if (line.endsWith("\r")) line = line.slice(0, -1);
-          if (line.startsWith(":") || line.trim() === "") continue;
-          if (!line.startsWith("data: ")) continue;
-
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === "[DONE]") {
-            streamDone = true;
-            break;
-          }
-
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-            if (content) {
-              currentContent += content;
-              setThesis(currentContent);
-
-              const words = currentContent.trim().split(/\s+/);
-              wordCountRef.current = words.length;
-
-              if (wordCountRef.current - lastAdWordCount.current >= 3000) {
-                lastAdWordCount.current = wordCountRef.current;
-                setShowAdModal(true);
-                setLoading(false);
-                await new Promise(resolve => {
-                  const checkAdClosed = setInterval(() => {
-                    if (!showAdModal) {
-                      clearInterval(checkAdClosed);
-                      resolve(null);
-                    }
-                  }, 100);
-                });
-                setLoading(true);
-              }
-            }
-          } catch {
-            textBuffer = line + "\n" + textBuffer;
-            break;
-          }
-        }
-      }
-
-      toast({
-        title: "Success",
-        description: "Thesis content generated successfully!",
-      });
-    } catch (error) {
-      console.error('Error generating thesis:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate thesis content. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Thesis content generated!", description: "Your chapter content is ready." });
+    } catch {
+      toast({ title: "Generation failed", description: "Unable to connect. Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
-  const copyToClipboard = () => {
+  const copy = () => {
     navigator.clipboard.writeText(thesis);
-    toast({
-      title: "Copied",
-      description: "Thesis content copied to clipboard",
-    });
+    toast({ title: "Copied!" });
   };
 
-  const downloadThesis = () => {
-    const blob = new Blob([thesis], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `thesis-${formData.researchTopic.substring(0, 30)}.txt`;
+  const download = () => {
+    const blob = new Blob([thesis], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `thesis-${formData.researchTopic.slice(0, 30).replace(/\s+/g, "-")}.txt`;
     a.click();
   };
 
-  const renderContentWithAds = (content: string) => {
-    const words = content.split(' ');
-    const chunks: JSX.Element[] = [];
-    let currentChunk: string[] = [];
-    let wordCount = 0;
-    let adIndex = 0;
-    const maxAds = 3;
-
-    words.forEach((word, index) => {
-      currentChunk.push(word);
-      wordCount++;
-
-      if (wordCount >= 500 || index === words.length - 1) {
-        chunks.push(
-          <div key={`chunk-${index}`}>
-            <p className="whitespace-pre-wrap mb-4">{currentChunk.join(' ')}</p>
-            {wordCount >= 500 && index !== words.length - 1 && adIndex < maxAds && (
-              <ContentAdBreak key={`ad-${adIndex++}`} index={adIndex} />
-            )}
-          </div>
-        );
-        currentChunk = [];
-        wordCount = 0;
-      }
-    });
-
-    return chunks;
-  };
-
   return (
-    <>
-      <SEOHead
-        title="AI Thesis Writer - Generate Academic Thesis & Dissertation Content"
-        description="Create comprehensive thesis and dissertation chapters with our AI thesis writer. Generate research-quality content for literature reviews, methodology, and more. Free academic writing tool."
-        keywords="thesis writer, dissertation writer, AI thesis generator, academic writing, research paper, thesis help, dissertation generator"
-        canonical="https://toolmaster.cloud/tools/thesis-writer"
-      />
-
-      <ToolLayout
-        title="AI Thesis Writer"
-        description="Generate comprehensive thesis and dissertation chapters with AI. Perfect for graduate students and researchers working on academic projects."
-        category="AI & Content"
-      >
-        <div className="bg-card rounded-lg border p-6 space-y-6">
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="researchTopic">Research Topic *</Label>
-                <Input
-                  id="researchTopic"
-                  value={formData.researchTopic}
-                  onChange={(e) => setFormData({ ...formData, researchTopic: e.target.value })}
-                  placeholder="Enter your research topic..."
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="fieldOfStudy">Field of Study *</Label>
-                <Select value={formData.fieldOfStudy} onValueChange={(value) => setFormData({ ...formData, fieldOfStudy: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select field" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="computer-science">Computer Science</SelectItem>
-                    <SelectItem value="engineering">Engineering</SelectItem>
-                    <SelectItem value="business">Business</SelectItem>
-                    <SelectItem value="psychology">Psychology</SelectItem>
-                    <SelectItem value="education">Education</SelectItem>
-                    <SelectItem value="medicine">Medicine</SelectItem>
-                    <SelectItem value="social-sciences">Social Sciences</SelectItem>
-                    <SelectItem value="humanities">Humanities</SelectItem>
-                    <SelectItem value="natural-sciences">Natural Sciences</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="chapterType">Chapter/Section Type *</Label>
-                <Select value={formData.chapterType} onValueChange={(value) => setFormData({ ...formData, chapterType: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select chapter type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="introduction">Introduction</SelectItem>
-                    <SelectItem value="literature-review">Literature Review</SelectItem>
-                    <SelectItem value="methodology">Methodology</SelectItem>
-                    <SelectItem value="results">Results</SelectItem>
-                    <SelectItem value="discussion">Discussion</SelectItem>
-                    <SelectItem value="conclusion">Conclusion</SelectItem>
-                    <SelectItem value="abstract">Abstract</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="wordCount">Word Count *</Label>
-                <Select value={formData.wordCount} onValueChange={(value) => setFormData({ ...formData, wordCount: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select word count" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2000">2000 words</SelectItem>
-                    <SelectItem value="3000">3000 words</SelectItem>
-                    <SelectItem value="5000">5000 words</SelectItem>
-                    <SelectItem value="7500">7500 words</SelectItem>
-                    <SelectItem value="10000">10000 words</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="researchQuestions">Research Questions (Optional)</Label>
-              <Textarea
-                id="researchQuestions"
-                value={formData.researchQuestions}
-                onChange={(e) => setFormData({ ...formData, researchQuestions: e.target.value })}
-                placeholder="List your research questions..."
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="methodology">Methodology (Optional)</Label>
-              <Textarea
-                id="methodology"
-                value={formData.methodology}
-                onChange={(e) => setFormData({ ...formData, methodology: e.target.value })}
-                placeholder="Describe your research methodology..."
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="additionalContext">Additional Context (Optional)</Label>
-              <Textarea
-                id="additionalContext"
-                value={formData.additionalContext}
-                onChange={(e) => setFormData({ ...formData, additionalContext: e.target.value })}
-                placeholder="Any additional context, frameworks, or specific requirements..."
-                rows={4}
-              />
-            </div>
-
-            <Button onClick={generateThesis} disabled={loading} className="w-full">
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating Thesis Content...
-                </>
-              ) : (
-                "Generate Thesis Content"
-              )}
-            </Button>
+    <ToolLayout
+      title="AI Thesis Writer"
+      description="Generate comprehensive academic thesis chapters and dissertation content with AI. Free, no signup required."
+      category="AI & Content"
+      showDownloadAd={!!thesis}
+      onDownload={download}
+      downloadLabel="Download Thesis"
+    >
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Research Topic *</Label>
+            <Input
+              value={formData.researchTopic}
+              onChange={(e) => setFormData({ ...formData, researchTopic: e.target.value })}
+              placeholder="e.g. Machine Learning Applications in Healthcare Diagnostics"
+              className="rounded-xl"
+            />
           </div>
-
-          {thesis && (
-            <div className="mt-6 space-y-4">
-              <div className="flex gap-2">
-                <Button onClick={copyToClipboard} variant="outline" size="sm">
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy
-                </Button>
-                <Button onClick={downloadThesis} variant="outline" size="sm">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
-                </Button>
-              </div>
-
-              <div className="bg-muted p-6 rounded-lg">
-                <h3 className="font-semibold mb-4 text-lg">Generated Content:</h3>
-                <div className="prose prose-sm max-w-none">
-                  {renderContentWithAds(thesis)}
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="space-y-1.5">
+            <Label>Field of Study</Label>
+            <Select value={formData.fieldOfStudy} onValueChange={(v) => setFormData({ ...formData, fieldOfStudy: v })}>
+              <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {[["computer-science","Computer Science"],["engineering","Engineering"],["business","Business"],["psychology","Psychology"],["education","Education"],["medicine","Medicine"],["social-sciences","Social Sciences"],["humanities","Humanities"],["natural-sciences","Natural Sciences"]].map(([v, l]) => (
+                  <SelectItem key={v} value={v}>{l}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Chapter / Section Type</Label>
+            <Select value={formData.chapterType} onValueChange={(v) => setFormData({ ...formData, chapterType: v })}>
+              <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {[["introduction","Introduction"],["literature-review","Literature Review"],["methodology","Methodology"],["results","Results"],["discussion","Discussion"],["conclusion","Conclusion"],["abstract","Abstract"]].map(([v, l]) => (
+                  <SelectItem key={v} value={v}>{l}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Word Count</Label>
+            <Select value={formData.wordCount} onValueChange={(v) => setFormData({ ...formData, wordCount: v })}>
+              <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {["1000","2000","3000","5000","7500"].map(n => (
+                  <SelectItem key={n} value={n}>{n} words</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Research Questions (optional)</Label>
+            <Textarea
+              value={formData.researchQuestions}
+              onChange={(e) => setFormData({ ...formData, researchQuestions: e.target.value })}
+              placeholder="List your main research questions..."
+              className="rounded-xl"
+              rows={2}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Methodology (optional)</Label>
+            <Textarea
+              value={formData.methodology}
+              onChange={(e) => setFormData({ ...formData, methodology: e.target.value })}
+              placeholder="Describe your research methodology..."
+              className="rounded-xl"
+              rows={2}
+            />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Additional Context (optional)</Label>
+            <Textarea
+              value={formData.additionalContext}
+              onChange={(e) => setFormData({ ...formData, additionalContext: e.target.value })}
+              placeholder="Any additional context, frameworks, or specific requirements..."
+              className="rounded-xl"
+              rows={2}
+            />
+          </div>
         </div>
-      </ToolLayout>
 
-      <GeneratingAdModal
-        open={showAdModal}
-        onComplete={() => setShowAdModal(false)}
-      />
-    </>
+        <Button
+          onClick={generateThesis}
+          disabled={loading}
+          className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl"
+        >
+          {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</> : <><BookOpen className="mr-2 h-4 w-4" /> Generate Thesis Content</>}
+        </Button>
+
+        {thesis && (
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={copy} className="rounded-xl">
+                <Copy className="mr-1.5 h-3.5 w-3.5" /> Copy
+              </Button>
+              <Button variant="outline" size="sm" onClick={download} className="rounded-xl">
+                <Download className="mr-1.5 h-3.5 w-3.5" /> Download
+              </Button>
+            </div>
+            <div className="bg-muted/40 border border-border/60 rounded-xl p-4 max-h-[60vh] overflow-y-auto">
+              <pre className="whitespace-pre-wrap text-sm text-foreground font-sans leading-relaxed">{thesis}</pre>
+            </div>
+            {loading && <p className="text-xs text-primary animate-pulse">✍️ Writing your thesis content...</p>}
+          </div>
+        )}
+      </div>
+    </ToolLayout>
   );
 };
 

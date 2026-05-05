@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { ToolLayout } from "@/components/ToolLayout";
 import { Target, TrendingUp, Calendar, DollarSign, Plus, Trash2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -225,8 +226,8 @@ const SavingsGoalCalculator = () => {
   }, [calculations]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <ToolLayout title="Savings Goal Calculator" description="Plan and track multiple savings goals with timelines and monthly targets." category="Finance">
+      <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
@@ -608,7 +609,7 @@ const SavingsGoalCalculator = () => {
           </Card>
         )}
       </div>
-    </div>
+    </ToolLayout>
   );
 };
 

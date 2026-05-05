@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
-import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { AdSpace } from "@/components/AdSpace";
-import { useToast } from "@/hooks/use-toast";
-import { Loader2, Copy, RefreshCw } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, Copy, RefreshCw, ArrowRight } from "lucide-react";
+import { streamText } from "@/utils/pollinations";
 
 const TextRephraser = () => {
   const [input, setInput] = useState("");
@@ -17,134 +17,118 @@ const TextRephraser = () => {
 
   const rephraseText = async () => {
     if (!input.trim()) {
-      toast({ description: "Please enter text to rephrase", variant: "destructive" });
+      toast({ description: "Please enter text to rephrase.", variant: "destructive" });
       return;
     }
-
     setLoading(true);
+    setOutput("");
     try {
-      const response = await fetch("/api-proxy.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "rephrase-text",
-          text: input,
-          tone
-        })
-      });
+      const prompt = `Rephrase the following text in a ${tone} tone. Keep the original meaning but use different wording and sentence structure. Only output the rephrased text, nothing else.
 
-      if (!response.ok) throw new Error("Proxy error");
-      const data = await response.json();
+Text to rephrase:
+${input}`;
 
-      if (data.error) throw new Error(data.error);
-
-      setOutput(data.data?.rephrasedText || "");
+      let text = "";
+      for await (const chunk of streamText([{ role: "user", content: prompt }], { model: "openai" })) {
+        text += chunk;
+        setOutput(text);
+      }
       toast({ description: "Text rephrased successfully!" });
-    } catch (error: any) {
-      console.error('Error:', error);
-      toast({
-        description: error.message || "Failed to rephrase text. Please try again.",
-        variant: "destructive"
-      });
+    } catch {
+      toast({ description: "Failed to rephrase text. Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
-  const copyToClipboard = () => {
+  const copy = () => {
     navigator.clipboard.writeText(output);
     toast({ description: "Copied to clipboard!" });
   };
 
+  const inputWords = input.trim() ? input.trim().split(/\s+/).length : 0;
+  const outputWords = output.trim() ? output.trim().split(/\s+/).length : 0;
+
   return (
     <ToolLayout
-      title="Text Rephraser"
-      description="Rephrase text with different tones while maintaining the original meaning using AI"
+      title="AI Text Rephraser"
+      description="Rephrase any text with different tones while preserving the original meaning. Free, instant, no signup."
       category="AI & Content"
       instructions={[
         "Paste the text you want to rephrase",
-        "Select your desired tone (professional, casual, formal, etc.)",
-        "Click 'Rephrase Text' to generate alternatives",
-        "Copy the rephrased version you prefer"
+        "Select your desired tone",
+        "Click Rephrase Text",
+        "Copy the rephrased version",
       ]}
     >
-      <AdSpace size="leaderboard" className="mb-6" />
-      <Card>
-        <CardContent className="p-6 space-y-4">
-          <div>
-            <label className="text-sm font-medium mb-2 block">Text to Rephrase</label>
+      <div className="space-y-4">
+        <div className="space-y-1.5">
+          <Label>Tone</Label>
+          <Select value={tone} onValueChange={setTone}>
+            <SelectTrigger className="rounded-xl w-48"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {["standard","professional","casual","formal","friendly","academic","creative"].map(t => (
+                <SelectItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-3 items-start">
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <Label>Original Text</Label>
+              <span className="text-xs text-muted-foreground">{inputWords} words</span>
+            </div>
             <Textarea
-              placeholder="Enter text you want to rephrase..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              rows={8}
-              className="font-mono"
+              placeholder="Paste your text here..."
+              className="rounded-xl min-h-[220px] font-mono text-sm"
             />
-            <p className="text-sm text-muted-foreground mt-2">
-              {input.length} characters, {input.split(/\s+/).filter(w => w).length} words
-            </p>
           </div>
 
-          <div>
-            <label className="text-sm font-medium mb-2 block">Tone</label>
-            <Select value={tone} onValueChange={setTone}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="standard">Standard</SelectItem>
-                <SelectItem value="professional">Professional</SelectItem>
-                <SelectItem value="casual">Casual</SelectItem>
-                <SelectItem value="formal">Formal</SelectItem>
-                <SelectItem value="friendly">Friendly</SelectItem>
-                <SelectItem value="academic">Academic</SelectItem>
-                <SelectItem value="creative">Creative</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex md:flex-col items-center justify-center pt-7 gap-2">
+            <Button
+              onClick={rephraseText}
+              disabled={loading || !input.trim()}
+              size="sm"
+              className="rounded-xl bg-primary hover:bg-primary/90 text-white font-bold px-4"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+            </Button>
           </div>
 
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <Label>Rephrased Text</Label>
+              <span className="text-xs text-muted-foreground">{outputWords} words</span>
+            </div>
+            <Textarea
+              value={output}
+              readOnly
+              placeholder="Rephrased text will appear here..."
+              className="rounded-xl min-h-[220px] font-mono text-sm bg-muted/30"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-2">
           <Button
             onClick={rephraseText}
-            className="w-full"
             disabled={loading || !input.trim()}
+            className="h-11 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6"
           >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Rephrasing...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Rephrase Text
-              </>
-            )}
+            {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Rephrasing...</> : <><RefreshCw className="mr-2 h-4 w-4" /> Rephrase Text</>}
           </Button>
-
           {output && (
-            <div className="space-y-3">
-              <label className="text-sm font-medium block">Rephrased Text</label>
-              <Textarea
-                value={output}
-                readOnly
-                rows={8}
-                className="font-mono"
-              />
-              <p className="text-sm text-muted-foreground">
-                {output.length} characters, {output.split(/\s+/).filter(w => w).length} words
-              </p>
-              <Button
-                onClick={copyToClipboard}
-                variant="outline"
-                className="w-full"
-              >
-                <Copy className="mr-2 h-4 w-4" />
-                Copy Result
-              </Button>
-            </div>
+            <Button variant="outline" onClick={copy} className="h-11 rounded-xl">
+              <Copy className="mr-2 h-4 w-4" /> Copy Result
+            </Button>
           )}
-        </CardContent>
-      </Card>
+        </div>
+        {loading && <p className="text-xs text-primary animate-pulse">✍️ Rephrasing your text...</p>}
+      </div>
     </ToolLayout>
   );
 };

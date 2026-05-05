@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { ToolLayout } from "@/components/ToolLayout";
 import { Ruler, History, ArrowLeftRight, X, Copy, Sparkles, Trash2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -246,8 +247,8 @@ const PremiumPlusUnitConverter = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-teal-50 to-cyan-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <ToolLayout title="Unit Converter Pro" description="Convert between hundreds of units across all measurement types." category="Calculators">
+      <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
@@ -464,7 +465,7 @@ const PremiumPlusUnitConverter = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </ToolLayout>
   );
 };
 

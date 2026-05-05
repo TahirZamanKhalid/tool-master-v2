@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -185,7 +184,6 @@ const Base64Encoder = () => {
         <script type="application/ld+json">{JSON.stringify(faqStructuredData)}</script>
       </Helmet>
 
-      <Header />
       <ToolLayout
         title="Base64 Encoder/Decoder"
         description="Encode text to Base64 or decode Base64 strings instantly — essential for developers, APIs, and data embedding."

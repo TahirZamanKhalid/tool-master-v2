@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { ToolLayout } from "@/components/ToolLayout";
 import { Activity, Calculator, Target, TrendingDown, TrendingUp, Scale, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -239,8 +240,8 @@ const TDEECalculator = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-pink-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <ToolLayout title="TDEE Calculator" description="Calculate your Total Daily Energy Expenditure and get personalized nutrition recommendations." category="Health">
+      <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
@@ -794,7 +795,7 @@ const TDEECalculator = () => {
           </>
         )}
       </div>
-    </div>
+    </ToolLayout>
   );
 };
 
