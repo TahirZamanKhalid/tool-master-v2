@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -115,7 +114,6 @@ const CurrencyConverter = () => {
 
   return (
     <>
-      <Header />
       <ToolLayout
         title="Currency Converter"
         description="Convert between 40+ world currencies with live exchange rates updated daily"

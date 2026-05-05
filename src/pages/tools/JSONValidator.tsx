@@ -1,66 +1,87 @@
 import { useState } from "react";
-import "./JSONValidator.css";
+import { ToolLayout } from "@/components/ToolLayout";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { CheckCircle, XCircle, Code } from "lucide-react";
 
 const JSONValidator = () => {
   const [input, setInput] = useState("");
   const [result, setResult] = useState<{ valid: boolean; message: string } | null>(null);
+  const { toast } = useToast();
 
   const validate = () => {
+    if (!input.trim()) {
+      toast({ description: "Please enter JSON to validate.", variant: "destructive" });
+      return;
+    }
     try {
       JSON.parse(input);
       setResult({ valid: true, message: "Valid JSON!" });
-    } catch (error: any) {
-      setResult({ valid: false, message: error.message });
+    } catch (error: unknown) {
+      setResult({ valid: false, message: error instanceof Error ? error.message : "Invalid JSON" });
+    }
+  };
+
+  const formatJSON = () => {
+    try {
+      const parsed = JSON.parse(input);
+      setInput(JSON.stringify(parsed, null, 2));
+      setResult({ valid: true, message: "JSON formatted successfully!" });
+    } catch {
+      toast({ description: "Cannot format invalid JSON.", variant: "destructive" });
+    }
+  };
+
+  const minifyJSON = () => {
+    try {
+      const parsed = JSON.parse(input);
+      setInput(JSON.stringify(parsed));
+      setResult({ valid: true, message: "JSON minified successfully!" });
+    } catch {
+      toast({ description: "Cannot minify invalid JSON.", variant: "destructive" });
     }
   };
 
   return (
-    <div className="json-validator-container">
-      <div className="json-validator-content">
-        <div className="json-validator-header">
-          <span className="json-validator-badge">Developer Tools</span>
-          <h1 className="json-validator-title">JSON Validator</h1>
-          <p className="json-validator-description">
-            Validate JSON syntax
-          </p>
-        </div>
-        
-        {/* AdSense Ad */}
-        <div style={{ textAlign: 'center', margin: '2rem 0' }}>
-          <ins className="adsbygoogle"
-               style={{ display: 'inline-block', width: '600px', height: '300px' }}
-               data-ad-client="ca-pub-7382531001943020"
-               data-ad-slot="2931558314"></ins>
-          <script>
-            {(window.adsbygoogle = window.adsbygoogle || []).push({})}
-          </script>
+    <ToolLayout
+      title="JSON Validator"
+      description="Validate, format, and minify JSON instantly. Free online JSON validator and formatter."
+      category="Developer Tools"
+      instructions={[
+        "Paste your JSON in the text area",
+        "Click Validate to check for errors",
+        "Use Format to pretty-print or Minify to compress",
+      ]}
+    >
+      <div className="space-y-4">
+        <Textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder='{"example": "Paste your JSON here..."}'
+          className="rounded-xl font-mono text-sm min-h-[240px]"
+        />
+
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={validate} className="rounded-xl bg-primary hover:bg-primary/90 text-white font-bold">
+            <Code className="mr-2 h-4 w-4" /> Validate JSON
+          </Button>
+          <Button variant="outline" onClick={formatJSON} className="rounded-xl">
+            Format
+          </Button>
+          <Button variant="outline" onClick={minifyJSON} className="rounded-xl">
+            Minify
+          </Button>
         </div>
 
-        <div className="json-validator-card">
-          <div className="json-validator-form">
-            <textarea
-              className="json-validator-textarea"
-              placeholder="Paste JSON here..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              rows={10}
-            />
-            <button
-              onClick={validate}
-              className="json-validator-button"
-            >
-              Validate JSON
-            </button>
-            {result && (
-              <div className={`json-validator-alert ${result.valid ? 'success' : 'error'}`}>
-                {result.valid ? "✓ " : "✗ "}
-                {result.message}
-              </div>
-            )}
+        {result && (
+          <div className={`flex items-start gap-3 p-4 rounded-xl border ${result.valid ? "bg-green-500/10 border-green-500/30 text-green-700 dark:text-green-400" : "bg-red-500/10 border-red-500/30 text-red-700 dark:text-red-400"}`}>
+            {result.valid ? <CheckCircle className="h-5 w-5 mt-0.5 flex-shrink-0" /> : <XCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />}
+            <p className="text-sm font-mono">{result.message}</p>
           </div>
-        </div>
+        )}
       </div>
-    </div>
+    </ToolLayout>
   );
 };
 

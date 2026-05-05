@@ -1,6 +1,5 @@
 import { useState, useRef } from "react";
 import { SEOHead } from "@/components/SEOHead";
-import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { Button } from "@/components/ui/button";
@@ -111,7 +110,6 @@ const ImageSizeReducer = () => {
                 keywords="image size reducer, reduce image size, compress image, online image compressor, free image tools"
                 canonical="https://toolmaster.cloud/tools/image-size-reducer"
             />
-            <Header />
             <ToolLayout
                 title="Image Size Reducer"
                 description="Reduce image file size while maintaining quality"

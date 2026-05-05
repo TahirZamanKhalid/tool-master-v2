@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { ToolLayout } from "@/components/ToolLayout";
 import { Calculator, TrendingUp, DollarSign, Calendar, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -262,8 +263,8 @@ const CompoundInterestCalculator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <ToolLayout title="Compound Interest Calculator" description="Calculate compound interest and visualize investment growth over time." category="Finance">
+      <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
@@ -676,7 +677,7 @@ const CompoundInterestCalculator = () => {
           </>
         )}
       </div>
-    </div>
+    </ToolLayout>
   );
 };
 

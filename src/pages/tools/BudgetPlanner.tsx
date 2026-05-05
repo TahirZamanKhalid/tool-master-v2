@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { ToolLayout } from "@/components/ToolLayout";
 import { Plus, Trash2, PiggyBank, TrendingUp, TrendingDown, DollarSign, Download, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -249,8 +250,8 @@ const BudgetPlanner = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <ToolLayout title="Budget Planner" description="Track income and expenses, analyze spending by category, and reach your savings goals." category="Finance">
+      <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
@@ -764,7 +765,7 @@ const BudgetPlanner = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </ToolLayout>
   );
 };
 

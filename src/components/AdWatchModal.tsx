@@ -31,7 +31,7 @@ export const AdWatchModal = ({
   title = "Watch ad to continue",
   description = "Please watch this short ad to continue.",
 }: AdWatchModalProps) => {
-  const [countdown, setCountdown] = useState(15);
+  const [countdown, setCountdown] = useState(5);
   const [adLoaded, setAdLoaded] = useState(false);
   const [adFailed, setAdFailed] = useState(false);
   const adRef = useRef<HTMLModElement>(null);
@@ -93,7 +93,7 @@ export const AdWatchModal = ({
     handleClose();
   };
 
-  const progress = ((15 - countdown) / 15) * 100;
+  const progress = ((5 - countdown) / 5) * 100;
 
   return (
     <Dialog open={modalOpen} onOpenChange={(open) => !open && handleClose()}>

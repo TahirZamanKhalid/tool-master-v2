@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { ToolLayout } from "@/components/ToolLayout";
 import { Plus, X, Upload, Download, Sparkles, ArrowUp, ArrowDown, Film, Loader2, Layers, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { AdWatchModal } from "@/components/AdWatchModal";
-import { Header } from "@/components/Header";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 
 interface VideoItem {
@@ -208,9 +208,8 @@ const PremiumVideoMerger = () => {
 
   return (
     <>
-      <Header />
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <ToolLayout title="Video Merger" description="Merge multiple videos into one file with custom order and transitions." category="Video Tools">
+      <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
@@ -455,7 +454,7 @@ const PremiumVideoMerger = () => {
           </Card>
         </div>
       </div>
-      </div>
+      </ToolLayout>
 
       {isProcessing && (
         <ProcessingOverlay

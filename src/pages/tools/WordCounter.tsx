@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,7 +17,6 @@ const WordCounter = () => {
 
   return (
     <>
-      <Header />
       <ToolLayout
         title="Word Counter"
         description="Count words, characters, sentences, and reading time instantly"

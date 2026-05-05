@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ToolLayout } from "@/components/ToolLayout";
 import { Dices, Sparkles, RefreshCw, Copy, Download, BarChart3, Settings, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -239,8 +240,8 @@ const PremiumPlusRandomNumberGenerator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-violet-50 via-purple-50 to-fuchsia-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <ToolLayout title="Random Number Generator" description="Generate random numbers with advanced options, history, and statistics." category="Calculators">
+      <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
@@ -507,7 +508,7 @@ const PremiumPlusRandomNumberGenerator = () => {
           </div>
         </div>
       </div>
-    </div>
+    </ToolLayout>
   );
 };
 

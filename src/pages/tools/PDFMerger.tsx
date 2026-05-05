@@ -1,6 +1,5 @@
 import { useState, useRef } from "react";
 import { SEOHead } from "@/components/SEOHead";
-import { Header } from "@/components/Header";
 import { ToolLayout } from "@/components/ToolLayout";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { Button } from "@/components/ui/button";
@@ -118,7 +117,6 @@ const PDFMerger = () => {
         keywords="pdf merger, combine pdf, merge pdf files, online pdf tool, free pdf merger"
         canonical="https://toolmaster.cloud/tools/pdf-merger"
       />
-      <Header />
       <ToolLayout
         title="PDF Merger"
         description="Combine multiple PDF files into a single document"

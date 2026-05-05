@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { ToolLayout } from "@/components/ToolLayout";
 import {
   Video,
   Upload,
@@ -558,8 +559,8 @@ const PremiumVideoEditor = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <ToolLayout title="AI Video Editor" description="Edit videos with AI-powered tools including trim, merge, and effects." category="Video Tools">
+      <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3">
@@ -1157,7 +1158,7 @@ const PremiumVideoEditor = () => {
           </div>
         )}
       </div>
-    </div>
+    </ToolLayout>
   );
 };
 

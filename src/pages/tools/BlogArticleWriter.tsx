@@ -1,361 +1,179 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Download, Copy } from "lucide-react";
-import { LazyAdSpace } from "@/components/LazyAdSpace";
-import { ContentAdBreak } from "@/components/ContentAdBreak";
-import { SEOHead } from "@/components/SEOHead";
-import { GeneratingAdModal } from "@/components/GeneratingAdModal";
+import { Loader2, Download, Copy, FileText } from "lucide-react";
+import { streamText } from "@/utils/pollinations";
 
 const BlogArticleWriter = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [blog, setBlog] = useState("");
-  const [showAdModal, setShowAdModal] = useState(false);
-  const wordCountRef = useRef(0);
-  const lastAdWordCount = useRef(0);
-
   const [formData, setFormData] = useState({
     topic: "",
-    blogType: "",
+    blogType: "how-to",
     wordCount: "1500",
-    targetAudience: "",
-    tone: "",
+    targetAudience: "general",
+    tone: "conversational",
     keywords: "",
-    includeImages: false,
-    additionalNotes: ""
+    additionalNotes: "",
   });
 
   const generateBlog = async () => {
-    if (!formData.topic || !formData.blogType || !formData.wordCount || !formData.targetAudience || !formData.tone) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
+    if (!formData.topic.trim()) {
+      toast({ title: "Topic required", description: "Please enter a blog topic.", variant: "destructive" });
       return;
     }
-
     setLoading(true);
     setBlog("");
-    wordCountRef.current = 0;
-    lastAdWordCount.current = 0;
-
     try {
-      const response = await fetch("/api-proxy.php", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'generate-blog',
-          ...formData
-        }),
-      });
+      const prompt = `Write a ${formData.wordCount}-word ${formData.blogType} blog article about: "${formData.topic}".
+Target audience: ${formData.targetAudience}. Writing tone: ${formData.tone}.
+${formData.keywords ? `SEO keywords to include: ${formData.keywords}` : ""}
+${formData.additionalNotes ? `Additional notes: ${formData.additionalNotes}` : ""}
+Include a compelling headline, introduction, well-structured sections with subheadings, and a conclusion. Make it engaging and SEO-friendly.`;
 
-      if (!response.ok || !response.body) {
-        throw new Error('Failed to start stream');
+      let text = "";
+      for await (const chunk of streamText([{ role: "user", content: prompt }], { model: "openai" })) {
+        text += chunk;
+        setBlog(text);
       }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let textBuffer = "";
-      let streamDone = false;
-      let currentContent = "";
-
-      while (!streamDone) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        textBuffer += decoder.decode(value, { stream: true });
-
-        let newlineIndex: number;
-        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
-          let line = textBuffer.slice(0, newlineIndex);
-          textBuffer = textBuffer.slice(newlineIndex + 1);
-
-          if (line.endsWith("\r")) line = line.slice(0, -1);
-          if (line.startsWith(":") || line.trim() === "") continue;
-          if (!line.startsWith("data: ")) continue;
-
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === "[DONE]") {
-            streamDone = true;
-            break;
-          }
-
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-            if (content) {
-              currentContent += content;
-              setBlog(currentContent);
-
-              const words = currentContent.trim().split(/\s+/);
-              wordCountRef.current = words.length;
-
-              if (wordCountRef.current - lastAdWordCount.current >= 3000) {
-                lastAdWordCount.current = wordCountRef.current;
-                setShowAdModal(true);
-                setLoading(false);
-                await new Promise(resolve => {
-                  const checkAdClosed = setInterval(() => {
-                    if (!showAdModal) {
-                      clearInterval(checkAdClosed);
-                      resolve(null);
-                    }
-                  }, 100);
-                });
-                setLoading(true);
-              }
-            }
-          } catch {
-            textBuffer = line + "\n" + textBuffer;
-            break;
-          }
-        }
-      }
-
-      toast({
-        title: "Success",
-        description: "Blog article generated successfully!",
-      });
-    } catch (error) {
-      console.error('Error generating blog:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate blog article. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Blog generated!", description: "Your article is ready." });
+    } catch {
+      toast({ title: "Generation failed", description: "Unable to connect. Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
-  const copyToClipboard = () => {
+  const copy = () => {
     navigator.clipboard.writeText(blog);
-    toast({
-      title: "Copied",
-      description: "Blog article copied to clipboard",
-    });
+    toast({ title: "Copied!" });
   };
 
-  const downloadBlog = () => {
-    const blob = new Blob([blog], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `blog-${formData.topic.substring(0, 30)}.txt`;
+  const download = () => {
+    const blob = new Blob([blog], { type: "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `blog-${formData.topic.slice(0, 30).replace(/\s+/g, "-")}.txt`;
     a.click();
   };
 
-  const renderContentWithAds = (content: string) => {
-    const words = content.split(' ');
-    const chunks: JSX.Element[] = [];
-    let currentChunk: string[] = [];
-    let wordCount = 0;
-    let adIndex = 0;
-    const maxAds = 3;
-
-    words.forEach((word, index) => {
-      currentChunk.push(word);
-      wordCount++;
-
-      if (wordCount >= 500 || index === words.length - 1) {
-        chunks.push(
-          <div key={`chunk-${index}`}>
-            <p className="whitespace-pre-wrap mb-4">{currentChunk.join(' ')}</p>
-            {wordCount >= 500 && index !== words.length - 1 && adIndex < maxAds && (
-              <ContentAdBreak key={`ad-${adIndex++}`} index={adIndex} />
-            )}
-          </div>
-        );
-        currentChunk = [];
-        wordCount = 0;
-      }
-    });
-
-    return chunks;
-  };
-
   return (
-    <>
-      <SEOHead
-        title="AI Blog Article Writer - Generate SEO-Optimized Blog Posts Free"
-        description="Create engaging, SEO-optimized blog articles with our AI blog writer. Generate professional blog posts for any topic, audience, and word count. Free online blog generator tool."
-        keywords="blog writer, AI blog generator, blog post generator, content writer, SEO blog, article writer, free blog generator"
-        canonical="https://toolmaster.cloud/tools/blog-article-writer"
-      />
-
-      <ToolLayout
-        title="AI Blog Article Writer"
-        description="Generate engaging, SEO-optimized blog articles with AI. Perfect for bloggers, marketers, and content creators."
-        category="AI & Content"
-      >
-        <div className="bg-card rounded-lg border p-6 space-y-6">
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="topic">Blog Topic *</Label>
-                <Input
-                  id="topic"
-                  value={formData.topic}
-                  onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
-                  placeholder="Enter your blog topic..."
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="blogType">Blog Type *</Label>
-                <Select value={formData.blogType} onValueChange={(value) => setFormData({ ...formData, blogType: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select blog type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="how-to">How-to Guide</SelectItem>
-                    <SelectItem value="listicle">Listicle</SelectItem>
-                    <SelectItem value="tutorial">Tutorial</SelectItem>
-                    <SelectItem value="review">Review</SelectItem>
-                    <SelectItem value="comparison">Comparison</SelectItem>
-                    <SelectItem value="news">News/Update</SelectItem>
-                    <SelectItem value="opinion">Opinion Piece</SelectItem>
-                    <SelectItem value="case-study">Case Study</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="wordCount">Word Count *</Label>
-                <Select value={formData.wordCount} onValueChange={(value) => setFormData({ ...formData, wordCount: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select word count" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="500">500 words</SelectItem>
-                    <SelectItem value="750">750 words</SelectItem>
-                    <SelectItem value="1000">1000 words</SelectItem>
-                    <SelectItem value="1500">1500 words</SelectItem>
-                    <SelectItem value="2000">2000 words</SelectItem>
-                    <SelectItem value="2500">2500 words</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="targetAudience">Target Audience *</Label>
-                <Select value={formData.targetAudience} onValueChange={(value) => setFormData({ ...formData, targetAudience: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select target audience" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="beginners">Beginners</SelectItem>
-                    <SelectItem value="intermediate">Intermediate Users</SelectItem>
-                    <SelectItem value="experts">Experts/Professionals</SelectItem>
-                    <SelectItem value="general">General Audience</SelectItem>
-                    <SelectItem value="business">Business Professionals</SelectItem>
-                    <SelectItem value="students">Students</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="tone">Writing Tone *</Label>
-                <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select tone" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="conversational">Conversational</SelectItem>
-                    <SelectItem value="professional">Professional</SelectItem>
-                    <SelectItem value="friendly">Friendly</SelectItem>
-                    <SelectItem value="authoritative">Authoritative</SelectItem>
-                    <SelectItem value="enthusiastic">Enthusiastic</SelectItem>
-                    <SelectItem value="informative">Informative</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="keywords">SEO Keywords (Optional)</Label>
-              <Input
-                id="keywords"
-                value={formData.keywords}
-                onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
-                placeholder="Enter keywords separated by commas..."
-              />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="includeImages"
-                checked={formData.includeImages}
-                onCheckedChange={(checked) => setFormData({ ...formData, includeImages: checked as boolean })}
-              />
-              <Label htmlFor="includeImages" className="cursor-pointer">
-                Include image placeholders
-              </Label>
-            </div>
-
-            <div>
-              <Label htmlFor="additionalNotes">Additional Notes (Optional)</Label>
-              <Textarea
-                id="additionalNotes"
-                value={formData.additionalNotes}
-                onChange={(e) => setFormData({ ...formData, additionalNotes: e.target.value })}
-                placeholder="Any specific requirements, examples to include, or special instructions..."
-                rows={4}
-              />
-            </div>
-
-            <Button onClick={generateBlog} disabled={loading} className="w-full">
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating Blog Article...
-                </>
-              ) : (
-                "Generate Blog Article"
-              )}
-            </Button>
+    <ToolLayout
+      title="AI Blog Article Writer"
+      description="Generate engaging, SEO-optimized blog articles on any topic instantly. Free, no signup required."
+      category="AI & Content"
+      showDownloadAd={!!blog}
+      onDownload={download}
+      downloadLabel="Download Article"
+    >
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Blog Topic *</Label>
+            <Input
+              value={formData.topic}
+              onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
+              placeholder="e.g. 10 Ways to Boost Your Productivity"
+              className="rounded-xl"
+            />
           </div>
-
-          {blog && (
-            <div className="mt-6 space-y-4">
-              <div className="flex gap-2">
-                <Button onClick={copyToClipboard} variant="outline" size="sm">
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy
-                </Button>
-                <Button onClick={downloadBlog} variant="outline" size="sm">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
-                </Button>
-              </div>
-
-              <div className="bg-muted p-6 rounded-lg">
-                <h3 className="font-semibold mb-4 text-lg">Generated Blog Article:</h3>
-                <div className="prose prose-sm max-w-none">
-                  {renderContentWithAds(blog)}
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="space-y-1.5">
+            <Label>Blog Type</Label>
+            <Select value={formData.blogType} onValueChange={(v) => setFormData({ ...formData, blogType: v })}>
+              <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {[["how-to","How-to Guide"],["listicle","Listicle"],["tutorial","Tutorial"],["review","Review"],["comparison","Comparison"],["opinion","Opinion Piece"],["case-study","Case Study"],["news","News/Update"]].map(([v, l]) => (
+                  <SelectItem key={v} value={v}>{l}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Word Count</Label>
+            <Select value={formData.wordCount} onValueChange={(v) => setFormData({ ...formData, wordCount: v })}>
+              <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {["500","750","1000","1500","2000","2500"].map(n => (
+                  <SelectItem key={n} value={n}>{n} words</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Target Audience</Label>
+            <Select value={formData.targetAudience} onValueChange={(v) => setFormData({ ...formData, targetAudience: v })}>
+              <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {[["beginners","Beginners"],["intermediate","Intermediate"],["experts","Experts"],["general","General Audience"],["business","Business Professionals"],["students","Students"]].map(([v, l]) => (
+                  <SelectItem key={v} value={v}>{l}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Writing Tone</Label>
+            <Select value={formData.tone} onValueChange={(v) => setFormData({ ...formData, tone: v })}>
+              <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {["conversational","professional","friendly","authoritative","enthusiastic","informative"].map(t => (
+                  <SelectItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>SEO Keywords (optional)</Label>
+            <Input
+              value={formData.keywords}
+              onChange={(e) => setFormData({ ...formData, keywords: e.target.value })}
+              placeholder="keyword1, keyword2, keyword3"
+              className="rounded-xl"
+            />
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label>Additional Notes (optional)</Label>
+            <Textarea
+              value={formData.additionalNotes}
+              onChange={(e) => setFormData({ ...formData, additionalNotes: e.target.value })}
+              placeholder="Any specific requirements, examples to include, or special instructions..."
+              className="rounded-xl"
+              rows={3}
+            />
+          </div>
         </div>
-      </ToolLayout>
 
-      <GeneratingAdModal
-        open={showAdModal}
-        onComplete={() => setShowAdModal(false)}
-      />
-    </>
+        <Button
+          onClick={generateBlog}
+          disabled={loading}
+          className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl"
+        >
+          {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</> : <><FileText className="mr-2 h-4 w-4" /> Generate Blog Article</>}
+        </Button>
+
+        {blog && (
+          <div className="space-y-3">
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={copy} className="rounded-xl">
+                <Copy className="mr-1.5 h-3.5 w-3.5" /> Copy
+              </Button>
+              <Button variant="outline" size="sm" onClick={download} className="rounded-xl">
+                <Download className="mr-1.5 h-3.5 w-3.5" /> Download
+              </Button>
+            </div>
+            <div className="bg-muted/40 border border-border/60 rounded-xl p-4 max-h-[60vh] overflow-y-auto">
+              <pre className="whitespace-pre-wrap text-sm text-foreground font-sans leading-relaxed">{blog}</pre>
+            </div>
+            {loading && <p className="text-xs text-primary animate-pulse">✍️ Writing your article...</p>}
+          </div>
+        )}
+      </div>
+    </ToolLayout>
   );
 };
 
