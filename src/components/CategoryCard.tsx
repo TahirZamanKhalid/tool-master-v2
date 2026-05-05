@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { ArrowRight } from "lucide-react";
 
 interface CategoryCardProps {
   icon: LucideIcon;
@@ -11,32 +11,59 @@ interface CategoryCardProps {
   comingSoon?: boolean;
 }
 
-export const CategoryCard = ({ icon: Icon, title, description, toolCount, color, isSelected = false, comingSoon = false }: CategoryCardProps) => {
+export const CategoryCard = ({
+  icon: Icon,
+  title,
+  description,
+  toolCount,
+  color,
+  isSelected = false,
+  comingSoon = false,
+}: CategoryCardProps) => {
   return (
-    <Card className={`group cursor-pointer shadow-card hover:shadow-card-hover transition-smooth hover:-translate-y-2 hover:scale-105 flex flex-col h-full overflow-hidden border-2 animate-fade-in-up ${
-      isSelected ? 'border-primary border-2 ring-4 ring-primary/30 shadow-glow' : 'border-transparent hover:border-primary/30'
-    } ${comingSoon ? 'opacity-75' : ''}`}>
-      <CardContent className="p-6 relative flex-1 flex flex-col gradient-card">
+    <div
+      className={`group relative flex flex-col h-full rounded-2xl border transition-all duration-300 overflow-hidden cursor-pointer ${
+        isSelected
+          ? "border-primary/70 bg-primary/8 shadow-glow ring-2 ring-primary/20"
+          : comingSoon
+          ? "border-border/40 bg-card/50 opacity-70 cursor-not-allowed"
+          : "border-border/50 bg-card hover:border-primary/40 hover:-translate-y-1 hover:shadow-card-hover shadow-card"
+      }`}
+    >
+      {/* Top gradient accent */}
+      <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${color} opacity-60 group-hover:opacity-100 transition-opacity duration-300`} />
+
+      <div className="p-5 flex flex-col flex-1">
+        {/* Coming soon */}
         {comingSoon && (
-          <div className="absolute top-3 right-3 animate-bounce-in">
-            <span className="bg-accent text-accent-foreground text-xs font-semibold px-3 py-1.5 rounded-full shadow-card animate-pulse-slow">
+          <div className="absolute top-3 right-3">
+            <span className="text-[10px] font-bold bg-muted text-muted-foreground px-2 py-0.5 rounded-full border border-border/60">
               Coming Soon
             </span>
           </div>
         )}
-        <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center mb-4 shadow-card group-hover:shadow-card-hover transition-smooth group-hover:scale-110 group-hover:rotate-6 relative overflow-hidden`}>
-          <div className="absolute inset-0 bg-white/20 group-hover:animate-shimmer"></div>
-          <Icon className="h-7 w-7 text-white relative z-10 group-hover:animate-float" />
+
+        {/* Icon */}
+        <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center mb-4 shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:shadow-md shrink-0`}>
+          <Icon className="h-6 w-6 text-white" />
         </div>
-        <h3 className="text-lg font-bold mb-2 group-hover:text-gradient transition-smooth">{title}</h3>
-        <p className="text-sm text-muted-foreground mb-3 flex-1 leading-relaxed">{description}</p>
-        <div className="flex items-center gap-2">
-          <div className={`h-2 w-2 rounded-full bg-gradient-to-br ${color} animate-pulse-slow`}></div>
-          <p className="text-xs font-semibold text-gradient">
-            {comingSoon ? 'No tools yet' : `${toolCount} tools available`}
-          </p>
+
+        {/* Title + Description */}
+        <h3 className="font-bold text-base text-foreground mb-1.5 group-hover:text-primary transition-colors duration-200 leading-tight">
+          {title}
+        </h3>
+        <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4 line-clamp-2">
+          {description}
+        </p>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between">
+          <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full bg-gradient-to-r ${color} text-white shadow-sm`}>
+            {comingSoon ? "No tools yet" : `${toolCount} tools`}
+          </span>
+          <ArrowRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200" />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
