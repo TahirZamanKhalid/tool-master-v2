@@ -12,7 +12,8 @@ export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [theme, setTheme] = useState<"dark" | "light">(() => {
-    return (localStorage.getItem("theme") as "dark" | "light") || "dark";
+    const stored = localStorage.getItem("theme");
+    return stored === "light" ? "light" : "dark";
   });
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);

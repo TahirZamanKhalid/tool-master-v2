@@ -4,60 +4,233 @@ import { Footer } from "@/components/Footer";
 import { ToolCard } from "@/components/ToolCard";
 import { SEOHead } from "@/components/SEOHead";
 import { AdRow } from "@/components/AdRow";
+import { SidebarAd } from "@/components/SidebarAd";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { allTools } from "@/data/allTools";
+import { useState, useMemo } from "react";
+import {
+  Sparkles, Image, FileText, Calculator, QrCode, Video,
+  TrendingUp, Code, Shield, Dices, ArrowRightLeft,
+  Receipt, Hash, Brain, Type, Search, ArrowLeft, Wrench
+} from "lucide-react";
+
+const categoryMap: Record<string, string> = {
+  "ai-content": "AI & Content",
+  "image-tools": "Image Tools",
+  "developer-tools": "Developer Tools",
+  "qr-barcodes": "QR & Barcodes",
+  "pdf-tools": "PDF Tools",
+  "text-tools": "Text Tools",
+  "video-tools": "Video Tools",
+  "seo-marketing": "SEO & Marketing",
+  calculators: "Calculators",
+  "security-tools": "Security Tools",
+  utilities: "Utilities",
+  "file-converters": "File Converters",
+  "business-tools": "Business Tools",
+  "social-media": "Social Media",
+  generators: "Generators",
+};
+
+const categoryMeta: Record<string, { icon: any; gradient: string; tagline: string }> = {
+  "AI & Content": { icon: Sparkles, gradient: "from-blue-500 to-purple-600", tagline: "AI-powered writing, chatbots, and content generation tools" },
+  "Image Tools": { icon: Image, gradient: "from-pink-500 to-rose-600", tagline: "Edit, compress, convert and transform images instantly" },
+  "Developer Tools": { icon: Code, gradient: "from-green-500 to-emerald-600", tagline: "JSON, formatters, validators, and web dev utilities" },
+  "QR & Barcodes": { icon: QrCode, gradient: "from-emerald-500 to-teal-600", tagline: "Generate and scan QR codes & barcodes online" },
+  "PDF Tools": { icon: FileText, gradient: "from-orange-500 to-red-600", tagline: "Merge, split, compress and convert PDF documents" },
+  "Text Tools": { icon: Type, gradient: "from-indigo-500 to-blue-600", tagline: "Word counter, case converter, and text manipulation" },
+  "Video Tools": { icon: Video, gradient: "from-purple-500 to-indigo-600", tagline: "Edit, compress, trim and convert videos in your browser" },
+  "SEO & Marketing": { icon: TrendingUp, gradient: "from-violet-500 to-purple-600", tagline: "Meta tags, sitemaps, keywords and marketing utilities" },
+  "Calculators": { icon: Calculator, gradient: "from-cyan-500 to-blue-600", tagline: "Finance, health, math and everyday calculations" },
+  "Security Tools": { icon: Shield, gradient: "from-red-500 to-orange-600", tagline: "Password generators, validators and encryption tools" },
+  "Utilities": { icon: Dices, gradient: "from-fuchsia-500 to-pink-600", tagline: "Random generators, timers, stopwatches and more" },
+  "File Converters": { icon: ArrowRightLeft, gradient: "from-amber-500 to-orange-600", tagline: "Convert between every file format you need" },
+  "Business Tools": { icon: Receipt, gradient: "from-teal-500 to-cyan-600", tagline: "Invoices, business names and professional utilities" },
+  "Social Media": { icon: Hash, gradient: "from-rose-500 to-pink-600", tagline: "Hashtags, bios, captions and social content tools" },
+  "Generators": { icon: Brain, gradient: "from-lime-500 to-green-600", tagline: "Random data, names, domains and creative generators" },
+};
 
 const CategoryTools = () => {
   const navigate = useNavigate();
   const { category } = useParams();
-
-  // Map URL slugs to exact category names
-  const categoryMap: Record<string, string> = {
-    "ai-content": "AI & Content",
-    "image-tools": "Image Tools",
-    "developer-tools": "Developer Tools",
-    "qr-barcodes": "QR & Barcodes",
-    "pdf-tools": "PDF Tools",
-    "text-tools": "Text Tools",
-    "video-tools": "Video Tools",
-    "seo-marketing": "SEO & Marketing",
-    calculators: "Calculators",
-    "security-tools": "Security Tools",
-    utilities: "Utilities",
-    "file-converters": "File Converters",
-    "business-tools": "Business Tools",
-    "social-media": "Social Media",
-    generators: "Generators",
-  };
+  const [search, setSearch] = useState("");
 
   const decodedCategory = categoryMap[category || ""] || "";
-  const categoryTools = allTools.filter((tool) => tool.category === decodedCategory);
+  const meta = categoryMeta[decodedCategory] || { icon: Wrench, gradient: "from-primary to-accent", tagline: "Browse tools" };
+  const Icon = meta.icon;
+
+  const categoryTools = useMemo(
+    () =>
+      allTools
+        .filter((tool) => tool.category === decodedCategory)
+        .filter(
+          (t) =>
+            !search ||
+            t.title.toLowerCase().includes(search.toLowerCase()) ||
+            t.description.toLowerCase().includes(search.toLowerCase())
+        ),
+    [decodedCategory, search]
+  );
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title={`${decodedCategory} Tools - Free Online Tools`}
-        description={`Browse all ${decodedCategory} tools`}
-        keywords={`${decodedCategory}, tools, online tools`}
+        title={`${decodedCategory} — Free Online ${decodedCategory} Tools`}
+        description={`Browse all free ${decodedCategory.toLowerCase()} tools. ${meta.tagline}. No signup, browser-based, instant results.`}
+        keywords={`${decodedCategory.toLowerCase()}, free ${decodedCategory.toLowerCase()} tools, online ${decodedCategory.toLowerCase()}`}
+        canonical={`https://toolmaster.cloud/category/${category}`}
       />
       <Header />
-      <main className="flex-1 py-12 container max-w-[1400px] mx-auto px-4">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4">{decodedCategory}</h1>
-          <p className="text-muted-foreground">{categoryTools.length} tools available</p>
+
+      {/* Hero Banner */}
+      <section className="relative overflow-hidden border-b border-border/40">
+        <div className="absolute inset-0 -z-10 gradient-hero animate-gradient-xy" />
+        <div className="absolute inset-0 -z-10 pointer-events-none">
+          <div className={`absolute -top-20 -right-20 w-96 h-96 bg-gradient-to-br ${meta.gradient} opacity-10 rounded-full blur-3xl`} />
         </div>
 
-        <AdRow className="mb-8" />
+        <div className="container max-w-7xl mx-auto px-4 py-12">
+          <Breadcrumbs items={[
+            { label: "All Tools", path: "/tools" },
+            { label: decodedCategory, current: true },
+          ]} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categoryTools.map((tool, index) => (
-            <div key={index} onClick={() => navigate(tool.path)} className="cursor-pointer">
-              <ToolCard {...tool} />
+          <div className="flex flex-col md:flex-row md:items-center gap-6 mt-6">
+            <div className={`shrink-0 w-20 h-20 rounded-2xl bg-gradient-to-br ${meta.gradient} flex items-center justify-center shadow-lg`}>
+              <Icon className="h-10 w-10 text-white" />
             </div>
-          ))}
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/20">
+                  {categoryTools.length} {categoryTools.length === 1 ? "tool" : "tools"} available
+                </span>
+              </div>
+              <h1 className="text-3xl md:text-5xl font-black text-foreground leading-tight mb-2">
+                {decodedCategory}
+              </h1>
+              <p className="text-base md:text-lg text-muted-foreground max-w-2xl">
+                {meta.tagline}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="flex-1 container max-w-7xl mx-auto px-4 py-8">
+
+        {/* Top Banner Ad */}
+        <div className="mb-6">
+          <AdRow slot="9769564871" />
         </div>
 
-        <AdRow className="mt-8" />
+        {/* Layout: Tools + Sidebar */}
+        <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
+
+          {/* Left: Search + Tools */}
+          <div className="min-w-0">
+            {/* Search */}
+            <div className="mb-6 relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder={`Search ${decodedCategory} tools...`}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-12 pl-11 bg-card border-border/60 focus:border-primary/50 rounded-xl"
+              />
+            </div>
+
+            {categoryTools.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {categoryTools.map((tool, index) => {
+                  const showAdAfter = (index + 1) % 6 === 0 && index < categoryTools.length - 1;
+                  return (
+                    <div key={tool.path} className="contents">
+                      <div
+                        className="animate-fade-in-up cursor-pointer"
+                        style={{ animationDelay: `${index * 0.04}s` }}
+                        onClick={() => tool.path && navigate(tool.path)}
+                      >
+                        <ToolCard {...tool} />
+                      </div>
+                      {showAdAfter && (
+                        <div className="col-span-1 sm:col-span-2 lg:col-span-3">
+                          <AdRow slot="2127993591" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-card rounded-2xl border border-border/60">
+                <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+                <p className="text-xl font-bold text-foreground mb-2">
+                  {search ? "No matches found" : "No tools in this category yet"}
+                </p>
+                <p className="text-muted-foreground mb-4">
+                  {search ? "Try a different keyword" : "Check back soon — we add tools regularly"}
+                </p>
+                {search ? (
+                  <Button variant="outline" onClick={() => setSearch("")}>Clear Search</Button>
+                ) : (
+                  <Button onClick={() => navigate("/tools")}>Browse All Tools</Button>
+                )}
+              </div>
+            )}
+
+            {/* Bottom Ad */}
+            {categoryTools.length > 0 && (
+              <div className="mt-8">
+                <AdRow slot="1212397554" />
+              </div>
+            )}
+          </div>
+
+          {/* Right Sticky Sidebar */}
+          <aside className="hidden xl:block">
+            <div className="sticky top-20 space-y-4">
+              <div className="ad-container-sidebar w-full">
+                <SidebarAd slot="4351073152" position="right" index={1} width={300} height={600} />
+              </div>
+
+              <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl border border-primary/20 p-5">
+                <p className="text-sm font-bold text-primary mb-1">💡 Pro Tip</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  All {decodedCategory.toLowerCase()} run entirely in your browser. Your files never leave your device.
+                </p>
+              </div>
+
+              <div className="bg-card rounded-2xl border border-border/60 p-5 shadow-card">
+                <p className="text-sm font-bold text-foreground mb-3">Other Categories</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {Object.entries(categoryMap)
+                    .filter(([slug]) => slug !== category)
+                    .slice(0, 8)
+                    .map(([slug, name]) => (
+                      <button
+                        key={slug}
+                        onClick={() => navigate(`/category/${slug}`)}
+                        className="text-[11px] px-2.5 py-1 rounded-full bg-muted/60 hover:bg-primary/10 hover:text-primary text-muted-foreground border border-border/40 transition-all"
+                      >
+                        {name}
+                      </button>
+                    ))}
+                </div>
+                <Button
+                  onClick={() => navigate("/tools")}
+                  className="w-full mt-4 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl text-sm"
+                >
+                  View All Tools
+                </Button>
+              </div>
+            </div>
+          </aside>
+
+        </div>
       </main>
+
       <Footer />
     </div>
   );
