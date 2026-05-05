@@ -1,155 +1,135 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { ArrowLeft, Target, Users, Zap, Heart } from "lucide-react";
+import { Target, Users, Zap, Heart, Shield, Globe, Sparkles, ArrowRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
-import { Card } from "@/components/ui/card";
-
+import { AdRow } from "@/components/AdRow";
 
 const About = () => {
   const navigate = useNavigate();
 
+  const values = [
+    { icon: Target, title: "Our Vision", text: "To be the world's most trusted free online tools platform, empowering millions every day." },
+    { icon: Users, title: "Our Community", text: "Serving thousands of users daily — students, developers, designers, and businesses worldwide." },
+    { icon: Zap, title: "Our Technology", text: "Built with modern web tech for blazing-fast performance, security, and full privacy protection." },
+    { icon: Heart, title: "Our Commitment", text: "Free forever. We never sell your data. We respect your privacy and your time." },
+  ];
+
+  const benefits = [
+    { icon: Shield, title: "Privacy First", text: "Most tools run entirely in your browser. Your files never touch our servers." },
+    { icon: Zap, title: "Instant Results", text: "No waiting, no signup. Open the page, use the tool, get your result in seconds." },
+    { icon: Globe, title: "Always Available", text: "Works on any device, any browser, anywhere — desktop, tablet, or mobile." },
+    { icon: CheckCircle, title: "Always Free", text: "150+ tools, all free, no premium upsells, no credit card, no hidden costs." },
+  ];
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title="About ToolMaster Pro - Free Online Tools Platform | No Signup Required"
-        description="Learn about ToolMaster Pro, offering 100+ free online tools for developers, designers & creators. Browser-based utilities, no download, no registration. Trusted by thousands worldwide."
-        keywords="about toolmaster pro, free online tools, web tools platform, browser-based tools, no signup tools, online utilities, productivity tools"
+        title="About ToolMaster Pro — Free Online Tools Platform"
+        description="Learn about ToolMaster Pro: 150+ free professional online tools. Browser-based, privacy-first, no signup required. Trusted by users worldwide."
+        keywords="about toolmaster pro, free online tools, web tools platform, browser-based tools, privacy first"
         canonical="https://toolmaster.cloud/about"
       />
       <Header />
-      <main className="flex-1">
-        <div className="container py-12 px-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/")}
-            className="mb-6"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Home
-          </Button>
 
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              About ToolMaster Pro - Free Online Tools Platform
-            </h1>
-            <p className="text-xl text-muted-foreground mb-12">
-              Your trusted source for 100+ free, professional-grade web-based tools and utilities. No registration or download required.
-            </p>
+      {/* Hero */}
+      <section className="relative overflow-hidden border-b border-border/40">
+        <div className="absolute inset-0 -z-10 gradient-hero animate-gradient-xy" />
+        <div className="container max-w-5xl mx-auto px-4 py-16 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-4">
+            <Sparkles className="h-3.5 w-3.5" />
+            ABOUT US
+          </div>
+          <h1 className="text-3xl md:text-5xl font-black text-foreground leading-tight mb-4">
+            Built for Everyone.<br />
+            <span className="text-gradient">Free for Everyone.</span>
+          </h1>
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+            ToolMasterPro is a comprehensive platform offering 150+ free online tools designed to simplify your daily tasks — no signup, no fees, no nonsense.
+          </p>
+        </div>
+      </section>
 
-            <div className="prose prose-slate dark:prose-invert max-w-none mb-12">
-              <h2>Who We Are - Leading Free Online Tools Provider</h2>
-              <p>
-                ToolMaster Pro is a comprehensive platform offering 100+ free online tools designed to simplify your daily tasks. Whether you're a developer, designer, student, content creator, marketer, or business professional, we provide instant access to professional-grade web-based utilities. From image editing tools and PDF converters to text processors and calculators, all available directly in your browser.
-              </p>
+      <main className="flex-1 container max-w-5xl mx-auto px-4 py-12 space-y-12">
 
-              <h2>Our Mission: Free Tools for Everyone</h2>
-              <p>
-                We believe that powerful online tools shouldn't come with a price tag or require lengthy sign-up processes. Our mission is to democratize access to professional-grade web utilities, making productivity tools and converters available to everyone, everywhere, completely free of charge. No credit card required, no trial periods, no limitations.
-              </p>
+        {/* Mission */}
+        <section className="bg-card rounded-2xl border border-border/60 p-8 shadow-card">
+          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-4">Our Mission</h2>
+          <p className="text-muted-foreground leading-relaxed text-base mb-3">
+            We believe powerful online tools shouldn't come with a paywall or require lengthy sign-up processes. Our mission is to <strong className="text-foreground">democratize access to professional-grade web utilities</strong>, making productivity tools available to everyone, everywhere, completely free.
+          </p>
+          <p className="text-muted-foreground leading-relaxed text-base">
+            No credit card. No trial periods. No limitations. Just tools that work.
+          </p>
+        </section>
 
-              <h2>What We Offer - 100+ Free Web-Based Tools</h2>
-              <p>
-                Our extensive collection includes free online tools for image editing, PDF manipulation, file conversion, text processing, code formatting, SEO optimization, calculators, converters, generators, and much more. All browser-based tools are:
-              </p>
-              <ul>
-                <li>100% free to use with no hidden charges or premium upsells</li>
-                <li>No registration, signup, or download required - instant access</li>
-                <li>Privacy-focused with client-side processing when possible</li>
-                <li>Mobile-friendly and responsive - works on any device</li>
-                <li>Regularly updated with new features and tools based on user feedback</li>
-                <li>Fast and efficient - optimized for quick processing</li>
-              </ul>
-            </div>
+        {/* Values Grid */}
+        <section>
+          <h2 className="text-2xl md:text-3xl font-black text-foreground text-center mb-8">What Drives Us</h2>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {values.map(({ icon: Icon, title, text }) => (
+              <div key={title} className="bg-card rounded-2xl border border-border/60 p-6 shadow-card hover:border-primary/40 transition-all">
+                <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center mb-3 text-primary">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-1.5">{title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-            <div className="grid md:grid-cols-2 gap-6 mb-12">
-              <Card className="p-6">
-                <Target className="h-12 w-12 text-primary mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Our Vision</h3>
-                <p className="text-muted-foreground">
-                  To become the world's most trusted and comprehensive free online tools platform, serving millions of users worldwide.
-                </p>
-              </Card>
+        {/* Ad Break */}
+        <AdRow />
 
-              <Card className="p-6">
-                <Users className="h-12 w-12 text-secondary mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Our Community</h3>
-                <p className="text-muted-foreground">
-                  Serving thousands of users daily across the globe, helping professionals and individuals accomplish their tasks efficiently.
-                </p>
-              </Card>
-
-              <Card className="p-6">
-                <Zap className="h-12 w-12 text-accent mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Our Technology</h3>
-                <p className="text-muted-foreground">
-                  Built with modern web technologies, ensuring fast performance, security, and privacy protection for all our users.
-                </p>
-              </Card>
-
-              <Card className="p-6">
-                <Heart className="h-12 w-12 text-destructive mb-4" />
-                <h3 className="text-xl font-semibold mb-2">Our Commitment</h3>
-                <p className="text-muted-foreground">
-                  Committed to providing free, reliable, and user-friendly tools while respecting your privacy and never selling your data.
-                </p>
-              </Card>
-            </div>
-
-            <div className="bg-muted/50 rounded-lg p-8 mb-12">
-              <h2 className="text-2xl font-bold mb-4">Why Choose ToolMaster Pro?</h2>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold mb-2">✓ Always Free</h3>
-                  <p className="text-muted-foreground">
-                    We believe in keeping our tools accessible to everyone. No subscriptions, no hidden fees, ever.
-                  </p>
+        {/* Why Us */}
+        <section>
+          <h2 className="text-2xl md:text-3xl font-black text-foreground text-center mb-2">Why Choose ToolMasterPro?</h2>
+          <p className="text-muted-foreground text-center mb-8 max-w-xl mx-auto">
+            Four reasons users choose us over the rest.
+          </p>
+          <div className="grid sm:grid-cols-2 gap-4">
+            {benefits.map(({ icon: Icon, title, text }) => (
+              <div key={title} className="flex gap-4 p-5 bg-card rounded-2xl border border-border/60 shadow-card">
+                <div className="shrink-0 h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white">
+                  <Icon className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">✓ Privacy First</h3>
-                  <p className="text-muted-foreground">
-                    Most of our tools process data directly in your browser, ensuring your files never leave your device.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">✓ No Registration</h3>
-                  <p className="text-muted-foreground">
-                    Jump right in and start using our tools. No account creation, no email verification required.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-2">✓ Constantly Evolving</h3>
-                  <p className="text-muted-foreground">
-                    We regularly add new tools and features based on user feedback and emerging needs.
-                  </p>
+                  <h3 className="font-bold text-foreground mb-1">{title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
                 </div>
               </div>
-            </div>
-
-            <div className="prose prose-slate dark:prose-invert max-w-none">
-              <h2>Our Values</h2>
-              <p>
-                <strong>Accessibility:</strong> We ensure our tools work on all devices and browsers, making them available to everyone regardless of their technical setup.
-              </p>
-              <p>
-                <strong>Simplicity:</strong> Our interfaces are designed to be intuitive and easy to use, even for first-time users.
-              </p>
-              <p>
-                <strong>Quality:</strong> We maintain high standards for all our tools, ensuring accurate results and reliable performance.
-              </p>
-              <p>
-                <strong>Privacy:</strong> Your data security is our top priority. We minimize data collection and maximize transparency.
-              </p>
-
-              <h2>Get in Touch</h2>
-              <p>
-                Have questions, suggestions, or feedback? We'd love to hear from you! Visit our <a href="/contact" className="text-primary hover:underline">contact page</a> to get in touch with our team.
-              </p>
-            </div>
+            ))}
           </div>
-        </div>
+        </section>
+
+        {/* CTA */}
+        <section className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl border border-primary/20 p-8 md:p-12 text-center">
+          <h2 className="text-2xl md:text-3xl font-black text-foreground mb-3">
+            Ready to explore?
+          </h2>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            Browse 150+ professional tools. No signup, no fees, instant access.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button
+              onClick={() => navigate("/tools")}
+              className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-11"
+            >
+              Browse All Tools <ArrowRight className="ml-1.5 h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/contact")}
+              className="rounded-xl px-6 h-11 font-bold"
+            >
+              Contact Us
+            </Button>
+          </div>
+        </section>
       </main>
+
       <Footer />
     </div>
   );

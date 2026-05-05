@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Search, Sparkles, Zap, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, memo } from "react";
@@ -8,18 +8,22 @@ interface HeroProps {
   onSearch?: (query: string) => void;
 }
 
-const TrendingButton = memo(({ term, onClick }: { term: string; onClick: (term: string) => void }) => (
-  <Button
-    variant="outline"
-    size="sm"
-    className="h-7 sm:h-8 text-xs sm:text-sm px-3 sm:px-4 hover:gradient-primary hover:text-white hover:border-transparent transition-bounce shadow-card hover:shadow-card-hover hover:scale-110 animate-fade-in font-semibold"
+const TrendingPill = memo(({ term, onClick }: { term: string; onClick: (term: string) => void }) => (
+  <button
     onClick={() => onClick(term)}
+    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-border/60 bg-card/60 text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/8 transition-all duration-200 backdrop-blur-sm"
   >
     {term}
-  </Button>
+  </button>
 ));
+TrendingPill.displayName = "TrendingPill";
 
-TrendingButton.displayName = "TrendingButton";
+const StatBadge = ({ icon: Icon, label }: { icon: React.ElementType; label: string }) => (
+  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-card/60 border border-border/50 backdrop-blur-sm text-sm text-muted-foreground font-medium">
+    <Icon className="h-4 w-4 text-primary shrink-0" />
+    <span>{label}</span>
+  </div>
+);
 
 export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) => {
   const [localSearch, setLocalSearch] = useState(searchQuery);
@@ -28,20 +32,12 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
     setLocalSearch(searchQuery);
   }, [searchQuery]);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setLocalSearch(value);
-    // Don't trigger search on input - only on button click
-  };
-
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Trigger search only when button is clicked
     onSearch?.(localSearch);
   };
 
   const handleTrendingClick = (term: string) => {
-    // Try to find a direct path for the trending term
     import("@/data/allTools").then(({ allTools }) => {
       const tool = allTools.find(t =>
         t.title.toLowerCase().includes(term.toLowerCase()) ||
@@ -58,63 +54,95 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
   const trendingTerms = [
     "Background Remover",
     "PDF Merger",
-    "Image size Reducer",
+    "Image Compressor",
     "QR Generator",
-    "AI Blog Writer",
+    "AI Essay Writer",
     "JSON Formatter",
-    "Video Trimmer"
+    "Video Trimmer",
+    "Password Generator",
   ];
 
   return (
-    <section className="relative overflow-hidden w-full">
-      <div className="gradient-hero absolute inset-0 -z-10 animate-gradient-xy"></div>
-      <div className="absolute inset-0 -z-10 opacity-30">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-40 right-20 w-64 h-64 bg-secondary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+    <section className="relative w-full overflow-hidden">
+      {/* Background layers */}
+      <div className="absolute inset-0 -z-20 gradient-hero animate-gradient-xy" />
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+        <div className="absolute -top-24 -left-24 w-[500px] h-[500px] bg-primary/8 rounded-full blur-3xl animate-float" />
+        <div className="absolute -bottom-24 -right-24 w-[600px] h-[600px] bg-accent/6 rounded-full blur-3xl animate-float" style={{ animationDelay: "1.5s" }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-secondary/4 rounded-full blur-3xl" />
       </div>
-      <div className="container py-16 md:py-24 px-4 relative z-10">
-        <div className="mx-auto max-w-4xl text-center space-y-8">
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight break-words animate-fade-in-up">
-            <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent animate-gradient-x">
-              100+ Free AI-Powered Tools
-            </span>
-          </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-foreground/90 break-words animate-fade-in-up font-bold" style={{ animationDelay: '0.1s' }}>
-            ✨ Instant Access, No Signup Required ✨
-          </p>
 
-          <form onSubmit={handleSearchSubmit} className="mx-auto max-w-2xl w-full px-2 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            <div className="relative flex items-center gap-2">
+      <div className="container py-20 md:py-28 px-4 max-w-5xl mx-auto relative z-10">
+        <div className="text-center space-y-8">
+
+          {/* Top badge */}
+          <div className="flex justify-center animate-fade-in-down">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold backdrop-blur-sm">
+              <Sparkles className="h-4 w-4" />
+              150+ Free Professional Tools — No Sign-up Required
+            </div>
+          </div>
+
+          {/* Main heading */}
+          <div className="space-y-3 animate-fade-in-up" style={{ animationDelay: "0.05s" }}>
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tight leading-[1.05]">
+              <span className="text-gradient">One Platform.</span>
+              <br />
+              <span className="text-foreground">Every Tool You Need.</span>
+            </h1>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
+              Image editing, PDF tools, AI writing, developer utilities, calculators — all free, all in your browser, all instant.
+            </p>
+          </div>
+
+          {/* Search bar */}
+          <form
+            onSubmit={handleSearchSubmit}
+            className="mx-auto max-w-2xl w-full animate-fade-in-up"
+            style={{ animationDelay: "0.15s" }}
+          >
+            <div className="relative flex items-center gap-2 p-1.5 bg-card/80 backdrop-blur-xl border border-border/70 rounded-2xl shadow-card-hover focus-within:border-primary/50 focus-within:shadow-glow transition-all duration-300">
               <div className="relative flex-1">
-                <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-primary animate-pulse-slow" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
                 <Input
                   aria-label="Search tools"
-                  placeholder="Search 100+ tools..."
-                  className="h-12 sm:h-14 pl-10 sm:pl-12 pr-2 text-sm sm:text-base shadow-card-hover hover:shadow-glow border-2 border-primary/20 hover:border-primary/40 w-full transition-smooth focus:scale-105 font-bold"
+                  placeholder="Search 150+ tools… try 'PDF', 'QR', 'calculator'"
+                  className="h-12 pl-12 pr-4 bg-transparent border-0 ring-0 focus-visible:ring-0 text-sm font-medium placeholder:text-muted-foreground/60"
                   value={localSearch}
-                  onChange={handleSearchChange}
+                  onChange={(e) => setLocalSearch(e.target.value)}
                 />
               </div>
               <Button
                 type="submit"
-                aria-label="Submit search"
                 size="lg"
-                className="gradient-primary border-0 h-12 sm:h-14 px-4 sm:px-6 whitespace-nowrap shadow-card hover:shadow-card-hover transition-bounce hover:scale-110 font-black shimmer-effect text-white"
+                className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40 shrink-0"
               >
-                Search →
+                Search
               </Button>
             </div>
           </form>
 
-          <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm text-foreground animate-fade-in-up px-2" style={{ animationDelay: '0.3s' }}>
-            <span className="self-center font-bold text-primary">🔥 Trending:</span>
-            {trendingTerms.map((term, index) => (
-              <TrendingButton key={term} term={term} onClick={handleTrendingClick} />
+          {/* Trending pills */}
+          <div className="flex flex-wrap justify-center gap-2 animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
+            <span className="self-center text-xs font-bold text-primary uppercase tracking-wider">🔥 Popular:</span>
+            {trendingTerms.map((term) => (
+              <TrendingPill key={term} term={term} onClick={handleTrendingClick} />
             ))}
           </div>
+
+          {/* Trust badges */}
+          <div className="flex flex-wrap justify-center gap-3 pt-2 animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
+            <StatBadge icon={Zap} label="Instant & Free" />
+            <StatBadge icon={Shield} label="Privacy First — Runs in Browser" />
+            <StatBadge icon={Sparkles} label="150+ Tools & Growing" />
+          </div>
+
         </div>
       </div>
+
+      {/* Bottom fade */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent pointer-events-none" />
     </section>
   );
 });

@@ -8,132 +8,65 @@ import { HowItWorks } from "@/components/HowItWorks";
 import { FAQ } from "@/components/FAQ";
 import { SEOHead } from "@/components/SEOHead";
 import { AdRow } from "@/components/AdRow";
+import { InFeedAd } from "@/components/InFeedAd";
 import { useState, useEffect, useMemo } from "react";
 import { allTools } from "@/data/allTools";
+import { ArrowRight, CheckCircle, Zap, Shield, Globe, Star } from "lucide-react";
 import {
-  Sparkles,
-  Image,
-  FileText,
-  Calculator,
-  QrCode,
-  Video,
-  TrendingUp,
-  Code,
-  Shield,
-  Dices,
-  ArrowRightLeft,
-  Receipt,
-  Hash,
-  Brain,
-  Type
+  Sparkles, Image, FileText, Calculator, QrCode, Video,
+  TrendingUp, Code, Shield as ShieldIcon, Dices, ArrowRightLeft,
+  Receipt, Hash, Brain, Type
 } from "lucide-react";
 
 const categories = [
-  {
-    icon: Sparkles,
-    title: "AI & Content",
-    description: "AI-powered content writing tools, chatbots, and text generation utilities",
-    toolCount: 8,
-    color: "from-blue-500 to-purple-600",
-  },
-  {
-    icon: Image,
-    title: "Image Tools",
-    description: "Free online image editor, compressor, converter, and background remover tools",
-    toolCount: 16,
-    color: "from-pink-500 to-rose-600",
-  },
-  {
-    icon: Code,
-    title: "Developer Tools",
-    description: "API testing, code formatters, JSON validators, and web development utilities",
-    toolCount: 21,
-    color: "from-green-500 to-emerald-600",
-  },
-  {
-    icon: QrCode,
-    title: "QR & Barcodes",
-    description: "Free QR code generator, barcode creator, and scanner tools online",
-    toolCount: 5,
-    color: "from-emerald-500 to-teal-600",
-  },
-  {
-    icon: FileText,
-    title: "PDF Tools",
-    description: "Online PDF merger, splitter, compressor, and converter - no download",
-    toolCount: 6,
-    color: "from-orange-500 to-red-600",
-  },
-  {
-    icon: Type,
-    title: "Text Tools",
-    description: "Word counter, case converter, text formatter, and string manipulation tools",
-    toolCount: 23,
-    color: "from-indigo-500 to-blue-600",
-  },
-  {
-    icon: Video,
-    title: "Video Tools",
-    description: "Online video editor, compressor, merger, and watermark tools - free",
-    toolCount: 6,
-    color: "from-purple-500 to-indigo-600",
-  },
-  {
-    icon: TrendingUp,
-    title: "SEO & Marketing",
-    description: "SEO tools, meta tag generator, sitemap creator, and marketing utilities",
-    toolCount: 18,
-    color: "from-violet-500 to-purple-600",
-  },
-  {
-    icon: Calculator,
-    title: "Calculators",
-    description: "Free online calculators: percentage, BMI, loan, tip, compound interest, and more",
-    toolCount: 23,
-    color: "from-cyan-500 to-blue-600",
-  },
-  {
-    icon: Shield,
-    title: "Security Tools",
-    description: "Password generator, strength checker, and encryption tools online",
-    toolCount: 4,
-    color: "from-red-500 to-orange-600",
-  },
-  {
-    icon: Dices,
-    title: "Utilities",
-    description: "Random number generator, timer, stopwatch, and utility tools",
-    toolCount: 9,
-    color: "from-fuchsia-500 to-pink-600",
-  },
-  {
-    icon: ArrowRightLeft,
-    title: "File Converters",
-    description: "Free file converter: Excel to CSV, image format converter, PDF converter",
-    toolCount: 8,
-    color: "from-amber-500 to-orange-600",
-  },
-  {
-    icon: Receipt,
-    title: "Business Tools",
-    description: "Invoice generator, business name creator, and professional utilities",
-    toolCount: 2,
-    color: "from-teal-500 to-cyan-600",
-  },
-  {
-    icon: Hash,
-    title: "Social Media",
-    description: "Hashtag generator, Instagram bio maker, YouTube title generator tools",
-    toolCount: 3,
-    color: "from-rose-500 to-pink-600",
-  },
-  {
-    icon: Brain,
-    title: "Generators",
-    description: "Business name generator, domain name creator, fake data, and more",
-    toolCount: 8,
-    color: "from-lime-500 to-green-600",
-  },
+  { icon: Sparkles, title: "AI & Content", description: "AI-powered writing, chatbots, and text generation", toolCount: 8, color: "from-blue-500 to-purple-600" },
+  { icon: Image, title: "Image Tools", description: "Image editor, compressor, converter & background remover", toolCount: 16, color: "from-pink-500 to-rose-600" },
+  { icon: Code, title: "Developer Tools", description: "JSON formatters, code beautifiers & web dev utilities", toolCount: 21, color: "from-green-500 to-emerald-600" },
+  { icon: QrCode, title: "QR & Barcodes", description: "QR code generator, barcode creator and scanner tools", toolCount: 5, color: "from-emerald-500 to-teal-600" },
+  { icon: FileText, title: "PDF Tools", description: "PDF merger, splitter, compressor and converter", toolCount: 6, color: "from-orange-500 to-red-600" },
+  { icon: Type, title: "Text Tools", description: "Word counter, case converter and string manipulation", toolCount: 23, color: "from-indigo-500 to-blue-600" },
+  { icon: Video, title: "Video Tools", description: "Video editor, compressor, trimmer and converter", toolCount: 6, color: "from-purple-500 to-indigo-600" },
+  { icon: TrendingUp, title: "SEO & Marketing", description: "Meta tags, sitemaps and marketing utilities", toolCount: 18, color: "from-violet-500 to-purple-600" },
+  { icon: Calculator, title: "Calculators", description: "BMI, loan, percentage, compound interest & more", toolCount: 23, color: "from-cyan-500 to-blue-600" },
+  { icon: ShieldIcon, title: "Security Tools", description: "Password generator, strength checker & encryption", toolCount: 4, color: "from-red-500 to-orange-600" },
+  { icon: Dices, title: "Utilities", description: "Random number generator, timer, stopwatch & more", toolCount: 9, color: "from-fuchsia-500 to-pink-600" },
+  { icon: ArrowRightLeft, title: "File Converters", description: "Excel↔CSV, image format conversions & PDF", toolCount: 8, color: "from-amber-500 to-orange-600" },
+  { icon: Receipt, title: "Business Tools", description: "Invoice generator and professional business utilities", toolCount: 2, color: "from-teal-500 to-cyan-600" },
+  { icon: Hash, title: "Social Media", description: "Hashtag generator, bio maker & YouTube tools", toolCount: 3, color: "from-rose-500 to-pink-600" },
+  { icon: Brain, title: "Generators", description: "Business names, domains, fake data & more", toolCount: 8, color: "from-lime-500 to-green-600" },
+];
+
+const categorySlugMap: Record<string, string> = {
+  "AI & Content": "ai-content",
+  "Image Tools": "image-tools",
+  "Developer Tools": "developer-tools",
+  "QR & Barcodes": "qr-barcodes",
+  "PDF Tools": "pdf-tools",
+  "Text Tools": "text-tools",
+  "Video Tools": "video-tools",
+  "SEO & Marketing": "seo-marketing",
+  "Calculators": "calculators",
+  "Security Tools": "security-tools",
+  "Utilities": "utilities",
+  "File Converters": "file-converters",
+  "Business Tools": "business-tools",
+  "Social Media": "social-media",
+  "Generators": "generators",
+};
+
+const stats = [
+  { value: "150+", label: "Free Tools", icon: Zap },
+  { value: "1M+", label: "Monthly Users", icon: Globe },
+  { value: "10M+", label: "Files Processed", icon: CheckCircle },
+  { value: "4.9★", label: "User Rating", icon: Star },
+];
+
+const whyUs = [
+  "No registration or email required for any tool",
+  "Privacy-first: All processing happens in your browser",
+  "Ultra-fast — works great on mobile and desktop",
+  "150+ tools across 15+ specialized categories",
+  "100% free with no hidden paywalls",
 ];
 
 const Index = () => {
@@ -143,10 +76,8 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "");
 
   useEffect(() => {
-    const q = searchParams.get("q") || "";
-    const category = searchParams.get("category") || "";
-    setSearchQuery(q);
-    setSelectedCategory(category);
+    setSearchQuery(searchParams.get("q") || "");
+    setSelectedCategory(searchParams.get("category") || "");
   }, [searchParams]);
 
   const handleSearch = (query: string) => {
@@ -155,34 +86,23 @@ const Index = () => {
     if (query) params.set("q", query);
     if (selectedCategory) params.set("category", selectedCategory);
     setSearchParams(params);
-
-    // Scroll to search results when user searches
     setTimeout(() => {
       document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
   };
 
-  // Button-triggered search handler
   const handleButtonSearch = (query: string) => {
-    // Check for direct match first
-    const directMatch = allTools.find(t =>
-      t.title.toLowerCase() === query.toLowerCase() ||
-      t.title.toLowerCase().replace("free online ", "") === query.toLowerCase()
+    const directMatch = allTools.find(
+      (t) =>
+        t.title.toLowerCase() === query.toLowerCase() ||
+        t.title.toLowerCase().replace("free online ", "") === query.toLowerCase()
     );
-
-    if (directMatch) {
-      navigate(directMatch.path);
-      return;
-    }
-
+    if (directMatch) { navigate(directMatch.path); return; }
     setSearchQuery(query);
     const params = new URLSearchParams();
     if (query) params.set("q", query);
     if (selectedCategory) params.set("category", selectedCategory);
     setSearchParams(params);
-
-
-    // Scroll to search results when user searches
     if (query) {
       setTimeout(() => {
         document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -191,299 +111,218 @@ const Index = () => {
   };
 
   const handleCategoryFilter = (category: string) => {
-    const newCategory = category === selectedCategory ? "" : category;
-    setSelectedCategory(newCategory);
-    setSearchQuery(""); // Clear search when selecting category
+    const newCat = category === selectedCategory ? "" : category;
+    setSelectedCategory(newCat);
+    setSearchQuery("");
     const params = new URLSearchParams();
-    if (newCategory) params.set("category", newCategory);
+    if (newCat) params.set("category", newCat);
     setSearchParams(params);
-
-    // Scroll to search results section
-    if (newCategory) {
+    if (newCat) {
       setTimeout(() => {
         document.getElementById("tools-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 100);
     }
   };
 
-  // Count tools per category
-  const getToolCountByCategory = (categoryName: string) => {
-    return allTools.filter(tool => tool.category === categoryName).length;
-  };
-
   const filteredTools = useMemo(() => {
     const filtered = allTools.filter((tool) => {
-      const matchesSearch = !searchQuery ||
+      const matchesSearch =
+        !searchQuery ||
         tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         tool.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         tool.category.toLowerCase().includes(searchQuery.toLowerCase());
-
       const matchesCategory = !selectedCategory || tool.category === selectedCategory;
-
       return matchesSearch && matchesCategory;
     });
-
-    // Show only 12 most popular tools when no search/filter is active
     if (!searchQuery && !selectedCategory) {
-      // Get tools marked as popular first, then fill with others up to 12
-      const popularFirst = filtered.filter(t => t.popular);
-      const others = filtered.filter(t => !t.popular);
-      return [...popularFirst, ...others].slice(0, 12);
+      const popular = filtered.filter((t) => t.popular);
+      const others = filtered.filter((t) => !t.popular);
+      return [...popular, ...others].slice(0, 12);
     }
-
     return filtered;
   }, [searchQuery, selectedCategory]);
-
-  const handleToolClick = (path: string) => {
-    if (!path) return;
-    navigate(path);
-  };
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
       <SEOHead
-        title="ToolMaster Pro - 100+ Free Online Tools | No Registration Required"
-        description="Access 100+ free online tools. Background remover, PDF merger, Image Size Reducer, QR generator, calculators & more. No signup, browser-based, secure."
-        keywords="free online tools, web tools, browser tools, no registration, PDF tools, image tools, text converters, calculators, developer tools, online utilities, free web apps"
+        title="ToolMaster Pro — 150+ Free Online Tools | No Registration Required"
+        description="Access 150+ free online tools. Background remover, PDF merger, image compressor, QR generator, AI writing tools, calculators & more. No signup, browser-based, secure."
+        keywords="free online tools, web tools, browser tools, no registration, PDF tools, image tools, text converters, calculators, developer tools, online utilities"
         canonical="https://toolmaster.cloud"
       />
       <Header />
 
-
       <main>
+        {/* Hero */}
         <OptimizedHero searchQuery={searchQuery} onSearch={handleButtonSearch} />
 
-        {/* Categories Section */}
-        <section className="py-16 container w-full overflow-hidden px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 break-words">Browse Free Online Tools by Category</h2>
-            <p className="text-muted-foreground text-base sm:text-lg break-words">
-              Explore our comprehensive collection of free web-based tools and utilities. No registration required, instant access to 100+ professional-grade online tools.
-            </p>
-          </div>
-
-          {/* Categories Grid - Full width */}
-          <div className="max-w-6xl mx-auto">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {categories.map((category, index) => {
-                // Create URL-friendly slugs
-                const categorySlug: Record<string, string> = {
-                  "AI & Content": "ai-content",
-                  "Image Tools": "image-tools",
-                  "Developer Tools": "developer-tools",
-                  "QR & Barcodes": "qr-barcodes",
-                  "PDF Tools": "pdf-tools",
-                  "Text Tools": "text-tools",
-                  "Video Tools": "video-tools",
-                  "SEO & Marketing": "seo-marketing",
-                  "Calculators": "calculators",
-                  "Security Tools": "security-tools",
-                  "Utilities": "utilities",
-                  "File Converters": "file-converters",
-                  "Business Tools": "business-tools",
-                  "Social Media": "social-media",
-                  "Generators": "generators"
-                };
-
-                return (
-                  <div
-                    key={category.title}
-                    className="animate-scale-in cursor-pointer"
-                    style={{ animationDelay: `${index * 0.05}s` }}
-                    onClick={() => navigate(`/category/${categorySlug[category.title]}`)}
-                  >
-                    <CategoryCard
-                      {...category}
-                      toolCount={category.toolCount}
-                      isSelected={false}
-                      comingSoon={false}
-                    />
+        {/* Stats Bar */}
+        <div className="border-y border-border/40 bg-muted/20">
+          <div className="container max-w-5xl mx-auto px-4 py-5">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              {stats.map(({ value, label, icon: Icon }) => (
+                <div key={label} className="flex flex-col items-center gap-1">
+                  <div className="flex items-center gap-1.5">
+                    <Icon className="h-4 w-4 text-primary" />
+                    <span className="text-2xl md:text-3xl font-black text-gradient">{value}</span>
                   </div>
-                );
-              })}
+                  <span className="text-xs text-muted-foreground font-medium">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Categories Section */}
+        <section className="py-16 px-4">
+          <div className="container max-w-7xl mx-auto">
+            <div className="text-center mb-10">
+              <h2 className="text-2xl md:text-4xl font-black mb-3 text-foreground">
+                Browse Tools by Category
+              </h2>
+              <p className="text-muted-foreground text-base max-w-2xl mx-auto">
+                15 categories covering every workflow — from image editing to AI writing to developer utilities.
+              </p>
             </div>
 
-            {selectedCategory && (
-              <div className="text-center mb-8">
-                <p className="text-lg text-muted-foreground">
-                  Showing tools in <span className="font-semibold text-foreground">{selectedCategory}</span>
-                  <button
-                    onClick={() => handleCategoryFilter("")}
-                    className="ml-2 text-primary hover:underline"
-                  >
-                    Clear filter
-                  </button>
-                </p>
-              </div>
-            )}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+              {categories.map((category, index) => (
+                <div
+                  key={category.title}
+                  className="animate-fade-in-up"
+                  style={{ animationDelay: `${index * 0.04}s` }}
+                  onClick={() => navigate(`/category/${categorySlugMap[category.title]}`)}
+                >
+                  <CategoryCard {...category} isSelected={false} comingSoon={false} />
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Ad Row after Categories */}
-        <div className="container">
+        {/* Ad Row after categories */}
+        <div className="container max-w-5xl mx-auto px-4 mb-8">
           <AdRow />
         </div>
 
         {!searchQuery && !selectedCategory && <HowItWorks />}
 
-        {/* Popular Tools Section */}
-        <section id="tools-section" className="py-16 container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              {searchQuery || selectedCategory ? "Search Results" : "Most Popular Free Online Tools"}
-            </h2>
-            <p className="text-muted-foreground text-lg mb-4">
-              {searchQuery || selectedCategory
-                ? `Found ${filteredTools.length} tool${filteredTools.length !== 1 ? 's' : ''} - All free, no signup required`
-                : "Trusted by thousands of developers, designers, and content creators worldwide"
-              }
-            </p>
-            {!searchQuery && !selectedCategory && (
-              <button
-                onClick={() => navigate("/tools")}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all font-semibold"
-              >
-                View All Tools
-              </button>
+        {/* Popular / Search Results Section */}
+        <section id="tools-section" className="py-12 px-4">
+          <div className="container max-w-7xl mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-black text-foreground">
+                  {searchQuery || selectedCategory ? "Search Results" : "Most Popular Tools"}
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {searchQuery || selectedCategory
+                    ? `${filteredTools.length} tool${filteredTools.length !== 1 ? "s" : ""} found — all free, no signup`
+                    : "Trusted by developers, designers & students worldwide"}
+                </p>
+              </div>
+              {!searchQuery && !selectedCategory && (
+                <button
+                  onClick={() => navigate("/tools")}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary/90 transition-all shadow-md shadow-primary/20 shrink-0"
+                >
+                  View All Tools <ArrowRight className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            {selectedCategory && (
+              <div className="mb-6 flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  Showing: <span className="font-semibold text-foreground">{selectedCategory}</span>
+                </span>
+                <button
+                  onClick={() => handleCategoryFilter("")}
+                  className="text-sm text-primary hover:underline font-medium"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+
+            {filteredTools.length > 0 ? (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredTools.map((tool, index) => {
+                  const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
+                  return (
+                    <div key={tool.path} className="contents">
+                      <div
+                        className="animate-fade-in-up"
+                        style={{ animationDelay: `${index * 0.04}s` }}
+                        onClick={() => tool.path && navigate(tool.path)}
+                      >
+                        <ToolCard {...tool} />
+                      </div>
+                      {showAdAfter && (
+                        <div className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
+                          <AdRow slot="2127993591" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-16 bg-card rounded-2xl border border-border/60">
+                <p className="text-xl font-bold text-foreground mb-2">No tools found</p>
+                <p className="text-muted-foreground mb-4">Try a different search term</p>
+                <button
+                  onClick={() => { handleSearch(""); handleCategoryFilter(""); }}
+                  className="text-primary hover:underline font-medium"
+                >
+                  Clear all filters
+                </button>
+              </div>
             )}
           </div>
-
-          {filteredTools.length > 0 ? (
-            <>
-              {/* Tools Grid - Full width */}
-              <div className="max-w-6xl mx-auto">
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredTools.map((tool, index) => {
-                    // Insert ad after every 8 tools
-                    const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
-
-                    return (
-                      <div key={tool.path} className="contents">
-                        <div
-                          className="animate-fade-in"
-                          style={{ animationDelay: `${index * 0.05}s` }}
-                          onClick={() => handleToolClick(tool.path)}
-                        >
-                          <ToolCard {...tool} />
-                        </div>
-                        {showAdAfter && (
-                          <div className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4 p-4">
-                            <AdRow slot="2127993591" />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-xl text-muted-foreground mb-4">No tools found matching your search</p>
-              <button
-                onClick={() => {
-                  handleSearch("");
-                  handleCategoryFilter("");
-                }}
-                className="text-primary hover:underline"
-              >
-                Clear all filters
-              </button>
-            </div>
-          )}
         </section>
 
-        {/* Stats Section */}
-        <section className="py-16 bg-muted/30">
-          <div className="container px-4">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold mb-2">Why Choose Our Free Online Tools?</h2>
-              <p className="text-muted-foreground">Trusted by professionals worldwide for fast, secure, and reliable results</p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
-              <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth">
-                <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    100+
-                  </span>
-                </div>
-                <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Tools</p>
-              </div>
-              <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.1s" }}>
-                <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    1M+
-                  </span>
-                </div>
-                <p className="text-sm sm:text-base text-muted-foreground font-medium">Monthly Users</p>
-              </div>
-              <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.2s" }}>
-                <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    10M+
-                  </span>
-                </div>
-                <p className="text-sm sm:text-base text-muted-foreground font-medium">Files Processed</p>
-              </div>
-              <div className="animate-fade-in p-6 rounded-lg bg-card/50 backdrop-blur shadow-card hover:shadow-card-hover transition-smooth" style={{ animationDelay: "0.3s" }}>
-                <div className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2">
-                  <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    100%
-                  </span>
-                </div>
-                <p className="text-sm sm:text-base text-muted-foreground font-medium">Free Forever</p>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Ad Banner */}
+        <div className="container max-w-5xl mx-auto px-4 mb-8">
+          <AdRow slot="1212397554" />
+        </div>
 
-        {/* SEO Content Section */}
-        <section className="py-20 bg-background border-t border-b border-white/5">
-          <div className="container max-w-5xl px-4">
+        {/* Why ToolMasterPro */}
+        <section className="py-16 px-4 bg-muted/20 border-y border-border/40">
+          <div className="container max-w-6xl mx-auto">
             <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6">
-                <h2 className="text-3xl md:text-5xl font-black leading-tight">Master Your Workflow with <span className="text-primary italic">Professional</span> Results</h2>
-                <div className="space-y-4 text-muted-foreground text-lg leading-relaxed">
-                  <p>
-                    In today's fast-paced digital world, efficiency is everything. ToolMaster Pro was built with one simple mission: to provide every professional, student, and developer with instant access to high-quality, <strong>privacy-first web tools</strong> without the friction of logins or subscriptions.
-                  </p>
-                  <p>
-                    Whether you're looking to <span className="text-foreground font-semibold">remove photo backgrounds</span>, merge complex PDF documents, or format messy JSON data with our developer suite, our tools run entirely in your browser. This means your data never leaves your device, ensuring maximum security and speed.
-                  </p>
-                </div>
+              <div className="space-y-5">
+                <h2 className="text-3xl md:text-4xl font-black text-foreground leading-tight">
+                  Professional Tools.<br />
+                  <span className="text-gradient">Completely Free.</span>
+                </h2>
+                <p className="text-muted-foreground text-base leading-relaxed">
+                  ToolMasterPro was built with one mission — give everyone instant access to professional-grade tools without logins, fees, or friction. Everything runs in your browser for maximum speed and privacy.
+                </p>
+                <button
+                  onClick={() => navigate("/tools")}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all shadow-md shadow-primary/20"
+                >
+                  Explore All Tools <ArrowRight className="h-4 w-4" />
+                </button>
               </div>
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-                <div className="relative bg-card/80 backdrop-blur-xl border-white/10 p-8 rounded-2xl shadow-2xl">
-                  <h3 className="text-xl font-bold mb-4">Why users love ToolMaster Pro</h3>
-                  <ul className="space-y-4">
-                    {[
-                      "No registration or email required for any tool",
-                      "Privacy-first: All processing happens in your browser",
-                      "Ultra-fast performance on mobile and desktop",
-                      "Over 100+ tools across 15+ specialized categories",
-                      "100% free with no hidden premium gated features"
-                    ].map((benefit, i) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                          <div className="h-2 w-2 rounded-full bg-primary"></div>
-                        </div>
-                        <span className="text-muted-foreground text-base">{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+
+              <div className="bg-card rounded-2xl border border-border/60 p-6 shadow-card">
+                <h3 className="font-bold text-lg text-foreground mb-4">Why users love us</h3>
+                <ul className="space-y-3">
+                  {whyUs.map((item, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                      <span className="text-sm text-muted-foreground">{item}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </div>
-            <div className="mt-16 text-center text-muted-foreground leading-relaxed">
-              <p className="max-w-3xl mx-auto">
-                From the <strong>Image size Reducer</strong> that helps you optimize your web presence to our <strong>AI content generators</strong> that spark creativity, every utility in our library is designed for clarity and ease of use. Stop wrestling with bloated software and start using ToolMaster Pro—the ultimate digital utility belt for the modern web.
-              </p>
             </div>
           </div>
         </section>
 
-        {/* FAQ Section */}
+        {/* FAQ */}
         <FAQ />
       </main>
 

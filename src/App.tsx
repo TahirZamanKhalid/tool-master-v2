@@ -216,10 +216,15 @@ const LoadingFallback = () => (
 
 const App = () => {
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
+    // Only allow dark/light. Migrate any legacy theme key to dark.
+    const stored = localStorage.getItem('theme');
+    const theme = stored === 'light' ? 'light' : 'dark';
+    if (stored !== 'light' && stored !== 'dark') {
+      localStorage.setItem('theme', 'dark');
+    }
     const root = window.document.documentElement;
     root.classList.remove("light", "dark", "midnight", "forest", "sunset");
-    root.classList.add(savedTheme);
+    root.classList.add(theme);
   }, []);
 
   return (
