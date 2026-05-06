@@ -147,8 +147,68 @@ const Index = () => {
       <SEOHead
         title="ToolMaster Pro — 150+ Free Online Tools | No Registration Required"
         description="Access 150+ free online tools. Background remover, PDF merger, image compressor, QR generator, AI writing tools, calculators & more. No signup, browser-based, secure."
-        keywords="free online tools, web tools, browser tools, no registration, PDF tools, image tools, text converters, calculators, developer tools, online utilities"
-        canonical="https://toolmaster.cloud"
+        keywords="free online tools, web tools, browser tools, no registration, no signup tools, PDF tools, image tools, text converters, calculators, developer tools, online utilities, AI tools, free tools no download, online toolbox, web utilities, productivity tools, free image compressor, free PDF merger, free QR code generator, JSON formatter, background remover online, password generator, hash generator, color picker"
+        canonical="https://toolmaster.cloud/"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "@id": "https://toolmaster.cloud/#website",
+            url: "https://toolmaster.cloud/",
+            name: "ToolMaster Pro",
+            alternateName: "ToolMaster Pro - Free Online Tools",
+            description: "150+ free online tools — image, PDF, video, AI, developer, calculators and more. No signup required.",
+            inLanguage: "en-US",
+            publisher: { "@id": "https://toolmaster.cloud/#organization" },
+            potentialAction: {
+              "@type": "SearchAction",
+              target: {
+                "@type": "EntryPoint",
+                urlTemplate: "https://toolmaster.cloud/tools?search={search_term_string}",
+              },
+              "query-input": "required name=search_term_string",
+            },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "@id": "https://toolmaster.cloud/#organization",
+            name: "ToolMaster Pro",
+            url: "https://toolmaster.cloud/",
+            logo: {
+              "@type": "ImageObject",
+              url: "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg",
+              width: 512,
+              height: 512,
+            },
+            sameAs: [
+              "https://twitter.com/ToolMasterPro",
+              "https://www.facebook.com/ToolMasterPro",
+              "https://www.linkedin.com/company/toolmasterpro",
+            ],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "Most Popular Free Online Tools",
+            description: "Top free tools on ToolMaster Pro",
+            numberOfItems: 12,
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Background Remover", url: "https://toolmaster.cloud/tools/background-remover" },
+              { "@type": "ListItem", position: 2, name: "PDF Merger", url: "https://toolmaster.cloud/tools/pdf-merger" },
+              { "@type": "ListItem", position: 3, name: "QR Code Generator", url: "https://toolmaster.cloud/tools/qr-code-generator" },
+              { "@type": "ListItem", position: 4, name: "Image Size Reducer", url: "https://toolmaster.cloud/tools/image-size-reducer" },
+              { "@type": "ListItem", position: 5, name: "JSON Formatter", url: "https://toolmaster.cloud/tools/json-formatter" },
+              { "@type": "ListItem", position: 6, name: "Password Generator", url: "https://toolmaster.cloud/tools/password-generator" },
+              { "@type": "ListItem", position: 7, name: "Word Counter", url: "https://toolmaster.cloud/tools/word-counter" },
+              { "@type": "ListItem", position: 8, name: "Color Picker", url: "https://toolmaster.cloud/tools/color-picker" },
+              { "@type": "ListItem", position: 9, name: "Essay Writer", url: "https://toolmaster.cloud/tools/essay-writer" },
+              { "@type": "ListItem", position: 10, name: "Blog Writer", url: "https://toolmaster.cloud/tools/blog-article-writer" },
+              { "@type": "ListItem", position: 11, name: "Image Editor", url: "https://toolmaster.cloud/tools/advanced-image-editor" },
+              { "@type": "ListItem", position: 12, name: "Watermark Tool", url: "https://toolmaster.cloud/tools/watermark-tool" },
+            ],
+          },
+        ]}
       />
       <Header />
 

@@ -50,9 +50,29 @@ const AllTools = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
         title="All Free Online Tools — 150+ Browser-Based Utilities | ToolMaster Pro"
-        description="Browse all 150+ free online tools. Search and filter by category — image, PDF, video, AI, calculator, developer tools and more. No signup required."
-        keywords="all online tools, free tools list, browse tools, web tools, online utilities, free utilities"
+        description="Browse all 150+ free online tools. Search and filter by category — image, PDF, video, AI, calculator, developer tools and more. No signup required, 100% free."
+        keywords="all online tools, free tools list, browse online tools, web utilities, free web tools, browser tools, no signup tools, online toolbox, free image tools, free PDF tools, free video tools, free AI tools, free calculators, free developer tools, free SEO tools, free text tools, free QR code generator, free password generator, free background remover, free PDF merger, free word counter, free JSON formatter"
         canonical="https://toolmaster.cloud/tools"
+        breadcrumbs={[
+          { name: "Home", url: "https://toolmaster.cloud/" },
+          { name: "All Tools", url: "https://toolmaster.cloud/tools" },
+        ]}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          "@id": "https://toolmaster.cloud/tools",
+          name: "All Free Online Tools — ToolMaster Pro",
+          description: "Complete collection of 150+ free browser-based online tools. Image editors, PDF utilities, AI writing tools, calculators, developer utilities and more.",
+          url: "https://toolmaster.cloud/tools",
+          isPartOf: { "@id": "https://toolmaster.cloud/#website" },
+          breadcrumb: {
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://toolmaster.cloud/" },
+              { "@type": "ListItem", position: 2, name: "All Tools", item: "https://toolmaster.cloud/tools" },
+            ],
+          },
+        }}
       />
       <Header />
 

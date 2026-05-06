@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEOHead } from "@/components/SEOHead";
 import { Home, Search, ArrowLeft, Wrench } from "lucide-react";
 
 const NotFound = () => {
@@ -15,6 +16,12 @@ const NotFound = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <SEOHead
+        title="404 — Page Not Found | ToolMaster Pro"
+        description="The page you are looking for doesn't exist. Browse 150+ free online tools at ToolMaster Pro."
+        canonical="https://toolmaster.cloud/404"
+        noindex={true}
+      />
       <Header />
 
       <main className="flex-1 flex items-center justify-center px-4 py-12 relative overflow-hidden">

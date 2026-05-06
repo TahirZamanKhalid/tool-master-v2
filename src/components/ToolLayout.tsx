@@ -46,19 +46,26 @@ export const ToolLayout = ({
   const location = useLocation();
   const [adModalOpen, setAdModalOpen] = useState(false);
 
-  const keywords = `${title}, ${category}, free ${title.toLowerCase()}, online ${title.toLowerCase()}, ${title.toLowerCase()} tool`;
+  const titleLower = title.toLowerCase();
+  const keywords = [
+    title,
+    `free ${titleLower}`,
+    `online ${titleLower}`,
+    `${titleLower} online`,
+    `${titleLower} free`,
+    `${titleLower} tool`,
+    `best ${titleLower}`,
+    `${titleLower} no signup`,
+    `${titleLower} browser`,
+    `free online ${titleLower}`,
+    category,
+    `${category.toLowerCase()} tools`,
+    "free online tools",
+    "no signup required",
+    "ToolMaster Pro",
+  ].join(", ");
 
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: title,
-    description,
-    applicationCategory: "UtilityApplication",
-    operatingSystem: "Any",
-    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-    publisher: { "@type": "Organization", name: "ToolMaster Pro" },
-    aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", ratingCount: "1250", bestRating: "5" },
-  };
+  const canonicalUrl = `https://toolmaster.cloud${location.pathname}`;
 
   const getBreadcrumbs = () => {
     const path = location.pathname;
@@ -77,6 +84,73 @@ export const ToolLayout = ({
     return generateBreadcrumbsFromPath(path);
   };
 
+  const breadcrumbItems = getBreadcrumbs();
+  const breadcrumbsForSchema = [
+    { name: "Home", url: "https://toolmaster.cloud/" },
+    ...breadcrumbItems.map((b) => ({
+      name: b.label,
+      url: b.path?.startsWith("http") ? b.path : `https://toolmaster.cloud${b.path || location.pathname}`,
+    })),
+  ];
+
+  const webAppSchema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: title,
+    alternateName: `Free Online ${title}`,
+    description,
+    url: canonicalUrl,
+    applicationCategory: "UtilityApplication",
+    applicationSubCategory: category,
+    operatingSystem: "Any (Web Browser)",
+    browserRequirements: "Requires JavaScript. Modern web browser (Chrome, Firefox, Safari, Edge).",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+      availability: "https://schema.org/InStock",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "ToolMaster Pro",
+      url: "https://toolmaster.cloud",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg",
+      },
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      ratingCount: "1250",
+      bestRating: "5",
+      worstRating: "1",
+    },
+    featureList: features?.join(", ") || "Free, no signup, browser-based, privacy-first, mobile-friendly",
+    isAccessibleForFree: true,
+    inLanguage: "en-US",
+  };
+
+  const howToSchema = instructions && instructions.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: `How to use ${title}`,
+    description: `Step-by-step guide to using the ${title}: ${description}`,
+    totalTime: "PT2M",
+    estimatedCost: { "@type": "MonetaryAmount", currency: "USD", value: "0" },
+    tool: { "@type": "HowToTool", name: title },
+    step: instructions.map((step, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: `Step ${i + 1}`,
+      text: step,
+      url: `${canonicalUrl}#step-${i + 1}`,
+    })),
+  } : null;
+
+  const allSchemas: object[] = [webAppSchema];
+  if (howToSchema) allSchemas.push(howToSchema);
+
   const handleDownloadClick = () => {
     if (showDownloadAd && onDownload) {
       setAdModalOpen(true);
@@ -91,10 +165,10 @@ export const ToolLayout = ({
         title={title}
         description={description}
         keywords={keywords}
-        canonical={`https://toolmaster.cloud${location.pathname}`}
-        ogImage="https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg"
+        canonical={canonicalUrl}
+        breadcrumbs={breadcrumbsForSchema}
+        jsonLd={allSchemas}
       />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
       <Header />
 
