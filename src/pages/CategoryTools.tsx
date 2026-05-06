@@ -77,10 +77,48 @@ const CategoryTools = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title={`${decodedCategory} — Free Online ${decodedCategory} Tools`}
-        description={`Browse all free ${decodedCategory.toLowerCase()} tools. ${meta.tagline}. No signup, browser-based, instant results.`}
-        keywords={`${decodedCategory.toLowerCase()}, free ${decodedCategory.toLowerCase()} tools, online ${decodedCategory.toLowerCase()}`}
+        title={`${decodedCategory} — Free Online ${decodedCategory} Tools | ToolMaster Pro`}
+        description={`Browse ${categoryTools.length}+ free ${decodedCategory.toLowerCase()} tools. ${meta.tagline}. No signup, browser-based, instant results. 100% free forever.`}
+        keywords={`${decodedCategory.toLowerCase()}, free ${decodedCategory.toLowerCase()} tools, online ${decodedCategory.toLowerCase()}, best ${decodedCategory.toLowerCase()} tools, ${decodedCategory.toLowerCase()} online, free ${decodedCategory.toLowerCase()} online, browser-based ${decodedCategory.toLowerCase()}, no signup ${decodedCategory.toLowerCase()}`}
         canonical={`https://toolmaster.cloud/category/${category}`}
+        breadcrumbs={[
+          { name: "Home", url: "https://toolmaster.cloud/" },
+          { name: "All Tools", url: "https://toolmaster.cloud/tools" },
+          { name: decodedCategory, url: `https://toolmaster.cloud/category/${category}` },
+        ]}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "@id": `https://toolmaster.cloud/category/${category}`,
+            name: `Free ${decodedCategory} Tools — ToolMaster Pro`,
+            description: `${categoryTools.length}+ free ${decodedCategory.toLowerCase()} tools. ${meta.tagline}`,
+            url: `https://toolmaster.cloud/category/${category}`,
+            isPartOf: { "@id": "https://toolmaster.cloud/#website" },
+            breadcrumb: {
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: "https://toolmaster.cloud/" },
+                { "@type": "ListItem", position: 2, name: "All Tools", item: "https://toolmaster.cloud/tools" },
+                { "@type": "ListItem", position: 3, name: decodedCategory, item: `https://toolmaster.cloud/category/${category}` },
+              ],
+            },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: `Free ${decodedCategory} Tools`,
+            description: meta.tagline,
+            numberOfItems: categoryTools.length,
+            itemListElement: categoryTools.slice(0, 20).map((tool, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              name: tool.title,
+              url: `https://toolmaster.cloud${tool.path}`,
+              description: tool.description,
+            })),
+          },
+        ]}
       />
       <Header />
 

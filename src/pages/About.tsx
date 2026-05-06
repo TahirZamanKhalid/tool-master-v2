@@ -26,10 +26,52 @@ const About = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title="About ToolMaster Pro — Free Online Tools Platform"
-        description="Learn about ToolMaster Pro: 150+ free professional online tools. Browser-based, privacy-first, no signup required. Trusted by users worldwide."
-        keywords="about toolmaster pro, free online tools, web tools platform, browser-based tools, privacy first"
+        title="About ToolMaster Pro — Free Online Tools Platform | Privacy-First"
+        description="Learn about ToolMaster Pro: 150+ free professional online tools. Browser-based processing, privacy-first, no signup required. Trusted by millions of users worldwide."
+        keywords="about toolmaster pro, free online tools platform, browser-based tools, privacy-first tools, no registration tools, free web utilities, toolmaster pro team, online productivity tools, free tools no signup"
         canonical="https://toolmaster.cloud/about"
+        breadcrumbs={[
+          { name: "Home", url: "https://toolmaster.cloud/" },
+          { name: "About", url: "https://toolmaster.cloud/about" },
+        ]}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "AboutPage",
+            "@id": "https://toolmaster.cloud/about",
+            name: "About ToolMaster Pro",
+            description: "Learn about ToolMaster Pro: 150+ free professional online tools. Browser-based, privacy-first, no signup required.",
+            url: "https://toolmaster.cloud/about",
+            isPartOf: { "@id": "https://toolmaster.cloud/#website" },
+            about: { "@id": "https://toolmaster.cloud/#organization" },
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "@id": "https://toolmaster.cloud/#organization",
+            name: "ToolMaster Pro",
+            url: "https://toolmaster.cloud/",
+            description: "ToolMaster Pro provides 150+ free online tools — image, PDF, video, AI writing, calculators and more. No signup required, browser-based, privacy-first.",
+            foundingDate: "2024",
+            logo: {
+              "@type": "ImageObject",
+              url: "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg",
+              width: 512,
+              height: 512,
+            },
+            sameAs: [
+              "https://twitter.com/ToolMasterPro",
+              "https://www.facebook.com/ToolMasterPro",
+              "https://www.linkedin.com/company/toolmasterpro",
+            ],
+            contactPoint: {
+              "@type": "ContactPoint",
+              contactType: "customer support",
+              url: "https://toolmaster.cloud/contact",
+              availableLanguage: "English",
+            },
+          },
+        ]}
       />
       <Header />
 

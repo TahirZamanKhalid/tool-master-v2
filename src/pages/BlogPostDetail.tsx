@@ -42,17 +42,39 @@ const BlogPostDetail = () => {
             <SEOHead
                 title={post.title}
                 description={post.excerpt}
-                keywords={post.tags.join(", ")}
+                keywords={[...post.tags, "tutorial", "guide", "how to", "free online tools", "ToolMaster Pro"].join(", ")}
                 canonical={`https://toolmaster.cloud/blog/${post.slug}`}
                 type="article"
-            />
-            <BlogPostingSchema
-                title={post.title}
-                description={post.excerpt}
-                image={`https://toolmaster.cloud${post.image}`}
-                datePublished={post.date}
-                authorName={post.author}
-                url={`https://toolmaster.cloud/blog/${post.slug}`}
+                author={post.author}
+                publishedTime={post.date}
+                modifiedTime={post.date}
+                articleTags={post.tags}
+                breadcrumbs={[
+                  { name: "Home", url: "https://toolmaster.cloud/" },
+                  { name: "Blog", url: "https://toolmaster.cloud/blog" },
+                  { name: post.title, url: `https://toolmaster.cloud/blog/${post.slug}` },
+                ]}
+                jsonLd={{
+                  "@context": "https://schema.org",
+                  "@type": "Article",
+                  "@id": `https://toolmaster.cloud/blog/${post.slug}`,
+                  headline: post.title,
+                  description: post.excerpt,
+                  image: `https://toolmaster.cloud${post.image}`,
+                  datePublished: post.date,
+                  dateModified: post.date,
+                  author: {
+                    "@type": "Person",
+                    name: post.author,
+                  },
+                  publisher: { "@id": "https://toolmaster.cloud/#organization" },
+                  isPartOf: { "@id": "https://toolmaster.cloud/blog" },
+                  mainEntityOfPage: `https://toolmaster.cloud/blog/${post.slug}`,
+                  keywords: post.tags.join(", "),
+                  articleSection: post.category,
+                  inLanguage: "en-US",
+                  wordCount: post.readTime ? parseInt(post.readTime) * 200 : undefined,
+                }}
             />
 
             <Header />

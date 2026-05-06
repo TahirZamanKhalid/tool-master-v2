@@ -49,10 +49,23 @@ const Contact = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title="Contact Us — ToolMaster Pro"
-        description="Questions, feedback, or partnership inquiries? Get in touch with the ToolMasterPro team."
-        keywords="contact, support, feedback, help, customer service"
+        title="Contact Us — ToolMaster Pro Support & Feedback"
+        description="Have questions, feedback, or partnership inquiries? Get in touch with the ToolMaster Pro team. We respond within 24 hours."
+        keywords="contact toolmaster pro, support, feedback, help, customer service, report bug, tool request, partnership, business inquiry"
         canonical="https://toolmaster.cloud/contact"
+        breadcrumbs={[
+          { name: "Home", url: "https://toolmaster.cloud/" },
+          { name: "Contact", url: "https://toolmaster.cloud/contact" },
+        ]}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          "@id": "https://toolmaster.cloud/contact",
+          name: "Contact ToolMaster Pro",
+          description: "Get in touch with the ToolMaster Pro team for support, feedback, or partnership inquiries.",
+          url: "https://toolmaster.cloud/contact",
+          isPartOf: { "@id": "https://toolmaster.cloud/#website" },
+        }}
       />
       <Header />
 

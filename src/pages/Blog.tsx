@@ -13,10 +13,35 @@ const Blog = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <SEOHead
-        title="Blog & Tutorials — ToolMaster Pro"
-        description="Tutorials, tips, and step-by-step guides on using free online tools. Master image editing, PDF processing, AI writing, and more."
-        keywords="blog, tutorials, tips, guides, online tools, how to"
+        title="Blog & Tutorials — Free Online Tools Tips & Guides | ToolMaster Pro"
+        description="Step-by-step tutorials, expert tips, and how-to guides for free online tools. Master image editing, PDF processing, AI writing, background removal, and more."
+        keywords="online tools blog, tutorials, how to guides, free tools tips, image editing tutorial, PDF tools guide, AI writing tips, background remover tutorial, QR code guide, word counter tutorial, online productivity tips, web tools tutorials"
         canonical="https://toolmaster.cloud/blog"
+        breadcrumbs={[
+          { name: "Home", url: "https://toolmaster.cloud/" },
+          { name: "Blog", url: "https://toolmaster.cloud/blog" },
+        ]}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Blog",
+            "@id": "https://toolmaster.cloud/blog",
+            name: "ToolMaster Pro Blog & Tutorials",
+            description: "Step-by-step tutorials, expert tips, and how-to guides for free online tools.",
+            url: "https://toolmaster.cloud/blog",
+            publisher: { "@id": "https://toolmaster.cloud/#organization" },
+            isPartOf: { "@id": "https://toolmaster.cloud/#website" },
+            inLanguage: "en-US",
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Home", item: "https://toolmaster.cloud/" },
+              { "@type": "ListItem", position: 2, name: "Blog", item: "https://toolmaster.cloud/blog" },
+            ],
+          },
+        ]}
       />
       <Header />
 
