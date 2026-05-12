@@ -99,52 +99,6 @@ const WiFiQRGenerator = () => {
     }
   };
 
-  const faqStructuredData = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "What is a WiFi QR code?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "A WiFi QR code is a special QR code that contains your WiFi network name (SSID), password, and encryption type. When someone scans it with their phone camera, they can automatically connect to your WiFi network without manually typing the password."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "How do I scan a WiFi QR code?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "On most modern smartphones, simply open the camera app and point it at the WiFi QR code. A notification will appear asking if you want to join the network. On older devices, you may need a QR code scanner app. Both Android and iOS support WiFi QR code scanning natively."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Is it safe to share WiFi via QR code?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes, sharing WiFi via QR code is safe. The QR code contains the same information you would share verbally — your network name and password. The QR code is generated entirely in your browser and no data is sent to any server. However, only share your WiFi QR code with people you trust."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What encryption types are supported?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "This WiFi QR code generator supports WPA/WPA2 (most common and recommended), WEP (older, less secure), and open networks with no password. WPA2 or WPA3 is recommended for the best security."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Can I use this for a hidden WiFi network?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes! Simply check the 'Hidden Network' option when generating your QR code. The generated QR code will include the hidden network flag, allowing devices to connect even if the network doesn't broadcast its SSID."
-        }
-      }
-    ]
-  };
 
   return (
     <>
@@ -182,7 +136,6 @@ const WiFiQRGenerator = () => {
 
         {/* Structured Data */}
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
-        <script type="application/ld+json">{JSON.stringify(faqStructuredData)}</script>
       </Helmet>
 
       <ToolLayout
@@ -197,10 +150,47 @@ const WiFiQRGenerator = () => {
           "Click 'Generate WiFi QR Code'",
           "Download or share the QR code — others scan to connect automatically",
         ]}
-        relatedTools={[
-          { name: "QR Code Generator", path: "/tools/qr-code-generator" },
-          { name: "QR Scanner", path: "/tools/qr-scanner" },
-          { name: "Barcode Generator", path: "/tools/barcode-generator" },
+        features={[
+          "100% free with no registration",
+          "Instant QR code generation",
+          "No data sent to servers - completely private",
+          "Supports WPA/WPA2, WEP & open networks",
+          "Download as PNG image",
+          "Works with hidden networks",
+        ]}
+        customFAQs={[
+          {
+            question: "What is a WiFi QR code?",
+            answer: "A WiFi QR code is a special QR code that contains your WiFi network name (SSID), password, and encryption type. When someone scans it with their phone camera, they can automatically connect to your WiFi network without manually typing the password.",
+          },
+          {
+            question: "How do I scan a WiFi QR code?",
+            answer: "On most modern smartphones, simply open the camera app and point it at the WiFi QR code. A notification will appear asking if you want to join the network. On older devices, you may need a QR code scanner app. Both Android (version 10+) and iOS (version 11+) support WiFi QR code scanning natively.",
+          },
+          {
+            question: "Is it safe to share WiFi via QR code?",
+            answer: "Yes, sharing WiFi via QR code is safe. The QR code contains the same information you would share verbally — your network name and password. This tool generates the QR code entirely in your browser, and no data is sent to any server. However, only share your WiFi QR code with people you trust.",
+          },
+          {
+            question: "What encryption types are supported?",
+            answer: "This WiFi QR code generator supports WPA/WPA2 (most common and recommended), WEP (older, less secure), and open networks with no password. WPA2 or WPA3 encryption is recommended for the best security.",
+          },
+          {
+            question: "Can I use this for a hidden WiFi network?",
+            answer: "Yes! Simply check the 'Hidden Network' option when generating your QR code. The generated QR code will include the hidden network flag, allowing devices to connect even if the network doesn't broadcast its SSID.",
+          },
+          {
+            question: "Does the QR code expire?",
+            answer: "No, the QR code itself doesn't expire. However, if you change your WiFi password or network name, you'll need to generate a new QR code with the updated credentials.",
+          },
+          {
+            question: "Can I print the WiFi QR code?",
+            answer: "Absolutely! Download the QR code as a PNG image and print it. Many people frame it or create small cards to place near their router, on the fridge, or at a reception desk.",
+          },
+          {
+            question: "Which devices can scan WiFi QR codes?",
+            answer: "Most modern smartphones can scan WiFi QR codes natively using the built-in camera app. This includes iPhone (iOS 11+), Android phones (Android 10+), and most tablets. Older devices may need a third-party QR code scanner app.",
+          },
         ]}
       >
         <AdSpace size="leaderboard" className="mb-6" />
@@ -421,70 +411,10 @@ const WiFiQRGenerator = () => {
               <strong>🏢 Offices & Co-working Spaces:</strong> Share guest WiFi access securely without revealing the password verbally or in emails.
             </p>
             <p>
-              <strong>🎉 Events & Conferences:</strong> Display large WiFi QR codes on screens or banners so attendees can connect instantly.
-            </p>
-            <p>
               <strong>🏫 Schools & Libraries:</strong> Provide easy WiFi access for students and visitors with posted QR codes.
             </p>
           </div>
-        </section>
-
-        {/* FAQ Section */}
-        <section className="mt-10 max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <HelpCircle className="h-6 w-6" />
-            Frequently Asked Questions
-          </h2>
-          <div className="space-y-4">
-            {[
-              {
-                q: "What is a WiFi QR code?",
-                a: "A WiFi QR code is a special QR code that contains your WiFi network name (SSID), password, and encryption type. When someone scans it with their phone camera, they can automatically connect to your WiFi network without manually typing the password.",
-              },
-              {
-                q: "How do I scan a WiFi QR code?",
-                a: "On most modern smartphones, simply open the camera app and point it at the WiFi QR code. A notification will appear asking if you want to join the network. On older devices, you may need a QR code scanner app. Both Android (version 10+) and iOS (version 11+) support WiFi QR code scanning natively.",
-              },
-              {
-                q: "Is it safe to share WiFi via QR code?",
-                a: "Yes, sharing WiFi via QR code is safe. The QR code contains the same information you would share verbally — your network name and password. This tool generates the QR code entirely in your browser, and no data is sent to any server. However, only share your WiFi QR code with people you trust.",
-              },
-              {
-                q: "What encryption types are supported?",
-                a: "This WiFi QR code generator supports WPA/WPA2 (most common and recommended), WEP (older, less secure), and open networks with no password. WPA2 or WPA3 encryption is recommended for the best security.",
-              },
-              {
-                q: "Can I use this for a hidden WiFi network?",
-                a: "Yes! Simply check the 'Hidden Network' option when generating your QR code. The generated QR code will include the hidden network flag, allowing devices to connect even if the network doesn't broadcast its SSID.",
-              },
-              {
-                q: "Does the QR code expire?",
-                a: "No, the QR code itself doesn't expire. However, if you change your WiFi password or network name, you'll need to generate a new QR code with the updated credentials.",
-              },
-              {
-                q: "Can I print the WiFi QR code?",
-                a: "Absolutely! Download the QR code as a PNG image and print it. Many people frame it or create small cards to place near their router, on the fridge, or at a reception desk.",
-              },
-              {
-                q: "Which devices can scan WiFi QR codes?",
-                a: "Most modern smartphones can scan WiFi QR codes natively using the built-in camera app. This includes iPhone (iOS 11+), Android phones (Android 10+), and most tablets. Older devices may need a third-party QR code scanner app.",
-              },
-            ].map((faq, index) => (
-              <Card key={index} className="p-4">
-                <h3 className="font-semibold text-sm mb-2">{faq.q}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* Final SEO Content Block */}
-        <section className="mt-10 max-w-4xl mx-auto mb-8">
-          <h2 className="text-2xl font-bold mb-4">Why Use a WiFi QR Code Generator?</h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            Sharing WiFi passwords has always been awkward. You either have to spell out a complex password letter by letter, write it on a sticky note, or send it in a text message. A WiFi QR code solves this problem elegantly — one quick scan and the device connects automatically.
-          </p>
-          <p className="text-muted-foreground leading-relaxed mb-4">
+          <p className="text-muted-foreground leading-relaxed mt-4">
             WiFi QR codes follow the standard <code className="bg-muted px-1.5 py-0.5 rounded text-xs">WIFI:T:WPA;S:networkname;P:password;;</code> format, which is universally recognized by smartphone operating systems. This means the QR codes generated by this tool work with virtually every modern phone and tablet.
           </p>
           <p className="text-muted-foreground leading-relaxed">

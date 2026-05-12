@@ -27,6 +27,8 @@ interface ToolLayoutProps {
   showDownloadAd?: boolean;
   onDownload?: () => void;
   downloadLabel?: string;
+  /** Custom FAQs to pass to ToolFAQ component */
+  customFAQs?: { question: string; answer: string }[];
 }
 
 export const ToolLayout = ({
@@ -41,6 +43,7 @@ export const ToolLayout = ({
   showDownloadAd = false,
   onDownload,
   downloadLabel = "Download Result",
+  customFAQs,
 }: ToolLayoutProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -303,7 +306,7 @@ export const ToolLayout = ({
               <div className="prose dark:prose-invert max-w-none">{extraContent}</div>
             )}
 
-            <ToolFAQ toolName={title} />
+            <ToolFAQ toolName={title} customFAQs={customFAQs} />
 
             {relatedTools && relatedTools.length > 0 && (
               <div className="bg-card rounded-2xl border border-border/60 p-5 shadow-card">

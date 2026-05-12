@@ -98,52 +98,6 @@ const Base64Encoder = () => {
     },
   };
 
-  const faqStructuredData = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "What is Base64 encoding?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Base64 is a binary-to-text encoding scheme that converts binary data into an ASCII string format using 64 printable characters (A-Z, a-z, 0-9, +, /). It is commonly used to embed binary data in text-based formats like HTML, CSS, JSON, and email.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Why do developers use Base64 encoding?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Developers use Base64 encoding to safely transmit binary data through text-based channels like URLs, emails, APIs, and HTML. It's essential for embedding images in CSS, sending file attachments in emails, encoding API authentication tokens, and storing binary data in JSON or XML.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Is Base64 encoding the same as encryption?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "No, Base64 encoding is NOT encryption. It is simply a way to represent binary data as text. Anyone can decode a Base64 string — it provides no security or confidentiality. For security, use proper encryption methods like AES or RSA.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Does Base64 encoding increase file size?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes, Base64 encoding increases the data size by approximately 33%. For example, a 3-byte binary input becomes 4 ASCII characters. This is a trade-off for the ability to safely represent binary data as text.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Is this Base64 tool safe to use?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes, this tool processes everything entirely in your browser using JavaScript's built-in btoa() and atob() functions. No data is sent to any server, making it completely private and secure.",
-        },
-      },
-    ],
-  };
 
   return (
     <>
@@ -181,18 +135,45 @@ const Base64Encoder = () => {
 
         {/* Structured Data */}
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
-        <script type="application/ld+json">{JSON.stringify(faqStructuredData)}</script>
       </Helmet>
 
       <ToolLayout
         title="Base64 Encoder/Decoder"
         description="Encode text to Base64 or decode Base64 strings instantly — essential for developers, APIs, and data embedding."
         category="Developer Tools"
-        instructions={[
-          "Choose 'Encode' or 'Decode' tab",
-          "Enter your text or Base64 string in the input area",
-          "Click the encode or decode button",
-          "Copy the result to your clipboard",
+        customFAQs={[
+          {
+            question: "What is Base64 encoding?",
+            answer: "Base64 is a binary-to-text encoding scheme that converts binary data into an ASCII string format using 64 printable characters (A-Z, a-z, 0-9, +, /). It's commonly used to embed binary data in text-based formats like HTML, CSS, JSON, and email.",
+          },
+          {
+            question: "Why do developers use Base64 encoding?",
+            answer: "Developers use Base64 to safely transmit binary data through text-based channels like URLs, emails, APIs, and HTML. It's essential for embedding images in CSS, sending email attachments, encoding API authentication tokens, and storing binary data in JSON or XML.",
+          },
+          {
+            question: "Is Base64 encoding the same as encryption?",
+            answer: "No, Base64 encoding is NOT encryption. It is simply a way to represent binary data as text. Anyone can decode a Base64 string — it provides no security or confidentiality. For security, use proper encryption methods like AES or RSA.",
+          },
+          {
+            question: "Does Base64 encoding increase file size?",
+            answer: "Yes, Base64 encoding increases the data size by approximately 33%. For example, a 3-byte binary input becomes 4 ASCII characters. This is a necessary trade-off for the ability to safely represent binary data as text.",
+          },
+          {
+            question: "Is this Base64 tool safe to use?",
+            answer: "Yes, this tool processes everything entirely in your browser using JavaScript's built-in btoa() and atob() functions. No data is sent to any server, making it completely private and secure.",
+          },
+          {
+            question: "What characters does Base64 use?",
+            answer: "Standard Base64 uses 64 characters: uppercase letters (A-Z), lowercase letters (a-z), digits (0-9), plus (+), and forward slash (/). The equals sign (=) is used as padding. Base64URL is a variant that replaces + with - and / with _ for URL safety.",
+          },
+          {
+            question: "Can I encode special characters and Unicode?",
+            answer: "The browser's built-in btoa() function works with Latin-1 characters. For Unicode text (like emojis or non-Latin scripts), you may need to first encode the text to UTF-8 bytes before Base64 encoding. Our tool handles standard ASCII and Latin-1 text.",
+          },
+          {
+            question: "What is the difference between Base64 and Base64URL?",
+            answer: "Base64URL is a URL-safe variant of Base64 that replaces the + character with - and / with _, and omits the = padding. It's used in JWTs (JSON Web Tokens) and URLs where standard Base64 characters could cause issues.",
+          },
         ]}
         relatedTools={[
           { name: "JSON Formatter", path: "/tools/json-formatter" },
@@ -482,55 +463,7 @@ const Base64Encoder = () => {
           </Card>
         </section>
 
-        {/* FAQ Section */}
-        <section className="mt-10 max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            <HelpCircle className="h-6 w-6" />
-            Frequently Asked Questions
-          </h2>
-          <div className="space-y-4">
-            {[
-              {
-                q: "What is Base64 encoding?",
-                a: "Base64 is a binary-to-text encoding scheme that converts binary data into an ASCII string format using 64 printable characters (A-Z, a-z, 0-9, +, /). It's commonly used to embed binary data in text-based formats like HTML, CSS, JSON, and email.",
-              },
-              {
-                q: "Why do developers use Base64 encoding?",
-                a: "Developers use Base64 to safely transmit binary data through text-based channels like URLs, emails, APIs, and HTML. It's essential for embedding images in CSS, sending email attachments, encoding API authentication tokens, and storing binary data in JSON or XML.",
-              },
-              {
-                q: "Is Base64 encoding the same as encryption?",
-                a: "No, Base64 encoding is NOT encryption. It is simply a way to represent binary data as text. Anyone can decode a Base64 string — it provides no security or confidentiality. For security, use proper encryption methods like AES or RSA.",
-              },
-              {
-                q: "Does Base64 encoding increase file size?",
-                a: "Yes, Base64 encoding increases the data size by approximately 33%. For example, a 3-byte binary input becomes 4 ASCII characters. This is a necessary trade-off for the ability to safely represent binary data as text.",
-              },
-              {
-                q: "Is this Base64 tool safe to use?",
-                a: "Yes, this tool processes everything entirely in your browser using JavaScript's built-in btoa() and atob() functions. No data is sent to any server, making it completely private and secure.",
-              },
-              {
-                q: "What characters does Base64 use?",
-                a: "Standard Base64 uses 64 characters: uppercase letters (A-Z), lowercase letters (a-z), digits (0-9), plus (+), and forward slash (/). The equals sign (=) is used as padding. Base64URL is a variant that replaces + with - and / with _ for URL safety.",
-              },
-              {
-                q: "Can I encode special characters and Unicode?",
-                a: "The browser's built-in btoa() function works with Latin-1 characters. For Unicode text (like emojis or non-Latin scripts), you may need to first encode the text to UTF-8 bytes before Base64 encoding. Our tool handles standard ASCII and Latin-1 text.",
-              },
-              {
-                q: "What is the difference between Base64 and Base64URL?",
-                a: "Base64URL is a URL-safe variant of Base64 that replaces the + character with - and / with _, and omits the = padding. It's used in JWTs (JSON Web Tokens) and URLs where standard Base64 characters could cause issues.",
-              },
-            ].map((faq, index) => (
-              <Card key={index} className="p-4">
-                <h3 className="font-semibold text-sm mb-2">{faq.q}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{faq.a}</p>
-              </Card>
-            ))}
-          </div>
-        </section>
-
+        
         {/* Final SEO Block */}
         <section className="mt-10 max-w-4xl mx-auto mb-8">
           <h2 className="text-2xl font-bold mb-4">Why Use Our Free Base64 Encoder/Decoder?</h2>
