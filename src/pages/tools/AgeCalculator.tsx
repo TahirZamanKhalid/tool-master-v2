@@ -15,7 +15,7 @@ const AgeCalculator = () => {
 
     const birth = new Date(birthDate);
     const today = new Date();
-    
+
     let years = today.getFullYear() - birth.getFullYear();
     let months = today.getMonth() - birth.getMonth();
     let days = today.getDate() - birth.getDate();
@@ -40,7 +40,7 @@ const AgeCalculator = () => {
       description="Calculate your exact age"
       category="Calculators"
     >
-      <AdRow className="mb-6" />
+
       <Card>
         <CardContent className="p-6 space-y-4">
           <div>
@@ -66,7 +66,7 @@ const AgeCalculator = () => {
           )}
         </CardContent>
       </Card>
-      <AdRow className="mt-6" />
+
     </ToolLayout>
   );
 };

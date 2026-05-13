@@ -117,10 +117,7 @@ const AllTools = () => {
       </section>
 
       <main className="flex-1 container max-w-7xl mx-auto px-4 py-8">
-        {/* Top Banner Ad */}
-        <div className="mb-6">
-          <AdRow slot="9769564871" />
-        </div>
+
 
         {/* Layout: Filter Sidebar + Tools Grid + Ad Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr] xl:grid-cols-[200px_1fr_300px] gap-6">
@@ -146,11 +143,10 @@ const AllTools = () => {
                 <div className="flex flex-wrap lg:flex-col gap-1.5">
                   <button
                     onClick={() => setSelectedCat("")}
-                    className={`text-left text-xs font-semibold px-3 py-2 rounded-lg transition-all ${
-                      !selectedCat
+                    className={`text-left text-xs font-semibold px-3 py-2 rounded-lg transition-all ${!selectedCat
                         ? "bg-primary text-white shadow-sm"
                         : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                    }`}
+                      }`}
                   >
                     All Categories <span className="opacity-60">({allTools.length})</span>
                   </button>
@@ -160,11 +156,10 @@ const AllTools = () => {
                       <button
                         key={cat}
                         onClick={() => setSelectedCat(cat === selectedCat ? "" : cat)}
-                        className={`text-left text-xs font-semibold px-3 py-2 rounded-lg transition-all ${
-                          selectedCat === cat
+                        className={`text-left text-xs font-semibold px-3 py-2 rounded-lg transition-all ${selectedCat === cat
                             ? "bg-primary text-white shadow-sm"
                             : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
-                        }`}
+                          }`}
                       >
                         {cat} <span className="opacity-60">({count})</span>
                       </button>
