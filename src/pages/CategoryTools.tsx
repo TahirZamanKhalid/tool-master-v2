@@ -158,10 +158,7 @@ const CategoryTools = () => {
 
       <main className="flex-1 container max-w-7xl mx-auto px-4 py-8">
 
-        {/* Top Banner Ad */}
-        <div className="mb-6">
-          <AdRow slot="9769564871" />
-        </div>
+
 
         {/* Layout: Tools + Sidebar */}
         <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">

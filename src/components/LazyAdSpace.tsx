@@ -22,7 +22,7 @@ const AD_SLOTS = {
 
 const FORMAT_CONFIG = {
   horizontal: { width: "100%", height: "auto", minWidth: "320px", minHeight: "100px" },
-  vertical: { width: "300px", height: "600px", minWidth: "160px", minHeight: "250px" },
+  vertical: { width: "300px", height: "auto", minWidth: "160px", minHeight: "250px" },
   auto: { width: "100%", height: "auto", minWidth: "320px", minHeight: "100px" },
 };
 

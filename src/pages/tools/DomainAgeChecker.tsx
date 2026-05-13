@@ -666,8 +666,6 @@ const DomainAgeChecker = () => {
         {/* ── Main Content Column ──────────────────────────── */}
         <div className="flex-1 min-w-0 space-y-6">
 
-          {/* ── Top Leaderboard Ad ──────────────────────────── */}
-          <AdSpace slot="9769564871" size="leaderboard" className="w-full" />
 
           {/* ── Input Section ──────────────────────────────────── */}
           <Card className="border-2 border-primary/20 shadow-lg">

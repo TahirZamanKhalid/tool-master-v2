@@ -175,12 +175,7 @@ export const ToolLayout = ({
 
       <Header />
 
-      {/* ── Mobile/Tablet top banner ad (hidden on xl where sidebar takes over) ── */}
-      <div className="xl:hidden w-full border-b border-border/40 bg-muted/20">
-        <div className="max-w-4xl mx-auto px-4 py-2 flex justify-center">
-          <AdRow slot="9769564871" lazy={false} />
-        </div>
-      </div>
+
 
       <main className="flex-1 container max-w-7xl mx-auto px-4 py-5">
 
@@ -358,10 +353,7 @@ export const ToolLayout = ({
           <aside className="hidden xl:flex flex-col gap-4">
             <div className="sticky top-20 flex flex-col gap-4">
 
-              {/* XL top banner for sidebar area */}
-              <div className="w-full border-b border-border/40 bg-muted/20 rounded-xl p-2 flex justify-center">
-                <AdRow slot="9769564871" lazy={false} />
-              </div>
+
 
               {/* 300x600 sidebar ad */}
               <div className="rounded-xl overflow-hidden border border-border/40 bg-muted/10 flex flex-col items-center" style={{ minHeight: 620 }}>
