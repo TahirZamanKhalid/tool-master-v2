@@ -320,7 +320,7 @@ const AdvancedImageEditor = () => {
           </ol>
         </nav>
 
-        <div className="space-y-4">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
           <section className="min-w-0 rounded-2xl border bg-card p-3 shadow-sm sm:p-4 lg:p-5">
             {!originalImage ? (
               <div
@@ -435,7 +435,7 @@ const AdvancedImageEditor = () => {
             )}
           </section>
 
-          <div className="grid gap-4 md:grid-cols-3">
+          <aside className="space-y-4">
             <section className="rounded-2xl border bg-card p-4 shadow-sm">
               <div className="mb-3 flex items-center gap-2">
                 <Info className="h-4 w-4 text-primary" />
@@ -502,7 +502,7 @@ const AdvancedImageEditor = () => {
                 <li>Keyboard shortcuts for faster editing</li>
               </ul>
             </section>
-          </div>
+          </aside>
         </div>
 
         <section className="rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
