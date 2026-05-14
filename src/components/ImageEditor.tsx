@@ -11,6 +11,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { toast } from "sonner";
 
 interface ImageEditorProps {
@@ -106,13 +112,15 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
     processedImg.onload = () => {
       canvas.width = processedImg.width;
       canvas.height = processedImg.height;
-      renderLayers();
+      
+      // Draw image immediately so we can capture it
+      ctx.drawImage(processedImg, 0, 0);
       
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       setHistory([imageData]);
       setHistoryStep(0);
       
-      // Initialize base layer
+      // Initialize base layer with the actual image
       setLayers(prev => [{
         ...prev[0],
         imageData: imageData
@@ -135,27 +143,27 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw processed image as base
-    const processedImg = new Image();
-    processedImg.crossOrigin = "anonymous";
-    processedImg.src = processedImage;
-    processedImg.onload = () => {
-      ctx.drawImage(processedImg, 0, 0);
-      
-      // Draw each visible layer on top with blend mode
-      layers.forEach(layer => {
-        if (layer.visible && layer.imageData) {
-          ctx.globalAlpha = layer.opacity / 100;
-          ctx.globalCompositeOperation = getCompositeOperation(layer.blendMode);
-          ctx.putImageData(layer.imageData, 0, 0);
+    // Draw each visible layer on top with blend mode
+    layers.forEach(layer => {
+      if (layer.visible && layer.imageData) {
+        ctx.globalAlpha = layer.opacity / 100;
+        ctx.globalCompositeOperation = getCompositeOperation(layer.blendMode);
+        
+        const tempCanvas = document.createElement("canvas");
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext("2d");
+        if (tempCtx) {
+          tempCtx.putImageData(layer.imageData, 0, 0);
+          ctx.drawImage(tempCanvas, 0, 0);
         }
-      });
-      
-      // Reset to normal
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
-    };
-  }, [layers, processedImage]);
+      }
+    });
+    
+    // Reset to normal
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+  }, [layers]);
 
   const getCompositeOperation = (blendMode: BlendMode): GlobalCompositeOperation => {
     const blendMap: Record<BlendMode, GlobalCompositeOperation> = {
@@ -576,24 +584,40 @@ export const ImageEditor = ({ originalImage, processedImage, onDownload }: Image
           </div>
 
           <div className="space-y-4">
-            <ImageEditorColorPicker
-              selectedColor={selectedColor}
-              onColorChange={setSelectedColor}
-              isPickerActive={activeTool === "picker"}
-              onTogglePicker={() => setActiveTool(activeTool === "picker" ? "paint" : "picker")}
-            />
-            
-            <ImageEditorLayerPanel
-              layers={layers}
-              activeLayerId={activeLayerId}
-              onLayerSelect={setActiveLayerId}
-              onLayerToggle={handleLayerToggle}
-              onLayerAdd={handleLayerAdd}
-              onLayerDelete={handleLayerDelete}
-              onLayerRename={handleLayerRename}
-              onLayerOpacityChange={handleLayerOpacityChange}
-              onLayerBlendModeChange={handleLayerBlendModeChange}
-            />
+            <Accordion type="single" collapsible defaultValue="layers" className="w-full space-y-4">
+              <AccordionItem value="color" className="border rounded-lg bg-card">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                  <span className="text-sm font-semibold">Color</span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <ImageEditorColorPicker
+                    selectedColor={selectedColor}
+                    onColorChange={setSelectedColor}
+                    isPickerActive={activeTool === "picker"}
+                    onTogglePicker={() => setActiveTool(activeTool === "picker" ? "paint" : "picker")}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+              
+              <AccordionItem value="layers" className="border rounded-lg bg-card">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                  <span className="text-sm font-semibold">Layers</span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <ImageEditorLayerPanel
+                    layers={layers}
+                    activeLayerId={activeLayerId}
+                    onLayerSelect={setActiveLayerId}
+                    onLayerToggle={handleLayerToggle}
+                    onLayerAdd={handleLayerAdd}
+                    onLayerDelete={handleLayerDelete}
+                    onLayerRename={handleLayerRename}
+                    onLayerOpacityChange={handleLayerOpacityChange}
+                    onLayerBlendModeChange={handleLayerBlendModeChange}
+                  />
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </div>
       </Card>

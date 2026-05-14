@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Pipette } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Pipette } from "lucide-react";
 
 interface ImageEditorColorPickerProps {
   selectedColor: string;
@@ -31,9 +30,8 @@ export const ImageEditorColorPicker = ({
   };
 
   return (
-    <Card className="p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Color</h3>
+    <div className="space-y-3">
+      <div className="flex items-center justify-end">
         <Button
           size="sm"
           variant={isPickerActive ? "default" : "outline"}
@@ -85,6 +83,6 @@ export const ImageEditorColorPicker = ({
       <p className="text-xs text-muted-foreground">
         Click <strong>Pick</strong> to sample colors from the image
       </p>
-    </Card>
+    </div>
   );
 };

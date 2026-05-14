@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
@@ -40,9 +39,8 @@ export const ImageEditorLayerPanel = ({
   onLayerBlendModeChange,
 }: ImageEditorLayerPanelProps) => {
   return (
-    <Card className="p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Layers</h3>
+    <div className="space-y-3">
+      <div className="flex items-center justify-end">
         <Button
           size="sm"
           variant="outline"
@@ -152,6 +150,6 @@ export const ImageEditorLayerPanel = ({
       <p className="text-xs text-muted-foreground">
         Click layer to select • Eye to toggle visibility
       </p>
-    </Card>
+    </div>
   );
 };
