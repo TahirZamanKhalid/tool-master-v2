@@ -25,6 +25,7 @@ export default defineConfig(({ mode }) => {
       exclude: ['@imgly/background-removal']
     },
     build: {
+      outDir: 'build',
       rollupOptions: {
         output: {
           manualChunks: {
