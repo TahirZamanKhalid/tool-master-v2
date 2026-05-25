@@ -13,7 +13,7 @@ const TermsOfService = () => {
       <SEOHead
         title="Terms of Service - ToolMaster Pro"
         description="Read ToolMaster Pro's terms of service to understand the rules and regulations for using our free online tools and services."
-        keywords="terms of service, user agreement, terms and conditions, legal terms"
+        keywords="terms of service, user agreement, terms and conditions, legal terms, advertising terms"
         canonical="https://toolmaster.cloud/terms-of-service"
       />
       <Header />
@@ -51,7 +51,22 @@ const TermsOfService = () => {
             <li>Attempt to reverse engineer or exploit our tools</li>
             <li>Upload malicious content or viruses</li>
             <li>Overload our servers with automated requests</li>
+            <li>Interfere with or disable any advertising features on the site</li>
           </ul>
+
+          <h2>Advertising and Third-Party Content</h2>
+          <p>
+            ToolMaster Pro uses third-party advertising networks, such as Google AdSense, to display ads. 
+            By using our site, you acknowledge and agree that these third parties may use cookies and other tracking technologies 
+            to serve personalized advertisements based on your browsing history. 
+            Please review our <a href="/privacy-policy">Privacy Policy</a> for more details on how advertising data is handled.
+          </p>
+
+          <h2>Cookies</h2>
+          <p>
+            We use cookies to enhance your experience, analyze traffic, and serve relevant advertisements. 
+            By continuing to use ToolMaster Pro, you consent to our use of cookies in accordance with our Privacy Policy.
+          </p>
 
           <h2>Disclaimer</h2>
           <p>
@@ -73,7 +88,7 @@ const TermsOfService = () => {
 
           <h2>Contact</h2>
           <p>
-            For questions about these Terms of Service, please contact us through our contact page.
+            For questions about these Terms of Service, please contact us through our <a href="/contact">contact page</a>.
           </p>
         </div>
       </div>
