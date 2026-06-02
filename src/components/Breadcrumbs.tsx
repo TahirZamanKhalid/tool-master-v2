@@ -207,7 +207,7 @@ export const generateBreadcrumbsFromPath = (
 export const BREADCRUMB_PRESETS = {
   imageTools: (toolName: string, toolPath: string): BreadcrumbItem[] => [
     { label: "Tools", path: "/tools" },
-    { label: "Image Tools", path: "/tools/image-tools" },
+    { label: "Image Tools", path: "category/image-tools" },
     { label: toolName, path: toolPath, current: true },
   ],
 
