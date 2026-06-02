@@ -33,7 +33,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
  
-import { AdRow } from "@/components/AdRow";
+//import { AdRow } from "@/components/AdRow";
 import { ImageEditor } from "@/components/ImageEditor";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
@@ -136,17 +136,7 @@ const getDownloadName = (fileName: string | null) => {
 // Replace these divs with your real AdSense <ins> tags.
 // Dimensions match Google's recommended sidebar slot (160×600 or 300×250).
  
-const SidebarAd = ({ slot }: { slot: string }) => (
-  <div
-    aria-label="Advertisement"
-    className="flex min-h-[250px] w-full flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 text-xs text-muted-foreground"
-    data-ad-slot={slot}
-  >
-    <span className="mb-1 text-[10px] uppercase tracking-widest opacity-50">Advertisement</span>
-    {/* ↓ Replace with <ins class="adsbygoogle" ...> */}
-    <span className="opacity-40">300 × 250</span>
-  </div>
-);
+
  
 /* ─── Collapsible Tool Panel ─────────────────────────────────── */
  
@@ -219,18 +209,7 @@ const AdvancedImageEditor = () => {
     return `${window.location.origin}/tools/advanced-image-editor`;
   }, []);
  
-  const faqSchema = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: FAQS.map((faq) => ({
-        "@type": "Question",
-        name: faq.question,
-        acceptedAnswer: { "@type": "Answer", text: faq.answer },
-      })),
-    }),
-    []
-  );
+ 
  
   const appSchema = useMemo(
     () => ({
@@ -388,7 +367,7 @@ const AdvancedImageEditor = () => {
         <meta name="twitter:title" content={PAGE_TITLE} />
         <meta name="twitter:description" content={PAGE_DESCRIPTION} />
         <script type="application/ld+json">{JSON.stringify(appSchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+       
       </Helmet>
  
       <div className="space-y-4">
@@ -414,17 +393,12 @@ const AdvancedImageEditor = () => {
           </ol>
         </nav>
  
-        {/* ── Top Ad Row ── */}
-        <AdRow />
+       
  
         {/* ── Three-column layout: left ad | canvas+tools | right ad ── */}
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[160px_minmax(0,1fr)_160px] xl:grid-cols-[200px_minmax(0,1fr)_200px]">
+        <div className="space-y-3">
  
-          {/* Left sidebar ad */}
-          <aside className="hidden lg:flex lg:flex-col lg:gap-4" aria-label="Left advertisement">
-            <SidebarAd slot="left-top" />
-            <SidebarAd slot="left-bottom" />
-          </aside>
+         
  
           {/* ── Centre column: canvas + collapsible tool panels ── */}
           <div className="min-w-0 space-y-3">
@@ -735,35 +709,18 @@ const AdvancedImageEditor = () => {
               </div>
             </div>
  
-            {/* ── FAQ section ── */}
-            <section className="rounded-2xl border bg-card p-4 shadow-sm sm:p-5">
-              <h2 className="mb-3 text-base font-semibold">Frequently asked questions</h2>
-              <div className="space-y-2">
-                {FAQS.map((faq) => (
-                  <details key={faq.question} className="group rounded-xl border bg-background p-4">
-                    <summary className="cursor-pointer list-none text-sm font-medium group-open:mb-2">
-                      {faq.question}
-                    </summary>
-                    <p className="text-sm text-muted-foreground">{faq.answer}</p>
-                  </details>
-                ))}
-              </div>
-            </section>
+           
  
           </div>
           {/* end centre column */}
  
-          {/* Right sidebar ad */}
-          <aside className="hidden lg:flex lg:flex-col lg:gap-4" aria-label="Right advertisement">
-            <SidebarAd slot="right-top" />
-            <SidebarAd slot="right-bottom" />
-          </aside>
+          
  
         </div>
+      
         {/* end 3-col grid */}
  
-        {/* Bottom ad row */}
-        <AdRow />
+       
  
       </div>
     </ToolLayout>

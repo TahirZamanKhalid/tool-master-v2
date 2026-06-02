@@ -12,7 +12,7 @@ import { SidebarAd } from "@/components/SidebarAd";
 import { AdRow } from "@/components/AdRow";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { blogPosts } from "@/data/blogPosts";
-import { ArrowRight, Bookmark, ChevronRight, Download } from "lucide-react";
+import { ArrowRight, ChevronRight, Download } from "lucide-react";
 
 interface ToolLayoutProps {
   title: string;
@@ -23,13 +23,36 @@ interface ToolLayoutProps {
   features?: string[];
   extraContent?: ReactNode;
   relatedTools?: { name: string; path: string }[];
-  /** Show ad-watch modal before download. Pass the download fn as children trigger. */
   showDownloadAd?: boolean;
   onDownload?: () => void;
   downloadLabel?: string;
-  /** Custom FAQs to pass to ToolFAQ component */
   customFAQs?: { question: string; answer: string }[];
 }
+
+/* ─── Sticky sidebar ad column ───────────────────────────────────────────── */
+// Hidden below lg. Replace the inner <div> with your real <ins class="adsbygoogle"> tags.
+// Recommended slots: 160×600 "wide skyscraper" or two stacked 160×250 units.
+
+const AdSidebar = ({ side }: { side: "left" | "right" }) => (
+  <aside
+    aria-label={`${side === "left" ? "Left" : "Right"} advertisement`}
+    className="hidden lg:flex lg:w-[160px] lg:shrink-0 lg:flex-col lg:gap-3"
+  >
+    {/* Top ad unit — replace with real AdSense ins tag */}
+    <div className="flex min-h-[250px] w-full flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 text-center text-xs text-muted-foreground">
+      <span className="mb-1 text-[10px] uppercase tracking-widest opacity-40">Ad</span>
+      <span className="opacity-30">160 × 250</span>
+    </div>
+
+    {/* Second ad unit (sticky, floats as user scrolls) */}
+    <div className="sticky top-4 flex min-h-[250px] w-full flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 text-center text-xs text-muted-foreground">
+      <span className="mb-1 text-[10px] uppercase tracking-widest opacity-40">Ad</span>
+      <span className="opacity-30">160 × 250</span>
+    </div>
+  </aside>
+);
+
+/* ─── Component ──────────────────────────────────────────────────────────── */
 
 export const ToolLayout = ({
   title,
@@ -49,6 +72,7 @@ export const ToolLayout = ({
   const location = useLocation();
   const [adModalOpen, setAdModalOpen] = useState(false);
 
+  /* ── SEO ── */
   const titleLower = title.toLowerCase();
   const keywords = [
     title,
@@ -70,20 +94,21 @@ export const ToolLayout = ({
 
   const canonicalUrl = `https://toolmaster.cloud${location.pathname}`;
 
+  /* ── Breadcrumbs ── */
   const getBreadcrumbs = () => {
     const path = location.pathname;
     const cat = (category || "").toLowerCase();
-    if (cat.includes("image")) return BREADCRUMB_PRESETS.imageTools(title, path);
-    if (cat.includes("pdf")) return BREADCRUMB_PRESETS.pdfTools(title, path);
-    if (cat.includes("text")) return BREADCRUMB_PRESETS.textTools(title, path);
-    if (cat.includes("video")) return BREADCRUMB_PRESETS.videoTools(title, path);
+    if (cat.includes("image"))      return BREADCRUMB_PRESETS.imageTools(title, path);
+    if (cat.includes("pdf"))        return BREADCRUMB_PRESETS.pdfTools(title, path);
+    if (cat.includes("text"))       return BREADCRUMB_PRESETS.textTools(title, path);
+    if (cat.includes("video"))      return BREADCRUMB_PRESETS.videoTools(title, path);
     if (cat.includes("calculator")) return BREADCRUMB_PRESETS.calculators(title, path);
-    if (cat.includes("converter")) return BREADCRUMB_PRESETS.converters(title, path);
-    if (cat.includes("generator")) return BREADCRUMB_PRESETS.generators(title, path);
+    if (cat.includes("converter"))  return BREADCRUMB_PRESETS.converters(title, path);
+    if (cat.includes("generator"))  return BREADCRUMB_PRESETS.generators(title, path);
     if (cat.includes("seo") || cat.includes("marketing")) return BREADCRUMB_PRESETS.seoMarketing(title, path);
-    if (cat.includes("developer")) return BREADCRUMB_PRESETS.developerTools(title, path);
-    if (cat.includes("social")) return BREADCRUMB_PRESETS.socialMedia(title, path);
-    if (cat.includes("utility")) return BREADCRUMB_PRESETS.utilities(title, path);
+    if (cat.includes("developer"))  return BREADCRUMB_PRESETS.developerTools(title, path);
+    if (cat.includes("social"))     return BREADCRUMB_PRESETS.socialMedia(title, path);
+    if (cat.includes("utility"))    return BREADCRUMB_PRESETS.utilities(title, path);
     return generateBreadcrumbsFromPath(path);
   };
 
@@ -92,10 +117,13 @@ export const ToolLayout = ({
     { name: "Home", url: "https://toolmaster.cloud/" },
     ...breadcrumbItems.map((b) => ({
       name: b.label,
-      url: b.path?.startsWith("http") ? b.path : `https://toolmaster.cloud${b.path || location.pathname}`,
+      url: b.path?.startsWith("http")
+        ? b.path
+        : `https://toolmaster.cloud${b.path || location.pathname}`,
     })),
   ];
 
+  /* ── Structured data ── */
   const webAppSchema = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -129,27 +157,32 @@ export const ToolLayout = ({
       bestRating: "5",
       worstRating: "1",
     },
-    featureList: features?.join(", ") || "Free, no signup, browser-based, privacy-first, mobile-friendly",
+    featureList:
+      features?.join(", ") ||
+      "Free, no signup, browser-based, privacy-first, mobile-friendly",
     isAccessibleForFree: true,
     inLanguage: "en-US",
   };
 
-  const howToSchema = instructions && instructions.length > 0 ? {
-    "@context": "https://schema.org",
-    "@type": "HowTo",
-    name: `How to use ${title}`,
-    description: `Step-by-step guide to using the ${title}: ${description}`,
-    totalTime: "PT2M",
-    estimatedCost: { "@type": "MonetaryAmount", currency: "USD", value: "0" },
-    tool: { "@type": "HowToTool", name: title },
-    step: instructions.map((step, i) => ({
-      "@type": "HowToStep",
-      position: i + 1,
-      name: `Step ${i + 1}`,
-      text: step,
-      url: `${canonicalUrl}#step-${i + 1}`,
-    })),
-  } : null;
+  const howToSchema =
+    instructions && instructions.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          name: `How to use ${title}`,
+          description: `Step-by-step guide to using the ${title}: ${description}`,
+          totalTime: "PT2M",
+          estimatedCost: { "@type": "MonetaryAmount", currency: "USD", value: "0" },
+          tool: { "@type": "HowToTool", name: title },
+          step: instructions.map((step, i) => ({
+            "@type": "HowToStep",
+            position: i + 1,
+            name: `Step ${i + 1}`,
+            text: step,
+            url: `${canonicalUrl}#step-${i + 1}`,
+          })),
+        }
+      : null;
 
   const allSchemas: object[] = [webAppSchema];
   if (howToSchema) allSchemas.push(howToSchema);
@@ -162,8 +195,9 @@ export const ToolLayout = ({
     }
   };
 
+  /* ── Render ── */
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden flex flex-col">
+    <div className="flex min-h-screen flex-col overflow-x-hidden bg-background">
       <SEOHead
         title={title}
         description={description}
@@ -175,235 +209,207 @@ export const ToolLayout = ({
 
       <Header />
 
+      <main className="flex-1">
+        {/* ── Constrained wrapper ── */}
+        <div className="mx-auto w-full max-w-[1400px] px-4 py-5">
 
+          {/* Breadcrumbs — full width above the 3-col grid */}
+          <Breadcrumbs items={getBreadcrumbs()} />
 
-      <main className="flex-1 container max-w-7xl mx-auto px-4 py-5">
-
-        {/* Breadcrumbs */}
-        <Breadcrumbs items={getBreadcrumbs()} />
-
-        {/* ── Compact title section ── */}
-        <div className="mt-4 mb-4">
-          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-            <Badge className="bg-primary/10 text-primary border border-primary/20 text-xs font-semibold px-2.5 py-0.5">
-              {category}
-            </Badge>
-            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs text-muted-foreground">Free Online Tool</span>
-          </div>
-
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl md:text-3xl font-black text-foreground leading-tight mb-1">
-                {title}
-              </h1>
-              <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
-                {description}
-              </p>
+          {/* ── Page title + actions ── */}
+          <div className="mb-4 mt-4">
+            <div className="mb-1.5 flex flex-wrap items-center gap-2">
+              <Badge className="border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                {category}
+              </Badge>
+              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Free Online Tool</span>
             </div>
 
-            {/* Download CTA if provided */}
-            {onDownload && (
-              <Button
-                onClick={handleDownloadClick}
-                className="shrink-0 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-md shadow-primary/20 h-9 px-4 text-sm"
-              >
-                <Download className="mr-1.5 h-3.5 w-3.5" />
-                {downloadLabel}
-              </Button>
-            )}
-          </div>
-
-          <div className="mt-2">
-            <ShareButtons
-              title={title}
-              description={description}
-              url={`https://toolmaster.cloud${location.pathname}`}
-            />
-          </div>
-        </div>
-
-        {/* ── Main layout grid: tool + right sidebar ── */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-5">
-
-          {/* ── LEFT: Tool + below-fold content ── */}
-          <div className="space-y-5 min-w-0">
-
-            {/* Tool Widget */}
-            <div className="w-full bg-card rounded-2xl border border-border/60 shadow-card overflow-hidden">
-              <div className="p-4 md:p-5">
-                {children}
-              </div>
-            </div>
-
-            {/* Mobile 300x250 ad — below tool, hidden on xl */}
-            <div className="xl:hidden">
-              <AdRow slot="1575962277" />
-            </div>
-
-            {/* ── Below fold sections ── */}
-
-            {instructions && (
-              <div className="bg-card rounded-2xl border border-border/60 p-5 shadow-card">
-                <h2 className="text-lg font-black text-foreground mb-3 flex items-center gap-2">
-                  <span className="h-6 w-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm">📚</span>
-                  How to Use {title}
-                </h2>
-                <ol className="space-y-2.5">
-                  {instructions.map((step, i) => (
-                    <li key={i} className="flex gap-3 items-start">
-                      <span className="shrink-0 h-5 w-5 rounded-full bg-primary text-white text-[11px] font-black flex items-center justify-center mt-0.5">
-                        {i + 1}
-                      </span>
-                      <span className="text-sm text-muted-foreground leading-relaxed">{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-
-            {/* Mid-content Ad */}
-            <AdRow slot="2127993591" />
-
-            <div className="bg-card rounded-2xl border border-border/60 p-5 shadow-card">
-              <h2 className="text-lg font-black text-foreground mb-3 flex items-center gap-2">
-                <span className="h-6 w-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm">✨</span>
-                Why Use Our {title}?
-              </h2>
-              <ul className="space-y-2">
-                {features ? (
-                  features.map((f, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-                      <span className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-primary block" />
-                      </span>
-                      {f}
-                    </li>
-                  ))
-                ) : ([
-                  `100% Free — No signup or registration required`,
-                  `Browser-based — Your data never leaves your device`,
-                  `Works on any device — Desktop, tablet, or mobile`,
-                  `Professional results — High-quality output every time`,
-                  `Privacy focused — No files sent to our servers`,
-                ].map((f, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground">
-                    <span className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary block" />
-                    </span>
-                    {f}
-                  </li>
-                )))}
-              </ul>
-            </div>
-
-            {extraContent && (
-              <div className="prose dark:prose-invert max-w-none">{extraContent}</div>
-            )}
-
-            <ToolFAQ toolName={title} customFAQs={customFAQs} />
-
-            {relatedTools && relatedTools.length > 0 && (
-              <div className="bg-card rounded-2xl border border-border/60 p-5 shadow-card">
-                <h2 className="text-lg font-black text-foreground mb-3">Related Tools</h2>
-                <div className="grid sm:grid-cols-2 gap-2.5">
-                  {relatedTools.map((tool, i) => (
-                    <button
-                      key={i}
-                      onClick={() => navigate(tool.path)}
-                      className="flex items-center justify-between gap-2 px-4 py-2.5 rounded-xl border border-border/60 bg-muted/30 hover:border-primary/40 hover:bg-primary/5 text-left transition-all group"
-                    >
-                      <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {tool.name}
-                      </span>
-                      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary shrink-0" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Blog guides */}
-            <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl border border-primary/10 p-5">
-              <h2 className="text-lg font-black text-foreground mb-1">Step-by-Step Guides</h2>
-              <p className="text-xs text-muted-foreground mb-4">Learn pro workflows with expert tutorials.</p>
-              <div className="grid sm:grid-cols-2 gap-3 mb-3">
-                {blogPosts.slice(0, 2).map((post) => (
-                  <div
-                    key={post.id}
-                    className="cursor-pointer group p-3 rounded-xl bg-card/60 border border-border/40 hover:border-primary/30 transition-all"
-                    onClick={() => navigate(`/blog/${post.slug}`)}
-                  >
-                    <h4 className="font-semibold text-xs mb-1 group-hover:text-primary transition-colors line-clamp-1">{post.title}</h4>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{post.excerpt}</p>
-                  </div>
-                ))}
-              </div>
-              <Button variant="link" onClick={() => navigate("/blog")} className="p-0 h-auto text-primary font-bold text-xs">
-                View All Guides <ArrowRight className="ml-1 h-3.5 w-3.5" />
-              </Button>
-            </div>
-
-            {/* Bottom ad */}
-            <AdRow slot="1212397554" />
-
-          </div>
-
-          {/* ── RIGHT: Sticky sidebar (xl only) ── */}
-          <aside className="hidden xl:flex flex-col gap-4">
-            <div className="sticky top-20 flex flex-col gap-4">
-
-
-
-              {/* 300x600 sidebar ad */}
-              <div className="rounded-xl overflow-hidden border border-border/40 bg-muted/10 flex flex-col items-center" style={{ minHeight: 620 }}>
-                <div className="text-[10px] text-muted-foreground py-1 bg-muted/20 w-full text-center tracking-wider uppercase">
-                  Advertisement
-                </div>
-                <SidebarAd slot="4351073152" position="right" index={1} width={300} height={600} />
-              </div>
-
-              {/* Pro tip */}
-              <div className="bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl border border-primary/20 p-4">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <Bookmark className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-xs font-bold text-primary">Pro Tip</span>
-                </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Press <kbd className="px-1 py-0.5 rounded bg-muted text-[10px] font-mono">Ctrl+D</kbd> to bookmark{" "}
-                  <strong>{title}</strong> for instant access later!
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0 flex-1">
+                <h1 className="mb-1 text-xl font-black leading-tight text-foreground md:text-3xl">
+                  {title}
+                </h1>
+                <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                  {description}
                 </p>
               </div>
 
-              {/* 300x250 second sidebar ad */}
-              <div className="rounded-xl overflow-hidden border border-border/40 bg-muted/10 flex flex-col items-center" style={{ minHeight: 270 }}>
-                <div className="text-[10px] text-muted-foreground py-1 bg-muted/20 w-full text-center tracking-wider uppercase">
-                  Advertisement
+              {onDownload && (
+                <Button
+                  onClick={handleDownloadClick}
+                  className="h-9 shrink-0 rounded-xl bg-primary px-4 text-sm font-bold text-white shadow-md shadow-primary/20 hover:bg-primary/90"
+                >
+                  <Download className="mr-1.5 h-3.5 w-3.5" />
+                  {downloadLabel}
+                </Button>
+              )}
+            </div>
+
+            <div className="mt-2">
+              <ShareButtons
+                title={title}
+                description={description}
+                url={`https://toolmaster.cloud${location.pathname}`}
+              />
+            </div>
+          </div>
+
+          
+
+          {/* ════════════════════════════════════════════════════════════
+              3-COLUMN GRID
+              [160px left ad] | [centre: tool + below-fold] | [160px right ad]
+              Sidebars hidden below lg. On mobile everything stacks in 1 col.
+          ════════════════════════════════════════════════════════════ */}
+          <div className="flex gap-4">
+
+            {/* Left sidebar ad */}
+            <AdSidebar side="left" />
+
+            {/* ── Centre column ── */}
+            <div className="min-w-0 flex-1 space-y-5">
+
+              {/* Tool widget */}
+              <div className="w-full overflow-hidden rounded-2xl border border-border/60 bg-card shadow-card">
+                <div className="p-4 md:p-5">
+                  {children}
                 </div>
-                <SidebarAd slot="7110517063" position="right" index={2} width={300} height={250} />
               </div>
 
-              {/* Browse all tools CTA */}
-              <div className="bg-card rounded-2xl border border-border/60 p-4 text-center shadow-card">
-                <p className="text-xs font-bold text-foreground mb-0.5">Need Another Tool?</p>
-                <p className="text-[11px] text-muted-foreground mb-3">150+ free tools, one place.</p>
+              {/* Mobile-only mid ad (hidden on lg where sidebars show) */}
+              <div className="lg:hidden">
+                <AdRow slot="1575962277" />
+              </div>
+
+              {/* How to use */}
+              {instructions && (
+                <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-card">
+                  <h2 className="mb-3 flex items-center gap-2 text-lg font-black text-foreground">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary/10 text-sm text-primary">
+                      📚
+                    </span>
+                    How to Use {title}
+                  </h2>
+                  <ol className="space-y-2.5">
+                    {instructions.map((step, i) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-black text-white">
+                          {i + 1}
+                        </span>
+                        <span className="text-sm leading-relaxed text-muted-foreground">{step}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {/* Why use this tool */}
+              <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-card">
+                <h2 className="mb-3 flex items-center gap-2 text-lg font-black text-foreground">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary/10 text-sm text-primary">
+                    ✨
+                  </span>
+                  Why Use Our {title}?
+                </h2>
+                <ul className="space-y-2">
+                  {(
+                    features ?? [
+                      "100% Free — No signup or registration required",
+                      "Browser-based — Your data never leaves your device",
+                      "Works on any device — Desktop, tablet, or mobile",
+                      "Professional results — High-quality output every time",
+                      "Privacy focused — No files sent to our servers",
+                    ]
+                  ).map((f, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                        <span className="block h-1.5 w-1.5 rounded-full bg-primary" />
+                      </span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Extra content slot */}
+              {extraContent && (
+                <div className="prose dark:prose-invert max-w-none">{extraContent}</div>
+              )}
+
+              {/* FAQ */}
+              <ToolFAQ toolName={title} customFAQs={customFAQs} />
+
+              {/* Related tools */}
+              {relatedTools && relatedTools.length > 0 && (
+                <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-card">
+                  <h2 className="mb-3 text-lg font-black text-foreground">Related Tools</h2>
+                  <div className="grid gap-2.5 sm:grid-cols-2">
+                    {relatedTools.map((tool, i) => (
+                      <button
+                        key={i}
+                        onClick={() => navigate(tool.path)}
+                        className="group flex items-center justify-between gap-2 rounded-xl border border-border/60 bg-muted/30 px-4 py-2.5 text-left transition-all hover:border-primary/40 hover:bg-primary/5"
+                      >
+                        <span className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+                          {tool.name}
+                        </span>
+                        <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground group-hover:text-primary" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Blog guides */}
+              <div className="rounded-2xl border border-primary/10 bg-gradient-to-br from-primary/5 to-accent/5 p-5">
+                <h2 className="mb-1 text-lg font-black text-foreground">Step-by-Step Guides</h2>
+                <p className="mb-4 text-xs text-muted-foreground">
+                  Learn pro workflows with expert tutorials.
+                </p>
+                <div className="mb-3 grid gap-3 sm:grid-cols-2">
+                  {blogPosts.slice(0, 2).map((post) => (
+                    <div
+                      key={post.id}
+                      className="group cursor-pointer rounded-xl border border-border/40 bg-card/60 p-3 transition-all hover:border-primary/30"
+                      onClick={() => navigate(`/blog/${post.slug}`)}
+                    >
+                      <h4 className="mb-1 line-clamp-1 text-xs font-semibold transition-colors group-hover:text-primary">
+                        {post.title}
+                      </h4>
+                      <p className="line-clamp-2 text-xs text-muted-foreground">{post.excerpt}</p>
+                    </div>
+                  ))}
+                </div>
                 <Button
-                  onClick={() => navigate("/tools")}
-                  className="w-full bg-primary hover:bg-primary/90 text-white font-bold rounded-xl text-xs h-8"
+                  variant="link"
+                  onClick={() => navigate("/blog")}
+                  className="h-auto p-0 text-xs font-bold text-primary"
                 >
-                  Browse All Tools
+                  View All Guides <ArrowRight className="ml-1 h-3.5 w-3.5" />
                 </Button>
               </div>
 
+              {/* Bottom ad */}
+              <AdRow slot="1212397554" />
+
             </div>
-          </aside>
+            {/* end centre column */}
+
+            {/* Right sidebar ad */}
+            <AdSidebar side="right" />
+
+          </div>
+          {/* end 3-col flex */}
 
         </div>
+        {/* end max-w wrapper */}
       </main>
 
       <Footer />
 
-      {/* Ad Watch Modal — skippable after 5s */}
+      {/* Ad-watch modal */}
       <AdWatchModal
         isOpen={adModalOpen}
         title="Almost there!"
