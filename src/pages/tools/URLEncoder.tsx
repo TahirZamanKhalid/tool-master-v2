@@ -82,7 +82,7 @@ const URLEncoder = () => {
         { name: "Hash Generator", path: "/tools/hash-generator" },
       ]}
     >
-      <AdRow className="mb-6" />
+     
       <div className="grid lg:grid-cols-2 gap-6">
         <Card>
           <CardContent className="pt-6">
@@ -143,7 +143,6 @@ const URLEncoder = () => {
         </Card>
       </div>
 
-      <AdRow className="mt-6" />
 
       <AdWatchModal
         open={showAdModal}

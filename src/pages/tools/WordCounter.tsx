@@ -73,8 +73,7 @@ const WordCounter = () => {
             </Card>
           </div>
 
-          {/* Ad placement */}
-          <AdRow className="mt-8" />
+       
         </div>
       </ToolLayout>
     </>
