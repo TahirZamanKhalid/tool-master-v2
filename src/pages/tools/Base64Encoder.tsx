@@ -75,7 +75,7 @@ const Base64Encoder = () => {
     name: "Base64 Encoder/Decoder - Free Online Tool",
     description:
       "Encode text to Base64 or decode Base64 strings instantly online. Free, fast, and secure Base64 encoding and decoding tool for developers.",
-    url: "https://toolmaster.cloud/tools/base64-image-encoder",
+    url: "https://toolmaster.cloud/tools/base64-encoder",
     applicationCategory: "DeveloperApplication",
     operatingSystem: "All",
     offers: {
@@ -111,7 +111,7 @@ const Base64Encoder = () => {
           name="keywords"
           content="base64 encoder, base64 decoder, base64 encode online, base64 decode online, text to base64, base64 to text, base64 converter, free base64 tool, online base64 encoder decoder"
         />
-        <link rel="canonical" href="https://toolmaster.cloud/tools/base64-image-encoder" />
+        <link rel="canonical" href="https://toolmaster.cloud/tools/base64-encoder" />
 
         {/* Open Graph */}
         <meta property="og:title" content="Base64 Encoder/Decoder - Encode & Decode Text Online Free | ToolMaster" />
@@ -119,7 +119,7 @@ const Base64Encoder = () => {
           property="og:description"
           content="Free online Base64 encoder and decoder. Instantly encode text to Base64 or decode Base64 strings. Fast, private, browser-based."
         />
-        <meta property="og:url" content="https://toolmaster.cloud/tools/base64-image-encoder" />
+        <meta property="og:url" content="https://toolmaster.cloud/tools/base64-encoder" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="ToolMaster" />
 

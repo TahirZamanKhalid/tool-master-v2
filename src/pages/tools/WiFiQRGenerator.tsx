@@ -76,7 +76,7 @@ const WiFiQRGenerator = () => {
     "@type": "WebApplication",
     "name": "WiFi QR Code Generator - Free Online Tool",
     "description": "Generate WiFi QR codes instantly. Share your WiFi credentials with guests by letting them scan a QR code to connect automatically. Supports WPA, WPA2, WEP, and open networks.",
-    "url": "https://toolmaster.cloud/tools/wifi-qr-generator",
+    "url": "https://toolmaster.cloud/tools/wifi-qr",
     "applicationCategory": "UtilityApplication",
     "operatingSystem": "All",
     "offers": {
@@ -112,7 +112,7 @@ const WiFiQRGenerator = () => {
           name="keywords"
           content="wifi qr code generator, wifi qr code, share wifi password, wifi qr, qr code wifi, wifi password qr code, free wifi qr generator, connect wifi qr code, wifi network qr code"
         />
-        <link rel="canonical" href="https://toolmaster.cloud/tools/wifi-qr-generator" />
+        <link rel="canonical" href="https://toolmaster.cloud/tools/wifi-qr" />
 
         {/* Open Graph */}
         <meta property="og:title" content="WiFi QR Code Generator - Share WiFi Instantly | ToolMaster" />
@@ -120,7 +120,7 @@ const WiFiQRGenerator = () => {
           property="og:description"
           content="Generate free WiFi QR codes to share your network credentials instantly. Guests scan the QR code to connect automatically."
         />
-        <meta property="og:url" content="https://toolmaster.cloud/tools/wifi-qr-generator" />
+        <meta property="og:url" content="https://toolmaster.cloud/tools/wifi-qr" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="ToolMaster" />
 

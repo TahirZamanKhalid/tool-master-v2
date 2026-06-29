@@ -1003,7 +1003,7 @@ const WatermarkTool = () => {
   };
 
   // Breadcrumbs
-  const breadcrumbItems = BREADCRUMB_PRESETS.imageTools("Watermark Tool", "/tools/watermark");
+  const breadcrumbItems = BREADCRUMB_PRESETS.imageTools("Watermark Tool", "/tools/watermark-tool");
 
   // Format file size
   const formatFileSize = (bytes: number) => {
@@ -1018,7 +1018,7 @@ const WatermarkTool = () => {
         title="Free Online Watermark Tool - Add Text & Logo Watermarks to Images | ToolMaster"
         description="Professional watermark tool to protect your images. Add text or logo watermarks, batch process multiple images, drag & drop positioning, custom presets. 100% free, works in your browser."
         keywords="watermark tool, add watermark, image watermark, photo watermark, batch watermark, watermark maker, logo watermark, text watermark, protect images, copyright images, watermark generator, free watermark"
-        canonical="https://toolmaster.cloud/tools/watermark"
+        canonical="https://toolmaster.cloud/tools/watermark-tool"
       />
 
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">

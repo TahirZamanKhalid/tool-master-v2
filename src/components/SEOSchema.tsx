@@ -223,14 +223,6 @@ export const WebSiteSchema = ({
     "name": name,
     "url": url,
     "description": description,
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": `${url}/?q={search_term_string}`
-      },
-      "query-input": "required name=search_term_string"
-    },
     "publisher": {
       "@type": "Organization",
       "name": "ToolMaster Pro™",

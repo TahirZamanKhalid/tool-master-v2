@@ -17,6 +17,18 @@
   # Force non-www (redirect www to non-www)
   RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
   RewriteRule ^(.*)$ https://%1/$1 [R=301,L]
+
+  # Canonical redirects for old or duplicate tool URLs
+  RewriteRule ^tools/base64-image-encoder/?$ /tools/base64-encoder [R=301,L]
+  RewriteRule ^tools/wifi-qr-generator/?$ /tools/wifi-qr [R=301,L]
+  RewriteRule ^tools/watermark/?$ /tools/watermark-tool [R=301,L]
+  RewriteRule ^tools/pdf-tools/?$ /category/pdf-tools [R=301,L]
+  RewriteRule ^tools/image-compressor/?$ /tools/advanced-image-compressor [R=301,L]
+  RewriteRule ^tools/word-counter/?$ /tools/premium-plus-word-counter [R=301,L]
+  RewriteRule ^tools/unit-converter/?$ /tools/premium-plus-unit-converter [R=301,L]
+  RewriteRule ^tools/random-number/?$ /tools/premium-plus-random-number-generator [R=301,L]
+  RewriteRule ^tools/stopwatch/?$ /tools/premium-plus-multi-stopwatch [R=301,L]
+  RewriteRule ^blog/remove-background-image-free-ai-guide/?$ /blog [R=301,L]
 </IfModule>
 
 # ─── Security Headers ──────────────────────────────────────────────────────────

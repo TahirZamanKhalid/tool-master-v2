@@ -34,7 +34,7 @@
   <url><loc>https://toolmaster.cloud/category/utilities</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
   <url><loc>https://toolmaster.cloud/category/video-tools</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.85</priority></url>
 
-  <!-- Tools (149) -->
+  <!-- Tools (151) -->
   <url><loc>https://toolmaster.cloud/tools/caption-generator</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>
   <url><loc>https://toolmaster.cloud/tools/text-rephraser</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>
   <url><loc>https://toolmaster.cloud/tools/essay-writer</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
@@ -47,6 +47,7 @@
   <url><loc>https://toolmaster.cloud/tools/gif-maker</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://toolmaster.cloud/tools/background-remover</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://toolmaster.cloud/tools/image-size-reducer</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://toolmaster.cloud/tools/image-to-text</loc><lastmod>2026-06-29</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>
   <url><loc>https://toolmaster.cloud/tools/color-picker</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>
   <url><loc>https://toolmaster.cloud/tools/image-resizer</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>
   <url><loc>https://toolmaster.cloud/tools/image-cropper</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>
@@ -57,6 +58,7 @@
   <url><loc>https://toolmaster.cloud/tools/color-palette-generator</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>
   <url><loc>https://toolmaster.cloud/tools/images-to-pdf</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>
   <url><loc>https://toolmaster.cloud/tools/json-formatter</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://toolmaster.cloud/tools/base64-encoder</loc><lastmod>2026-06-29</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>
   <url><loc>https://toolmaster.cloud/tools/url-encoder</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>
   <url><loc>https://toolmaster.cloud/tools/hash-generator</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>
   <url><loc>https://toolmaster.cloud/tools/uuid-generator</loc><lastmod>2026-05-05</lastmod><changefreq>weekly</changefreq><priority>0.75</priority></url>

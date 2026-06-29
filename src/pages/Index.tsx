@@ -160,14 +160,6 @@ const Index = () => {
             description: "150+ free online tools — image, PDF, video, AI, developer, calculators and more. No signup required.",
             inLanguage: "en-US",
             publisher: { "@id": "https://toolmaster.cloud/#organization" },
-            potentialAction: {
-              "@type": "SearchAction",
-              target: {
-                "@type": "EntryPoint",
-                urlTemplate: "https://toolmaster.cloud/tools?search={search_term_string}",
-              },
-              "query-input": "required name=search_term_string",
-            },
           },
           {
             "@context": "https://schema.org",

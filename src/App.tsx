@@ -27,6 +27,7 @@ const CategoryTools = lazy(() => import("./pages/CategoryTools"));
 // Lazy-loaded tools - Image
 const BackgroundRemover = lazy(() => import("./pages/tools/BackgroundRemover"));
 const ImageSizeReducer = lazy(() => import("./pages/tools/ImageSizeReducer"));
+const ImageToText = lazy(() => import("./pages/tools/ImageToText"));
 const ImageResizer = lazy(() => import("./pages/tools/ImageResizer"));
 const ImageCropper = lazy(() => import("./pages/tools/ImageCropper"));
 const AdvancedImageEditor = lazy(() => import("./pages/tools/AdvancedImageEditor"));
@@ -247,6 +248,7 @@ const App = () => {
                 <Route path="/tools/qr-code-generator" element={<QRCodeGenerator />} />
                 <Route path="/tools/pdf-merger" element={<PDFMerger />} />
                 <Route path="/tools/image-size-reducer" element={<ImageSizeReducer />} />
+                <Route path="/tools/image-to-text" element={<ImageToText />} />
                 <Route path="/tools/word-counter" element={<WordCounter />} />
                 <Route path="/tools/password-generator" element={<PasswordGenerator />} />
                 <Route path="/tools/json-formatter" element={<JSONFormatter />} />

@@ -29,6 +29,7 @@ export const allTools = [
   { icon: Film, title: "Free Online GIF Maker", description: "Best free online GIF maker - Create animated GIFs from images with customizable speed and quality", category: "Image Tools", path: "/tools/gif-maker", popular: true },
   { icon: Eraser, title: "Free Online Background Remover", description: "Best free online background remover - Remove image backgrounds instantly with AI", category: "Image Tools", path: "/tools/background-remover", popular: true },
   { icon: Image, title: "Free Online Image Size Reducer", description: "Best free online Image Size Reducer - Reduce image file size without losing quality", category: "Image Tools", path: "/tools/image-size-reducer", popular: true },
+  { icon: FileText, title: "Image to Text Converter", description: "Extract text from images with browser-based OCR", category: "Image Tools", path: "/tools/image-to-text" },
   { icon: Palette, title: "Color Picker", description: "Pick colors and generate palettes", category: "Image Tools", path: "/tools/color-picker" },
   { icon: Image, title: "Image Resizer", description: "Resize images to custom dimensions", category: "Image Tools", path: "/tools/image-resizer" },
   { icon: Crop, title: "Image Cropper", description: "Crop images to your desired size", category: "Image Tools", path: "/tools/image-cropper" },
@@ -41,6 +42,7 @@ export const allTools = [
 
   // Developer Tools (21)
   { icon: Code, title: "Online JSON Formatter", description: "Best free online JSON formatter and validator - Format and beautify JSON data instantly", category: "Developer Tools", path: "/tools/json-formatter", popular: true },
+  { icon: Code, title: "Base64 Encoder Decoder", description: "Encode text to Base64 or decode Base64 strings instantly", category: "Developer Tools", path: "/tools/base64-encoder" },
   { icon: Link2, title: "URL Encoder", description: "Encode and decode URLs safely", category: "Developer Tools", path: "/tools/url-encoder" },
   { icon: Hash, title: "Hash Generator", description: "Generate cryptographic hashes", category: "Developer Tools", path: "/tools/hash-generator" },
   { icon: Key, title: "UUID Generator", description: "Generate unique identifiers", category: "Developer Tools", path: "/tools/uuid-generator" },
