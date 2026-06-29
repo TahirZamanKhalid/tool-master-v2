@@ -31,6 +31,12 @@ import {
   Copy,
   Hand,
   History as HistoryIcon,
+  HelpCircle,
+  Sliders,
+  Palette,
+  Star,
+  Hexagon,
+  Blend,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -53,7 +59,11 @@ export type Tool =
   | "ellipse"
   | "line"
   | "text"
-  | "crop";
+  | "crop"
+  | "star"
+  | "polygon"
+  | "gradient"
+  | "magicwand";
 
 export interface Layer {
   id: string;
@@ -73,7 +83,7 @@ interface HistoryEntry {
     opacity: number;
     blendMode: GlobalCompositeOperation;
     locked: boolean;
-    data: string | null; // null for base layer
+    data: string | null;
   }>;
 }
 
@@ -82,8 +92,20 @@ export interface ImageEditorProps {
   fileName?: string;
 }
 
+// Text annotation object
+interface TextAnnotation {
+  id: string;
+  text: string;
+  x: number;
+  y: number;
+  fontSize: number;
+  fontFamily: string;
+  color: string;
+  layerId: string;
+}
+
 /* ============================================================
-   Pixel helpers
+   Pixel helpers (same as before, plus flood fill for magic wand)
 ============================================================ */
 const clamp = (v: number, a = 0, b = 255) => Math.min(b, Math.max(a, v));
 
@@ -103,6 +125,8 @@ const applyAdjustments = (
     shadows: number;
   },
 ) => {
+  // ... (keep the original implementation, unchanged for brevity)
+  // I'll include the exact same function from your code
   const data = imageData.data;
   const b = a.brightness / 100;
   const c = a.contrast / 100;
@@ -212,6 +236,7 @@ const convolve = (imageData: ImageData, kernel: number[], divisor = 1, bias = 0)
 };
 
 const applyFilter = (imageData: ImageData, filter: FilterName) => {
+  // ... (keep the original implementation)
   const data = imageData.data;
   switch (filter) {
     case "vivid":
@@ -308,7 +333,7 @@ const applyFilter = (imageData: ImageData, filter: FilterName) => {
 };
 
 /* ============================================================
-   Flood fill (paint bucket)
+   Flood fill (paint bucket & magic wand)
 ============================================================ */
 const floodFill = (
   ctx: CanvasRenderingContext2D,
@@ -346,6 +371,46 @@ const floodFill = (
   ctx.putImageData(img, 0, 0);
 };
 
+// Magic wand: returns a canvas with selected area (alpha mask) or creates new layer
+const magicWandSelect = (
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  tolerance = 32,
+): HTMLCanvasElement => {
+  const w = ctx.canvas.width, h = ctx.canvas.height;
+  const img = ctx.getImageData(0, 0, w, h);
+  const data = img.data;
+  const startIdx = (y * w + x) * 4;
+  const sr = data[startIdx], sg = data[startIdx + 1], sb = data[startIdx + 2], sa = data[startIdx + 3];
+  const match = (i: number) =>
+    Math.abs(data[i] - sr) <= tolerance &&
+    Math.abs(data[i + 1] - sg) <= tolerance &&
+    Math.abs(data[i + 2] - sb) <= tolerance &&
+    Math.abs(data[i + 3] - sa) <= tolerance;
+  const stack = [[x, y]];
+  const visited = new Uint8Array(w * h);
+  const selectionCanvas = document.createElement("canvas");
+  selectionCanvas.width = w;
+  selectionCanvas.height = h;
+  const selCtx = selectionCanvas.getContext("2d")!;
+  selCtx.fillStyle = "rgba(0,0,0,0)";
+  selCtx.fillRect(0, 0, w, h);
+  selCtx.fillStyle = "rgba(255,255,255,1)";
+  while (stack.length) {
+    const [cx, cy] = stack.pop()!;
+    if (cx < 0 || cy < 0 || cx >= w || cy >= h) continue;
+    const p = cy * w + cx;
+    if (visited[p]) continue;
+    const i = p * 4;
+    if (!match(i)) continue;
+    visited[p] = 1;
+    selCtx.fillRect(cx, cy, 1, 1);
+    stack.push([cx + 1, cy], [cx - 1, cy], [cx, cy + 1], [cx, cy - 1]);
+  }
+  return selectionCanvas;
+};
+
 const hexToRgba = (hex: string, a = 255): [number, number, number, number] => {
   const h = hex.replace("#", "");
   const r = parseInt(h.slice(0, 2), 16);
@@ -367,6 +432,78 @@ const BLEND_MODES: GlobalCompositeOperation[] = [
 ];
 
 /* ============================================================
+   Gradient drawing
+============================================================ */
+const drawLinearGradient = (
+  ctx: CanvasRenderingContext2D,
+  start: { x: number; y: number },
+  end: { x: number; y: number },
+  colors: string[],
+  opacity: number,
+) => {
+  const gradient = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+  colors.forEach((c, i) => gradient.addColorStop(i / (colors.length - 1), c));
+  ctx.globalAlpha = opacity;
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+};
+
+/* ============================================================
+   Star & polygon drawing
+============================================================ */
+const drawStar = (
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  outerRadius: number,
+  innerRadius: number,
+  points: number,
+  strokeStyle: string,
+  lineWidth: number,
+) => {
+  let rot = Math.PI / 2 * 3;
+  const step = Math.PI / points;
+  ctx.beginPath();
+  for (let i = 0; i < points; i++) {
+    const x1 = cx + Math.cos(rot) * outerRadius;
+    const y1 = cy + Math.sin(rot) * outerRadius;
+    ctx.lineTo(x1, y1);
+    rot += step;
+    const x2 = cx + Math.cos(rot) * innerRadius;
+    const y2 = cy + Math.sin(rot) * innerRadius;
+    ctx.lineTo(x2, y2);
+    rot += step;
+  }
+  ctx.closePath();
+  ctx.strokeStyle = strokeStyle;
+  ctx.lineWidth = lineWidth;
+  ctx.stroke();
+};
+
+const drawPolygon = (
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  radius: number,
+  sides: number,
+  strokeStyle: string,
+  lineWidth: number,
+) => {
+  ctx.beginPath();
+  for (let i = 0; i <= sides; i++) {
+    const angle = (i * 2 * Math.PI / sides) - Math.PI / 2;
+    const x = cx + radius * Math.cos(angle);
+    const y = cy + radius * Math.sin(angle);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = strokeStyle;
+  ctx.lineWidth = lineWidth;
+  ctx.stroke();
+};
+
+/* ============================================================
    Main component
 ============================================================ */
 export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
@@ -386,7 +523,6 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
   const [fontFamily, setFontFamily] = useState("Inter");
 
   const [layers, setLayers] = useState<Layer[]>([]);
-  // FIX: use a ref for layers so undo/redo always reads current value
   const layersRef = useRef<Layer[]>([]);
   useEffect(() => { layersRef.current = layers; }, [layers]);
 
@@ -410,7 +546,6 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
   const shapeStartRef = useRef<{ x: number; y: number } | null>(null);
   const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // FIX: history stored as array of HistoryEntry (canvas DataURLs), step as ref to avoid stale closures
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [historyStep, setHistoryStep] = useState(-1);
   const historyRef = useRef<HistoryEntry[]>([]);
@@ -419,9 +554,54 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
   useEffect(() => { historyStepRef.current = historyStep; }, [historyStep]);
   const HISTORY_MAX = 30;
 
-  const [cropRect, setCropRect] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+  // Crop state (with handles)
+  type CropRect = {
+    x: number; y: number; w: number; h: number;
+    isDragging?: boolean;
+    dragHandle?: "nw" | "n" | "ne" | "w" | "e" | "sw" | "s" | "se" | "move";
+  };
+  const [cropRect, setCropRect] = useState<CropRect | null>(null);
+  const cropStartRef = useRef<{ x: number; y: number; origRect: CropRect } | null>(null);
+
   const docSizeRef = useRef<{ w: number; h: number } | null>(null);
   useEffect(() => { docSizeRef.current = docSize; }, [docSize]);
+
+  // Text annotations
+  const [textAnnotations, setTextAnnotations] = useState<TextAnnotation[]>([]);
+  const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
+
+  // Compare original
+  const [compareOriginal, setCompareOriginal] = useState(false);
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.altKey) setCompareOriginal(true);
+    };
+    const handleKeyUp = () => setCompareOriginal(false);
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
+
+  // Shortcuts panel visibility
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "?") {
+        e.preventDefault();
+        setShowShortcuts(v => !v);
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
+  // Export resize state
+  const [exportWidth, setExportWidth] = useState<number | "">("");
+  const [exportHeight, setExportHeight] = useState<number | "">("");
+  const [keepAspect, setKeepAspect] = useState(true);
 
   /* ============================================================
      Init
@@ -444,7 +624,6 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
       setHistoryStep(-1);
       historyRef.current = [];
       historyStepRef.current = -1;
-      // FIX: wait for wrapper to be measured before fitting
       setTimeout(() => fitToScreen(img.width, img.height), 100);
     };
     img.src = src;
@@ -465,7 +644,7 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
   }, [adj, filter]);
 
   /* ============================================================
-     Composite render
+     Composite render (including text annotations & crop handles)
   ============================================================ */
   const composite = useCallback(() => {
     const view = viewCanvasRef.current;
@@ -475,12 +654,16 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
     view.height = ds.h;
     const ctx = view.getContext("2d")!;
     ctx.clearRect(0, 0, view.width, view.height);
+    
+    // Composite layers
     layersRef.current.forEach((layer) => {
       if (!layer.visible) return;
       ctx.globalAlpha = layer.opacity / 100;
       ctx.globalCompositeOperation = layer.blendMode;
-      if (layer.id === "base" && adjustedBaseRef.current) {
+      if (layer.id === "base" && adjustedBaseRef.current && !compareOriginal) {
         ctx.drawImage(adjustedBaseRef.current, 0, 0);
+      } else if (layer.id === "base" && compareOriginal && originalImgRef.current) {
+        ctx.drawImage(originalImgRef.current, 0, 0);
       } else {
         ctx.drawImage(layer.canvas, 0, 0);
       }
@@ -488,9 +671,29 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
 
+    // Draw text annotations
+    textAnnotations.forEach((txt) => {
+      if (txt.layerId !== activeLayerId) return;
+      ctx.font = `${txt.fontSize}px ${txt.fontFamily}, sans-serif`;
+      ctx.fillStyle = txt.color;
+      ctx.shadowBlur = 0;
+      ctx.fillText(txt.text, txt.x, txt.y);
+      if (selectedTextId === txt.id) {
+        const metrics = ctx.measureText(txt.text);
+        const w = metrics.width;
+        const h = txt.fontSize;
+        ctx.strokeStyle = "#09f";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.strokeRect(txt.x - 2, txt.y - h + 2, w + 4, h + 2);
+        ctx.setLineDash([]);
+      }
+    });
+
+    // Draw crop overlay and handles
     const currentTool = toolRef.current;
     const currentCropRect = cropRectRef.current;
-    if (currentTool === "crop" && currentCropRect) {
+    if (currentTool === "crop" && currentCropRect && currentCropRect.w > 0 && currentCropRect.h > 0) {
       ctx.save();
       ctx.fillStyle = "rgba(0,0,0,0.45)";
       ctx.fillRect(0, 0, view.width, view.height);
@@ -499,23 +702,40 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
       ctx.lineWidth = 2;
       ctx.setLineDash([6, 4]);
       ctx.strokeRect(currentCropRect.x, currentCropRect.y, currentCropRect.w, currentCropRect.h);
+      ctx.setLineDash([]);
+      // Draw 8 handles
+      ctx.fillStyle = "white";
+      const handleSize = 8;
+      const handles = [
+        { x: currentCropRect.x, y: currentCropRect.y, name: "nw" },
+        { x: currentCropRect.x + currentCropRect.w/2 - handleSize/2, y: currentCropRect.y, name: "n" },
+        { x: currentCropRect.x + currentCropRect.w - handleSize, y: currentCropRect.y, name: "ne" },
+        { x: currentCropRect.x, y: currentCropRect.y + currentCropRect.h/2 - handleSize/2, name: "w" },
+        { x: currentCropRect.x + currentCropRect.w - handleSize, y: currentCropRect.y + currentCropRect.h/2 - handleSize/2, name: "e" },
+        { x: currentCropRect.x, y: currentCropRect.y + currentCropRect.h - handleSize, name: "sw" },
+        { x: currentCropRect.x + currentCropRect.w/2 - handleSize/2, y: currentCropRect.y + currentCropRect.h - handleSize, name: "s" },
+        { x: currentCropRect.x + currentCropRect.w - handleSize, y: currentCropRect.y + currentCropRect.h - handleSize, name: "se" },
+      ];
+      for (const h of handles) {
+        ctx.fillRect(h.x, h.y, handleSize, handleSize);
+        ctx.strokeRect(h.x, h.y, handleSize, handleSize);
+      }
       ctx.restore();
     }
     if (previewCanvasRef.current) {
       ctx.drawImage(previewCanvasRef.current, 0, 0);
     }
-  }, []); // no deps — reads everything via refs
+  }, [compareOriginal, textAnnotations, selectedTextId]);
 
-  // Refs for composite (to avoid stale closures in the stable callback)
   const toolRef = useRef<Tool>("brush");
   useEffect(() => { toolRef.current = tool; }, [tool]);
   const cropRectRef = useRef<typeof cropRect>(null);
   useEffect(() => { cropRectRef.current = cropRect; }, [cropRect]);
 
-  useEffect(() => { composite(); }, [layers, adjustedBase, tool, cropRect, composite]);
+  useEffect(() => { composite(); }, [layers, adjustedBase, tool, cropRect, compareOriginal, textAnnotations, selectedTextId, composite]);
 
   /* ============================================================
-     History — FIX: use refs to avoid stale state in closures
+     History (unchanged)
   ============================================================ */
   const snapshot = useCallback(() => {
     const currentLayers = layersRef.current;
@@ -530,7 +750,6 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
         data: l.id === "base" ? null : l.canvas.toDataURL(),
       })),
     };
-
     const currentStep = historyStepRef.current;
     const currentHistory = historyRef.current;
     const trimmed = currentHistory.slice(0, currentStep + 1);
@@ -545,22 +764,15 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
     const ds = docSizeRef.current;
     if (!ds) return;
     const currentLayers = layersRef.current;
-
     const next: Layer[] = entry.layerMeta.map((meta) => {
       if (meta.id === "base") {
         const existing = currentLayers.find((l) => l.id === "base");
-        return {
-          ...meta,
-          canvas: existing?.canvas ?? newCanvas(ds.w, ds.h),
-        } as Layer;
+        return { ...meta, canvas: existing?.canvas ?? newCanvas(ds.w, ds.h) } as Layer;
       }
       const c = newCanvas(ds.w, ds.h);
       if (meta.data) {
         const img = new Image();
-        img.onload = () => {
-          c.getContext("2d")!.drawImage(img, 0, 0);
-          composite();
-        };
+        img.onload = () => { c.getContext("2d")!.drawImage(img, 0, 0); composite(); };
         img.src = meta.data;
       }
       return { ...meta, canvas: c } as Layer;
@@ -569,21 +781,17 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
   }, [composite]);
 
   const undo = useCallback(() => {
-    const step = historyStepRef.current;
-    const hist = historyRef.current;
-    if (step <= 0) return;
-    const newStep = step - 1;
-    restoreSnap(hist[newStep]);
+    if (historyStepRef.current <= 0) return;
+    const newStep = historyStepRef.current - 1;
+    restoreSnap(historyRef.current[newStep]);
     historyStepRef.current = newStep;
     setHistoryStep(newStep);
   }, [restoreSnap]);
 
   const redo = useCallback(() => {
-    const step = historyStepRef.current;
-    const hist = historyRef.current;
-    if (step >= hist.length - 1) return;
-    const newStep = step + 1;
-    restoreSnap(hist[newStep]);
+    if (historyStepRef.current >= historyRef.current.length - 1) return;
+    const newStep = historyStepRef.current + 1;
+    restoreSnap(historyRef.current[newStep]);
     historyStepRef.current = newStep;
     setHistoryStep(newStep);
   }, [restoreSnap]);
@@ -601,7 +809,8 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
   };
 
   /* ============================================================
-     Drawing primitives
+     Drawing primitives (brush, erase, restore, blur, etc.) – unchanged
+     (keep original functions from your code)
   ============================================================ */
   const getActiveLayer = () => layersRef.current.find((l) => l.id === activeLayerId);
 
@@ -685,18 +894,19 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
     ctx.globalAlpha = opacity / 100;
     ctx.strokeStyle = color;
     ctx.lineWidth = Math.max(2, brushSize / 4);
-    if (toolRef.current === "rect") {
-      ctx.strokeRect(start.x, start.y, cur.x - start.x, cur.y - start.y);
-    } else if (toolRef.current === "ellipse") {
+    const t = toolRef.current;
+    if (t === "rect") ctx.strokeRect(start.x, start.y, cur.x - start.x, cur.y - start.y);
+    else if (t === "ellipse") {
       ctx.beginPath();
-      ctx.ellipse(
-        (start.x + cur.x) / 2, (start.y + cur.y) / 2,
-        Math.abs(cur.x - start.x) / 2, Math.abs(cur.y - start.y) / 2,
-        0, 0, Math.PI * 2,
-      );
+      ctx.ellipse((start.x + cur.x)/2, (start.y + cur.y)/2, Math.abs(cur.x - start.x)/2, Math.abs(cur.y - start.y)/2, 0, 0, Math.PI*2);
       ctx.stroke();
-    } else if (toolRef.current === "line") {
-      ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(cur.x, cur.y); ctx.stroke();
+    } else if (t === "line") { ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(cur.x, cur.y); ctx.stroke(); }
+    else if (t === "star") {
+      const radius = Math.hypot(cur.x - start.x, cur.y - start.y);
+      drawStar(ctx, start.x, start.y, radius, radius * 0.4, 5, color, Math.max(2, brushSize/4));
+    } else if (t === "polygon") {
+      const radius = Math.hypot(cur.x - start.x, cur.y - start.y);
+      drawPolygon(ctx, start.x, start.y, radius, 6, color, Math.max(2, brushSize/4));
     }
     ctx.restore();
   };
@@ -709,24 +919,48 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
     ctx.globalAlpha = opacity / 100;
     ctx.strokeStyle = color;
     ctx.lineWidth = Math.max(2, brushSize / 4);
-    if (toolRef.current === "rect") ctx.strokeRect(start.x, start.y, end.x - start.x, end.y - start.y);
-    else if (toolRef.current === "ellipse") {
+    const t = toolRef.current;
+    if (t === "rect") ctx.strokeRect(start.x, start.y, end.x - start.x, end.y - start.y);
+    else if (t === "ellipse") {
       ctx.beginPath();
-      ctx.ellipse(
-        (start.x + end.x) / 2, (start.y + end.y) / 2,
-        Math.abs(end.x - start.x) / 2, Math.abs(end.y - start.y) / 2,
-        0, 0, Math.PI * 2,
-      );
+      ctx.ellipse((start.x + end.x)/2, (start.y + end.y)/2, Math.abs(end.x - start.x)/2, Math.abs(end.y - start.y)/2, 0, 0, Math.PI*2);
       ctx.stroke();
-    } else if (toolRef.current === "line") {
-      ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(end.x, end.y); ctx.stroke();
+    } else if (t === "line") { ctx.beginPath(); ctx.moveTo(start.x, start.y); ctx.lineTo(end.x, end.y); ctx.stroke(); }
+    else if (t === "star") {
+      const radius = Math.hypot(end.x - start.x, end.y - start.y);
+      drawStar(ctx, start.x, start.y, radius, radius * 0.4, 5, color, Math.max(2, brushSize/4));
+    } else if (t === "polygon") {
+      const radius = Math.hypot(end.x - start.x, end.y - start.y);
+      drawPolygon(ctx, start.x, start.y, radius, 6, color, Math.max(2, brushSize/4));
+    } else if (t === "gradient") {
+      drawLinearGradient(ctx, start, end, [color, secondaryColor], opacity/100);
     }
     ctx.restore();
     clearPreview();
   };
 
+  // Helper for crop handle hit detection
+  const getHitHandle = (pt: { x: number; y: number }, rect: CropRect) => {
+    const handleSize = 8;
+    const handles = [
+      { x: rect.x, y: rect.y, name: "nw" as const },
+      { x: rect.x + rect.w/2 - handleSize/2, y: rect.y, name: "n" as const },
+      { x: rect.x + rect.w - handleSize, y: rect.y, name: "ne" as const },
+      { x: rect.x, y: rect.y + rect.h/2 - handleSize/2, name: "w" as const },
+      { x: rect.x + rect.w - handleSize, y: rect.y + rect.h/2 - handleSize/2, name: "e" as const },
+      { x: rect.x, y: rect.y + rect.h - handleSize, name: "sw" as const },
+      { x: rect.x + rect.w/2 - handleSize/2, y: rect.y + rect.h - handleSize, name: "s" as const },
+      { x: rect.x + rect.w - handleSize, y: rect.y + rect.h - handleSize, name: "se" as const },
+    ];
+    for (const h of handles) {
+      if (pt.x >= h.x && pt.x <= h.x + handleSize && pt.y >= h.y && pt.y <= h.y + handleSize)
+        return h.name;
+    }
+    return null;
+  };
+
   /* ============================================================
-     Pointer handlers
+     Pointer handlers (extended for crop handles, gradient, magic wand, text drag)
   ============================================================ */
   const onPointerDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -735,6 +969,34 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
 
     if (currentTool === "hand") {
       panRef.current = { x: pan.x, y: pan.y, startX: e.clientX, startY: e.clientY, dragging: true };
+      return;
+    }
+
+    // Handle text selection/drag
+    const hitText = textAnnotations.find(t => {
+      const ctx = document.createElement("canvas").getContext("2d")!;
+      ctx.font = `${t.fontSize}px ${t.fontFamily}, sans-serif`;
+      const w = ctx.measureText(t.text).width;
+      const h = t.fontSize;
+      return pt.x >= t.x - 2 && pt.x <= t.x + w + 4 && pt.y >= t.y - h + 2 && pt.y <= t.y + 4;
+    });
+    if (hitText && currentTool === "move") {
+      setSelectedTextId(hitText.id);
+      // start dragging text
+      const dragHandler = (moveEvent: MouseEvent) => {
+        const newPt = getDocCoords(moveEvent as any);
+        if (newPt) {
+          setTextAnnotations(prev => prev.map(t => t.id === hitText.id ? { ...t, x: newPt.x, y: newPt.y } : t));
+          composite();
+        }
+      };
+      const upHandler = () => {
+        window.removeEventListener("mousemove", dragHandler);
+        window.removeEventListener("mouseup", upHandler);
+        snapshot();
+      };
+      window.addEventListener("mousemove", dragHandler);
+      window.addEventListener("mouseup", upHandler);
       return;
     }
 
@@ -749,7 +1011,7 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
       if (!view) return;
       const ctx = view.getContext("2d")!;
       const p = ctx.getImageData(Math.floor(pt.x), Math.floor(pt.y), 1, 1).data;
-      const hex = `#${[p[0], p[1], p[2]].map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+      const hex = `#${[p[0], p[1], p[2]].map(v => v.toString(16).padStart(2, "0")).join("")}`;
       setColor(hex);
       toast.success(`Picked ${hex}`);
       return;
@@ -757,42 +1019,86 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
 
     if (currentTool === "bucket") {
       const ctx = activeLayer.canvas.getContext("2d")!;
-      floodFill(ctx, Math.floor(pt.x), Math.floor(pt.y), hexToRgba(color, Math.round((opacity / 100) * 255)), tolerance);
+      floodFill(ctx, Math.floor(pt.x), Math.floor(pt.y), hexToRgba(color, Math.round((opacity/100)*255)), tolerance);
       composite();
       snapshot();
       return;
     }
 
-    if (currentTool === "text") {
-      const txt = window.prompt("Text:");
-      if (!txt) return;
+    if (currentTool === "magicwand") {
       const ctx = activeLayer.canvas.getContext("2d")!;
-      ctx.save();
-      ctx.globalAlpha = opacity / 100;
-      ctx.fillStyle = color;
-      ctx.font = `${fontSize}px ${fontFamily}, sans-serif`;
-      ctx.textBaseline = "top";
-      ctx.fillText(txt, pt.x, pt.y);
-      ctx.restore();
-      composite();
+      const selectionCanvas = magicWandSelect(ctx, Math.floor(pt.x), Math.floor(pt.y), tolerance);
+      // Create a new layer from selection
+      const ds = docSizeRef.current!;
+      const newLayerCanvas = newCanvas(ds.w, ds.h);
+      const newCtx = newLayerCanvas.getContext("2d")!;
+      newCtx.drawImage(activeLayer.canvas, 0, 0);
+      newCtx.globalCompositeOperation = "destination-in";
+      newCtx.drawImage(selectionCanvas, 0, 0);
+      const newLayer: Layer = {
+        id: `magic-${Date.now()}`,
+        name: "Magic selection",
+        visible: true, opacity: 100, blendMode: "source-over",
+        canvas: newLayerCanvas, locked: false,
+      };
+      setLayers(prev => [...prev, newLayer]);
+      setActiveLayerId(newLayer.id);
+      toast.success("Selected area extracted to new layer.");
       snapshot();
       return;
     }
 
     if (currentTool === "crop") {
+      // Existing crop rect handling
+      if (cropRect && cropRect.w > 0 && cropRect.h > 0) {
+        const handle = getHitHandle(pt, cropRect);
+        if (handle) {
+          cropStartRef.current = { x: pt.x, y: pt.y, origRect: { ...cropRect } };
+          setCropRect(prev => prev ? { ...prev, isDragging: true, dragHandle: handle } : null);
+          setIsDrawing(true);
+          return;
+        }
+        if (pt.x >= cropRect.x && pt.x <= cropRect.x + cropRect.w &&
+            pt.y >= cropRect.y && pt.y <= cropRect.y + cropRect.h) {
+          cropStartRef.current = { x: pt.x, y: pt.y, origRect: { ...cropRect } };
+          setCropRect(prev => prev ? { ...prev, isDragging: true, dragHandle: "move" } : null);
+          setIsDrawing(true);
+          return;
+        }
+      }
       shapeStartRef.current = pt;
       setCropRect({ x: pt.x, y: pt.y, w: 0, h: 0 });
       setIsDrawing(true);
       return;
     }
 
-    if (currentTool === "rect" || currentTool === "ellipse" || currentTool === "line") {
+    if (currentTool === "text") {
+      const txt = window.prompt("Text:");
+      if (!txt) return;
+      const newText: TextAnnotation = {
+        id: `txt-${Date.now()}`,
+        text: txt,
+        x: pt.x,
+        y: pt.y,
+        fontSize,
+        fontFamily,
+        color,
+        layerId: activeLayerId,
+      };
+      setTextAnnotations(prev => [...prev, newText]);
+      composite();
+      snapshot();
+      return;
+    }
+
+    if (currentTool === "gradient" || currentTool === "star" || currentTool === "polygon" ||
+        currentTool === "rect" || currentTool === "ellipse" || currentTool === "line") {
       shapeStartRef.current = pt;
       setIsDrawing(true);
       return;
     }
 
-    // brush family
+    // Brush family
     setIsDrawing(true);
     lastPtRef.current = pt;
     const ctx = activeLayer.canvas.getContext("2d")!;
@@ -812,16 +1118,33 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
     if (!isDrawing) return;
     const pt = getDocCoords(e); if (!pt) return;
 
-    if (currentTool === "crop" && shapeStartRef.current) {
-      const s = shapeStartRef.current;
-      setCropRect({
-        x: Math.min(s.x, pt.x), y: Math.min(s.y, pt.y),
-        w: Math.abs(pt.x - s.x), h: Math.abs(pt.y - s.y),
-      });
+    if (currentTool === "crop" && cropRect && cropStartRef.current) {
+      const { x: startX, y: startY, origRect } = cropStartRef.current;
+      const dx = pt.x - startX;
+      const dy = pt.y - startY;
+      let newRect = { ...origRect };
+      const handle = cropRect.dragHandle;
+      if (handle === "move") {
+        newRect.x = origRect.x + dx;
+        newRect.y = origRect.y + dy;
+      } else {
+        let left = origRect.x, right = origRect.x + origRect.w;
+        let top = origRect.y, bottom = origRect.y + origRect.h;
+        if (handle?.includes("w")) left = Math.min(right - 10, origRect.x + dx);
+        if (handle?.includes("e")) right = Math.max(left + 10, origRect.x + origRect.w + dx);
+        if (handle?.includes("n")) top = Math.min(bottom - 10, origRect.y + dy);
+        if (handle?.includes("s")) bottom = Math.max(top + 10, origRect.y + origRect.h + dy);
+        newRect = { x: left, y: top, w: right - left, h: bottom - top };
+      }
+      const bounds = docSizeRef.current!;
+      newRect.x = Math.max(0, Math.min(bounds.w - newRect.w, newRect.x));
+      newRect.y = Math.max(0, Math.min(bounds.h - newRect.h, newRect.y));
+      if (newRect.w > 0 && newRect.h > 0) setCropRect({ ...newRect, isDragging: true, dragHandle: handle });
       return;
     }
 
-    if ((currentTool === "rect" || currentTool === "ellipse" || currentTool === "line") && shapeStartRef.current) {
+    if ((currentTool === "rect" || currentTool === "ellipse" || currentTool === "line" ||
+         currentTool === "star" || currentTool === "polygon" || currentTool === "gradient") && shapeStartRef.current) {
       renderShapePreview(shapeStartRef.current, pt);
       composite();
       return;
@@ -842,7 +1165,8 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
     setIsDrawing(false);
     const pt = getDocCoords(e);
 
-    if ((currentTool === "rect" || currentTool === "ellipse" || currentTool === "line") && shapeStartRef.current && pt) {
+    if ((currentTool === "rect" || currentTool === "ellipse" || currentTool === "line" ||
+         currentTool === "star" || currentTool === "polygon" || currentTool === "gradient") && shapeStartRef.current && pt) {
       commitShape(shapeStartRef.current, pt);
       composite();
       snapshot();
@@ -851,10 +1175,14 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
     }
     shapeStartRef.current = null;
     lastPtRef.current = null;
+    if (currentTool === "crop") {
+      cropStartRef.current = null;
+      setCropRect(prev => prev ? { ...prev, isDragging: false, dragHandle: undefined } : null);
+    }
   };
 
   /* ============================================================
-     Layer ops
+     Layer ops (unchanged)
   ============================================================ */
   const addLayer = () => {
     const ds = docSizeRef.current;
@@ -878,9 +1206,7 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
     if (!srcLayer) return;
     const c = newCanvas(ds.w, ds.h);
     c.getContext("2d")!.drawImage(
-      srcLayer.id === "base" && adjustedBaseRef.current ? adjustedBaseRef.current : srcLayer.canvas,
-      0, 0,
-    );
+      srcLayer.id === "base" && adjustedBaseRef.current ? adjustedBaseRef.current : srcLayer.canvas, 0, 0);
     const layer: Layer = { ...srcLayer, id: `layer-${Date.now()}`, name: `${srcLayer.name} copy`, canvas: c };
     setLayers((p) => {
       const idx = p.findIndex((l) => l.id === id);
@@ -922,14 +1248,13 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
   };
 
   /* ============================================================
-     Crop apply — FIX: snapshot after image loads (async)
+     Crop apply (unchanged logic)
   ============================================================ */
   const applyCrop = () => {
     const ds = docSizeRef.current;
     if (!cropRect || !ds) return;
     const { x, y, w, h } = cropRect;
     if (w < 4 || h < 4) { toast.error("Crop area too small."); return; }
-
     const currentLayers = layersRef.current;
     const newLayers = currentLayers.map((l) => {
       const nc = newCanvas(w, h);
@@ -937,17 +1262,11 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
       nc.getContext("2d")!.drawImage(srcCanvas, -x, -y);
       return { ...l, canvas: nc };
     });
-
-    // Update original ref
     const newOrig = newCanvas(w, h);
     newOrig.getContext("2d")!.drawImage(originalImgRef.current!, -x, -y);
     const img = new Image();
-    img.onload = () => {
-      originalImgRef.current = img;
-      snapshot(); // FIX: snapshot after original ref is updated
-    };
+    img.onload = () => { originalImgRef.current = img; snapshot(); };
     img.src = newOrig.toDataURL();
-
     setDocSize({ w, h });
     setLayers(newLayers);
     setCropRect(null);
@@ -999,11 +1318,17 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
   };
 
   /* ============================================================
-     Export
+     Export with resize
   ============================================================ */
-  const exportImage = (format: "png" | "jpeg" | "webp", quality = 0.92) => {
+  const exportImage = (format: "png" | "jpeg" | "webp", quality = 0.92, customWidth?: number, customHeight?: number) => {
     const view = viewCanvasRef.current; if (!view) return;
-    const url = view.toDataURL(`image/${format}`, quality);
+    let exportCanvas = view;
+    if (customWidth && customHeight && customWidth > 0 && customHeight > 0) {
+      exportCanvas = newCanvas(customWidth, customHeight);
+      const ctx = exportCanvas.getContext("2d")!;
+      ctx.drawImage(view, 0, 0, customWidth, customHeight);
+    }
+    const url = exportCanvas.toDataURL(`image/${format}`, quality);
     const a = document.createElement("a");
     a.href = url;
     a.download = `${fileName.replace(/\.[^.]+$/, "")}-edited.${format}`;
@@ -1012,7 +1337,7 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
   };
 
   /* ============================================================
-     Keyboard shortcuts
+     Keyboard shortcuts (add ? for panel, Alt for compare)
   ============================================================ */
   useEffect(() => {
     const h = (e: KeyboardEvent) => {
@@ -1023,7 +1348,7 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
       const map: Record<string, Tool> = {
         b: "brush", e: "erase", r: "restore", i: "picker",
         g: "bucket", u: "rect", o: "ellipse", l: "line", t: "text",
-        c: "crop", v: "move", h: "hand",
+        c: "crop", v: "move", h: "hand", s: "star", p: "polygon",
       };
       if (map[k]) setTool(map[k]);
       if (k === "[") setBrushSize((p) => Math.max(1, p - 4));
@@ -1032,6 +1357,7 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
       if (k === "+" || k === "=") setZoom((z) => Math.min(800, z + 10));
       if (k === "-") setZoom((z) => Math.max(5, z - 10));
       if (k === "0") fitToScreen();
+      if (k === "?") setShowShortcuts(v => !v);
     };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
@@ -1040,26 +1366,56 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
   /* ============================================================
      UI helpers
   ============================================================ */
-  const ToolBtn = ({
-    id, label, icon: Icon,
-  }: { id: Tool; label: string; icon: React.ComponentType<{ className?: string }> }) => (
+  const ToolBtn = ({ id, label, icon: Icon }: { id: Tool; label: string; icon: React.ComponentType<{ className?: string }> }) => (
     <button
       onClick={() => setTool(id)}
       title={label}
       className={`flex h-10 w-10 items-center justify-center rounded-md transition-all ${
-        tool === id
-          ? "bg-primary text-primary-foreground shadow-md"
-          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+        tool === id ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:bg-muted hover:text-foreground"
       }`}
     >
       <Icon className="h-4 w-4" />
     </button>
   );
 
-  const isBrushLike = ["brush", "erase", "restore", "blur", "paint", "rect", "ellipse", "line"].includes(tool);
+  const isBrushLike = ["brush", "erase", "restore", "blur", "paint", "rect", "ellipse", "line", "star", "polygon", "gradient"].includes(tool);
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] min-h-[640px] w-full overflow-hidden rounded-xl border border-border bg-card text-card-foreground">
+    <div className="flex h-[calc(100vh-4rem)] min-h-[640px] w-full overflow-auto rounded-xl border border-border bg-card text-card-foreground">
+      {/* Shortcuts modal */}
+      {showShortcuts && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowShortcuts(false)}>
+          <div className="max-h-[80vh] w-full max-w-2xl overflow-auto rounded-lg bg-background p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h2 className="mb-4 text-xl font-bold">Keyboard Shortcuts</h2>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">B</kbd> Brush</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">E</kbd> Eraser</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">R</kbd> Restore</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">I</kbd> Color Picker</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">G</kbd> Bucket</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">U</kbd> Rectangle</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">O</kbd> Ellipse</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">L</kbd> Line</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">T</kbd> Text</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">C</kbd> Crop</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">V</kbd> Move</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">H</kbd> Hand</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">S</kbd> Star</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">P</kbd> Polygon</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">[ ]</kbd> Decrease/Increase brush size</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">X</kbd> Swap colors</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">Ctrl+Z</kbd> Undo</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">Ctrl+Shift+Z / Ctrl+Y</kbd> Redo</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">+ / -</kbd> Zoom in/out</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">0</kbd> Fit to screen</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">Alt</kbd> Hold to compare with original</div>
+              <div><kbd className="rounded bg-muted px-2 py-1 font-mono">?</kbd> Show/hide this panel</div>
+            </div>
+            <Button className="mt-6 w-full" onClick={() => setShowShortcuts(false)}>Close</Button>
+          </div>
+        </div>
+      )}
+
       {/* Left tool rail */}
       <aside className="flex w-14 flex-col items-center gap-1 border-r border-border bg-muted/30 p-2">
         <ToolBtn id="move" label="Move (V)" icon={Move} />
@@ -1071,10 +1427,14 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
         <ToolBtn id="bucket" label="Bucket (G)" icon={PaintBucket} />
         <ToolBtn id="blur" label="Blur" icon={Sparkles} />
         <ToolBtn id="picker" label="Picker (I)" icon={Pipette} />
+        <ToolBtn id="magicwand" label="Magic Wand" icon={Blend} />
         <div className="my-1 h-px w-8 bg-border" />
         <ToolBtn id="rect" label="Rect (U)" icon={Square} />
         <ToolBtn id="ellipse" label="Ellipse (O)" icon={CircleIcon} />
         <ToolBtn id="line" label="Line (L)" icon={Minus} />
+        <ToolBtn id="star" label="Star (S)" icon={Star} />
+        <ToolBtn id="polygon" label="Polygon (P)" icon={Hexagon} />
+        <ToolBtn id="gradient" label="Gradient" icon={Palette} />
         <ToolBtn id="text" label="Text (T)" icon={TypeIcon} />
         <div className="my-1 h-px w-8 bg-border" />
         <ToolBtn id="crop" label="Crop (C)" icon={CropIcon} />
@@ -1098,9 +1458,9 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
       </aside>
 
       {/* Center column */}
-      <div className="flex flex-1 flex-col">
-        {/* Top option bar */}
-        <div className="flex items-center gap-3 border-b border-border bg-muted/20 px-4 py-2 text-sm">
+      <div className="flex flex-1 flex-col min-w-0">
+        {/* Top option bar with responsive wrap */}
+        <div className="flex flex-wrap items-center gap-3 border-b border-border bg-muted/20 px-4 py-2 text-sm overflow-x-auto">
           <span className="font-mono text-xs uppercase tracking-wider text-muted-foreground">{tool}</span>
           <div className="h-4 w-px bg-border" />
 
@@ -1119,7 +1479,7 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
             </>
           )}
 
-          {tool === "bucket" && (
+          {(tool === "bucket" || tool === "magicwand") && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">Tolerance</span>
               <Slider value={[tolerance]} min={0} max={128} step={1} onValueChange={(v) => setTolerance(v[0])} className="w-32" />
@@ -1147,7 +1507,7 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
             <Button size="sm" onClick={applyCrop} className="ml-2">Apply crop</Button>
           )}
 
-          <div className="ml-auto flex items-center gap-1">
+          <div className="ml-auto flex shrink-0 items-center gap-1">
             <Button size="sm" variant="ghost" onClick={undo} disabled={historyStep <= 0}><Undo2 className="h-4 w-4" /></Button>
             <Button size="sm" variant="ghost" onClick={redo} disabled={historyStep >= history.length - 1}><Redo2 className="h-4 w-4" /></Button>
             <div className="mx-1 h-4 w-px bg-border" />
@@ -1156,9 +1516,56 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
             <Button size="sm" variant="ghost" onClick={() => setZoom((z) => Math.min(800, z + 10))}><ZoomIn className="h-4 w-4" /></Button>
             <Button size="sm" variant="ghost" onClick={() => fitToScreen()}><Maximize2 className="h-4 w-4" /></Button>
             <div className="mx-1 h-4 w-px bg-border" />
-            <Button size="sm" onClick={() => exportImage("png")} className="gap-1"><Download className="h-4 w-4" /> PNG</Button>
-            <Button size="sm" variant="outline" onClick={() => exportImage("jpeg", 0.92)}>JPG</Button>
-            <Button size="sm" variant="outline" onClick={() => exportImage("webp", 0.9)}>WebP</Button>
+            <Button size="sm" variant="ghost" onClick={() => setShowShortcuts(true)}><HelpCircle className="h-4 w-4" /></Button>
+            <div className="mx-1 h-4 w-px bg-border" />
+            {/* Export with resize dropdown */}
+            <div className="relative group">
+              <Button size="sm" className="gap-1"><Download className="h-4 w-4" /> Export</Button>
+              <div className="absolute right-0 top-full mt-1 hidden w-64 rounded-md border border-border bg-background p-2 shadow-lg group-hover:block z-20">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1">
+                    <input type="checkbox" checked={keepAspect} onChange={e => setKeepAspect(e.target.checked)} className="h-3 w-3" />
+                    <span className="text-xs">Keep aspect ratio</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      placeholder="Width"
+                      value={exportWidth}
+                      onChange={e => {
+                        const val = e.target.value === "" ? "" : Number(e.target.value);
+                        setExportWidth(val);
+                        if (keepAspect && docSize && val !== "" && typeof val === "number") {
+                          const ratio = docSize.h / docSize.w;
+                          setExportHeight(Math.round(val * ratio));
+                        }
+                      }}
+                      className="w-full rounded border border-border bg-background px-1 py-0.5 text-xs"
+                    />
+                    <span className="text-xs">×</span>
+                    <input
+                      type="number"
+                      placeholder="Height"
+                      value={exportHeight}
+                      onChange={e => {
+                        const val = e.target.value === "" ? "" : Number(e.target.value);
+                        setExportHeight(val);
+                        if (keepAspect && docSize && val !== "" && typeof val === "number") {
+                          const ratio = docSize.w / docSize.h;
+                          setExportWidth(Math.round(val * ratio));
+                        }
+                      }}
+                      className="w-full rounded border border-border bg-background px-1 py-0.5 text-xs"
+                    />
+                  </div>
+                  <div className="flex gap-1">
+                    <Button size="sm" onClick={() => exportImage("png", 1, exportWidth || undefined, exportHeight || undefined)} className="flex-1">PNG</Button>
+                    <Button size="sm" variant="outline" onClick={() => exportImage("jpeg", 0.92, exportWidth || undefined, exportHeight || undefined)} className="flex-1">JPG</Button>
+                    <Button size="sm" variant="outline" onClick={() => exportImage("webp", 0.9, exportWidth || undefined, exportHeight || undefined)} className="flex-1">WebP</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1187,12 +1594,13 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
           </div>
           <div className="pointer-events-none absolute bottom-2 left-2 rounded-md bg-black/60 px-2 py-1 font-mono text-[10px] text-white/80">
             {docSize ? `${docSize.w} × ${docSize.h}` : "—"}  ·  {zoom}%
+            {compareOriginal && <span className="ml-2 text-yellow-300"> (Comparing original)</span>}
           </div>
         </div>
       </div>
 
-      {/* Right panel */}
-      <aside className="flex w-72 flex-col gap-3 overflow-y-auto border-l border-border bg-muted/20 p-3 text-sm">
+      {/* Right panel - always visible with scroll */}
+      <aside className="flex w-72 shrink-0 flex-col gap-3 overflow-y-auto border-l border-border bg-muted/20 p-3 text-sm">
         {/* Adjustments */}
         <section>
           <h3 className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -1261,7 +1669,7 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
             <span className="flex items-center gap-2"><LayersIcon className="h-3.5 w-3.5" /> Layers</span>
             <button onClick={addLayer} className="rounded p-1 hover:bg-muted" title="New layer"><Plus className="h-3.5 w-3.5" /></button>
           </h3>
-          <div className="space-y-1">
+          <div className="space-y-1 max-h-64 overflow-y-auto">
             {[...layers].reverse().map((layer) => (
               <div
                 key={layer.id}
@@ -1272,10 +1680,7 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
               >
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setLayers((p) => p.map((l) => l.id === layer.id ? { ...l, visible: !l.visible } : l));
-                    }}
+                    onClick={(e) => { e.stopPropagation(); setLayers((p) => p.map((l) => l.id === layer.id ? { ...l, visible: !l.visible } : l)); }}
                     className="shrink-0"
                   >
                     {layer.visible ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5 text-muted-foreground" />}
@@ -1296,10 +1701,7 @@ export const ImageEditor = ({ src, fileName = "image" }: ImageEditorProps) => {
                     <ChevronDown className="h-3 w-3" />
                   </button>
                   {layer.id !== "base" && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); deleteLayer(layer.id); }}
-                      className="rounded p-1 text-destructive hover:bg-destructive/10"
-                    >
+                    <button onClick={(e) => { e.stopPropagation(); deleteLayer(layer.id); }} className="rounded p-1 text-destructive hover:bg-destructive/10">
                       <Trash2 className="h-3 w-3" />
                     </button>
                   )}
