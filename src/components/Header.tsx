@@ -58,7 +58,7 @@ export const Header = () => {
           onClick={() => navigate("/")}
         >
           <div className="relative h-9 w-9 rounded-xl overflow-hidden shadow-md group-hover:shadow-primary/30 transition-all duration-300 group-hover:scale-105">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary via-accent to-secondary animate-gradient-xy" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary via-accent to-secondary" />
             <div className="absolute inset-0 flex items-center justify-center text-white font-black text-sm tracking-tighter">
               TM
             </div>

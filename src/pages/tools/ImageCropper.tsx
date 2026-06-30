@@ -91,7 +91,7 @@ const ImageCropper = () => {
       ]}
       relatedTools={[
         { name: "Image Resizer", path: "/tools/image-resizer" },
-        { name: "Image Size Reducer", path: "/tools/image-compressor" },
+        { name: "Image Size Reducer", path: "/tools/image-size-reducer" },
       ]}
     >
       <Card>

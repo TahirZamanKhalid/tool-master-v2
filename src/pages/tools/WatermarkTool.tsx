@@ -2085,7 +2085,7 @@ const WatermarkTool = () => {
                     { name: "Background Remover", path: "/tools/background-remover" },
                     { name: "Image Resizer", path: "/tools/image-resizer" },
                     { name: "Image Converter", path: "/tools/image-converter" },
-                    { name: "Image Compressor", path: "/tools/image-compressor" },
+                    { name: "Image Compressor", path: "/tools/advanced-image-compressor" },
                   ].map((tool) => (
                     <Link
                       key={tool.path}

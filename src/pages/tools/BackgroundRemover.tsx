@@ -710,7 +710,7 @@ const BackgroundRemover = () => {
                   </li>
                   <li>
                     <Link
-                      to="/tools/image-compressor"
+                      to="/tools/image-size-reducer"
                       className="text-gray-600 hover:text-primary"
                     >
                       Image Compressor

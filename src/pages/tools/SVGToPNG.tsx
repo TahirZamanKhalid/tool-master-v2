@@ -240,7 +240,7 @@ const SVGToPNG = () => {
       ]}
       relatedTools={[
         { name: "PNG to JPG", path: "/tools/png-to-jpg" },
-        { name: "Image Size Reducer", path: "/tools/image-compressor" },
+        { name: "Image Size Reducer", path: "/tools/image-size-reducer" },
         { name: "Image Resizer", path: "/tools/image-resizer" }
       ]}
     >

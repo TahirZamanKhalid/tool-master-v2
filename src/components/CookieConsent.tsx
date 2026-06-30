@@ -27,17 +27,17 @@ export const CookieConsent = () => {
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background border-t shadow-lg md:p-6">
       <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex-1">
-          <p className="text-sm text-muted-foreground text-center md:text-left">
+          <p className="text-sm text-foreground text-center md:text-left">
             We use cookies to enhance your browsing experience, serve personalized ads or content, and analyze our traffic. 
             By clicking "Accept All", you consent to our use of cookies. 
-            See our <a href="/privacy-policy" className="underline text-primary hover:text-primary/80">Privacy Policy</a> for more details.
+            See our <a href="/privacy-policy" className="underline font-semibold text-foreground hover:text-foreground/80">Privacy Policy</a> for more details.
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={declineCookies} className="whitespace-nowrap">
             Decline
           </Button>
-          <Button onClick={acceptCookies} className="whitespace-nowrap">
+          <Button onClick={acceptCookies} className="whitespace-nowrap bg-foreground text-background hover:bg-foreground/90">
             Accept All
           </Button>
         </div>

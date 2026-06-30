@@ -254,7 +254,7 @@ const PNGToJPG = () => {
         { name: "JPG to PNG", path: "/tools/jpg-to-png" },
         { name: "HEIC to JPG", path: "/tools/heic-to-jpg" },
         { name: "WebP to PNG", path: "/tools/webp-to-png" },
-        { name: "Image Size Reducer", path: "/tools/image-compressor" }
+        { name: "Image Size Reducer", path: "/tools/image-size-reducer" }
       ]}
     >
       <div className="grid gap-6">

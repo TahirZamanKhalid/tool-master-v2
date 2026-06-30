@@ -65,11 +65,11 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
   return (
     <section className="relative w-full overflow-hidden">
       {/* Background layers */}
-      <div className="absolute inset-0 -z-20 gradient-hero animate-gradient-xy" />
+      <div className="absolute inset-0 -z-20 gradient-hero" />
       <div className="absolute inset-0 -z-10 pointer-events-none">
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-        <div className="absolute -top-24 -left-24 w-[500px] h-[500px] bg-primary/8 rounded-full blur-3xl animate-float" />
-        <div className="absolute -bottom-24 -right-24 w-[600px] h-[600px] bg-accent/6 rounded-full blur-3xl animate-float" style={{ animationDelay: "1.5s" }} />
+        <div className="absolute -top-24 -left-24 w-[500px] h-[500px] bg-primary/8 rounded-full blur-3xl" />
+        <div className="absolute -bottom-24 -right-24 w-[600px] h-[600px] bg-accent/6 rounded-full blur-3xl" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-secondary/4 rounded-full blur-3xl" />
       </div>
 

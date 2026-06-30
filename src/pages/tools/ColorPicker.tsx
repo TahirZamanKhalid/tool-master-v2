@@ -100,7 +100,7 @@ const ColorPicker = () => {
         ]}
         relatedTools={[
           { name: "JSON Formatter", path: "/tools/json-formatter" },
-          { name: "Image Size Reducer", path: "/tools/image-compressor" },
+          { name: "Image Size Reducer", path: "/tools/image-size-reducer" },
         ]}
       >
         <div className="space-y-6">

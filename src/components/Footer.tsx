@@ -7,7 +7,7 @@ export const Footer = () => {
   const toolLinks = [
     { label: "Background Remover", href: "/tools/background-remover" },
     { label: "PDF Merger", href: "/tools/pdf-merger" },
-    { label: "Image Compressor", href: "/tools/image-compressor" },
+    { label: "Image Compressor", href: "/tools/advanced-image-compressor" },
     { label: "QR Code Generator", href: "/tools/qr-code-generator" },
     { label: "Password Generator", href: "/tools/password-generator" },
     { label: "JSON Formatter", href: "/tools/json-formatter" },
