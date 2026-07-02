@@ -5,8 +5,9 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Copy, Camera, Upload, ScanLine, CheckCircle2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode";
+import { Html5Qrcode } from "html5-qrcode";
 import { AdSpace } from "@/components/AdSpace";
+import { isRasterImageFile } from "@/utils/imageFiles";
 
 const BarcodeScanner = () => {
   const [scanning, setScanning] = useState(false);
@@ -22,7 +23,7 @@ const BarcodeScanner = () => {
   useEffect(() => {
     return () => {
       if (html5QrCode?.isScanning) {
-        html5QrCode.stop().catch(console.error);
+        html5QrCode.stop().catch(() => undefined);
       }
     };
   }, [html5QrCode]);
@@ -42,8 +43,8 @@ const BarcodeScanner = () => {
         const imageData = canvas.toDataURL("image/png");
         setCapturedImage(imageData);
       }
-    } catch (error) {
-      console.error("Failed to capture screenshot:", error);
+    } catch {
+      // Ignore screenshot capture errors.
     }
   };
 
@@ -82,7 +83,7 @@ const BarcodeScanner = () => {
                   fetchProductInfo(decodedText);
                 }
               }, 500);
-            }).catch(console.error);
+            }).catch(() => undefined);
           }
         },
         (errorMessage) => {
@@ -92,8 +93,7 @@ const BarcodeScanner = () => {
 
       setScanning(true);
       toast.success("Camera started - Place barcode in the scanning area");
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Failed to access camera. Please grant camera permissions.");
     }
   };
@@ -104,8 +104,8 @@ const BarcodeScanner = () => {
         await html5QrCode.stop();
         setScanning(false);
         toast.info("Camera stopped");
-      } catch (error) {
-        console.error(error);
+      } catch {
+        setScanning(false);
       }
     }
   };
@@ -118,6 +118,10 @@ const BarcodeScanner = () => {
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
+      if (!isRasterImageFile(file) || file.size > 10 * 1024 * 1024) {
+        toast.error("Please upload a JPG, PNG, WebP, GIF, or BMP image under 10 MB");
+        return;
+      }
 
       try {
         const barcodeScanner = new Html5Qrcode("barcode-reader");
@@ -130,8 +134,7 @@ const BarcodeScanner = () => {
         if (decodedText.length >= 8 && /^\d+$/.test(decodedText)) {
           fetchProductInfo(decodedText);
         }
-      } catch (error) {
-        console.error(error);
+      } catch {
         toast.error("Failed to decode barcode from image");
       }
     };
@@ -163,8 +166,7 @@ const BarcodeScanner = () => {
       if (data) {
         setProductInfo(data);
       }
-    } catch (error) {
-      console.error("Error fetching product info:", error);
+    } catch {
       setProductInfo({
         source: "Error",
         message: "Failed to fetch product information. Please try again.",

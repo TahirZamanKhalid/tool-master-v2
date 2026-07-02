@@ -232,8 +232,8 @@ const PremiumPlusUnitConverter = () => {
   };
 
   // Copy result
-  const copyResult = () => {
-    navigator.clipboard.writeText(result.toString());
+  const copyResult = async () => {
+    await navigator.clipboard.writeText(result.toString());
     toast({ title: "Result copied to clipboard!" });
   };
 

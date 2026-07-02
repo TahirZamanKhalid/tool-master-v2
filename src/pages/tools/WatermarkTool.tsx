@@ -1,4 +1,4 @@
-// pages/WatermarkTool.tsx
+﻿// pages/WatermarkTool.tsx
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -88,6 +88,10 @@ import { FixedSizeAd } from "@/components/FixedSizeAd";
 import { InFeedAd } from "@/components/InFeedAd";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import JSZip from "jszip";
+import { isRasterImageFile } from "@/utils/imageFiles";
+
+const MAX_WATERMARK_IMAGE_SIZE = 15 * 1024 * 1024;
+const SUPPORTED_WATERMARK_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/bmp"];
 
 // Types
 type WatermarkType = "text" | "image" | "shape";
@@ -153,7 +157,7 @@ interface ImageFile {
 // Default configuration
 const DEFAULT_CONFIG: WatermarkConfig = {
   type: "text",
-  text: "© Your Brand",
+  text: "(c) Your Brand",
   position: "bottom-right",
   customX: 50,
   customY: 50,
@@ -193,19 +197,19 @@ const BUILT_IN_PRESETS: Preset[] = [
     id: "photographer",
     name: "📸 Photographer",
     isBuiltIn: true,
-    config: { ...DEFAULT_CONFIG, text: "© Photo by You", opacity: 40, fontSize: 36, textShadow: true, textShadowBlur: 6 },
+    config: { ...DEFAULT_CONFIG, text: "(c) Photo by You", opacity: 40, fontSize: 36, textShadow: true, textShadowBlur: 6 },
   },
   {
     id: "business",
     name: "💼 Business",
     isBuiltIn: true,
-    config: { ...DEFAULT_CONFIG, text: "Your Company™", opacity: 60, fontSize: 42, background: true, backgroundPadding: 15 },
+    config: { ...DEFAULT_CONFIG, text: "Your Company TM", opacity: 60, fontSize: 42, background: true, backgroundPadding: 15 },
   },
   {
     id: "subtle",
     name: "👁 Subtle",
     isBuiltIn: true,
-    config: { ...DEFAULT_CONFIG, text: "©", opacity: 25, fontSize: 28 },
+    config: { ...DEFAULT_CONFIG, text: "(c)", opacity: 25, fontSize: 28 },
   },
   {
     id: "bold-red",
@@ -217,7 +221,7 @@ const BUILT_IN_PRESETS: Preset[] = [
     id: "tiled",
     name: "🔲 Tiled",
     isBuiltIn: true,
-    config: { ...DEFAULT_CONFIG, text: "©", position: "tiled", opacity: 15, fontSize: 48, rotation: -45 },
+    config: { ...DEFAULT_CONFIG, text: "(c)", position: "tiled", opacity: 15, fontSize: 48, rotation: -45 },
   },
   {
     id: "corner-logo",
@@ -240,6 +244,21 @@ const FONTS = [
   { value: "Lucida Console", label: "Lucida Console" },
   { value: "Comic Sans MS", label: "Comic Sans" },
 ];
+
+const getPresetDisplayName = (preset: Preset) => {
+  if (!preset.isBuiltIn) return preset.name;
+
+  const names: Record<string, string> = {
+    photographer: "Photographer",
+    business: "Business",
+    subtle: "Subtle",
+    "bold-red": "Bold Red",
+    tiled: "Tiled",
+    "corner-logo": "Corner Logo",
+  };
+
+  return names[preset.id] || preset.name;
+};
 
 // Ad slots
 const AD_SLOTS = {
@@ -447,15 +466,27 @@ const WatermarkTool = () => {
     }
   }, [currentImageIndex, images]);
 
+  const validateImageUpload = (file: File) => {
+    if (!isRasterImageFile(file, SUPPORTED_WATERMARK_TYPES)) {
+      toast.error("Please upload a JPG, PNG, WebP, or BMP image");
+      return false;
+    }
+
+    if (file.size > MAX_WATERMARK_IMAGE_SIZE) {
+      toast.error("Please upload an image smaller than 15 MB");
+      return false;
+    }
+
+    return true;
+  };
+
   // Handle single image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.currentTarget.value = "";
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file");
-      return;
-    }
+    if (!validateImageUpload(file)) return;
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -475,6 +506,7 @@ const WatermarkTool = () => {
         setActiveTab("edit");
         toast.success("Image loaded successfully!");
       };
+      img.onerror = () => toast.error("Could not load this image");
       img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
@@ -483,12 +515,19 @@ const WatermarkTool = () => {
   // Handle batch upload
   const handleBatchUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    e.currentTarget.value = "";
     if (files.length === 0) return;
 
-    const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+    const imageFiles = files.filter(
+      (file) => isRasterImageFile(file, SUPPORTED_WATERMARK_TYPES) && file.size <= MAX_WATERMARK_IMAGE_SIZE,
+    );
     if (imageFiles.length === 0) {
-      toast.error("No valid image files found");
+      toast.error("No valid image files found. Use JPG, PNG, WebP, or BMP under 15 MB.");
       return;
+    }
+
+    if (imageFiles.length !== files.length) {
+      toast.warning("Some unsupported or oversized files were skipped");
     }
 
     const newImages: ImageFile[] = [];
@@ -497,22 +536,34 @@ const WatermarkTool = () => {
     imageFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (event) => {
-        newImages.push({
-          id: `${Date.now()}-${Math.random()}`,
-          file,
-          preview: event.target?.result as string,
-          name: file.name,
-          size: file.size,
-          processed: false,
-        });
-        loaded++;
+        const img = new Image();
+        const finishFile = () => {
+          loaded++;
+          if (loaded === imageFiles.length) {
+            if (newImages.length === 0) {
+              toast.error("No readable images were found");
+              return;
+            }
+            setImages(newImages);
+            setCurrentImageIndex(0);
+            setActiveTab("edit");
+            toast.success(`${newImages.length} images loaded!`);
+          }
+        };
 
-        if (loaded === imageFiles.length) {
-          setImages(newImages);
-          setCurrentImageIndex(0);
-          setActiveTab("edit");
-          toast.success(`${imageFiles.length} images loaded!`);
-        }
+        img.onload = () => {
+          newImages.push({
+            id: `${Date.now()}-${Math.random()}`,
+            file,
+            preview: event.target?.result as string,
+            name: file.name,
+            size: file.size,
+            processed: false,
+          });
+          finishFile();
+        };
+        img.onerror = finishFile;
+        img.src = event.target?.result as string;
       };
       reader.readAsDataURL(file);
     });
@@ -521,7 +572,10 @@ const WatermarkTool = () => {
   // Handle watermark image upload
   const handleWatermarkImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.currentTarget.value = "";
     if (!file) return;
+
+    if (!validateImageUpload(file)) return;
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -530,6 +584,7 @@ const WatermarkTool = () => {
         setWatermarkImage(img);
         toast.success("Watermark image loaded!");
       };
+      img.onerror = () => toast.error("Could not load this watermark image");
       img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
@@ -897,10 +952,16 @@ const WatermarkTool = () => {
 
       // Load image
       const img = new Image();
-      await new Promise<void>((resolve) => {
-        img.onload = () => resolve();
+      const imageLoaded = await new Promise<boolean>((resolve) => {
+        img.onload = () => resolve(true);
+        img.onerror = () => resolve(false);
         img.src = imageFile.preview;
       });
+
+      if (!imageLoaded) {
+        setBatchProgress(((i + 1) / images.length) * 100);
+        continue;
+      }
 
       // Create temp canvas
       const tempCanvas = document.createElement("canvas");
@@ -927,15 +988,15 @@ const WatermarkTool = () => {
       tempCtx.restore();
 
       // Get blob
-      const blob = await new Promise<Blob>((resolve) => {
+      const blob = await new Promise<Blob | null>((resolve) => {
         const mimeType = exportFormat === "jpg" ? "image/jpeg" : `image/${exportFormat}`;
         const quality = exportFormat === "png" ? undefined : exportQuality / 100;
-        tempCanvas.toBlob((b) => resolve(b!), mimeType, quality);
+        tempCanvas.toBlob((b) => resolve(b), mimeType, quality);
       });
 
       // Add to zip
       const filename = `watermarked-${i + 1}.${exportFormat}`;
-      folder?.file(filename, blob);
+      if (blob) folder?.file(filename, blob);
 
       setBatchProgress(((i + 1) / images.length) * 100);
     }
@@ -957,7 +1018,7 @@ const WatermarkTool = () => {
   // Load preset
   const loadPreset = (preset: Preset) => {
     setConfig(preset.config);
-    toast.success(`Loaded: ${preset.name}`);
+    toast.success(`Loaded: ${getPresetDisplayName(preset)}`);
   };
 
   // Save preset
@@ -1140,7 +1201,7 @@ const WatermarkTool = () => {
                         <input
                           ref={fileInputRef}
                           type="file"
-                          accept="image/*"
+                          accept={SUPPORTED_WATERMARK_TYPES.join(",")}
                           onChange={handleImageUpload}
                           className="hidden"
                         />
@@ -1159,7 +1220,7 @@ const WatermarkTool = () => {
                         <input
                           ref={batchInputRef}
                           type="file"
-                          accept="image/*"
+                          accept={SUPPORTED_WATERMARK_TYPES.join(",")}
                           multiple
                           onChange={handleBatchUpload}
                           className="hidden"
@@ -1192,7 +1253,7 @@ const WatermarkTool = () => {
                             onClick={() => loadPreset(preset)}
                             className="text-xs justify-start"
                           >
-                            {preset.name}
+                            {getPresetDisplayName(preset)}
                           </Button>
                         ))}
                       </div>
@@ -1313,7 +1374,7 @@ const WatermarkTool = () => {
                                     <Input
                                       value={config.text}
                                       onChange={(e) => updateConfig({ text: e.target.value })}
-                                      placeholder="© Your Brand"
+                                      placeholder="(c) Your Brand"
                                       className="h-8 text-sm"
                                     />
                                   </div>
@@ -1387,7 +1448,7 @@ const WatermarkTool = () => {
                                     <input
                                       ref={watermarkInputRef}
                                       type="file"
-                                      accept="image/*"
+                                      accept={SUPPORTED_WATERMARK_TYPES.join(",")}
                                       onChange={handleWatermarkImageUpload}
                                       className="hidden"
                                     />
@@ -1436,7 +1497,7 @@ const WatermarkTool = () => {
                                         { value: "rectangle", icon: Square },
                                         { value: "circle", icon: Circle },
                                         { value: "triangle", icon: Triangle },
-                                        { value: "line", icon: () => <span>—</span> },
+                                        { value: "line", icon: () => <span>-</span> },
                                       ].map((shape) => (
                                         <Button
                                           key={shape.value}
@@ -1519,7 +1580,7 @@ const WatermarkTool = () => {
                               <div className="space-y-2">
                                 <div className="flex justify-between">
                                   <Label className="text-xs">Rotation</Label>
-                                  <span className="text-xs text-muted-foreground">{config.rotation}°</span>
+                                  <span className="text-xs text-muted-foreground">{config.rotation}deg</span>
                                 </div>
                                 <Slider
                                   value={[config.rotation]}
@@ -1744,7 +1805,7 @@ const WatermarkTool = () => {
                                       className="flex-1 justify-start text-xs h-7"
                                       onClick={() => loadPreset(preset)}
                                     >
-                                      {preset.name}
+                                      {getPresetDisplayName(preset)}
                                     </Button>
                                     {!preset.isBuiltIn && (
                                       <Button
@@ -1792,7 +1853,7 @@ const WatermarkTool = () => {
                             <span className="text-sm font-medium">Preview</span>
                             {originalImage && (
                               <Badge variant="outline" className="text-xs">
-                                {originalImage.width} × {originalImage.height}
+                                {originalImage.width}  x  {originalImage.height}
                               </Badge>
                             )}
                           </div>
@@ -1878,7 +1939,7 @@ const WatermarkTool = () => {
                         {config.position === "custom" && originalImage && (
                           <p className="text-xs text-muted-foreground text-center mt-2">
                             <Move className="h-3 w-3 inline mr-1" />
-                            Drag to position • Ctrl+Scroll to zoom • Arrow keys for precision
+                            Drag to position - Ctrl+Scroll to zoom - Arrow keys for precision
                           </p>
                         )}
                       </div>
@@ -2084,7 +2145,7 @@ const WatermarkTool = () => {
                   {[
                     { name: "Background Remover", path: "/tools/background-remover" },
                     { name: "Image Resizer", path: "/tools/image-resizer" },
-                    { name: "Image Converter", path: "/tools/image-converter" },
+                    { name: "Advanced Image Compressor", path: "/tools/advanced-image-compressor" },
                     { name: "Image Compressor", path: "/tools/advanced-image-compressor" },
                   ].map((tool) => (
                     <Link

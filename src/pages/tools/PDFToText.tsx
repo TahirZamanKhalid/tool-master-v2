@@ -118,8 +118,9 @@ const PDFToText = () => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    if (selectedFile.type !== "application/pdf") {
+    if (selectedFile.type !== "application/pdf" && !selectedFile.name.toLowerCase().endsWith(".pdf")) {
       toast.error("Please select a valid PDF file");
+      e.target.value = "";
       return;
     }
 
@@ -132,13 +133,14 @@ const PDFToText = () => {
     setExtractionResult(null);
     setCurrentPage(0);
     toast.success("PDF loaded successfully");
+    e.target.value = "";
   };
 
   // Handle drag and drop
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile?.type === "application/pdf") {
+    if (droppedFile && (droppedFile.type === "application/pdf" || droppedFile.name.toLowerCase().endsWith(".pdf"))) {
       setFile(droppedFile);
       setExtractionResult(null);
       setCurrentPage(0);
@@ -489,11 +491,11 @@ const PDFToText = () => {
                           What This Tool Extracts
                         </h4>
                         <ul className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-                          <li>✓ Text content with original positioning</li>
-                          <li>✓ Font families, sizes, and weights</li>
-                          <li>✓ Bold, italic, and other styles</li>
-                          <li>✓ Text colors (when available)</li>
-                          <li>✓ Document metadata</li>
+                          <li className="flex items-start gap-2"><Check className="mt-0.5 h-3 w-3 shrink-0" />Text content with original positioning</li>
+                          <li className="flex items-start gap-2"><Check className="mt-0.5 h-3 w-3 shrink-0" />Font families, sizes, and weights</li>
+                          <li className="flex items-start gap-2"><Check className="mt-0.5 h-3 w-3 shrink-0" />Bold, italic, and other styles</li>
+                          <li className="flex items-start gap-2"><Check className="mt-0.5 h-3 w-3 shrink-0" />Text colors when available</li>
+                          <li className="flex items-start gap-2"><Check className="mt-0.5 h-3 w-3 shrink-0" />Document metadata</li>
                         </ul>
                       </div>
                     </div>

@@ -67,8 +67,8 @@ const GPACalculator = () => {
         "View calculated GPA and credit totals"
       ]}
       relatedTools={[
-        { name: "Grade Calculator", path: "/tools/grade-calculator" },
-        { name: "Percentage Calculator", path: "/tools/percentage-calculator" }
+        { name: "Percentage Calculator", path: "/tools/percentage-calculator" },
+        { name: "Date Difference Calculator", path: "/tools/date-difference-calculator" }
       ]}
     >
       <div className="grid gap-6">
@@ -194,19 +194,19 @@ const GPACalculator = () => {
                 <h4 className="font-semibold text-sm mb-3">GPA Interpretation</h4>
                 <div className="space-y-2 text-sm">
                   {gpa >= (gradeScale === "4.0" ? 3.7 : 4.7) && (
-                    <p className="text-green-600 font-medium">🎉 Excellent! Summa Cum Laude</p>
+                    <p className="text-green-600 font-medium">Excellent! Summa Cum Laude</p>
                   )}
                   {gpa >= (gradeScale === "4.0" ? 3.3 : 4.3) && gpa < (gradeScale === "4.0" ? 3.7 : 4.7) && (
-                    <p className="text-blue-600 font-medium">✨ Very Good! Magna Cum Laude</p>
+                    <p className="text-blue-600 font-medium">Very Good! Magna Cum Laude</p>
                   )}
                   {gpa >= (gradeScale === "4.0" ? 3.0 : 4.0) && gpa < (gradeScale === "4.0" ? 3.3 : 4.3) && (
-                    <p className="text-primary font-medium">👍 Good! Cum Laude</p>
+                    <p className="text-primary font-medium">Good! Cum Laude</p>
                   )}
                   {gpa >= (gradeScale === "4.0" ? 2.0 : 3.0) && gpa < (gradeScale === "4.0" ? 3.0 : 4.0) && (
-                    <p className="text-orange-600 font-medium">📚 Satisfactory - Room for improvement</p>
+                    <p className="text-orange-600 font-medium">Satisfactory - Room for improvement</p>
                   )}
                   {gpa < (gradeScale === "4.0" ? 2.0 : 3.0) && gpa > 0 && (
-                    <p className="text-red-600 font-medium">⚠️ Needs Improvement - Seek academic support</p>
+                    <p className="text-red-600 font-medium">Needs Improvement - Seek academic support</p>
                   )}
                 </div>
               </div>

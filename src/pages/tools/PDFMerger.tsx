@@ -4,7 +4,7 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Upload, Download, FileDown, X } from "lucide-react";
+import { Upload, Download, FileDown, X, ArrowUp, ArrowDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PDFDocument } from "pdf-lib";
 import { AdWatchModal } from "@/components/AdWatchModal";
@@ -22,7 +22,7 @@ const PDFMerger = () => {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
-    const pdfFiles = selectedFiles.filter((file) => file.type === "application/pdf");
+    const pdfFiles = selectedFiles.filter((file) => file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf"));
 
     if (pdfFiles.length !== selectedFiles.length) {
       toast({
@@ -33,10 +33,22 @@ const PDFMerger = () => {
     }
 
     setFiles((prev) => [...prev, ...pdfFiles]);
+    e.target.value = "";
   };
 
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const moveFile = (index: number, direction: "up" | "down") => {
+    const nextIndex = direction === "up" ? index - 1 : index + 1;
+    if (nextIndex < 0 || nextIndex >= files.length) return;
+
+    setFiles((prev) => {
+      const next = [...prev];
+      [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+      return next;
+    });
   };
 
   const mergePDFs = async () => {
@@ -173,13 +185,34 @@ const PDFMerger = () => {
                         </p>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFile(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => moveFile(index, "up")}
+                        disabled={index === 0}
+                        title="Move up"
+                      >
+                        <ArrowUp className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => moveFile(index, "down")}
+                        disabled={index === files.length - 1}
+                        title="Move down"
+                      >
+                        <ArrowDown className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFile(index)}
+                        title="Remove file"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

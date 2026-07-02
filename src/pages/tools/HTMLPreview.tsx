@@ -15,7 +15,7 @@ const HTMLPreview = () => {
     <ToolLayout
       title="HTML Preview"
       description="Write HTML and see live preview"
-      category="Developer Tools"
+      category="SEO & Marketing"
     >
       <AdSpace size="leaderboard" className="mb-6" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

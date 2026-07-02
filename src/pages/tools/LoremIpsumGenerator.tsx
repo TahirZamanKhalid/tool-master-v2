@@ -44,22 +44,23 @@ const LoremIpsumGenerator = () => {
 
   const generate = () => {
     let result = "";
+    const safeCount = Math.max(1, Math.min(100, count || 1));
     
     if (type === "paragraphs") {
       const paragraphs = [];
-      for (let i = 0; i < count; i++) {
+      for (let i = 0; i < safeCount; i++) {
         paragraphs.push(generateParagraph());
       }
       result = paragraphs.join("\n\n");
     } else if (type === "sentences") {
       const sentences = [];
-      for (let i = 0; i < count; i++) {
+      for (let i = 0; i < safeCount; i++) {
         sentences.push(generateSentence());
       }
       result = sentences.join(" ");
     } else {
       const words = [];
-      for (let i = 0; i < count; i++) {
+      for (let i = 0; i < safeCount; i++) {
         words.push(loremWords[Math.floor(Math.random() * loremWords.length)]);
       }
       result = words.join(" ");
@@ -80,7 +81,7 @@ const LoremIpsumGenerator = () => {
       description="Generate placeholder text for your designs"
       category="Text Tools"
       relatedTools={[
-        { name: "Word Counter", path: "/tools/word-counter" },
+        { name: "Word Counter", path: "/tools/premium-plus-word-counter" },
         { name: "Case Converter", path: "/tools/case-converter" },
         { name: "Password Generator", path: "/tools/password-generator" }
       ]}
@@ -94,7 +95,7 @@ const LoremIpsumGenerator = () => {
             min="1"
             max="100"
             value={count}
-            onChange={(e) => setCount(parseInt(e.target.value) || 1)}
+            onChange={(e) => setCount(Math.max(1, Math.min(100, parseInt(e.target.value) || 1)))}
             className="mt-2"
           />
         </div>

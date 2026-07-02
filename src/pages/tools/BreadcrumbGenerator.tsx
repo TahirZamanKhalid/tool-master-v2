@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { List, Copy, Plus, Trash2 } from "lucide-react";
+import { escapeHtmlAttribute, escapeHtmlText, normalizeAbsoluteUrl } from "@/utils/seoTools";
 
 interface BreadcrumbItem {
   name: string;
@@ -38,7 +39,9 @@ const BreadcrumbGenerator = () => {
   };
 
   const generateBreadcrumb = () => {
-    const validItems = items.filter(item => item.name.trim() && item.url.trim());
+    const validItems = items
+      .map((item) => ({ name: item.name.trim(), url: normalizeAbsoluteUrl(item.url) }))
+      .filter(item => item.name && item.url);
 
     if (validItems.length < 2) {
       toast.error("Please add at least 2 breadcrumb items");
@@ -64,8 +67,8 @@ const BreadcrumbGenerator = () => {
       code = '<div itemscope itemtype="https://schema.org/BreadcrumbList">\n';
       validItems.forEach((item, index) => {
         code += `  <span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">\n`;
-        code += `    <a itemprop="item" href="${item.url}">\n`;
-        code += `      <span itemprop="name">${item.name}</span>\n`;
+        code += `    <a itemprop="item" href="${escapeHtmlAttribute(item.url)}">\n`;
+        code += `      <span itemprop="name">${escapeHtmlText(item.name)}</span>\n`;
         code += `    </a>\n`;
         code += `    <meta itemprop="position" content="${index + 1}" />\n`;
         if (index < validItems.length - 1) {
@@ -79,9 +82,9 @@ const BreadcrumbGenerator = () => {
       validItems.forEach((item, index) => {
         const isLast = index === validItems.length - 1;
         if (isLast) {
-          code += `    <li class="breadcrumb-item active" aria-current="page">${item.name}</li>\n`;
+          code += `    <li class="breadcrumb-item active" aria-current="page">${escapeHtmlText(item.name)}</li>\n`;
         } else {
-          code += `    <li class="breadcrumb-item"><a href="${item.url}">${item.name}</a></li>\n`;
+          code += `    <li class="breadcrumb-item"><a href="${escapeHtmlAttribute(item.url)}">${escapeHtmlText(item.name)}</a></li>\n`;
         }
       });
       code += '  </ol>\n</nav>';
@@ -102,7 +105,7 @@ const BreadcrumbGenerator = () => {
       description="Generate breadcrumb navigation with structured data for SEO. Create breadcrumb schema markup easily."
       category="SEO & Marketing"
       instructions={[
-        "Add breadcrumb items from top to bottom (Home → Category → Page)",
+        "Add breadcrumb items from top to bottom (Home > Category > Page)",
         "Enter name and URL for each item",
         "Select output format (JSON-LD, Microdata, or HTML)",
         "Generate and copy the code",
@@ -219,27 +222,27 @@ const BreadcrumbGenerator = () => {
             <h3 className="text-lg font-semibold mb-4">Breadcrumb Benefits</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Better UX:</strong> Help users understand site structure and navigate easily</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Rich snippets:</strong> Breadcrumbs can appear in Google search results</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Lower bounce rate:</strong> Easy navigation keeps users on your site</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Internal linking:</strong> Distributes page authority across your site</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Mobile friendly:</strong> Compact navigation perfect for small screens</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Accessibility:</strong> Screen reader support with proper ARIA labels</span>
               </li>
             </ul>

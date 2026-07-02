@@ -99,8 +99,7 @@ const fetchIPData = async (url: string): Promise<IPData> => {
         return data.data as IPData;
       }
     }
-  } catch (e) {
-    console.warn("PHP proxy unavailable for IP lookup:", e);
+  } catch {
   }
 
   // Try ip-api.com (HTTPS)
@@ -114,8 +113,7 @@ const fetchIPData = async (url: string): Promise<IPData> => {
     if (response.status === 403) {
       throw new Error("Rate limited by ip-api.com");
     }
-  } catch (e) {
-    console.warn("ip-api.com failed, trying alternative API:", e);
+  } catch {
   }
 
   // Fallback to ipwhois.app (CORS-friendly, 10k/month free tier)
@@ -148,8 +146,7 @@ const fetchIPData = async (url: string): Promise<IPData> => {
         continentCode: data.continent_code,
       } as IPData;
     }
-  } catch (e) {
-    console.warn("ipwhois.app fallback failed:", e);
+  } catch {
   }
 
   // Last resort: try HTTP ip-api.com (may work on localhost)

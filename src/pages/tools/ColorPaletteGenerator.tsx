@@ -28,7 +28,7 @@ const ColorPaletteGenerator = () => {
     <ToolLayout
       title="Color Palette Generator"
       description="Generate beautiful random color palettes"
-      category="Design Tools"
+      category="Image Tools"
     >
       <AdSpace size="leaderboard" className="mb-6" />
       <Card>

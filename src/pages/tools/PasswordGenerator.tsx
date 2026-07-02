@@ -10,6 +10,29 @@ import { Key, RefreshCw, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdRow } from "@/components/AdRow";
 
+const uppercaseCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const lowercaseCharacters = "abcdefghijklmnopqrstuvwxyz";
+const numberCharacters = "0123456789";
+const symbolCharacters = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+const getRandomInt = (max: number) => {
+  const limit = Math.floor(0xffffffff / max) * max;
+  const values = new Uint32Array(1);
+
+  do {
+    crypto.getRandomValues(values);
+  } while (values[0] >= limit);
+
+  return values[0] % max;
+};
+
+const shuffleCharacters = (characters: string[]) => {
+  for (let i = characters.length - 1; i > 0; i--) {
+    const j = getRandomInt(i + 1);
+    [characters[i], characters[j]] = [characters[j], characters[i]];
+  }
+};
+
 const PasswordGenerator = () => {
   const [password, setPassword] = useState("");
   const [length, setLength] = useState([16]);
@@ -21,11 +44,13 @@ const PasswordGenerator = () => {
   const { toast } = useToast();
 
   const generatePassword = () => {
-    let charset = "";
-    if (includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    if (includeLowercase) charset += "abcdefghijklmnopqrstuvwxyz";
-    if (includeNumbers) charset += "0123456789";
-    if (includeSymbols) charset += "!@#$%^&*()_+-=[]{}|;:,.<>?";
+    const groups = [
+      includeUppercase ? uppercaseCharacters : "",
+      includeLowercase ? lowercaseCharacters : "",
+      includeNumbers ? numberCharacters : "",
+      includeSymbols ? symbolCharacters : "",
+    ].filter(Boolean);
+    const charset = groups.join("");
 
     if (charset === "") {
       toast({
@@ -36,32 +61,42 @@ const PasswordGenerator = () => {
       return;
     }
 
-    let newPassword = "";
-    for (let i = 0; i < length[0]; i++) {
-      newPassword += charset.charAt(Math.floor(Math.random() * charset.length));
+    const chars = groups.map((group) => group[getRandomInt(group.length)]);
+
+    while (chars.length < length[0]) {
+      chars.push(charset[getRandomInt(charset.length)]);
     }
-    
-    setPassword(newPassword);
+
+    shuffleCharacters(chars);
+    setPassword(chars.join(""));
     setCopied(false);
   };
 
-  const copyToClipboard = () => {
+  const copyToClipboard = async () => {
     if (!password) return;
-    
-    navigator.clipboard.writeText(password);
-    setCopied(true);
-    
-    toast({
-      title: "Copied!",
-      description: "Password copied to clipboard",
-    });
 
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(password);
+      setCopied(true);
+
+      toast({
+        title: "Copied!",
+        description: "Password copied to clipboard",
+      });
+
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({
+        title: "Copy failed",
+        description: "Please copy the password manually",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStrength = () => {
     if (!password) return { text: "", color: "" };
-    
+
     let strength = 0;
     if (password.length >= 12) strength++;
     if (password.length >= 16) strength++;
@@ -89,7 +124,7 @@ const PasswordGenerator = () => {
           "Use for accounts, apps, and more",
         ]}
         relatedTools={[
-          { name: "MD5 Generator", path: "/tools/md5-generator" },
+          { name: "Hash Generator", path: "/tools/hash-generator" },
           { name: "Base64 Encoder", path: "/tools/base64-encoder" },
         ]}
       >
@@ -137,7 +172,7 @@ const PasswordGenerator = () => {
                 <Checkbox
                   id="uppercase"
                   checked={includeUppercase}
-                  onCheckedChange={(checked) => setIncludeUppercase(checked as boolean)}
+                  onCheckedChange={(checked) => setIncludeUppercase(Boolean(checked))}
                 />
                 <label htmlFor="uppercase" className="text-sm cursor-pointer">
                   Uppercase (A-Z)
@@ -148,7 +183,7 @@ const PasswordGenerator = () => {
                 <Checkbox
                   id="lowercase"
                   checked={includeLowercase}
-                  onCheckedChange={(checked) => setIncludeLowercase(checked as boolean)}
+                  onCheckedChange={(checked) => setIncludeLowercase(Boolean(checked))}
                 />
                 <label htmlFor="lowercase" className="text-sm cursor-pointer">
                   Lowercase (a-z)
@@ -159,7 +194,7 @@ const PasswordGenerator = () => {
                 <Checkbox
                   id="numbers"
                   checked={includeNumbers}
-                  onCheckedChange={(checked) => setIncludeNumbers(checked as boolean)}
+                  onCheckedChange={(checked) => setIncludeNumbers(Boolean(checked))}
                 />
                 <label htmlFor="numbers" className="text-sm cursor-pointer">
                   Numbers (0-9)
@@ -170,7 +205,7 @@ const PasswordGenerator = () => {
                 <Checkbox
                   id="symbols"
                   checked={includeSymbols}
-                  onCheckedChange={(checked) => setIncludeSymbols(checked as boolean)}
+                  onCheckedChange={(checked) => setIncludeSymbols(Boolean(checked))}
                 />
                 <label htmlFor="symbols" className="text-sm cursor-pointer">
                   Symbols (!@#$%^&*)

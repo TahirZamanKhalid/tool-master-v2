@@ -12,6 +12,7 @@ import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay";
+import { getVideoDownloadName, revokeMediaUrl, validateVideoFile } from "@/utils/videoFiles";
 
 interface VideoItem {
   id: string;
@@ -20,6 +21,28 @@ interface VideoItem {
   duration: number;
   name: string;
 }
+
+const readVideoDuration = (url: string) =>
+  new Promise<number>((resolve) => {
+    const video = document.createElement("video");
+    const finish = (duration: number) => {
+      video.onloadedmetadata = null;
+      video.onerror = null;
+      resolve(Number.isFinite(duration) && duration > 0 ? duration : 0);
+    };
+
+    const timeout = window.setTimeout(() => finish(0), 5000);
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      window.clearTimeout(timeout);
+      finish(video.duration);
+    };
+    video.onerror = () => {
+      window.clearTimeout(timeout);
+      finish(0);
+    };
+    video.src = url;
+  });
 
 const PremiumVideoMerger = () => {
   const { toast } = useToast();
@@ -32,18 +55,31 @@ const PremiumVideoMerger = () => {
 
   const ffmpegRef = useRef(new FFmpeg());
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videosRef = useRef<VideoItem[]>([]);
+  const outputUrlRef = useRef("");
 
   useEffect(() => {
     loadFFmpeg();
   }, []);
 
+  useEffect(() => {
+    videosRef.current = videos;
+  }, [videos]);
+
+  useEffect(() => {
+    outputUrlRef.current = outputUrl;
+  }, [outputUrl]);
+
+  useEffect(() => {
+    return () => {
+      videosRef.current.forEach((video) => revokeMediaUrl(video.url));
+      revokeMediaUrl(outputUrlRef.current);
+    };
+  }, []);
+
   const loadFFmpeg = async () => {
     try {
       const ffmpeg = ffmpegRef.current;
-
-      ffmpeg.on('log', ({ message }) => {
-        console.log(message);
-      });
 
       ffmpeg.on('progress', ({ progress }) => {
         setProcessingProgress(Math.round(progress * 100));
@@ -57,8 +93,7 @@ const PremiumVideoMerger = () => {
 
       setFfmpegLoaded(true);
       toast({ title: "Video merger ready!" });
-    } catch (error) {
-      console.error('Failed to load FFmpeg:', error);
+    } catch {
       toast({ 
         title: "Failed to load merger", 
         description: "Please refresh the page and try again.",
@@ -71,7 +106,7 @@ const PremiumVideoMerger = () => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    const validVideos = files.filter(file => file.type.startsWith('video/'));
+    const validVideos = files.filter(file => !validateVideoFile(file));
     if (validVideos.length === 0) {
       toast({ title: "Please upload video files", variant: "destructive" });
       return;
@@ -81,14 +116,11 @@ const PremiumVideoMerger = () => {
 
     for (const file of validVideos) {
       const url = URL.createObjectURL(file);
-      const video = document.createElement('video');
-      video.src = url;
-
-      const duration = await new Promise<number>((resolve) => {
-        video.onloadedmetadata = () => {
-          resolve(video.duration);
-        };
-      });
+      const duration = await readVideoDuration(url);
+      if (duration <= 0) {
+        revokeMediaUrl(url);
+        continue;
+      }
 
       newVideos.push({
         id: Math.random().toString(36).substring(7),
@@ -99,14 +131,24 @@ const PremiumVideoMerger = () => {
       });
     }
 
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (newVideos.length === 0) {
+      toast({ title: "Could not read video duration", variant: "destructive" });
+      return;
+    }
+
     setVideos(prev => [...prev, ...newVideos]);
-    toast({ title: `${newVideos.length} video(s) added!` });
+    const skippedCount = files.length - newVideos.length;
+    toast({
+      title: `${newVideos.length} video(s) added!`,
+      description: skippedCount > 0 ? `${skippedCount} file(s) were skipped.` : undefined,
+    });
   };
 
   const removeVideo = (id: string) => {
     setVideos(prev => {
       const removed = prev.find(v => v.id === id);
-      if (removed) URL.revokeObjectURL(removed.url);
+      if (removed) revokeMediaUrl(removed.url);
       return prev.filter(v => v.id !== id);
     });
   };
@@ -164,17 +206,18 @@ const PremiumVideoMerger = () => {
         '-safe', '0',
         '-i', 'concat.txt',
         '-c', 'copy', // Copy streams without re-encoding
+        '-y',
         'output.mp4'
       ]);
 
       const data = await ffmpeg.readFile('output.mp4');
       const blob = new Blob([data as BlobPart], { type: 'video/mp4' });
+      revokeMediaUrl(outputUrl);
       const url = URL.createObjectURL(blob);
 
       setOutputUrl(url);
       toast({ title: "Videos merged successfully!" });
-    } catch (error) {
-      console.error('Error merging videos:', error);
+    } catch {
       toast({ 
         title: "Failed to merge videos", 
         description: "Please ensure all videos are valid MP4 files",
@@ -191,7 +234,7 @@ const PremiumVideoMerger = () => {
 
     const link = document.createElement('a');
     link.href = outputUrl;
-    link.download = `merged-video-${Date.now()}.mp4`;
+    link.download = getVideoDownloadName("merged", videos[0]?.file, "mp4");
     link.click();
     toast({ title: "Downloading merged video..." });
   };
@@ -201,8 +244,9 @@ const PremiumVideoMerger = () => {
   };
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
+    const safeSeconds = Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+    const mins = Math.floor(safeSeconds / 60);
+    const secs = Math.floor(safeSeconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 

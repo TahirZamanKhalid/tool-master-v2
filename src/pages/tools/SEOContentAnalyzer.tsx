@@ -20,6 +20,8 @@ interface AnalysisResult {
   recommendations: string[];
 }
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const SEOContentAnalyzer = () => {
   const [title, setTitle] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
@@ -29,6 +31,7 @@ const SEOContentAnalyzer = () => {
 
   const analyzeContent = () => {
     if (!content.trim()) {
+      setAnalysis(null);
       toast.error("Please enter content to analyze");
       return;
     }
@@ -76,7 +79,8 @@ const SEOContentAnalyzer = () => {
     if (focusKeyword.trim()) {
       const keyword = focusKeyword.toLowerCase();
       const contentLower = content.toLowerCase();
-      const keywordCount = (contentLower.match(new RegExp(keyword, "g")) || []).length;
+      const keywordPattern = new RegExp(`\\b${escapeRegExp(keyword)}\\b`, "g");
+      const keywordCount = (contentLower.match(keywordPattern) || []).length;
       keywordDensity = (keywordCount / wordCount) * 100;
 
       if (keywordCount === 0) {
@@ -350,23 +354,23 @@ const SEOContentAnalyzer = () => {
             <h3 className="text-lg font-semibold mb-4">SEO Content Best Practices</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Quality over quantity:</strong> Focus on comprehensive, valuable content</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Keyword placement:</strong> Include keywords naturally in title, headings, and first paragraph</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Structure:</strong> Use clear heading hierarchy (H1, H2, H3)</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Readability:</strong> Write for humans first, search engines second</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Links:</strong> Include relevant internal and external links</span>
               </li>
             </ul>

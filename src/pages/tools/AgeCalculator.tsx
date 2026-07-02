@@ -5,16 +5,48 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AdRow } from "@/components/AdRow";
+import { toast } from "sonner";
+
+interface AgeResult {
+  years: number;
+  months: number;
+  days: number;
+  totalDays: number;
+}
+
+const getTodayInputValue = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const parseDateInput = (value: string) => {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
 
 const AgeCalculator = () => {
   const [birthDate, setBirthDate] = useState("");
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<AgeResult | null>(null);
 
   const calculateAge = () => {
-    if (!birthDate) return;
+    if (!birthDate) {
+      setResult(null);
+      toast.error("Please select a birth date");
+      return;
+    }
 
-    const birth = new Date(birthDate);
+    const birth = parseDateInput(birthDate);
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (Number.isNaN(birth.getTime()) || birth > today) {
+      setResult(null);
+      toast.error("Birth date cannot be in the future");
+      return;
+    }
 
     let years = today.getFullYear() - birth.getFullYear();
     let months = today.getMonth() - birth.getMonth();
@@ -49,6 +81,7 @@ const AgeCalculator = () => {
               type="date"
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
+              max={getTodayInputValue()}
             />
           </div>
           <Button onClick={calculateAge} className="w-full">

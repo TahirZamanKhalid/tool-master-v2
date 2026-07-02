@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Search, Copy, TrendingUp } from "lucide-react";
+import { getSafeFileSegment } from "@/utils/seoTools";
 
 const KeywordResearchTool = () => {
   const [seedKeyword, setSeedKeyword] = useState("");
@@ -17,7 +18,8 @@ const KeywordResearchTool = () => {
   const modifiers = ["best", "top", "free", "cheap", "affordable", "professional", "easy", "quick", "ultimate", "complete", "advanced"];
   const suffixes = ["guide", "tutorial", "tips", "examples", "tools", "software", "app", "service", "solution", "review", "comparison", "alternative"];
   const prepositions = ["for", "with", "without", "near", "in", "on", "to", "from"];
-  const years = ["2024", "2025"];
+  const currentYear = new Date().getFullYear();
+  const years = [String(currentYear), String(currentYear + 1)];
 
   const generateKeywords = () => {
     if (!seedKeyword.trim()) {
@@ -132,20 +134,22 @@ const KeywordResearchTool = () => {
     return ranges[Math.floor(Math.random() * ranges.length)];
   };
 
-  const copyKeyword = (keyword: string) => {
-    navigator.clipboard.writeText(keyword);
+  const copyKeyword = async (keyword: string) => {
+    await navigator.clipboard.writeText(keyword);
     toast.success(`Copied: ${keyword}`);
   };
 
   const exportKeywords = () => {
+    const csvEscape = (value: string) => `"${value.replace(/"/g, '""')}"`;
     const csv = "Keyword,Type,Estimated Volume\n" +
-      keywords.map(k => `"${k.keyword}","${k.type}","${k.volume}"`).join("\n");
+      keywords.map(k => [k.keyword, k.type, k.volume].map(csvEscape).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `keywords-${seedKeyword}-${Date.now()}.csv`;
+    a.download = `keywords-${getSafeFileSegment(seedKeyword)}-${Date.now()}.csv`;
     a.click();
+    URL.revokeObjectURL(url);
     toast.success("Keywords exported to CSV!");
   };
 
@@ -253,23 +257,23 @@ const KeywordResearchTool = () => {
             <h3 className="text-lg font-semibold mb-4">Keyword Research Tips</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Long-tail keywords:</strong> 3-5 word phrases with lower competition</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Search intent:</strong> Match keywords to user intent (informational, commercial, navigational)</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Competition:</strong> Target keywords with manageable competition for your domain authority</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Relevance:</strong> Choose keywords highly relevant to your content and audience</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Volume estimates:</strong> Shown volumes are indicative; verify with Google Keyword Planner</span>
               </li>
             </ul>

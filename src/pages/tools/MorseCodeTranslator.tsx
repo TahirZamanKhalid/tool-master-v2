@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { ArrowRightLeft } from "lucide-react";
+import { ArrowRightLeft, Copy } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
 
 const morseCode: Record<string, string> = {
@@ -56,6 +56,11 @@ const MorseCodeTranslator = () => {
     setOutput(input);
   };
 
+  const copyOutput = () => {
+    navigator.clipboard.writeText(output);
+    toast.success("Copied to clipboard");
+  };
+
   return (
     <>
       <SEOHead
@@ -101,7 +106,15 @@ const MorseCodeTranslator = () => {
             </Button>
 
             <div>
-              <h3 className="font-semibold mb-2">{mode === 'encode' ? 'Morse Code' : 'Text'}</h3>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold">{mode === 'encode' ? 'Morse Code' : 'Text'}</h3>
+                {output && (
+                  <Button onClick={copyOutput} variant="outline" size="sm">
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy
+                  </Button>
+                )}
+              </div>
               <Textarea
                 value={output}
                 readOnly

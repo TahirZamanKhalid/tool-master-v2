@@ -30,7 +30,7 @@ const PDFCompressor = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.type === "application/pdf") {
+    if (selectedFile && (selectedFile.type === "application/pdf" || selectedFile.name.toLowerCase().endsWith(".pdf"))) {
       setFile(selectedFile);
       setOriginalSize(selectedFile.size);
       setCompressedSize(0);
@@ -38,6 +38,7 @@ const PDFCompressor = () => {
     } else {
       toast.error("Please select a valid PDF file");
     }
+    e.target.value = "";
   };
 
   const compressPDF = async () => {
@@ -81,8 +82,12 @@ const PDFCompressor = () => {
       link.download = `compressed_${file.name}`;
       link.click();
 
-      const savings = ((1 - blob.size / originalSize) * 100).toFixed(1);
-      toast.success(`PDF optimized! Reduced by ${savings}%`);
+      const savings = (1 - blob.size / originalSize) * 100;
+      if (savings > 0) {
+        toast.success(`PDF optimized! Reduced by ${savings.toFixed(1)}%`);
+      } else {
+        toast.success("PDF optimized. This file was already compact, so the size did not reduce.");
+      }
     } catch (error) {
       console.error("Error optimizing PDF:", error);
       toast.error("Failed to optimize PDF");
@@ -183,10 +188,10 @@ const PDFCompressor = () => {
                       Basic (Maximum optimization) - Free
                     </SelectItem>
                     <SelectItem value="medium">
-                      Standard (Balanced) - {adWatchedForQuality && (quality === "medium" || quality === "high") ? "Unlocked ✓" : "Watch Ad 📺"}
+                      Standard (Balanced) - {adWatchedForQuality && (quality === "medium" || quality === "high") ? "Unlocked" : "Watch Ad"}
                     </SelectItem>
                     <SelectItem value="high">
-                      Premium (Best quality) - {adWatchedForQuality && (quality === "medium" || quality === "high") ? "Unlocked ✓" : "Watch Ad 📺"}
+                      Premium (Best quality) - {adWatchedForQuality && (quality === "medium" || quality === "high") ? "Unlocked" : "Watch Ad"}
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -206,9 +211,11 @@ const PDFCompressor = () => {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm font-semibold">
-                  <span>Size Reduction:</span>
-                  <span className="text-green-600">
-                    {((1 - compressedSize / originalSize) * 100).toFixed(1)}%
+                  <span>Size Change:</span>
+                  <span className={compressedSize <= originalSize ? "text-green-600" : "text-amber-600"}>
+                    {compressedSize <= originalSize
+                      ? `${((1 - compressedSize / originalSize) * 100).toFixed(1)}% smaller`
+                      : `${((compressedSize / originalSize - 1) * 100).toFixed(1)}% larger`}
                   </span>
                 </div>
               </div>
@@ -237,8 +244,8 @@ const PDFCompressor = () => {
           </Button>
 
           <div className="text-xs text-muted-foreground space-y-1">
-            <p>💡 All optimization happens locally in your browser - your files never leave your device</p>
-            <p>ℹ️ This tool optimizes PDF structure for smaller file size. Results vary based on PDF content and complexity.</p>
+            <p><strong>Tip:</strong> All optimization happens locally in your browser - your files never leave your device.</p>
+            <p><strong>Note:</strong> This tool optimizes PDF structure for smaller file size. Results vary based on PDF content and complexity.</p>
           </div>
         </CardContent>
       </Card>

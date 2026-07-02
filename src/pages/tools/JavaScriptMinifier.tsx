@@ -6,68 +6,42 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Copy, Minimize2 } from "lucide-react";
 import { toast } from "sonner";
+import { formatBytes, getSizeStats } from "@/utils/developerText";
 
 const JavaScriptMinifier = () => {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [stats, setStats] = useState({ original: 0, minified: 0, saved: 0 });
 
-  const minifyJS = (js: string): string => {
-    return js
-      // Remove single-line comments
-      .replace(/\/\/.*$/gm, "")
-      // Remove multi-line comments
-      .replace(/\/\*[\s\S]*?\*\//g, "")
-      // Remove whitespace at the beginning and end of lines
-      .replace(/^\s+|\s+$/gm, "")
-      // Remove line breaks
-      .replace(/\n/g, "")
-      // Remove extra spaces
-      .replace(/\s+/g, " ")
-      // Remove spaces around operators and punctuation
-      .replace(/\s*([=+\-*/<>!&|%^~?:,;{}()\[\]])\s*/g, "$1")
-      // Add back space after keywords
-      .replace(/(return|var|let|const|if|else|for|while|function|class|new)\(/g, "$1 (")
-      .trim();
-  };
-
-  const handleMinify = () => {
+  const handleMinify = async () => {
     if (!input.trim()) {
       toast.error("Please enter JavaScript code to minify");
       return;
     }
 
     try {
-      const minified = minifyJS(input);
-      setOutput(minified);
-
-      const originalSize = new Blob([input]).size;
-      const minifiedSize = new Blob([minified]).size;
-      const savedPercent = ((originalSize - minifiedSize) / originalSize * 100).toFixed(2);
-
-      setStats({
-        original: originalSize,
-        minified: minifiedSize,
-        saved: parseFloat(savedPercent),
+      const { minify } = await import("terser");
+      const result = await minify(input, {
+        compress: true,
+        mangle: true,
+        format: { comments: false },
       });
+      const minified = result.code || "";
+      if (!minified) {
+        throw new Error("No output was generated");
+      }
+      setOutput(minified);
+      setStats(getSizeStats(input, minified));
 
       toast.success("JavaScript minified successfully");
     } catch (error) {
-      toast.error("Error minifying JavaScript");
+      toast.error(error instanceof Error ? error.message : "Error minifying JavaScript");
     }
   };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(output);
     toast.success("Minified JavaScript copied to clipboard");
-  };
-
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   return (

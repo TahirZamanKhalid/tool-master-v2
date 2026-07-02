@@ -4,34 +4,40 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { AdSpace } from "@/components/AdSpace";
+import { toast } from "sonner";
+import { Copy } from "lucide-react";
+import { decodeHtmlEntities, encodeHtmlEntities } from "@/utils/textTools";
 
 const HTMLEntityEncoder = () => {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
 
   const encode = () => {
-    setOutput(input
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;"));
+    if (!input) {
+      toast.error("Please enter text");
+      return;
+    }
+    setOutput(encodeHtmlEntities(input));
   };
 
   const decode = () => {
-    setOutput(input
-      .replace(/&amp;/g, "&")
-      .replace(/&lt;/g, "<")
-      .replace(/&gt;/g, ">")
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'"));
+    if (!input) {
+      toast.error("Please enter text");
+      return;
+    }
+    setOutput(decodeHtmlEntities(input));
+  };
+
+  const copy = () => {
+    navigator.clipboard.writeText(output);
+    toast.success("Copied to clipboard");
   };
 
   return (
     <ToolLayout
       title="HTML Entity Encoder/Decoder"
       description="Encode and decode HTML entities"
-      category="Developer Tools"
+      category="Text Tools"
     >
       <AdSpace size="leaderboard" className="mb-6" />
       <Card>
@@ -46,7 +52,15 @@ const HTMLEntityEncoder = () => {
             <Button onClick={encode}>Encode</Button>
             <Button onClick={decode} variant="outline">Decode</Button>
           </div>
-          {output && <Textarea value={output} readOnly rows={6} />}
+          {output && (
+            <>
+              <Textarea value={output} readOnly rows={6} />
+              <Button onClick={copy} variant="outline" className="w-full">
+                <Copy className="h-4 w-4 mr-2" />
+                Copy
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
     </ToolLayout>

@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Clock } from "lucide-react";
 
+const AD_WAIT_SECONDS = 15;
+
 interface AdWatchModalProps {
   isOpen?: boolean;
   open?: boolean;
@@ -43,7 +45,7 @@ export const AdWatchModal = ({
 
   useEffect(() => {
     if (modalOpen) {
-      setCountdown(15);
+      setCountdown(AD_WAIT_SECONDS);
       setAdLoaded(false);
       setAdFailed(false);
 
@@ -93,7 +95,7 @@ export const AdWatchModal = ({
     handleClose();
   };
 
-  const progress = ((5 - countdown) / 5) * 100;
+  const progress = ((AD_WAIT_SECONDS - countdown) / AD_WAIT_SECONDS) * 100;
 
   return (
     <Dialog open={modalOpen} onOpenChange={(open) => !open && handleClose()}>

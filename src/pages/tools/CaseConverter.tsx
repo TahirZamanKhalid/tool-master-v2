@@ -6,41 +6,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Copy, Type } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  toCamelCaseText,
+  toKebabCaseText,
+  toSentenceCaseText,
+  toSnakeCaseText,
+  toTitleCaseText,
+} from "@/utils/textTools";
 
 const CaseConverter = () => {
   const [input, setInput] = useState("");
   const [results, setResults] = useState<Record<string, string>>({});
   const { toast } = useToast();
-
-  const toTitleCase = (str: string): string => {
-    return str.toLowerCase().replace(/(?:^|\s)\w/g, (match) => match.toUpperCase());
-  };
-
-  const toSentenceCase = (str: string): string => {
-    return str.toLowerCase().replace(/(^\w|\.\s+\w)/g, (match) => match.toUpperCase());
-  };
-
-  const toCamelCase = (str: string): string => {
-    return str
-      .toLowerCase()
-      .replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase());
-  };
-
-  const toSnakeCase = (str: string): string => {
-    return str
-      .replace(/\s+/g, '_')
-      .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
-      .replace(/^_/, '')
-      .toLowerCase();
-  };
-
-  const toKebabCase = (str: string): string => {
-    return str
-      .replace(/\s+/g, '-')
-      .replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)
-      .replace(/^-/, '')
-      .toLowerCase();
-  };
 
   const handleConvert = () => {
     if (!input) {
@@ -55,11 +32,11 @@ const CaseConverter = () => {
     setResults({
       'UPPERCASE': input.toUpperCase(),
       'lowercase': input.toLowerCase(),
-      'Title Case': toTitleCase(input),
-      'Sentence case': toSentenceCase(input),
-      'camelCase': toCamelCase(input),
-      'snake_case': toSnakeCase(input),
-      'kebab-case': toKebabCase(input),
+      'Title Case': toTitleCaseText(input),
+      'Sentence case': toSentenceCaseText(input),
+      'camelCase': toCamelCaseText(input),
+      'snake_case': toSnakeCaseText(input),
+      'kebab-case': toKebabCaseText(input),
     });
 
     toast({
@@ -87,7 +64,7 @@ const CaseConverter = () => {
         "Copy the case style you need"
       ]}
       relatedTools={[
-        { name: "Word Counter", path: "/tools/word-counter" },
+        { name: "Word Counter", path: "/tools/premium-plus-word-counter" },
         { name: "URL Encoder", path: "/tools/url-encoder" },
         { name: "Base64 Encoder", path: "/tools/base64-encoder" },
       ]}

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download, Copy, Check, FileCode } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { escapeXml, normalizeAbsoluteUrl } from "@/utils/seoTools";
 
 interface URLEntry {
   loc: string;
@@ -32,18 +33,47 @@ const XMLSitemapGenerator = () => {
       return;
     }
 
+    const baseUrl = normalizeAbsoluteUrl(domain);
+    if (!baseUrl) {
+      toast({
+        title: "Invalid domain",
+        description: "Please enter a valid domain such as https://example.com",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const urlList = urls.split("\n").filter((url) => url.trim());
     const today = new Date().toISOString().split("T")[0];
+    const validUrls: string[] = [];
+
+    urlList.forEach((url) => {
+      const cleanUrl = url.trim();
+      try {
+        const fullUrl = /^https?:\/\//i.test(cleanUrl)
+          ? normalizeAbsoluteUrl(cleanUrl)
+          : new URL(cleanUrl.startsWith("/") ? cleanUrl : `/${cleanUrl}`, baseUrl).toString();
+        if (fullUrl) validUrls.push(fullUrl);
+      } catch {
+        // Skip invalid lines but keep processing the rest.
+      }
+    });
+
+    if (validUrls.length === 0) {
+      toast({
+        title: "No valid URLs",
+        description: "Please enter at least one valid page path or URL",
+        variant: "destructive",
+      });
+      return;
+    }
     
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
-    urlList.forEach((url) => {
-      const cleanUrl = url.trim();
-      const fullUrl = cleanUrl.startsWith("http") ? cleanUrl : `${domain}${cleanUrl}`;
-      
+    validUrls.forEach((fullUrl) => {
       xml += '  <url>\n';
-      xml += `    <loc>${fullUrl}</loc>\n`;
+      xml += `    <loc>${escapeXml(fullUrl)}</loc>\n`;
       xml += `    <lastmod>${today}</lastmod>\n`;
       xml += '    <changefreq>weekly</changefreq>\n';
       xml += '    <priority>0.8</priority>\n';

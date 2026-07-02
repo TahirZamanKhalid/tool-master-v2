@@ -10,6 +10,29 @@ import { toast } from "sonner";
 import { Copy, RefreshCw, Check } from "lucide-react";
 import { AdRow } from "@/components/AdRow";
 
+const lowercaseCharacters = "abcdefghijklmnopqrstuvwxyz";
+const uppercaseCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const numberCharacters = "0123456789";
+const symbolCharacters = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+const getRandomInt = (max: number) => {
+  const limit = Math.floor(0xffffffff / max) * max;
+  const values = new Uint32Array(1);
+
+  do {
+    crypto.getRandomValues(values);
+  } while (values[0] >= limit);
+
+  return values[0] % max;
+};
+
+const shuffleCharacters = (characters: string[]) => {
+  for (let i = characters.length - 1; i > 0; i--) {
+    const j = getRandomInt(i + 1);
+    [characters[i], characters[j]] = [characters[j], characters[i]];
+  }
+};
+
 const AdvancedPasswordGenerator = () => {
   const [password, setPassword] = useState("");
   const [length, setLength] = useState(16);
@@ -22,58 +45,75 @@ const AdvancedPasswordGenerator = () => {
   const [quantity, setQuantity] = useState(1);
   const [passwords, setPasswords] = useState<string[]>([]);
   const [copied, setCopied] = useState<number | null>(null);
+  const [copiedMain, setCopiedMain] = useState(false);
+
+  const applyExclusions = (characters: string) => {
+    let filtered = characters;
+
+    if (excludeSimilar) {
+      filtered = filtered.replace(/[il1Lo0O]/g, "");
+    }
+
+    if (excludeAmbiguous) {
+      filtered = filtered.replace(/[{}\[\]()\/<>]/g, "");
+    }
+
+    return filtered;
+  };
 
   const generatePassword = () => {
-    let charset = "";
+    const groups = [
+      includeLowercase ? applyExclusions(lowercaseCharacters) : "",
+      includeUppercase ? applyExclusions(uppercaseCharacters) : "",
+      includeNumbers ? applyExclusions(numberCharacters) : "",
+      includeSymbols ? applyExclusions(symbolCharacters) : "",
+    ].filter(Boolean);
+    const charset = groups.join("");
 
-    if (includeLowercase) charset += "abcdefghijklmnopqrstuvwxyz";
-    if (includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    if (includeNumbers) charset += "0123456789";
-    if (includeSymbols) charset += "!@#$%^&*()_+-=[]{}|;:,.<>?";
-
-    // Exclude similar characters if requested
-    if (excludeSimilar) {
-      charset = charset.replace(/[il1Lo0O]/g, '');
-    }
-
-    // Exclude ambiguous symbols if requested
-    if (excludeAmbiguous) {
-      charset = charset.replace(/[{}[\]()\/<>]/g, '');
-    }
-
-    if (!charset) {
+    if (!charset || groups.length === 0) {
       toast.error("Please select at least one character type");
-      return "";
+      return null;
     }
 
-    let result = "";
-    const values = new Uint32Array(length);
-    window.crypto.getRandomValues(values);
+    const result = groups.map((group) => group[getRandomInt(group.length)]);
 
-    for (let i = 0; i < length; i++) {
-      result += charset[values[i] % charset.length];
+    while (result.length < length) {
+      result.push(charset[getRandomInt(charset.length)]);
     }
 
-    return result;
+    shuffleCharacters(result);
+    return result.join("");
   };
 
   const handleGenerate = () => {
     const newPasswords: string[] = [];
     for (let i = 0; i < quantity; i++) {
-      newPasswords.push(generatePassword());
+      const generated = generatePassword();
+      if (!generated) return;
+      newPasswords.push(generated);
     }
     setPasswords(newPasswords);
     setPassword(newPasswords[0]);
     setCopied(null);
+    setCopiedMain(false);
   };
 
-  const copyToClipboard = (pwd: string, index?: number) => {
-    navigator.clipboard.writeText(pwd);
-    if (index !== undefined) {
-      setCopied(index);
-      setTimeout(() => setCopied(null), 2000);
+  const copyToClipboard = async (pwd: string, index?: number) => {
+    try {
+      await navigator.clipboard.writeText(pwd);
+
+      if (index !== undefined) {
+        setCopied(index);
+        setTimeout(() => setCopied(null), 2000);
+      } else {
+        setCopiedMain(true);
+        setTimeout(() => setCopiedMain(false), 2000);
+      }
+
+      toast.success("Password copied to clipboard!");
+    } catch {
+      toast.error("Copy failed. Please copy the password manually.");
     }
-    toast.success("Password copied to clipboard!");
   };
 
   const getPasswordStrength = (pwd: string): { text: string; color: string; score: number } => {

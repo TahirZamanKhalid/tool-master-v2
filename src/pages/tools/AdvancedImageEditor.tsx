@@ -1,4 +1,4 @@
-import {
+﻿import {
   useCallback,
   useEffect,
   useMemo,
@@ -35,7 +35,7 @@ type ImageMeta = {
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
 
-const PAGE_TITLE = "Advanced Image Editor – Edit, Adjust and Download Images Online";
+const PAGE_TITLE = "Advanced Image Editor - Edit, Adjust and Download Images Online";
 const PAGE_DESCRIPTION =
   "Use this advanced image editor to upload, adjust, enhance, and download images online. Fast, browser-based editing with a full-featured canvas editor.";
 
@@ -76,7 +76,7 @@ const AdvancedImageEditor = () => {
   const [isDragActive, setIsDragActive] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // FIX: single file input ref — no duplicates
+  // Single file input ref, no duplicates.
   const fileInputRef = useRef<HTMLInputElement>(null);
   const objectUrlRef = useRef<string | null>(null);
 
@@ -252,7 +252,7 @@ const AdvancedImageEditor = () => {
           </ol>
         </nav>
 
-        {/* Hidden file input — single instance */}
+        {/* Hidden file input, single instance */}
         <input
           ref={fileInputRef}
           type="file"
@@ -313,7 +313,7 @@ const AdvancedImageEditor = () => {
                       {imageMeta
                         ? `${formatBytes(imageMeta.size)}${
                             imageMeta.width && imageMeta.height
-                              ? ` · ${imageMeta.width} × ${imageMeta.height} px`
+                              ? ` - ${imageMeta.width} x ${imageMeta.height} px`
                               : ""
                           }`
                         : "Ready for editing"}
@@ -383,8 +383,8 @@ const AdvancedImageEditor = () => {
                   <dt className="text-xs text-muted-foreground">Dimensions</dt>
                   <dd className="font-medium">
                     {imageMeta.width && imageMeta.height
-                      ? `${imageMeta.width} × ${imageMeta.height} px`
-                      : "—"}
+                      ? `${imageMeta.width}  x  ${imageMeta.height} px`
+                      : "-"}
                   </dd>
                 </div>
               </dl>
@@ -439,7 +439,7 @@ const AdvancedImageEditor = () => {
               className="flex h-[90px] w-full max-w-[728px] items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 text-xs text-muted-foreground"
             >
               <span className="mr-2 text-[10px] uppercase tracking-widest opacity-50">Advertisement</span>
-              <span className="opacity-40">728 × 90</span>
+              <span className="opacity-40">728  x  90</span>
             </div>
           </div>
         </div>

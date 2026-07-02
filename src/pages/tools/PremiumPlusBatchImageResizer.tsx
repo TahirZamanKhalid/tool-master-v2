@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Images, Download, X, Upload, Sparkles, Settings, Zap, Check } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import JSZip from "jszip";
+import { getOutputExtension, getSafeFileStem, isRasterImageFile } from "@/utils/imageFiles";
+
+const MAX_IMAGE_SIZE = 15 * 1024 * 1024;
+const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 interface ImageFile {
   id: string;
@@ -49,17 +53,43 @@ const PremiumPlusBatchImageResizer = () => {
   const [format, setFormat] = useState<string>("original");
   const [quality, setQuality] = useState<number>(0.9);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imagesRef = useRef<ImageFile[]>([]);
+
+  useEffect(() => {
+    imagesRef.current = images;
+  }, [images]);
+
+  useEffect(() => {
+    return () => {
+      imagesRef.current.forEach((img) => {
+        URL.revokeObjectURL(img.preview);
+        if (img.processedUrl) URL.revokeObjectURL(img.processedUrl);
+      });
+    };
+  }, []);
 
   // Handle file selection
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    e.currentTarget.value = "";
     if (files.length === 0) return;
+
+    const imageFiles = files.filter(
+      (file) => isRasterImageFile(file, SUPPORTED_IMAGE_TYPES) && file.size <= MAX_IMAGE_SIZE,
+    );
+
+    if (imageFiles.length === 0) {
+      toast({ title: "No supported images found", description: "Use JPG, PNG, or WebP images under 15 MB.", variant: "destructive" });
+      return;
+    }
+
+    if (imageFiles.length !== files.length) {
+      toast({ title: "Some files were skipped", description: "Only JPG, PNG, and WebP images under 15 MB are supported." });
+    }
 
     const newImages: ImageFile[] = [];
 
-    for (const file of files) {
-      if (!file.type.startsWith('image/')) continue;
-
+    for (const file of imageFiles) {
       const id = Math.random().toString(36).substring(7);
       const preview = URL.createObjectURL(file);
 
@@ -67,7 +97,7 @@ const PremiumPlusBatchImageResizer = () => {
       const img = new Image();
       img.src = preview;
 
-      await new Promise((resolve) => {
+      await new Promise<void>((resolve) => {
         img.onload = () => {
           const width = selectedPreset === 'custom'
             ? parseInt(customWidth) || img.width
@@ -87,9 +117,18 @@ const PremiumPlusBatchImageResizer = () => {
             newHeight: height,
             processed: false,
           });
-          resolve(null);
+          resolve();
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(preview);
+          resolve();
         };
       });
+    }
+
+    if (newImages.length === 0) {
+      toast({ title: "No readable images found", variant: "destructive" });
+      return;
     }
 
     setImages(prev => [...prev, ...newImages]);
@@ -101,7 +140,10 @@ const PremiumPlusBatchImageResizer = () => {
     setImages(prev => {
       const updated = prev.filter(img => img.id !== id);
       const removed = prev.find(img => img.id === id);
-      if (removed) URL.revokeObjectURL(removed.preview);
+      if (removed) {
+        URL.revokeObjectURL(removed.preview);
+        if (removed.processedUrl) URL.revokeObjectURL(removed.processedUrl);
+      }
       return updated;
     });
   };
@@ -170,6 +212,7 @@ const PremiumPlusBatchImageResizer = () => {
 
       try {
         const processedUrl = await resizeImage(img);
+        if (img.processedUrl) URL.revokeObjectURL(img.processedUrl);
         processedImages.push({
           ...img,
           processed: true,
@@ -234,9 +277,9 @@ const PremiumPlusBatchImageResizer = () => {
     if (!img.processedUrl) return;
 
     const ext = format === 'original'
-      ? img.file.name.split('.').pop()
-      : format;
-    const filename = `${img.file.name.split('.')[0]}_resized.${ext}`;
+      ? getOutputExtension(img.file.name.split('.').pop() || "png")
+      : getOutputExtension(format);
+    const filename = `${getSafeFileStem(img.file.name)}_resized.${ext}`;
 
     const a = document.createElement('a');
     a.href = img.processedUrl;
@@ -262,9 +305,9 @@ const PremiumPlusBatchImageResizer = () => {
       const blob = await response.blob();
 
       const ext = format === 'original'
-        ? img.file.name.split('.').pop()
-        : format;
-      const filename = `${img.file.name.split('.')[0]}_resized.${ext}`;
+        ? getOutputExtension(img.file.name.split('.').pop() || "png")
+        : getOutputExtension(format);
+      const filename = `${getSafeFileStem(img.file.name)}_resized.${ext}`;
 
       zip.file(filename, blob);
     }
@@ -319,7 +362,7 @@ const PremiumPlusBatchImageResizer = () => {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept={SUPPORTED_IMAGE_TYPES.join(",")}
                 multiple
                 onChange={handleFileSelect}
                 className="hidden"
@@ -501,8 +544,8 @@ const PremiumPlusBatchImageResizer = () => {
                       <div className="space-y-1">
                         <p className="text-sm font-medium truncate">{img.file.name}</p>
                         <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span>Original: {img.originalWidth}×{img.originalHeight}</span>
-                          <span>New: {img.newWidth}×{img.newHeight}</span>
+                          <span>Original: {img.originalWidth} x {img.originalHeight}</span>
+                          <span>New: {img.newWidth} x {img.newHeight}</span>
                         </div>
                       </div>
 

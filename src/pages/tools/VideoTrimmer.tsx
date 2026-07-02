@@ -33,6 +33,13 @@ import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  getAtempoFilters,
+  getVideoDownloadName,
+  getVideoMimeType,
+  revokeMediaUrl,
+  validateVideoFile,
+} from "@/utils/videoFiles";
 
 interface VideoSettings {
   format: string;
@@ -99,6 +106,13 @@ const VideoTrimmer = () => {
     loadFFmpeg();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      revokeMediaUrl(videoUrl);
+      revokeMediaUrl(outputUrl);
+    };
+  }, [videoUrl, outputUrl]);
+
   // Live preview effect
   useEffect(() => {
     if (!videoRef.current || !previewCanvasRef.current) return;
@@ -149,10 +163,6 @@ const VideoTrimmer = () => {
       const ffmpeg = ffmpegRef.current;
       const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
 
-      ffmpeg.on("log", ({ message }) => {
-        console.log(message);
-      });
-
       ffmpeg.on("progress", ({ progress }) => {
         setProcessingProgress(Math.round(progress * 100));
       });
@@ -164,8 +174,7 @@ const VideoTrimmer = () => {
 
       setFfmpegLoaded(true);
       toast.success("Video editor ready!");
-    } catch (error) {
-      console.error("Failed to load FFmpeg:", error);
+    } catch {
       toast.error("Failed to load video editor. Please refresh the page.");
     }
   };
@@ -174,20 +183,23 @@ const VideoTrimmer = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("video/")) {
-      toast.error("Please upload a video file");
+    const validationError = validateVideoFile(file);
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
 
-    if (file.size > 500 * 1024 * 1024) {
-      toast.error("File too large. Maximum size is 500MB");
-      return;
-    }
-
+    revokeMediaUrl(videoUrl);
+    revokeMediaUrl(outputUrl);
     setVideoFile(file);
     const url = URL.createObjectURL(file);
     setVideoUrl(url);
     setOutputUrl("");
+    setStartTime(0);
+    setEndTime(0);
+    setDuration(0);
+    setCurrentTime(0);
+    setVideoInfo(null);
     toast.success("Video loaded!");
   };
 
@@ -211,7 +223,8 @@ const VideoTrimmer = () => {
 
   const buildFFmpegCommand = () => {
     const commands: string[] = [];
-    const filters: string[] = [];
+    const videoFilters: string[] = [];
+    const audioFilters: string[] = [];
 
     // Input
     commands.push("-i", "input.mp4");
@@ -223,21 +236,9 @@ const VideoTrimmer = () => {
     // Speed
     if (settings.speed !== 1) {
       const speedValue = 1 / settings.speed;
-      filters.push(`setpts=${speedValue}*PTS`);
+      videoFilters.push(`setpts=${speedValue}*PTS`);
       if (!settings.removeAudio) {
-        // Handle atempo (must be between 0.5 and 2.0, chain if needed)
-        let tempoValue = settings.speed;
-        while (tempoValue > 2.0) {
-          filters.push(`atempo=2.0`);
-          tempoValue /= 2.0;
-        }
-        while (tempoValue < 0.5) {
-          filters.push(`atempo=0.5`);
-          tempoValue /= 0.5;
-        }
-        if (tempoValue !== 1.0) {
-          filters.push(`atempo=${tempoValue}`);
-        }
+        audioFilters.push(...getAtempoFilters(settings.speed));
       }
     }
 
@@ -248,11 +249,9 @@ const VideoTrimmer = () => {
         180: "transpose=1,transpose=1",
         270: "transpose=2",
       };
-      filters.push(rotations[settings.rotation as keyof typeof rotations] || "");
+      const rotationFilter = rotations[settings.rotation as keyof typeof rotations];
+      if (rotationFilter) videoFilters.push(rotationFilter);
     }
-
-    // Video filters
-    const videoFilters: string[] = [];
 
     if (settings.brightness !== 0) {
       videoFilters.push(`eq=brightness=${settings.brightness / 100}`);
@@ -289,14 +288,9 @@ const VideoTrimmer = () => {
       videoFilters.push(`fade=t=out:st=${fadeStart}:d=1`);
     }
 
-    // Combine video filters
-    if (videoFilters.length > 0) {
-      filters.push(videoFilters.join(","));
-    }
-
     // Apply filters
-    if (filters.length > 0) {
-      commands.push("-vf", filters.join(","));
+    if (videoFilters.length > 0) {
+      commands.push("-vf", videoFilters.join(","));
     }
 
     // Audio settings
@@ -305,7 +299,10 @@ const VideoTrimmer = () => {
     } else {
       commands.push("-c:a", settings.audioCodec);
       if (settings.volume !== 100) {
-        commands.push("-af", `volume=${settings.volume / 100}`);
+        audioFilters.push(`volume=${settings.volume / 100}`);
+      }
+      if (audioFilters.length > 0) {
+        commands.push("-af", audioFilters.join(","));
       }
     }
 
@@ -327,6 +324,7 @@ const VideoTrimmer = () => {
 
     // Output format
     const outputFile = `output.${settings.format}`;
+    commands.push("-y");
     commands.push(outputFile);
 
     return { commands, outputFile };
@@ -358,23 +356,15 @@ const VideoTrimmer = () => {
       await ffmpeg.exec(commands);
 
       const data = await ffmpeg.readFile(outputFile);
-      const mimeTypes: { [key: string]: string } = {
-        mp4: "video/mp4",
-        webm: "video/webm",
-        avi: "video/x-msvideo",
-        mov: "video/quicktime",
-        mkv: "video/x-matroska",
-      };
-
       const blob = new Blob([data as BlobPart], {
-        type: mimeTypes[settings.format] || "video/mp4",
+        type: getVideoMimeType(settings.format),
       });
+      revokeMediaUrl(outputUrl);
       const url = URL.createObjectURL(blob);
 
       setOutputUrl(url);
       toast.success("Video processed successfully!");
-    } catch (error) {
-      console.error("Error processing video:", error);
+    } catch {
       toast.error("Failed to process video. Try different settings.");
     } finally {
       setIsProcessing(false);
@@ -387,7 +377,7 @@ const VideoTrimmer = () => {
 
     const link = document.createElement("a");
     link.href = outputUrl;
-    link.download = `processed-video-${Date.now()}.${settings.format}`;
+    link.download = getVideoDownloadName("processed", videoFile, settings.format);
     link.click();
     toast.success("Downloading...");
   };
@@ -411,8 +401,9 @@ const VideoTrimmer = () => {
   };
 
   const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
+    const safeSeconds = Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+    const mins = Math.floor(safeSeconds / 60);
+    const secs = Math.floor(safeSeconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
@@ -435,7 +426,7 @@ const VideoTrimmer = () => {
       <ToolLayout
         title="Advanced Video Editor & Trimmer"
         description="Professional video editing with trimming, conversion, compression, filters and more - all in your browser!"
-        category="Video & Audio"
+        category="Video Tools"
         instructions={[
           "Upload a video file (MP4, MOV, AVI, WebM, MKV - Max 500MB)",
           "Use the timeline to set start and end times for trimming",
@@ -445,8 +436,8 @@ const VideoTrimmer = () => {
           "Preview and download your edited video",
         ]}
         relatedTools={[
-          { name: "Image Size Reducer", path: "/tools/image-size-reducer" },
-          { name: "PDF Compressor", path: "/tools/pdf-compressor" },
+          { name: "Video to GIF", path: "/tools/video-to-gif" },
+          { name: "Video Compressor", path: "/tools/premium-video-compressor" },
         ]}
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -563,7 +554,7 @@ const VideoTrimmer = () => {
                             </div>
                             <Slider
                               value={[startTime]}
-                              onValueChange={(value) => setStartTime(value[0])}
+                              onValueChange={(value) => setStartTime(Math.min(value[0], Math.max(0, endTime - 0.1)))}
                               max={duration}
                               step={0.1}
                               className="w-full"
@@ -579,7 +570,7 @@ const VideoTrimmer = () => {
                             </div>
                             <Slider
                               value={[endTime]}
-                              onValueChange={(value) => setEndTime(value[0])}
+                              onValueChange={(value) => setEndTime(Math.max(value[0], startTime + 0.1))}
                               max={duration}
                               step={0.1}
                               className="w-full"
@@ -674,9 +665,9 @@ const VideoTrimmer = () => {
                                   </SelectTrigger>
                                   <SelectContent>
                                     <SelectItem value="0">No Rotation</SelectItem>
-                                    <SelectItem value="90">90° Clockwise</SelectItem>
-                                    <SelectItem value="180">180°</SelectItem>
-                                    <SelectItem value="270">270° Clockwise</SelectItem>
+                                    <SelectItem value="90">90 deg Clockwise</SelectItem>
+                                    <SelectItem value="180">180 deg</SelectItem>
+                                    <SelectItem value="270">270 deg Clockwise</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
@@ -904,7 +895,7 @@ const VideoTrimmer = () => {
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Button
                         onClick={processVideo}
-                        disabled={isProcessing}
+                        disabled={isProcessing || !ffmpegLoaded}
                         className="flex-1"
                         size="lg"
                       >
@@ -990,43 +981,43 @@ const VideoTrimmer = () => {
                 </h3>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-green-500 mt-0.5">-</span>
                     <span>Trim & cut videos with precision</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-green-500 mt-0.5">-</span>
                     <span>Convert between formats (MP4, WebM, AVI, MOV)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-green-500 mt-0.5">-</span>
                     <span>Compress with quality control</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-green-500 mt-0.5">-</span>
                     <span>Adjust speed (0.25x to 4x)</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-green-500 mt-0.5">-</span>
                     <span>Rotate & flip videos</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-green-500 mt-0.5">-</span>
                     <span>Apply filters & effects</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-green-500 mt-0.5">-</span>
                     <span>Adjust brightness, contrast, saturation</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-green-500 mt-0.5">-</span>
                     <span>Add fade in/out effects</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-green-500 mt-0.5">-</span>
                     <span>Control volume or remove audio</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-0.5">✓</span>
+                    <span className="text-green-500 mt-0.5">-</span>
                     <span>No watermarks or file limits</span>
                   </li>
                 </ul>

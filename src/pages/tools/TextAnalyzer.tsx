@@ -3,17 +3,20 @@ import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { AdSpace } from "@/components/AdSpace";
+import { countWords } from "@/utils/textTools";
 
 const TextAnalyzer = () => {
   const [text, setText] = useState("");
 
+  const wordCount = countWords(text);
+
   const stats = {
     characters: text.length,
     charactersNoSpaces: text.replace(/\s/g, "").length,
-    words: text.trim() ? text.trim().split(/\s+/).length : 0,
+    words: wordCount,
     sentences: text.split(/[.!?]+/).filter(s => s.trim()).length,
     paragraphs: text.split(/\n\n+/).filter(p => p.trim()).length,
-    readingTime: Math.ceil((text.trim().split(/\s+/).length || 0) / 200),
+    readingTime: wordCount ? Math.ceil(wordCount / 200) : 0,
   };
 
   return (

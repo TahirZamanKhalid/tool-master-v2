@@ -15,10 +15,11 @@ const DiscountCalculator = () => {
   const [fixedDiscount, setFixedDiscount] = useState<string>("");
   const [taxRate, setTaxRate] = useState<number>(0);
 
-  const price = parseFloat(originalPrice) || 0;
-  const discount = discountType === "percentage"
+  const price = Math.max(0, parseFloat(originalPrice) || 0);
+  const rawDiscount = discountType === "percentage"
     ? price * (discountPercent / 100)
     : parseFloat(fixedDiscount) || 0;
+  const discount = Math.min(price, Math.max(0, rawDiscount));
   const priceAfterDiscount = price - discount;
   const taxAmount = priceAfterDiscount * (taxRate / 100);
   const finalPrice = priceAfterDiscount + taxAmount;
@@ -40,7 +41,7 @@ const DiscountCalculator = () => {
       ]}
       relatedTools={[
         { name: "Tip Calculator", path: "/tools/tip-calculator" },
-        { name: "Tax Calculator", path: "/tools/tax-calculator" },
+        { name: "Tip Calculator", path: "/tools/tip-calculator" },
         { name: "Percentage Calculator", path: "/tools/percentage-calculator" }
       ]}
     >
@@ -222,11 +223,11 @@ const DiscountCalculator = () => {
               <div className="pt-4 border-t space-y-2">
                 <h4 className="font-semibold text-sm mb-2">Price Breakdown</h4>
                 <div className="text-sm space-y-1 text-muted-foreground">
-                  <p>• Original Price: ${price.toFixed(2)}</p>
-                  <p>• Discount: -${discount.toFixed(2)} {discountType === "percentage" && `(${discountPercent}%)`}</p>
-                  {taxRate > 0 && <p>• Tax: +${taxAmount.toFixed(2)} ({taxRate}%)</p>}
-                  <p className="font-semibold text-foreground pt-1">• Final Price: ${finalPrice.toFixed(2)}</p>
-                  <p className="text-blue-600">• You Save: ${savings.toFixed(2)}</p>
+                  <p>- Original Price: ${price.toFixed(2)}</p>
+                  <p>- Discount: -${discount.toFixed(2)} {discountType === "percentage" && `(${discountPercent}%)`}</p>
+                  {taxRate > 0 && <p>- Tax: +${taxAmount.toFixed(2)} ({taxRate}%)</p>}
+                  <p className="font-semibold text-foreground pt-1">- Final Price: ${finalPrice.toFixed(2)}</p>
+                  <p className="text-blue-600">- You Save: ${savings.toFixed(2)}</p>
                 </div>
               </div>
             </CardContent>

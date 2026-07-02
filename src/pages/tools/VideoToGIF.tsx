@@ -8,12 +8,14 @@ import { Upload, Film, Download, Loader2 } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { getVideoDownloadName, revokeMediaUrl, validateVideoFile } from "@/utils/videoFiles";
 
 const VideoToGIF = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState("");
   const [startTime, setStartTime] = useState(0);
   const [duration, setDuration] = useState(3);
+  const [videoDuration, setVideoDuration] = useState(0);
   const [fps, setFps] = useState(10);
   const [width, setWidth] = useState(480);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -25,6 +27,13 @@ const VideoToGIF = () => {
   useEffect(() => {
     loadFFmpeg();
   }, []);
+
+  useEffect(() => {
+    return () => {
+      revokeMediaUrl(videoUrl);
+      revokeMediaUrl(outputUrl);
+    };
+  }, [videoUrl, outputUrl]);
 
   const loadFFmpeg = async () => {
     try {
@@ -39,8 +48,7 @@ const VideoToGIF = () => {
 
       setFfmpegLoaded(true);
       toast.success("GIF converter ready!");
-    } catch (error) {
-      console.error('Failed to load FFmpeg:', error);
+    } catch {
       toast.error("Failed to load converter. Please refresh the page.");
     }
   };
@@ -49,21 +57,43 @@ const VideoToGIF = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('video/')) {
-      toast.error("Please upload a video file");
+    const validationError = validateVideoFile(file);
+    if (validationError) {
+      toast.error(validationError);
       return;
     }
 
+    revokeMediaUrl(videoUrl);
+    revokeMediaUrl(outputUrl);
     setVideoFile(file);
     const url = URL.createObjectURL(file);
     setVideoUrl(url);
     setOutputUrl("");
+    setVideoDuration(0);
+    setStartTime(0);
+    setDuration(3);
     toast.success("Video loaded!");
+  };
+
+  const handleLoadedMetadata = (event: React.SyntheticEvent<HTMLVideoElement>) => {
+    const nextDuration = event.currentTarget.duration;
+    if (!Number.isFinite(nextDuration) || nextDuration <= 0) return;
+
+    setVideoDuration(nextDuration);
+    setStartTime(0);
+    setDuration(Math.min(3, Math.max(1, Math.floor(nextDuration))));
   };
 
   const convertToGIF = async () => {
     if (!videoFile || !ffmpegLoaded) {
       toast.error("Please upload a video first");
+      return;
+    }
+
+    const remainingDuration = videoDuration ? Math.max(0, videoDuration - startTime) : duration;
+    const clipDuration = Math.min(duration, Math.max(1, remainingDuration));
+    if (videoDuration && startTime >= videoDuration) {
+      toast.error("Start time must be inside the uploaded video.");
       return;
     }
 
@@ -80,7 +110,7 @@ const VideoToGIF = () => {
       await ffmpeg.exec([
         '-i', 'input.mp4',
         '-ss', startTime.toString(),
-        '-t', duration.toString(),
+        '-t', clipDuration.toString(),
         '-vf', `fps=${fps},scale=${width}:-1:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse`,
         '-loop', '0',
         'output.gif'
@@ -88,12 +118,12 @@ const VideoToGIF = () => {
 
       const data = await ffmpeg.readFile('output.gif');
       const blob = new Blob([data as BlobPart], { type: 'image/gif' });
+      revokeMediaUrl(outputUrl);
       const url = URL.createObjectURL(blob);
       
       setOutputUrl(url);
       toast.success("GIF created successfully!");
-    } catch (error) {
-      console.error('Error converting to GIF:', error);
+    } catch {
       toast.error("Failed to create GIF");
     } finally {
       setIsProcessing(false);
@@ -105,7 +135,7 @@ const VideoToGIF = () => {
     
     const link = document.createElement('a');
     link.href = outputUrl;
-    link.download = `video-${Date.now()}.gif`;
+    link.download = getVideoDownloadName("gif", videoFile, "gif");
     link.click();
     toast.success("Downloading GIF...");
   };
@@ -121,7 +151,7 @@ const VideoToGIF = () => {
       <ToolLayout
         title="Video to GIF Converter"
         description="Convert any video to a high-quality animated GIF"
-        category="Video & Audio"
+        category="Video Tools"
         instructions={[
           "Upload a video file",
           "Adjust start time, duration, and quality settings",
@@ -160,7 +190,7 @@ const VideoToGIF = () => {
             ) : (
               <div className="space-y-6">
                 <div className="rounded-lg overflow-hidden bg-black">
-                  <video src={videoUrl} controls className="w-full max-h-96" />
+                  <video src={videoUrl} controls className="w-full max-h-96" onLoadedMetadata={handleLoadedMetadata} />
                 </div>
 
                 <div className="space-y-4">
@@ -170,7 +200,7 @@ const VideoToGIF = () => {
                     </label>
                     <Slider
                       min={0}
-                      max={30}
+                      max={Math.max(1, Math.floor(videoDuration))}
                       step={1}
                       value={[startTime]}
                       onValueChange={([value]) => setStartTime(value)}
@@ -183,7 +213,7 @@ const VideoToGIF = () => {
                     </label>
                     <Slider
                       min={1}
-                      max={10}
+                      max={Math.max(1, Math.min(10, Math.ceil(videoDuration ? videoDuration - startTime : 10)))}
                       step={1}
                       value={[duration]}
                       onValueChange={([value]) => setDuration(value)}

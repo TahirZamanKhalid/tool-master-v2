@@ -8,6 +8,50 @@ import { ArrowRightLeft, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
+const FALLBACK_RATES: Record<string, number> = {
+  USD: 1,
+  EUR: 0.92,
+  GBP: 0.78,
+  JPY: 157,
+  AUD: 1.5,
+  CAD: 1.37,
+  CHF: 0.9,
+  CNY: 7.25,
+  INR: 83.5,
+  PKR: 278,
+  MXN: 18.2,
+  BRL: 5.4,
+  ZAR: 18.2,
+  SGD: 1.35,
+  HKD: 7.8,
+  SEK: 10.6,
+  NOK: 10.6,
+  DKK: 6.85,
+  NZD: 1.62,
+  KRW: 1380,
+  TRY: 32.8,
+  AED: 3.67,
+  SAR: 3.75,
+  THB: 36.7,
+  MYR: 4.7,
+  IDR: 16200,
+  PHP: 58.5,
+  RUB: 89,
+  PLN: 4,
+  CZK: 22.8,
+  HUF: 360,
+  ILS: 3.65,
+  EGP: 48,
+  NGN: 1500,
+  KES: 129,
+  BDT: 117,
+  LKR: 303,
+  VND: 25400,
+  ARS: 920,
+  CLP: 940,
+  COP: 4100,
+};
+
 const CurrencyConverter = () => {
   const [amount, setAmount] = useState("1");
   const [fromCurrency, setFromCurrency] = useState("USD");
@@ -66,16 +110,19 @@ const CurrencyConverter = () => {
       setLoading(true);
       const response = await fetch("https://api.exchangerate-api.com/v4/latest/USD");
       const data = await response.json();
+      if (!data?.rates) throw new Error("Invalid exchange-rate response");
       setExchangeRates(data.rates);
-      setLastUpdated(new Date(data.time_last_updated * 1000).toLocaleString());
+      setLastUpdated(data.time_last_updated ? new Date(data.time_last_updated * 1000).toLocaleString() : "Live rates");
       toast({
         title: "Exchange rates updated",
         description: "Live rates have been fetched successfully",
       });
-    } catch (error) {
+    } catch {
+      setExchangeRates(FALLBACK_RATES);
+      setLastUpdated("Fallback rates - refresh for live rates");
       toast({
         title: "Failed to fetch rates",
-        description: "Using cached rates. Please try again later.",
+        description: "Using built-in fallback rates. Please refresh for live rates.",
         variant: "destructive",
       });
     } finally {
@@ -126,7 +173,7 @@ const CurrencyConverter = () => {
         ]}
         relatedTools={[
           { name: "Percentage Calculator", path: "/tools/percentage-calculator" },
-          { name: "Unit Converter", path: "/tools/unit-converter" },
+          { name: "Unit Converter", path: "/tools/premium-plus-unit-converter" },
         ]}
       >
         <Card className="p-8 max-w-2xl mx-auto">
@@ -219,7 +266,7 @@ const CurrencyConverter = () => {
 
             <div className="bg-muted/50 p-4 rounded-lg">
               <p className="text-xs text-muted-foreground text-center">
-                💡 Live exchange rates powered by ExchangeRate-API. Rates are updated daily from global financial markets. For exact rates, please check with your bank or financial institution.
+                Tip: Live exchange rates are powered by ExchangeRate-API. Rates are updated daily from global financial markets. For exact rates, please check with your bank or financial institution.
               </p>
             </div>
           </div>

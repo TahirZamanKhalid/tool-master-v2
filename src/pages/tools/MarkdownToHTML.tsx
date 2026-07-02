@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { marked } from "marked";
 import { Copy } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
+import DOMPurify from "dompurify";
 
 const MarkdownToHTML = () => {
   const [markdown, setMarkdown] = useState("# Hello World\n\nThis is **bold** and this is *italic*.");
@@ -14,8 +15,12 @@ const MarkdownToHTML = () => {
 
   const convertToHTML = () => {
     try {
-      const result = marked(markdown);
-      setHtml(result as string);
+      if (!markdown.trim()) {
+        toast.error("Please enter markdown");
+        return;
+      }
+      const result = marked.parse(markdown) as string;
+      setHtml(DOMPurify.sanitize(result));
       toast.success("Converted to HTML");
     } catch (error) {
       toast.error("Failed to convert markdown");

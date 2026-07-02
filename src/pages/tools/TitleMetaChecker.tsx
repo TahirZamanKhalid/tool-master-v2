@@ -45,15 +45,6 @@ const TitleMetaChecker = () => {
   const titleStatus = getTitleStatus();
   const metaStatus = getMetaStatus();
 
-  const getProgressColor = (status: string) => {
-    switch (status) {
-      case "good": return "bg-green-600";
-      case "short": return "bg-yellow-600";
-      case "long": return "bg-red-600";
-      default: return "bg-gray-300";
-    }
-  };
-
   const getTruncatedText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + "...";
@@ -181,7 +172,7 @@ const TitleMetaChecker = () => {
                     {title || "Your Page Title"}
                   </div>
                   <div className="text-green-700 dark:text-green-500 text-sm mt-1">
-                    https://example.com › page
+                    https://example.com/page
                   </div>
                   <div className="text-gray-600 dark:text-gray-400 text-sm mt-2">
                     {metaDescription || "Your meta description will appear here..."}
@@ -250,11 +241,11 @@ const TitleMetaChecker = () => {
                   Page Title Best Practices
                 </h4>
                 <ul className="space-y-1 text-sm text-muted-foreground ml-6">
-                  <li>• Keep between 30-60 characters</li>
-                  <li>• Include your primary keyword near the beginning</li>
-                  <li>• Make it compelling to encourage clicks</li>
-                  <li>• Use your brand name at the end (if space allows)</li>
-                  <li>• Avoid ALL CAPS or excessive punctuation</li>
+                  <li>- Keep between 30-60 characters</li>
+                  <li>- Include your primary keyword near the beginning</li>
+                  <li>- Make it compelling to encourage clicks</li>
+                  <li>- Use your brand name at the end (if space allows)</li>
+                  <li>- Avoid ALL CAPS or excessive punctuation</li>
                 </ul>
               </div>
 
@@ -264,11 +255,11 @@ const TitleMetaChecker = () => {
                   Meta Description Best Practices
                 </h4>
                 <ul className="space-y-1 text-sm text-muted-foreground ml-6">
-                  <li>• Aim for 120-160 characters</li>
-                  <li>• Include your primary keyword naturally</li>
-                  <li>• Write a clear call-to-action</li>
-                  <li>• Accurately describe the page content</li>
-                  <li>• Make every page's description unique</li>
+                  <li>- Aim for 120-160 characters</li>
+                  <li>- Include your primary keyword naturally</li>
+                  <li>- Write a clear call-to-action</li>
+                  <li>- Accurately describe the page content</li>
+                  <li>- Make every page's description unique</li>
                 </ul>
               </div>
 

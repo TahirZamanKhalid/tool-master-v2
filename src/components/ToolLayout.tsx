@@ -12,7 +12,7 @@ import { SidebarAd } from "@/components/SidebarAd";
 import { AdRow } from "@/components/AdRow";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { blogPosts } from "@/data/blogPosts";
-import { ArrowRight, ChevronRight, Download } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronRight, Download, Sparkles } from "lucide-react";
 
 interface ToolLayoutProps {
   title: string;
@@ -41,13 +41,13 @@ const AdSidebar = ({ side }: { side: "left" | "right" }) => (
     {/* Top ad unit — replace with real AdSense ins tag */}
     <div className="flex min-h-[250px] w-full flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 text-center text-xs text-muted-foreground">
       <span className="mb-1 text-[10px] uppercase tracking-widest opacity-40">Ad</span>
-      <span className="opacity-30">160 × 250</span>
+      <span className="opacity-30">160 x 250</span>
     </div>
 
     {/* Second ad unit (sticky, floats as user scrolls) */}
     <div className="sticky top-4 flex min-h-[250px] w-full flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 text-center text-xs text-muted-foreground">
       <span className="mb-1 text-[10px] uppercase tracking-widest opacity-40">Ad</span>
-      <span className="opacity-30">160 × 250</span>
+      <span className="opacity-30">160 x 250</span>
     </div>
   </aside>
 );
@@ -287,9 +287,7 @@ export const ToolLayout = ({
               {instructions && (
                 <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-card">
                   <h2 className="mb-3 flex items-center gap-2 text-lg font-black text-foreground">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary/10 text-sm text-primary">
-                      📚
-                    </span>
+                    <BookOpen className="h-6 w-6 rounded-lg bg-primary/10 p-1 text-primary" />
                     How to Use {title}
                   </h2>
                   <ol className="space-y-2.5">
@@ -308,19 +306,17 @@ export const ToolLayout = ({
               {/* Why use this tool */}
               <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-card">
                 <h2 className="mb-3 flex items-center gap-2 text-lg font-black text-foreground">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary/10 text-sm text-primary">
-                    ✨
-                  </span>
+                  <Sparkles className="h-6 w-6 rounded-lg bg-primary/10 p-1 text-primary" />
                   Why Use Our {title}?
                 </h2>
                 <ul className="space-y-2">
                   {(
                     features ?? [
-                      "100% Free — No signup or registration required",
-                      "Browser-based — Your data never leaves your device",
-                      "Works on any device — Desktop, tablet, or mobile",
-                      "Professional results — High-quality output every time",
-                      "Privacy focused — No files sent to our servers",
+                      "100% free - no signup or registration required",
+                      "Browser-based - your data never leaves your device",
+                      "Works on any device - desktop, tablet, or mobile",
+                      "Professional results - high-quality output every time",
+                      "Privacy focused - no files sent to our servers",
                     ]
                   ).map((f, i) => (
                     <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground">

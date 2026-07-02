@@ -9,6 +9,10 @@ import { toast } from "sonner";
 import ReactCrop, { Crop, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { Download } from "lucide-react";
+import { isRasterImageFile } from "@/utils/imageFiles";
+
+const MAX_IMAGE_SIZE = 15 * 1024 * 1024;
+const SUPPORTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/bmp"];
 
 const ImageCropper = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -26,15 +30,37 @@ const ImageCropper = () => {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setSelectedImage(reader.result as string);
-        setShowAdOverlay(true);
-        setCanDownload(false);
-      };
-      reader.readAsDataURL(file);
+    e.currentTarget.value = "";
+    if (!file) return;
+
+    if (!isRasterImageFile(file, SUPPORTED_TYPES)) {
+      toast.error("Please upload a JPG, PNG, WebP, or BMP image");
+      return;
     }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast.error("Please upload an image smaller than 15 MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSelectedImage(reader.result as string);
+      setCompletedCrop(null);
+      setShowAdOverlay(true);
+      setCanDownload(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const setDefaultCompletedCrop = (img: HTMLImageElement) => {
+    setCompletedCrop({
+      unit: "px",
+      x: Math.round(img.width * 0.25),
+      y: Math.round(img.height * 0.25),
+      width: Math.max(1, Math.round(img.width * 0.5)),
+      height: Math.max(1, Math.round(img.height * 0.5)),
+    });
   };
 
   const handleAdComplete = () => {
@@ -49,8 +75,8 @@ const ImageCropper = () => {
     const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
     const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
     
-    canvas.width = completedCrop.width * scaleX;
-    canvas.height = completedCrop.height * scaleY;
+    canvas.width = Math.max(1, Math.round(completedCrop.width * scaleX));
+    canvas.height = Math.max(1, Math.round(completedCrop.height * scaleY));
     
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -98,7 +124,7 @@ const ImageCropper = () => {
         <CardContent className="p-6 space-y-4">
           <div>
             <Label>Upload Image</Label>
-            <Input type="file" accept="image/*" onChange={handleImageUpload} />
+            <Input type="file" accept={SUPPORTED_TYPES.join(",")} onChange={handleImageUpload} />
           </div>
           
           {selectedImage && canDownload && (
@@ -114,6 +140,7 @@ const ImageCropper = () => {
                   src={selectedImage} 
                   alt="Crop preview" 
                   className="max-w-full h-auto"
+                  onLoad={(e) => setDefaultCompletedCrop(e.currentTarget)}
                 />
               </ReactCrop>
               

@@ -5,11 +5,14 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, Wifi, QrCode, Shield, Smartphone, Zap, HelpCircle } from "lucide-react";
+import { Download, Wifi, QrCode, Shield, Smartphone, Zap } from "lucide-react";
 import { toast } from "sonner";
 import QRCodeLib from "qrcode";
 import { AdSpace } from "@/components/AdSpace";
 import { Helmet } from "react-helmet-async";
+import { getSafeFileStem } from "@/utils/imageFiles";
+
+const escapeWiFiQRValue = (value: string) => value.replace(/([\\;,:"])/g, "\\$1");
 
 const WiFiQRGenerator = () => {
   const [ssid, setSsid] = useState("");
@@ -21,7 +24,7 @@ const WiFiQRGenerator = () => {
 
   const generateWiFiString = () => {
     const hiddenFlag = hidden ? "true" : "false";
-    return `WIFI:T:${encryption};S:${ssid};P:${password};H:${hiddenFlag};;`;
+    return `WIFI:T:${encryption};S:${escapeWiFiQRValue(ssid)};P:${encryption === "nopass" ? "" : escapeWiFiQRValue(password)};H:${hiddenFlag};;`;
   };
 
   const generateQR = async () => {
@@ -54,8 +57,7 @@ const WiFiQRGenerator = () => {
       setQrCode(dataUrl);
 
       toast.success("WiFi QR code generated successfully!");
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Failed to generate WiFi QR code");
     }
   };
@@ -64,7 +66,7 @@ const WiFiQRGenerator = () => {
     if (!qrCode) return;
 
     const link = document.createElement("a");
-    link.download = `wifi-${ssid}-qr.png`;
+    link.download = `wifi-${getSafeFileStem(ssid, "network")}-qr.png`;
     link.href = qrCode;
     link.click();
     toast.success("QR code downloaded!");
@@ -140,7 +142,7 @@ const WiFiQRGenerator = () => {
 
       <ToolLayout
         title="WiFi QR Code Generator"
-        description="Generate QR codes to share WiFi credentials instantly — no more spelling out passwords!"
+        description="Generate QR codes to share WiFi credentials instantly - no more spelling out passwords!"
         category="QR & Barcodes"
         instructions={[
           "Enter your WiFi network name (SSID)",
@@ -148,7 +150,7 @@ const WiFiQRGenerator = () => {
           "Select encryption type (WPA/WPA2, WEP, or None)",
           "Mark if your network is hidden (optional)",
           "Click 'Generate WiFi QR Code'",
-          "Download or share the QR code — others scan to connect automatically",
+          "Download or share the QR code - others scan to connect automatically",
         ]}
         features={[
           "100% free with no registration",
@@ -169,7 +171,7 @@ const WiFiQRGenerator = () => {
           },
           {
             question: "Is it safe to share WiFi via QR code?",
-            answer: "Yes, sharing WiFi via QR code is safe. The QR code contains the same information you would share verbally — your network name and password. This tool generates the QR code entirely in your browser, and no data is sent to any server. However, only share your WiFi QR code with people you trust.",
+            answer: "Yes, sharing WiFi via QR code is safe. The QR code contains the same information you would share verbally - your network name and password. This tool generates the QR code entirely in your browser, and no data is sent to any server. However, only share your WiFi QR code with people you trust.",
           },
           {
             question: "What encryption types are supported?",
@@ -399,26 +401,26 @@ const WiFiQRGenerator = () => {
           <h2 className="text-2xl font-bold mb-4">Where to Use WiFi QR Codes</h2>
           <div className="space-y-3 text-muted-foreground">
             <p>
-              <strong>🏠 Home:</strong> Print and frame a WiFi QR code near your router or front door. Guests can scan and connect without asking for the password.
+              <strong>Home:</strong> Print and frame a WiFi QR code near your router or front door. Guests can scan and connect without asking for the password.
             </p>
             <p>
-              <strong>☕ Cafés & Restaurants:</strong> Display a WiFi QR code on table tents, menus, or at the counter. No more writing passwords on napkins.
+              <strong>Cafes & Restaurants:</strong> Display a WiFi QR code on table tents, menus, or at the counter. No more writing passwords on napkins.
             </p>
             <p>
-              <strong>🏨 Hotels & Airbnbs:</strong> Include WiFi QR codes in welcome packets, printed on cards in each room, or displayed at the reception.
+              <strong>Hotels & Airbnbs:</strong> Include WiFi QR codes in welcome packets, printed on cards in each room, or displayed at the reception.
             </p>
             <p>
-              <strong>🏢 Offices & Co-working Spaces:</strong> Share guest WiFi access securely without revealing the password verbally or in emails.
+              <strong>Offices & Co-working Spaces:</strong> Share guest WiFi access securely without revealing the password verbally or in emails.
             </p>
             <p>
-              <strong>🏫 Schools & Libraries:</strong> Provide easy WiFi access for students and visitors with posted QR codes.
+              <strong>Schools & Libraries:</strong> Provide easy WiFi access for students and visitors with posted QR codes.
             </p>
           </div>
           <p className="text-muted-foreground leading-relaxed mt-4">
             WiFi QR codes follow the standard <code className="bg-muted px-1.5 py-0.5 rounded text-xs">WIFI:T:WPA;S:networkname;P:password;;</code> format, which is universally recognized by smartphone operating systems. This means the QR codes generated by this tool work with virtually every modern phone and tablet.
           </p>
           <p className="text-muted-foreground leading-relaxed">
-            Whether you're a homeowner wanting to make things easier for guests, a business owner improving customer experience, or an event organizer providing seamless connectivity, our free WiFi QR code generator is the simplest solution. No account needed, no data stored — just instant, private QR code generation right in your browser.
+            Whether you're a homeowner wanting to make things easier for guests, a business owner improving customer experience, or an event organizer providing seamless connectivity, our free WiFi QR code generator is the simplest solution. No account needed, no data stored - just instant, private QR code generation right in your browser.
           </p>
         </section>
 

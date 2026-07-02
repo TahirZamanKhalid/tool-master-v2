@@ -7,6 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
+import { isRasterImageFile } from "@/utils/imageFiles";
+
+const MAX_IMAGE_SIZE = 15 * 1024 * 1024;
+const SUPPORTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/bmp"];
 
 const MemeGenerator = () => {
   const [topText, setTopText] = useState("");
@@ -18,11 +22,65 @@ const MemeGenerator = () => {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => setSelectedImage(reader.result as string);
-      reader.readAsDataURL(file);
+    e.currentTarget.value = "";
+    if (!file) return;
+
+    if (!isRasterImageFile(file, SUPPORTED_TYPES)) {
+      toast.error("Please upload a JPG, PNG, WebP, or BMP image");
+      return;
     }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast.error("Please upload an image smaller than 15 MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setSelectedImage(reader.result as string);
+      setCanDownload(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const getWrappedLines = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number) => {
+    const words = text.toUpperCase().trim().split(/\s+/);
+    const lines: string[] = [];
+    let currentLine = "";
+
+    words.forEach((word) => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      if (ctx.measureText(testLine).width <= maxWidth || !currentLine) {
+        currentLine = testLine;
+      } else {
+        lines.push(currentLine);
+        currentLine = word;
+      }
+    });
+
+    if (currentLine) lines.push(currentLine);
+    return lines;
+  };
+
+  const drawWrappedMemeText = (
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    y: number,
+    anchor: "top" | "bottom",
+    imageWidth: number,
+    fontSize: number,
+  ) => {
+    if (!text.trim()) return;
+    const lines = getWrappedLines(ctx, text, imageWidth * 0.92);
+    const lineHeight = fontSize * 1.15;
+    const totalHeight = lines.length * lineHeight;
+    const startY = anchor === "top" ? y : y - totalHeight + lineHeight;
+
+    lines.forEach((line, index) => {
+      const lineY = startY + index * lineHeight;
+      ctx.strokeText(line, imageWidth / 2, lineY);
+      ctx.fillText(line, imageWidth / 2, lineY);
+    });
   };
 
   const generateMeme = () => {
@@ -58,33 +116,28 @@ const MemeGenerator = () => {
         ctx.drawImage(img, 0, 0);
 
         // Set text properties
-        const fontSize = Math.floor(img.width / 12);
+        const fontSize = Math.max(24, Math.floor(img.width / 12));
         ctx.font = `bold ${fontSize}px Impact, sans-serif`;
         ctx.fillStyle = "white";
         ctx.strokeStyle = "black";
-        ctx.lineWidth = fontSize / 20;
+        ctx.lineWidth = Math.max(2, fontSize / 18);
         ctx.textAlign = "center";
-        ctx.textBaseline = "top";
+        ctx.textBaseline = "middle";
 
         // Draw top text
         if (topText) {
-          const topY = fontSize / 2;
-          // Draw text outline (stroke)
-          ctx.strokeText(topText.toUpperCase(), img.width / 2, topY);
-          // Draw text fill
-          ctx.fillText(topText.toUpperCase(), img.width / 2, topY);
+          drawWrappedMemeText(ctx, topText, fontSize * 0.8, "top", img.width, fontSize);
         }
 
         // Draw bottom text
         if (bottomText) {
-          ctx.textBaseline = "bottom";
-          const bottomY = img.height - fontSize / 2;
-          // Draw text outline (stroke)
-          ctx.strokeText(bottomText.toUpperCase(), img.width / 2, bottomY);
-          // Draw text fill
-          ctx.fillText(bottomText.toUpperCase(), img.width / 2, bottomY);
+          drawWrappedMemeText(ctx, bottomText, img.height - fontSize * 0.4, "bottom", img.width, fontSize);
         }
 
+        resolve();
+      };
+      img.onerror = () => {
+        toast.error("Could not load this image");
         resolve();
       };
       img.src = selectedImage;
@@ -117,7 +170,7 @@ const MemeGenerator = () => {
         <CardContent className="p-6 space-y-4">
           <div>
             <Label>Upload Image</Label>
-            <Input type="file" accept="image/*" onChange={handleImageUpload} />
+            <Input type="file" accept={SUPPORTED_TYPES.join(",")} onChange={handleImageUpload} />
           </div>
           <div>
             <Label>Top Text</Label>
@@ -144,12 +197,12 @@ const MemeGenerator = () => {
               <div className="relative">
                 <img src={selectedImage} alt="Meme" className="w-full" />
                 {topText && (
-                  <div className="absolute top-4 left-0 right-0 text-center text-white text-3xl font-bold uppercase" style={{ textShadow: "2px 2px 4px black" }}>
+                  <div className="absolute top-4 left-0 right-0 px-4 text-center text-white text-3xl font-bold uppercase break-words" style={{ textShadow: "2px 2px 4px black" }}>
                     {topText}
                   </div>
                 )}
                 {bottomText && (
-                  <div className="absolute bottom-4 left-0 right-0 text-center text-white text-3xl font-bold uppercase" style={{ textShadow: "2px 2px 4px black" }}>
+                  <div className="absolute bottom-4 left-0 right-0 px-4 text-center text-white text-3xl font-bold uppercase break-words" style={{ textShadow: "2px 2px 4px black" }}>
                     {bottomText}
                   </div>
                 )}

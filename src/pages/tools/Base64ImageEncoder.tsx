@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, Copy, Image as ImageIcon } from "lucide-react";
+import { isRasterImageFile } from "@/utils/imageFiles";
+
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+const SUPPORTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "image/bmp"];
 
 const Base64ImageEncoder = () => {
   const [base64Output, setBase64Output] = useState("");
@@ -13,7 +17,27 @@ const Base64ImageEncoder = () => {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    e.currentTarget.value = "";
     if (!file) return;
+
+    if (!isRasterImageFile(file, SUPPORTED_TYPES)) {
+      toast({
+        title: "Unsupported file",
+        description: "Please upload a JPG, PNG, WebP, GIF, or BMP image.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 10 MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
@@ -38,7 +62,7 @@ const Base64ImageEncoder = () => {
     <ToolLayout
       title="Base64 Image Encoder"
       description="Convert images to Base64 strings for embedding in HTML, CSS, or JavaScript. Free and instant."
-      category="Developer Tools"
+      category="Image Tools"
       instructions={[
         "Upload any image (PNG, JPG, WebP, GIF)",
         "The Base64 string is generated instantly",
@@ -49,7 +73,7 @@ const Base64ImageEncoder = () => {
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept={SUPPORTED_TYPES.join(",")}
           onChange={handleImageUpload}
           className="hidden"
         />

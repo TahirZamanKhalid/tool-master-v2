@@ -11,14 +11,26 @@ const WhitespaceRemover = () => {
   const { toast } = useToast();
 
   const removeWhitespace = () => {
+    if (!input) {
+      toast({ description: "Please enter text", variant: "destructive" });
+      return;
+    }
     setOutput(input.replace(/\s+/g, " ").trim());
   };
 
   const removeAllWhitespace = () => {
+    if (!input) {
+      toast({ description: "Please enter text", variant: "destructive" });
+      return;
+    }
     setOutput(input.replace(/\s/g, ""));
   };
 
   const trimLines = () => {
+    if (!input) {
+      toast({ description: "Please enter text", variant: "destructive" });
+      return;
+    }
     setOutput(input.split("\n").map(l => l.trim()).filter(l => l).join("\n"));
   };
 
@@ -41,7 +53,7 @@ const WhitespaceRemover = () => {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium">Input Text</label>
-              <span className="text-xs text-muted-foreground">{inputWords} words · {input.length} chars</span>
+              <span className="text-xs text-muted-foreground">{inputWords} words - {input.length} chars</span>
             </div>
             <Textarea
               value={input}
@@ -53,7 +65,7 @@ const WhitespaceRemover = () => {
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium">Result</label>
-              <span className="text-xs text-muted-foreground">{outputWords} words · {output.length} chars</span>
+              <span className="text-xs text-muted-foreground">{outputWords} words - {output.length} chars</span>
             </div>
             <Textarea
               value={output}

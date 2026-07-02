@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,10 @@ import {
 } from "lucide-react";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { SEOHead } from "@/components/SEOHead";
+import { isRasterImageFile } from "@/utils/imageFiles";
+
+const MAX_IMAGE_SIZE = 15 * 1024 * 1024;
+const SUPPORTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/bmp"];
 
 interface CollageImage {
   id: string;
@@ -108,14 +112,21 @@ const PhotoCollageMaker = () => {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    e.currentTarget.value = "";
 
     if (files.length === 0) return;
 
-    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+    const imageFiles = files.filter(
+      (file) => isRasterImageFile(file, SUPPORTED_TYPES) && file.size <= MAX_IMAGE_SIZE,
+    );
 
     if (imageFiles.length === 0) {
-      toast.error("Please upload image files");
+      toast.error("Please upload JPG, PNG, WebP, or BMP images under 15 MB each");
       return;
+    }
+
+    if (imageFiles.length !== files.length) {
+      toast.warning("Some unsupported or oversized files were skipped");
     }
 
     let loadedCount = 0;
@@ -125,6 +136,18 @@ const PhotoCollageMaker = () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const img = new Image();
+        const finishFile = () => {
+          loadedCount++;
+          if (loadedCount === imageFiles.length) {
+            if (newImages.length === 0) {
+              toast.error("No readable images were found");
+              return;
+            }
+            setImages((prev) => [...prev, ...newImages]);
+            toast.success(`${newImages.length} images loaded!`);
+          }
+        };
+
         img.onload = () => {
           newImages.push({
             id: `${Date.now()}-${index}`,
@@ -141,12 +164,9 @@ const PhotoCollageMaker = () => {
             dragOffset: { x: 0, y: 0 },
           });
 
-          loadedCount++;
-          if (loadedCount === imageFiles.length) {
-            setImages((prev) => [...prev, ...newImages]);
-            toast.success(`${imageFiles.length} images loaded!`);
-          }
+          finishFile();
         };
+        img.onerror = finishFile;
         img.src = event.target?.result as string;
       };
       reader.readAsDataURL(file);
@@ -340,10 +360,10 @@ const PhotoCollageMaker = () => {
     }));
 
     setImages(updatedImages);
-    drawCanvas();
+    drawCanvas(updatedImages);
   };
 
-  const drawCanvas = () => {
+  const drawCanvas = (sourceImages = images) => {
     if (!canvasRef.current) return;
 
     const canvas = canvasRef.current;
@@ -355,7 +375,7 @@ const PhotoCollageMaker = () => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw images
-    images.forEach((img) => {
+    sourceImages.forEach((img) => {
       drawImageOnCanvas(ctx, img);
     });
   };
@@ -483,12 +503,15 @@ const PhotoCollageMaker = () => {
     const deltaX = x - dragStart.current.x;
     const deltaY = y - dragStart.current.y;
 
-    setImages((prev) =>
-      prev.map((img) => (img.id === selectedImageId ? { ...img, x: img.x + deltaX, y: img.y + deltaY } : img)),
-    );
+    setImages((prev) => {
+      const updated = prev.map((img) =>
+        img.id === selectedImageId ? { ...img, x: img.x + deltaX, y: img.y + deltaY } : img,
+      );
+      requestAnimationFrame(() => drawCanvas(updated));
+      return updated;
+    });
 
     dragStart.current = { x, y };
-    drawCanvas();
   };
 
   const handleCanvasMouseUp = () => {
@@ -498,7 +521,11 @@ const PhotoCollageMaker = () => {
   const updateSelectedImage = (updates: Partial<CollageImage>) => {
     if (!selectedImageId) return;
 
-    setImages((prev) => prev.map((img) => (img.id === selectedImageId ? { ...img, ...updates } : img)));
+    setImages((prev) => {
+      const updated = prev.map((img) => (img.id === selectedImageId ? { ...img, ...updates } : img));
+      requestAnimationFrame(() => drawCanvas(updated));
+      return updated;
+    });
   };
 
   const removeImage = (id: string) => {
@@ -887,7 +914,7 @@ const PhotoCollageMaker = () => {
                             </div>
 
                             <div>
-                              <Label htmlFor="rotation">Rotation: {selectedImage.rotation}°</Label>
+                              <Label htmlFor="rotation">Rotation: {selectedImage.rotation}deg</Label>
                               <div className="flex gap-2 mt-2">
                                 <Slider
                                   id="rotation"
@@ -960,7 +987,7 @@ const PhotoCollageMaker = () => {
 
                     {/* In-Page Ad - Placed non-intrusively */}
                     <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 text-center">
-                      <div className="text-sm font-semibold text-blue-800 mb-2">🎉 Premium Features Unlocked!</div>
+                      <div className="text-sm font-semibold text-blue-800 mb-2">Premium Features Unlocked</div>
                       <p className="text-xs text-blue-600 mb-3">
                         Enjoy ad-free experience and faster processing with Premium
                       </p>
@@ -1059,7 +1086,7 @@ const PhotoCollageMaker = () => {
                 {layout === "freeform" && images.length > 0 && (
                   <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <p className="text-sm text-yellow-800 text-center">
-                      💡 <strong>Freeform Mode:</strong> Drag images to reposition, select images to rotate and scale
+                      <strong>Freeform Mode:</strong> Drag images to reposition, select images to rotate and scale
                     </p>
                   </div>
                 )}
@@ -1073,39 +1100,39 @@ const PhotoCollageMaker = () => {
             <h3 className="text-lg font-semibold mb-4">Advanced Collage Tips</h3>
             <div className="grid md:grid-cols-3 gap-6 text-sm text-muted-foreground">
               <div>
-                <h4 className="font-semibold text-foreground mb-2">🎨 Layout Selection:</h4>
+                <h4 className="font-semibold text-foreground mb-2">Layout Selection:</h4>
                 <ul className="space-y-1">
                   <li>
-                    • <strong>Grid Layouts:</strong> Perfect for organized presentations
+                    - <strong>Grid Layouts:</strong> Perfect for organized presentations
                   </li>
                   <li>
-                    • <strong>Pinterest:</strong> Great for varied image sizes
+                    - <strong>Pinterest:</strong> Great for varied image sizes
                   </li>
                   <li>
-                    • <strong>Freeform:</strong> Complete creative control
+                    - <strong>Freeform:</strong> Complete creative control
                   </li>
                   <li>
-                    • <strong>Circular:</strong> Artistic and eye-catching
+                    - <strong>Circular:</strong> Artistic and eye-catching
                   </li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-foreground mb-2">⚡ Editing Features:</h4>
+                <h4 className="font-semibold text-foreground mb-2">Editing Features:</h4>
                 <ul className="space-y-1">
-                  <li>• Drag & drop individual images</li>
-                  <li>• Rotate and scale selected images</li>
-                  <li>• Adjust opacity for overlay effects</li>
-                  <li>• Add borders and shadows</li>
-                  <li>• Round corners for modern look</li>
+                  <li>- Drag & drop individual images</li>
+                  <li>- Rotate and scale selected images</li>
+                  <li>- Adjust opacity for overlay effects</li>
+                  <li>- Add borders and shadows</li>
+                  <li>- Round corners for modern look</li>
                 </ul>
               </div>
               <div>
-                <h4 className="font-semibold text-foreground mb-2">📐 Export Settings:</h4>
+                <h4 className="font-semibold text-foreground mb-2">Export Settings:</h4>
                 <ul className="space-y-1">
-                  <li>• Multiple aspect ratios available</li>
-                  <li>• High-quality export up to 4K</li>
-                  <li>• Various background colors</li>
-                  <li>• Optimized for social media</li>
+                  <li>- Multiple aspect ratios available</li>
+                  <li>- High-quality export up to 4K</li>
+                  <li>- Various background colors</li>
+                  <li>- Optimized for social media</li>
                 </ul>
               </div>
             </div>

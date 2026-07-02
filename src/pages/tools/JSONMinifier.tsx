@@ -6,18 +6,25 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Minimize2, Copy } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
+import { getSizeStats } from "@/utils/developerText";
 
 const JSONMinifier = () => {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
 
   const minify = () => {
+    if (!input.trim()) {
+      toast.error("Please enter JSON");
+      return;
+    }
+
     try {
       const parsed = JSON.parse(input);
       const minified = JSON.stringify(parsed);
       setOutput(minified);
-      const savedBytes = input.length - minified.length;
-      toast.success(`Minified! Saved ${savedBytes} bytes (${((savedBytes/input.length)*100).toFixed(1)}%)`);
+      const stats = getSizeStats(input, minified);
+      const savedBytes = stats.original - stats.minified;
+      toast.success(`Minified! Saved ${savedBytes} bytes (${stats.saved.toFixed(1)}%)`);
     } catch (error) {
       toast.error("Invalid JSON");
     }

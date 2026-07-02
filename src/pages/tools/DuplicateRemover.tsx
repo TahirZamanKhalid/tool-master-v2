@@ -4,15 +4,26 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { AdSpace } from "@/components/AdSpace";
+import { toast } from "sonner";
+import { Copy } from "lucide-react";
 
 const DuplicateRemover = () => {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
 
   const removeDuplicates = () => {
+    if (!input) {
+      toast.error("Please enter text");
+      return;
+    }
     const lines = input.split("\n");
     const unique = [...new Set(lines)];
     setOutput(unique.join("\n"));
+  };
+
+  const copyOutput = () => {
+    navigator.clipboard.writeText(output);
+    toast.success("Copied to clipboard");
   };
 
   return (
@@ -33,7 +44,15 @@ const DuplicateRemover = () => {
           <Button onClick={removeDuplicates} className="w-full">
             Remove Duplicates
           </Button>
-          {output && <Textarea value={output} readOnly rows={8} />}
+          {output && (
+            <>
+              <Textarea value={output} readOnly rows={8} />
+              <Button onClick={copyOutput} variant="outline" className="w-full">
+                <Copy className="h-4 w-4 mr-2" />
+                Copy
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
     </ToolLayout>

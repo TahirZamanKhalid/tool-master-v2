@@ -20,32 +20,42 @@ const PDFSplitter = () => {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.type === "application/pdf") {
+    if (selectedFile && (selectedFile.type === "application/pdf" || selectedFile.name.toLowerCase().endsWith(".pdf"))) {
       setFile(selectedFile);
       
-      // Get page count
-      const arrayBuffer = await selectedFile.arrayBuffer();
-      const pdfDoc = await PDFDocument.load(arrayBuffer);
-      setPageCount(pdfDoc.getPageCount());
-      toast.success(`PDF loaded: ${pdfDoc.getPageCount()} pages`);
+      try {
+        const arrayBuffer = await selectedFile.arrayBuffer();
+        const pdfDoc = await PDFDocument.load(arrayBuffer);
+        setPageCount(pdfDoc.getPageCount());
+        toast.success(`PDF loaded: ${pdfDoc.getPageCount()} pages`);
+      } catch (error) {
+        console.error("Error loading PDF:", error);
+        setFile(null);
+        setPageCount(0);
+        toast.error("Could not read this PDF. Please try another file.");
+      }
     } else {
       toast.error("Please select a valid PDF file");
     }
+    e.target.value = "";
   };
 
   const parsePageRanges = (ranges: string, totalPages: number): number[] => {
     const pages: Set<number> = new Set();
-    const parts = ranges.split(',').map(p => p.trim());
+    const parts = ranges.split(',').map(p => p.trim()).filter(Boolean);
     
     for (const part of parts) {
       if (part.includes('-')) {
         const [start, end] = part.split('-').map(n => parseInt(n.trim()));
-        for (let i = start; i <= Math.min(end, totalPages); i++) {
+        if (!Number.isFinite(start) || !Number.isFinite(end)) continue;
+        const first = Math.max(1, Math.min(start, end));
+        const last = Math.min(totalPages, Math.max(start, end));
+        for (let i = first; i <= last; i++) {
           if (i > 0) pages.add(i - 1); // Convert to 0-indexed
         }
       } else {
         const page = parseInt(part);
-        if (page > 0 && page <= totalPages) {
+        if (Number.isFinite(page) && page > 0 && page <= totalPages) {
           pages.add(page - 1); // Convert to 0-indexed
         }
       }
@@ -205,7 +215,7 @@ const PDFSplitter = () => {
           </Button>
 
           <div className="text-xs text-muted-foreground space-y-1">
-            <p>💡 <strong>Tips:</strong></p>
+            <p><strong>Tips:</strong></p>
             <ul className="list-disc list-inside space-y-1 ml-2">
               <li>Use ranges like "1-10" to select pages 1 through 10</li>
               <li>Separate multiple ranges with commas: "1-3, 5, 10-15"</li>

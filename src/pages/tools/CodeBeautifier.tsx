@@ -579,6 +579,8 @@ const CodeBeautifier = () => {
       }
 
       setOutput(result);
+      setErrors([]);
+      setIsValid(null);
       toast.success("Code minified!");
     } catch (error) {
       toast.error("Failed to minify code");
@@ -586,11 +588,20 @@ const CodeBeautifier = () => {
   };
 
   const copyToClipboard = () => {
+    if (!output) {
+      toast.error("Nothing to copy");
+      return;
+    }
     navigator.clipboard.writeText(output);
     toast.success("Copied to clipboard!");
   };
 
   const downloadCode = () => {
+    if (!output) {
+      toast.error("Nothing to download");
+      return;
+    }
+
     const extensions: Record<string, string> = {
       json: "json",
       html: "html",
@@ -618,6 +629,12 @@ const CodeBeautifier = () => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Please upload a text file smaller than 2 MB");
+        e.target.value = "";
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const text = e.target?.result as string;

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { AdSpace } from "@/components/AdSpace";
+import { normalizeYAML } from "@/utils/developerText";
 
 const YAMLFormatter = () => {
   const [input, setInput] = useState("");
@@ -16,11 +17,17 @@ const YAMLFormatter = () => {
       return;
     }
 
-    // Basic YAML formatting
-    const lines = input.split("\n");
-    const formatted = lines.map(line => line.trim()).join("\n");
-    setOutput(formatted);
-    toast.success("YAML formatted!");
+    try {
+      const formatted = normalizeYAML(input);
+      if (!formatted) {
+        toast.error("Please enter YAML data");
+        return;
+      }
+      setOutput(formatted);
+      toast.success("YAML formatted!");
+    } catch {
+      toast.error("Invalid YAML format");
+    }
   };
 
   const copyToClipboard = () => {

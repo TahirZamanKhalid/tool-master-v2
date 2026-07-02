@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdRow } from "@/components/AdRow";
+import { encodeBase64Unicode } from "@/utils/developerText";
 
 interface Header {
   key: string;
@@ -111,13 +112,19 @@ const APITester = () => {
 
   // Load data from localStorage on mount
   useEffect(() => {
-    const savedHistory = localStorage.getItem("apiTesterHistory");
-    const savedRequestsData = localStorage.getItem("apiTesterSaved");
-    const savedEnv = localStorage.getItem("apiTesterEnvironment");
+    try {
+      const savedHistory = localStorage.getItem("apiTesterHistory");
+      const savedRequestsData = localStorage.getItem("apiTesterSaved");
+      const savedEnv = localStorage.getItem("apiTesterEnvironment");
 
-    if (savedHistory) setHistory(JSON.parse(savedHistory));
-    if (savedRequestsData) setSavedRequests(JSON.parse(savedRequestsData));
-    if (savedEnv) setEnvironment(JSON.parse(savedEnv));
+      if (savedHistory) setHistory(JSON.parse(savedHistory));
+      if (savedRequestsData) setSavedRequests(JSON.parse(savedRequestsData));
+      if (savedEnv) setEnvironment(JSON.parse(savedEnv));
+    } catch {
+      localStorage.removeItem("apiTesterHistory");
+      localStorage.removeItem("apiTesterSaved");
+      localStorage.removeItem("apiTesterEnvironment");
+    }
   }, []);
 
   // Save to localStorage when data changes
@@ -178,6 +185,11 @@ const APITester = () => {
 
     try {
       const processedUrl = replaceEnvironmentVariables(url);
+      const parsedUrl = new URL(processedUrl);
+      if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+        throw new Error("Only HTTP and HTTPS URLs are supported");
+      }
+
       const requestHeaders: Record<string, string> = {};
 
       headers.forEach(({ key, value, enabled }) => {
@@ -188,7 +200,7 @@ const APITester = () => {
 
       // Apply authentication
       if (auth.type === "basic" && auth.username && auth.password) {
-        const credentials = btoa(`${auth.username}:${auth.password}`);
+        const credentials = encodeBase64Unicode(`${auth.username}:${auth.password}`);
         requestHeaders["Authorization"] = `Basic ${credentials}`;
       } else if (auth.type === "bearer" && auth.token) {
         requestHeaders["Authorization"] = `Bearer ${replaceEnvironmentVariables(auth.token)}`;
@@ -218,6 +230,9 @@ const APITester = () => {
       }
 
       const processedBody = body ? replaceEnvironmentVariables(body) : undefined;
+      if (bodyType === "json" && processedBody && ["POST", "PUT", "PATCH"].includes(method)) {
+        JSON.parse(processedBody);
+      }
 
       const response = await fetch("/api-proxy.php", {
         method: "POST",
@@ -227,7 +242,7 @@ const APITester = () => {
           method,
           headers: requestHeaders,
           body: ["POST", "PUT", "PATCH"].includes(method) ? processedBody : undefined,
-          timeout: requestTimeout,
+          timeout: Math.max(1000, Math.min(60000, requestTimeout || 30000)),
           followRedirects,
         }),
       });
@@ -583,7 +598,7 @@ echo $response;
           { name: "JSON Formatter", path: "/tools/json-formatter" },
           { name: "Base64 Encoder", path: "/tools/base64-encoder" },
           { name: "Hash Generator", path: "/tools/hash-generator" },
-          { name: "JWT Decoder", path: "/tools/jwt-decoder" },
+          { name: "JSON Validator", path: "/tools/json-validator" },
         ]}
       >
         <AdRow className="mb-6" />
@@ -995,19 +1010,21 @@ echo $response;
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={validateJSON}>
-                        <CheckCircle className="h-4 w-4 mr-1" />
-                        Validate
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={formatJSON}>
-                        <Sparkles className="h-4 w-4 mr-1" />
-                        Format
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={minifyJSON}>
-                        Minify
-                      </Button>
-                    </div>
+                    {bodyType === "json" && (
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={validateJSON}>
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          Validate
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={formatJSON}>
+                          <Sparkles className="h-4 w-4 mr-1" />
+                          Format
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={minifyJSON}>
+                          Minify
+                        </Button>
+                      </div>
+                    )}
                   </div>
                   <Textarea
                     placeholder={
@@ -1030,7 +1047,7 @@ echo $response;
                     <Input
                       type="number"
                       value={requestTimeout}
-                      onChange={(e) => setRequestTimeout(Number(e.target.value))}
+                      onChange={(e) => setRequestTimeout(Math.max(1000, Math.min(60000, Number(e.target.value) || 30000)))}
                       min="1000"
                       max="60000"
                     />

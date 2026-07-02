@@ -83,8 +83,8 @@ const AltTextGenerator = () => {
     toast.success(`Generated ${generated.length} alt text suggestions!`);
   };
 
-  const copyAlt = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const copyAlt = async (text: string) => {
+    await navigator.clipboard.writeText(text);
     toast.success("Copied to clipboard!");
   };
 
@@ -189,27 +189,27 @@ const AltTextGenerator = () => {
             <h3 className="text-lg font-semibold mb-4">Alt Text Best Practices</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Be specific:</strong> Describe what's actually in the image</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Keep it concise:</strong> Aim for under 125 characters</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Include keywords:</strong> Use relevant SEO keywords naturally</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Skip "image of":</strong> Screen readers already announce it's an image</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Context matters:</strong> Describe the image's purpose on the page</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Decorative images:</strong> Use empty alt="" for purely decorative images</span>
               </li>
             </ul>

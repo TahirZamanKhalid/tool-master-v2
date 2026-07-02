@@ -47,7 +47,7 @@ const GradientGenerator = () => {
             </div>
           </div>
           <div>
-            <Label>Angle: {angle}°</Label>
+            <Label>Angle: {angle}deg</Label>
             <Input
               type="range"
               min="0"

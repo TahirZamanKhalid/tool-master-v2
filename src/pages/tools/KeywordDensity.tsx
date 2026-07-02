@@ -18,10 +18,14 @@ const KeywordDensity = () => {
   const [stats, setStats] = useState({ words: 0, characters: 0 });
 
   const analyzeText = () => {
-    if (!text.trim()) return;
+    if (!text.trim()) {
+      setKeywords([]);
+      setStats({ words: 0, characters: 0 });
+      return;
+    }
 
     // Count words and characters
-    const words = text.toLowerCase().match(/\b\w+\b/g) || [];
+    const words = text.toLocaleLowerCase().match(/[\p{L}\p{N}']+/gu) || [];
     const totalWords = words.length;
     const totalChars = text.length;
 
@@ -156,10 +160,10 @@ const KeywordDensity = () => {
               <div className="mt-6 p-4 bg-muted rounded-lg space-y-2">
                 <h4 className="font-semibold">Optimization Tips</h4>
                 <ul className="text-sm space-y-1 text-muted-foreground">
-                  <li>• Ideal keyword density: 0.5-1.5% for natural content</li>
-                  <li>• Avoid keyword stuffing (above 2% density)</li>
-                  <li>• Use variations and related terms naturally</li>
-                  <li>• Focus on user experience, not just SEO</li>
+                  <li>- Ideal keyword density: 0.5-1.5% for natural content</li>
+                  <li>- Avoid keyword stuffing (above 2% density)</li>
+                  <li>- Use variations and related terms naturally</li>
+                  <li>- Focus on user experience, not just SEO</li>
                 </ul>
               </div>
             </CardContent>

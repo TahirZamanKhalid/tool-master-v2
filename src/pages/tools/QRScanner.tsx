@@ -7,6 +7,7 @@ import { ScanLine, Camera, Upload, Copy, ExternalLink, CheckCircle2 } from "luci
 import { toast } from "sonner";
 import { Html5Qrcode } from "html5-qrcode";
 import { AdSpace } from "@/components/AdSpace";
+import { isRasterImageFile } from "@/utils/imageFiles";
 
 const QRScanner = () => {
   const [scanning, setScanning] = useState(false);
@@ -14,12 +15,10 @@ const QRScanner = () => {
   const [html5QrCode, setHtml5QrCode] = useState<Html5Qrcode | null>(null);
   const [capturedImage, setCapturedImage] = useState<string>("");
   const [isDetecting, setIsDetecting] = useState(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
   useEffect(() => {
     return () => {
       if (html5QrCode?.isScanning) {
-        html5QrCode.stop().catch(console.error);
+        html5QrCode.stop().catch(() => undefined);
       }
     };
   }, [html5QrCode]);
@@ -39,8 +38,8 @@ const QRScanner = () => {
         const imageData = canvas.toDataURL("image/png");
         setCapturedImage(imageData);
       }
-    } catch (error) {
-      console.error("Failed to capture screenshot:", error);
+    } catch {
+      // Ignore screenshot capture errors.
     }
   };
 
@@ -58,10 +57,10 @@ const QRScanner = () => {
           aspectRatio: 1.0,
           disableFlip: false
         },
-        (decodedText, decodedResult) => {
+        (decodedText) => {
           // QR Code detected - immediate stop to prevent continuous scanning
-          if (html5QrCode?.isScanning) {
-            html5QrCode.stop().then(() => {
+          if (qrCodeScanner.isScanning) {
+            qrCodeScanner.stop().then(() => {
               setScanning(false);
               setIsDetecting(true);
               setResult(decodedText);
@@ -71,7 +70,7 @@ const QRScanner = () => {
                 setIsDetecting(false);
                 toast.success("QR Code scanned successfully!");
               }, 500);
-            }).catch(console.error);
+            }).catch(() => undefined);
           }
         },
         (errorMessage) => {
@@ -81,8 +80,7 @@ const QRScanner = () => {
 
       setScanning(true);
       toast.success("Camera started - Place QR code in the scanning area");
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Failed to access camera. Please grant camera permissions.");
     }
   };
@@ -93,8 +91,8 @@ const QRScanner = () => {
         await html5QrCode.stop();
         setScanning(false);
         toast.info("Camera stopped");
-      } catch (error) {
-        console.error(error);
+      } catch {
+        setScanning(false);
       }
     }
   };
@@ -107,14 +105,17 @@ const QRScanner = () => {
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
+      if (!isRasterImageFile(file) || file.size > 10 * 1024 * 1024) {
+        toast.error("Please upload a JPG, PNG, WebP, GIF, or BMP image under 10 MB");
+        return;
+      }
 
       try {
         const qrCodeScanner = new Html5Qrcode("qr-reader");
         const decodedText = await qrCodeScanner.scanFile(file, true);
         setResult(decodedText);
         toast.success("QR Code decoded successfully!");
-      } catch (error) {
-        console.error(error);
+      } catch {
         toast.error("Failed to decode QR code from image");
       }
     };

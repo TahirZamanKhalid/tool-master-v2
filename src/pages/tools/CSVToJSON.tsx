@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { AdSpace } from "@/components/AdSpace";
+import { parseCSV } from "@/utils/developerText";
 
 const CSVToJSON = () => {
   const [csvInput, setCsvInput] = useState("");
@@ -17,63 +18,11 @@ const CSVToJSON = () => {
     }
 
     try {
-      const lines = csvInput.trim().split("\n").filter(line => line.trim());
-      
-      if (lines.length < 2) {
-        toast.error("CSV must have at least a header row and one data row");
-        return;
-      }
-
-      // Parse CSV properly handling quoted values
-      const parseCSVLine = (line: string): string[] => {
-        const result: string[] = [];
-        let current = "";
-        let inQuotes = false;
-        
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          const nextChar = line[i + 1];
-          
-          if (char === '"') {
-            if (inQuotes && nextChar === '"') {
-              current += '"';
-              i++; // Skip next quote
-            } else {
-              inQuotes = !inQuotes;
-            }
-          } else if (char === ',' && !inQuotes) {
-            result.push(current.trim());
-            current = "";
-          } else {
-            current += char;
-          }
-        }
-        result.push(current.trim());
-        return result;
-      };
-
-      const headers = parseCSVLine(lines[0]).map(h => h.replace(/^"|"$/g, '').trim());
-      
-      if (headers.length === 0 || headers.every(h => !h)) {
-        toast.error("CSV header row is invalid or empty");
-        return;
-      }
-
-      const result = lines.slice(1).map(line => {
-        const values = parseCSVLine(line);
-        const obj: any = {};
-        headers.forEach((header, i) => {
-          if (header) {
-            obj[header] = values[i]?.replace(/^"|"$/g, '') || "";
-          }
-        });
-        return obj;
-      });
-
+      const result = parseCSV(csvInput.trim());
       setJsonOutput(JSON.stringify(result, null, 2));
       toast.success("Converted to JSON successfully!");
     } catch (error) {
-      toast.error("Invalid CSV format. Please check your data.");
+      toast.error(error instanceof Error ? error.message : "Invalid CSV format. Please check your data.");
     }
   };
 

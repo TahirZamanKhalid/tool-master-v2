@@ -38,6 +38,15 @@ const PremiumPlusWordCounter = () => {
   const { toast } = useToast();
   const [text, setText] = useState<string>("");
 
+  function estimateSyllables(word: string): number {
+    word = word.toLowerCase().replace(/[^\w]/g, '');
+    if (word.length <= 3) return 1;
+    word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
+    word = word.replace(/^y/, '');
+    const matches = word.match(/[aeiouy]{1,2}/g);
+    return matches ? matches.length : 1;
+  }
+
   // Basic counts
   const basicStats = useMemo(() => {
     const characters = text.length;
@@ -52,10 +61,10 @@ const PremiumPlusWordCounter = () => {
 
   // Character breakdown
   const charBreakdown = useMemo((): CharacterBreakdown => {
-    const letters = (text.match(/[a-zA-Z]/g) || []).length;
-    const digits = (text.match(/[0-9]/g) || []).length;
+    const letters = (text.match(/\p{L}/gu) || []).length;
+    const digits = (text.match(/\p{N}/gu) || []).length;
     const spaces = (text.match(/\s/g) || []).length;
-    const punctuation = (text.match(/[.,;:!?'"()-]/g) || []).length;
+    const punctuation = (text.match(/\p{P}/gu) || []).length;
     const special = text.length - letters - digits - spaces - punctuation;
 
     return { letters, digits, spaces, punctuation, special };
@@ -153,16 +162,6 @@ const PremiumPlusWordCounter = () => {
         percentage: ((count / words.length) * 100).toFixed(2)
       }));
   }, [text]);
-
-  // Estimate syllables in a word
-  const estimateSyllables = (word: string): number => {
-    word = word.toLowerCase().replace(/[^\w]/g, '');
-    if (word.length <= 3) return 1;
-    word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '');
-    word = word.replace(/^y/, '');
-    const matches = word.match(/[aeiouy]{1,2}/g);
-    return matches ? matches.length : 1;
-  };
 
   // Copy to clipboard
   const copyStats = () => {

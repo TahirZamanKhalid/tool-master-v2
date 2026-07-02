@@ -4,9 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AdSpace } from "@/components/AdSpace";
+import { normalizeHexColor } from "@/utils/imageFiles";
 
 const ColorConverter = () => {
   const [hex, setHex] = useState("#3b82f6");
+  const [hexText, setHexText] = useState("#3b82f6");
 
   const hexToRgb = (hex: string) => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -43,7 +45,7 @@ const ColorConverter = () => {
   return (
     <ToolLayout
       title="Color Converter"
-      description="Convert between HEX, RGB, and HSL color formats"
+      description="Convert HEX colors to RGB and HSL formats"
       category="Image Tools"
     >
       <AdSpace size="leaderboard" className="mb-6" />
@@ -52,8 +54,21 @@ const ColorConverter = () => {
           <div>
             <Label>HEX Color</Label>
             <Input
-              value={hex}
-              onChange={(e) => setHex(e.target.value)}
+              value={hexText}
+              onChange={(e) => {
+                setHexText(e.target.value);
+                const normalized = normalizeHexColor(e.target.value);
+                if (normalized) setHex(normalized);
+              }}
+              onBlur={() => {
+                const normalized = normalizeHexColor(hexText);
+                if (normalized) {
+                  setHex(normalized);
+                  setHexText(normalized);
+                } else {
+                  setHexText(hex);
+                }
+              }}
               placeholder="#3b82f6"
             />
           </div>

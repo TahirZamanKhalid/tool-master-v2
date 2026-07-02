@@ -9,6 +9,10 @@ import { Slider } from "@/components/ui/slider";
 import { Upload, Download, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AdRow } from "@/components/AdRow";
+import { formatFileSize, getSafeFileStem, isRasterImageFile } from "@/utils/imageFiles";
+
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+const SUPPORTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const ImageSizeReducer = () => {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -16,6 +20,7 @@ const ImageSizeReducer = () => {
     const [quality, setQuality] = useState([80]);
     const [originalSize, setOriginalSize] = useState(0);
     const [compressedSize, setCompressedSize] = useState(0);
+    const [fileName, setFileName] = useState("compressed-image");
     const [showAdOverlay, setShowAdOverlay] = useState(false);
     const [canDownload, setCanDownload] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -23,8 +28,18 @@ const ImageSizeReducer = () => {
 
     const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+        e.currentTarget.value = "";
         if (file) {
-            if (file.size > 10 * 1024 * 1024) {
+            if (!isRasterImageFile(file, SUPPORTED_TYPES)) {
+                toast({
+                    title: "Unsupported file",
+                    description: "Please upload a JPG, PNG, or WebP image.",
+                    variant: "destructive",
+                });
+                return;
+            }
+
+            if (file.size > MAX_IMAGE_SIZE) {
                 toast({
                     title: "File too large",
                     description: "Please upload an image smaller than 10MB",
@@ -34,6 +49,7 @@ const ImageSizeReducer = () => {
             }
 
             setOriginalSize(file.size);
+            setFileName(`${getSafeFileStem(file.name, "compressed-image")}.jpg`);
             const reader = new FileReader();
             reader.onload = (e) => setSelectedImage(e.target?.result as string);
             reader.readAsDataURL(file);
@@ -61,20 +77,53 @@ const ImageSizeReducer = () => {
             const ctx = canvas.getContext("2d");
             canvas.width = img.width;
             canvas.height = img.height;
-            ctx?.drawImage(img, 0, 0);
+            if (!ctx) {
+                toast({
+                    title: "Compression failed",
+                    description: "Your browser could not process this image.",
+                    variant: "destructive",
+                });
+                return;
+            }
 
-            const compressedDataUrl = canvas.toDataURL("image/jpeg", quality[0] / 100);
-            setCompressedImage(compressedDataUrl);
-            setCanDownload(true);
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
 
-            // Calculate compressed size
-            const stringLength = compressedDataUrl.length - "data:image/jpeg;base64,".length;
-            const sizeInBytes = 4 * Math.ceil(stringLength / 3) * 0.5624896334383812;
-            setCompressedSize(sizeInBytes);
+            canvas.toBlob(
+                (blob) => {
+                    if (!blob) {
+                        toast({
+                            title: "Compression failed",
+                            description: "Please try another image.",
+                            variant: "destructive",
+                        });
+                        return;
+                    }
 
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        setCompressedImage(reader.result as string);
+                        setCompressedSize(blob.size);
+                        setCanDownload(true);
+
+                        toast({
+                            title: "Success!",
+                            description: "Image compressed successfully.",
+                        });
+                    };
+                    reader.readAsDataURL(blob);
+                },
+                "image/jpeg",
+                quality[0] / 100,
+            );
+        };
+
+        img.onerror = () => {
             toast({
-                title: "Success!",
-                description: "Image compressed successfully.",
+                title: "Image failed to load",
+                description: "Please try a different image file.",
+                variant: "destructive",
             });
         };
     };
@@ -83,24 +132,17 @@ const ImageSizeReducer = () => {
         if (compressedImage) {
             const link = document.createElement("a");
             link.href = compressedImage;
-            link.download = "compressed-image.jpg";
+            link.download = fileName;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
     };
 
-    const formatFileSize = (bytes: number) => {
-        if (bytes === 0) return "0 Bytes";
-        const k = 1024;
-        const sizes = ["Bytes", "KB", "MB", "GB"];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-    };
-
-    const savingPercentage = originalSize > 0
-        ? ((originalSize - compressedSize) / originalSize * 100).toFixed(1)
-        : 0;
+    const sizeChangePercentage = originalSize > 0 && compressedSize > 0
+        ? Math.abs((originalSize - compressedSize) / originalSize * 100).toFixed(1)
+        : "0.0";
+    const isSmaller = compressedSize > 0 && compressedSize <= originalSize;
 
     return (
         <>
@@ -122,7 +164,7 @@ const ImageSizeReducer = () => {
                 ]}
                 relatedTools={[
                     { name: "Image Resizer", path: "/tools/image-resizer" },
-                    { name: "Format Converter", path: "/tools/format-converter" },
+                    { name: "Advanced Image Compressor", path: "/tools/advanced-image-compressor" },
                 ]}
             >
                 <AdRow className="mb-6" />
@@ -158,7 +200,9 @@ const ImageSizeReducer = () => {
                                         <div>
                                             <p className="font-medium mb-2">
                                                 Compressed ({formatFileSize(compressedSize)})
-                                                <span className="text-green-600 ml-2">-{savingPercentage}%</span>
+                                                <span className={`ml-2 ${isSmaller ? "text-green-600" : "text-amber-600"}`}>
+                                                    {isSmaller ? "Reduced" : "Larger"} by {sizeChangePercentage}%
+                                                </span>
                                             </p>
                                             <img src={compressedImage} alt="Compressed" className="w-full rounded-lg border" />
                                         </div>

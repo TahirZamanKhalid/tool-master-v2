@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,16 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Download, Upload, Image as ImageIcon } from "lucide-react";
+import { Check, Download, Upload, Image as ImageIcon } from "lucide-react";
 import { SidebarAd } from "@/components/SidebarAd";
 import { AdRow } from "@/components/AdRow";
 
 import { SEOHead } from "@/components/SEOHead";
+import { formatFileSize, getOutputExtension, getSafeFileStem, isRasterImageFile } from "@/utils/imageFiles";
+
+const MAX_IMAGE_SIZE = 15 * 1024 * 1024;
+const MAX_DIMENSION = 8000;
+const SUPPORTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const AdvancedImageCompressor = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -25,33 +30,57 @@ const AdvancedImageCompressor = () => {
   const [maxHeight, setMaxHeight] = useState<number>(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  useEffect(() => {
+    return () => {
+      if (compressedImage) URL.revokeObjectURL(compressedImage);
+    };
+  }, [compressedImage]);
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      setOriginalSize(file.size);
-      setFileName(file.name.replace(/\.[^.]+$/, `.${format === 'jpeg' ? 'jpg' : format}`));
+    e.currentTarget.value = "";
 
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new window.Image();
-        img.onload = () => {
-          setMaxWidth(img.width);
-          setMaxHeight(img.height);
-          setSelectedImage(event.target?.result as string);
-        };
-        img.src = event.target?.result as string;
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
 
-      toast.success("Image loaded!");
-    } else {
-      toast.error("Please select a valid image file");
+    if (!isRasterImageFile(file, SUPPORTED_TYPES)) {
+      toast.error("Please select a JPG, PNG, or WebP image");
+      return;
     }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast.error("Please upload an image smaller than 15 MB");
+      return;
+    }
+
+    setOriginalSize(file.size);
+    setFileName(`${getSafeFileStem(file.name)}.${getOutputExtension(format)}`);
+    setCompressedImage(null);
+    setCompressedSize(0);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.onload = () => {
+        setMaxWidth(img.width);
+        setMaxHeight(img.height);
+        setSelectedImage(event.target?.result as string);
+      };
+      img.onerror = () => toast.error("Could not load this image");
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+
+    toast.success("Image loaded!");
   };
 
   const compressImage = () => {
     if (!selectedImage) {
       toast.error("Please select an image first");
+      return;
+    }
+
+    if (maxWidth < 0 || maxHeight < 0 || maxWidth > MAX_DIMENSION || maxHeight > MAX_DIMENSION) {
+      toast.error(`Max width and height must be no more than ${MAX_DIMENSION}px`);
       return;
     }
 
@@ -84,6 +113,11 @@ const AdvancedImageCompressor = () => {
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
 
+      if (format === "jpeg") {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, width, height);
+      }
+
       ctx.drawImage(img, 0, 0, width, height);
 
       canvas.toBlob(
@@ -93,6 +127,8 @@ const AdvancedImageCompressor = () => {
             const url = URL.createObjectURL(blob);
             setCompressedImage(url);
             toast.success("Image compressed successfully!");
+          } else {
+            toast.error("This browser could not export the selected format");
           }
         },
         `image/${format}`,
@@ -100,6 +136,7 @@ const AdvancedImageCompressor = () => {
       );
     };
 
+    img.onerror = () => toast.error("Could not load this image for compression");
     img.src = selectedImage;
   };
 
@@ -111,23 +148,16 @@ const AdvancedImageCompressor = () => {
 
     const link = document.createElement('a');
     link.href = compressedImage;
-    link.download = fileName;
+    link.download = fileName || `compressed-image.${getOutputExtension(format)}`;
     link.click();
 
     toast.success("Compressed image downloaded!");
   };
 
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-  };
-
   const savingsPercentage = originalSize && compressedSize
-    ? ((1 - compressedSize / originalSize) * 100).toFixed(1)
-    : '0';
+    ? Math.abs((1 - compressedSize / originalSize) * 100).toFixed(1)
+    : '0.0';
+  const isSmaller = compressedSize > 0 && compressedSize <= originalSize;
 
   return (
     <>
@@ -142,7 +172,7 @@ const AdvancedImageCompressor = () => {
         description="Compress images with full control over quality, format, and dimensions. Reduce file size by up to 90% while maintaining visual quality. Supports JPG, PNG, and WebP."
         category="Image Tools"
         instructions={[
-          "Upload your image (JPG, PNG, WebP, etc.)",
+          "Upload your image (JPG, PNG, or WebP)",
           "Choose output format and quality level",
           "Optionally resize by setting max width/height",
           "Click 'Compress Image' to process",
@@ -181,13 +211,13 @@ const AdvancedImageCompressor = () => {
                         <div className="text-center">
                           <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                           <p className="text-sm text-muted-foreground">Click to upload image</p>
-                          <p className="text-xs text-muted-foreground mt-1">JPG, PNG, WebP, etc.</p>
+                          <p className="text-xs text-muted-foreground mt-1">JPG, PNG, WebP</p>
                         </div>
                       )}
                       <Input
                         id="image-upload"
                         type="file"
-                        accept="image/*"
+                        accept={SUPPORTED_TYPES.join(",")}
                         onChange={handleImageUpload}
                         className="hidden"
                       />
@@ -208,7 +238,9 @@ const AdvancedImageCompressor = () => {
                         <Label>Output Format</Label>
                         <Select value={format} onValueChange={(value: 'jpeg' | 'png' | 'webp') => {
                           setFormat(value);
-                          setFileName(fileName.replace(/\.[^.]+$/, `.${value === 'jpeg' ? 'jpg' : value}`));
+                          setFileName(`${getSafeFileStem(fileName)}.${getOutputExtension(value)}`);
+                          setCompressedImage(null);
+                          setCompressedSize(0);
                         }}>
                           <SelectTrigger className="mt-2">
                             <SelectValue />
@@ -296,8 +328,10 @@ const AdvancedImageCompressor = () => {
                             <span className="font-medium text-primary">{formatFileSize(compressedSize)}</span>
                           </div>
                           <div className="flex justify-between text-sm font-semibold border-t pt-2">
-                            <span>Size Reduction:</span>
-                            <span className="text-green-600">{savingsPercentage}%</span>
+                            <span>Size Change:</span>
+                            <span className={isSmaller ? "text-green-600" : "text-amber-600"}>
+                              {isSmaller ? "Reduced" : "Larger"} by {savingsPercentage}%
+                            </span>
                           </div>
                         </div>
 
@@ -332,23 +366,23 @@ const AdvancedImageCompressor = () => {
                 <h3 className="text-lg font-semibold mb-4">Advanced Compression Features</h3>
                 <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
-                    <span className="text-primary">✓</span>
+                    <Check className="mt-0.5 h-4 w-4 text-primary" />
                     <span><strong>Multiple Formats:</strong> Save as JPG, PNG, or WebP</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-primary">✓</span>
+                    <Check className="mt-0.5 h-4 w-4 text-primary" />
                     <span><strong>Quality Control:</strong> Adjust compression level from 10% to 100%</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-primary">✓</span>
+                    <Check className="mt-0.5 h-4 w-4 text-primary" />
                     <span><strong>Smart Resizing:</strong> Optionally resize while compressing</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-primary">✓</span>
+                    <Check className="mt-0.5 h-4 w-4 text-primary" />
                     <span><strong>Live Preview:</strong> See results before downloading</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-primary">✓</span>
+                    <Check className="mt-0.5 h-4 w-4 text-primary" />
                     <span><strong>100% Private:</strong> All processing in your browser</span>
                   </li>
                 </ul>

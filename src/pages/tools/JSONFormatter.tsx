@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { SEOHead } from "@/components/SEOHead";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card } from "@/components/ui/card";
@@ -15,64 +15,6 @@ const JSONFormatter = () => {
   const [error, setError] = useState("");
   const { toast } = useToast();
 
-  // ✅ DEBUGGING: Check all ads on page
-  useEffect(() => {
-    const debugTimer = setTimeout(() => {
-      console.log('=== 🔍 JSON FORMATTER AD DEBUG ===');
-
-      // Check AdSense initialization
-      console.log('1. AdSense Status:', {
-        exists: !!window.adsbygoogle,
-        isArray: Array.isArray(window.adsbygoogle),
-        length: window.adsbygoogle?.length,
-        type: typeof window.adsbygoogle
-      });
-
-      // Find all ad elements
-      const allAds = document.querySelectorAll('.adsbygoogle');
-      console.log(`2. Total ads found: ${allAds.length}`);
-
-      allAds.forEach((ad, i) => {
-        const parent = ad.parentElement;
-        const grandparent = ad.parentElement?.parentElement;
-        const rect = ad.getBoundingClientRect();
-
-        console.log(`\nAd ${i + 1}:`, {
-          slot: ad.getAttribute('data-ad-slot'),
-          format: ad.getAttribute('data-ad-format'),
-          client: ad.getAttribute('data-ad-client'),
-          width: rect.width,
-          height: rect.height,
-          hasIframe: !!ad.querySelector('iframe'),
-          parentClass: parent?.className,
-          parentWidth: parent?.offsetWidth,
-          grandparentClass: grandparent?.className,
-          html: ad.outerHTML.substring(0, 150) + '...'
-        });
-      });
-
-      // Check for CSP errors
-      console.log('\n3. Check console above for CSP errors');
-
-      // Check ad containers
-      const adContainers = document.querySelectorAll('[data-ad-slot]');
-      console.log(`4. Ad containers with data-ad-slot: ${adContainers.length}`);
-
-      adContainers.forEach((container, i) => {
-        const rect = container.getBoundingClientRect();
-        console.log(`Container ${i + 1}:`, {
-          slot: container.getAttribute('data-ad-slot'),
-          width: rect.width,
-          offsetWidth: (container as HTMLElement).offsetWidth,
-          computedWidth: window.getComputedStyle(container).width
-        });
-      });
-
-      console.log('\n=== END DEBUG ===\n');
-    }, 3000);
-
-    return () => clearTimeout(debugTimer);
-  }, []);
 
   const formatJSON = () => {
     if (!input.trim()) {

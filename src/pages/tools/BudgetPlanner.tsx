@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 interface BudgetItem {
   id: string;
@@ -109,7 +110,8 @@ const BudgetPlanner = () => {
       .sort((a, b) => b.total - a.total);
 
     // Recommended savings (20% of income)
-    const recommendedSavings = monthlyIncome * (parseFloat(savingsGoal) / 100);
+    const targetSavingsRate = Math.max(0, parseFloat(savingsGoal) || 0);
+    const recommendedSavings = monthlyIncome * (targetSavingsRate / 100);
     const actualSavings = monthlyNet;
     const savingsRate = monthlyIncome > 0 ? (actualSavings / monthlyIncome) * 100 : 0;
 
@@ -153,11 +155,17 @@ const BudgetPlanner = () => {
   }, [incomes, expenses, savingsGoal]);
 
   const addIncome = () => {
+    const amount = Math.max(0, parseFloat(newIncomeAmount) || 0);
+    if (!newIncomeName.trim() || amount <= 0) {
+      toast.error("Enter an income name and amount greater than zero");
+      return;
+    }
+
     if (newIncomeName && newIncomeAmount) {
       const newIncome: BudgetItem = {
         id: Date.now().toString(),
-        name: newIncomeName,
-        amount: parseFloat(newIncomeAmount),
+        name: newIncomeName.trim(),
+        amount,
         category: "income",
         frequency: newIncomeFrequency,
       };
@@ -168,11 +176,17 @@ const BudgetPlanner = () => {
   };
 
   const addExpense = () => {
+    const amount = Math.max(0, parseFloat(newExpenseAmount) || 0);
+    if (!newExpenseName.trim() || amount <= 0) {
+      toast.error("Enter an expense name and amount greater than zero");
+      return;
+    }
+
     if (newExpenseName && newExpenseAmount) {
       const newExpense: BudgetItem = {
         id: Date.now().toString(),
-        name: newExpenseName,
-        amount: parseFloat(newExpenseAmount),
+        name: newExpenseName.trim(),
+        amount,
         category: newExpenseCategory,
         frequency: newExpenseFrequency,
       };
@@ -191,6 +205,7 @@ const BudgetPlanner = () => {
   };
 
   const exportToCSV = () => {
+    const csvEscape = (value: string | number) => `"${String(value).replace(/"/g, '""')}"`;
     const csvContent = [
       ["Budget Planner Report"],
       [""],
@@ -229,7 +244,7 @@ const BudgetPlanner = () => {
         `${cat.percentage.toFixed(1)}%`,
       ]),
     ]
-      .map(row => row.join(","))
+      .map(row => row.map(csvEscape).join(","))
       .join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv" });
@@ -249,8 +264,13 @@ const BudgetPlanner = () => {
     return expenseCategories.find(c => c.value === categoryValue)?.label || categoryValue;
   };
 
+  const savingsGoalValue = Math.max(0, parseFloat(savingsGoal) || 0);
+  const savingsProgressWidth = savingsGoalValue > 0
+    ? Math.min((calculations.savingsRate / savingsGoalValue) * 100, 100)
+    : 100;
+
   return (
-    <ToolLayout title="Budget Planner" description="Track income and expenses, analyze spending by category, and reach your savings goals." category="Finance">
+    <ToolLayout title="Budget Planner" description="Track income and expenses, analyze spending by category, and reach your savings goals." category="Calculators">
       <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
@@ -498,7 +518,7 @@ const BudgetPlanner = () => {
                                   <div>
                                     <h4 className="font-semibold">{expense.name}</h4>
                                     <p className="text-sm text-muted-foreground">
-                                      {getCategoryLabel(expense.category)} • ${expense.amount.toLocaleString()} / {expense.frequency}
+                                      {getCategoryLabel(expense.category)} - ${expense.amount.toLocaleString()} / {expense.frequency}
                                     </p>
                                   </div>
                                 </div>
@@ -589,7 +609,7 @@ const BudgetPlanner = () => {
                               ${calculations.rule503020.needs.toLocaleString("en-US", { maximumFractionDigits: 0 })}
                             </div>
                             <div className={`text-sm mt-2 ${calculations.rule503020.needsPercentage <= 50 ? "text-green-600" : "text-red-600"}`}>
-                              {calculations.rule503020.needsPercentage <= 50 ? "✓ On track" : "⚠ Over budget"}
+                              {calculations.rule503020.needsPercentage <= 50 ? "On track" : "Over budget"}
                             </div>
                           </CardContent>
                         </Card>
@@ -606,7 +626,7 @@ const BudgetPlanner = () => {
                               ${calculations.rule503020.wants.toLocaleString("en-US", { maximumFractionDigits: 0 })}
                             </div>
                             <div className={`text-sm mt-2 ${calculations.rule503020.wantsPercentage <= 30 ? "text-green-600" : "text-orange-600"}`}>
-                              {calculations.rule503020.wantsPercentage <= 30 ? "✓ On track" : "⚠ Over budget"}
+                              {calculations.rule503020.wantsPercentage <= 30 ? "On track" : "Over budget"}
                             </div>
                           </CardContent>
                         </Card>
@@ -623,7 +643,7 @@ const BudgetPlanner = () => {
                               ${calculations.rule503020.savings.toLocaleString("en-US", { maximumFractionDigits: 0 })}
                             </div>
                             <div className={`text-sm mt-2 ${calculations.rule503020.savingsPercentage >= 20 ? "text-green-600" : "text-red-600"}`}>
-                              {calculations.rule503020.savingsPercentage >= 20 ? "✓ On track" : "⚠ Below goal"}
+                              {calculations.rule503020.savingsPercentage >= 20 ? "On track" : "Below goal"}
                             </div>
                           </CardContent>
                         </Card>
@@ -662,7 +682,7 @@ const BudgetPlanner = () => {
 
                 {incomes.length > 0 && (
                   <div className="space-y-4">
-                    <Card className={calculations.savingsRate >= parseFloat(savingsGoal) ? "border-green-500" : "border-orange-500"}>
+                    <Card className={calculations.savingsRate >= savingsGoalValue ? "border-green-500" : "border-orange-500"}>
                       <CardHeader>
                         <CardTitle>Savings Progress</CardTitle>
                       </CardHeader>
@@ -675,9 +695,9 @@ const BudgetPlanner = () => {
                           <div className="w-full bg-gray-200 rounded-full h-4">
                             <div
                               className={`h-4 rounded-full transition-all ${
-                                calculations.savingsRate >= parseFloat(savingsGoal) ? "bg-green-500" : "bg-orange-500"
+                                calculations.savingsRate >= savingsGoalValue ? "bg-green-500" : "bg-orange-500"
                               }`}
-                              style={{ width: `${Math.min((calculations.savingsRate / parseFloat(savingsGoal)) * 100, 100)}%` }}
+                              style={{ width: `${savingsProgressWidth}%` }}
                             />
                           </div>
                         </div>

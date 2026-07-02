@@ -6,21 +6,18 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Minimize2, Copy } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
+import { minifyHTMLBasic } from "@/utils/developerText";
 
 const HTMLMinifier = () => {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
 
   const minify = () => {
-    if (!input) {
+    if (!input.trim()) {
       toast.error("Please enter HTML");
       return;
     }
-    const minified = input
-      .replace(/<!--[\s\S]*?-->/g, '')
-      .replace(/\s+/g, ' ')
-      .replace(/>\s+</g, '><')
-      .trim();
+    const minified = minifyHTMLBasic(input);
     setOutput(minified);
     const savedBytes = input.length - minified.length;
     toast.success(`Minified! Saved ${savedBytes} bytes`);

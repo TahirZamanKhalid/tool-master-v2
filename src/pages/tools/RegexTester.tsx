@@ -1,39 +1,39 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Code } from "lucide-react";
+import { Copy } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const RegexTester = () => {
   const [pattern, setPattern] = useState("\\w+");
   const [flags, setFlags] = useState("g");
   const [testString, setTestString] = useState("Hello World 123");
-  const [error, setError] = useState("");
 
-  const testRegex = () => {
+  const regexResult = useMemo(() => {
     try {
       const regex = new RegExp(pattern, flags);
       const matches = testString.match(regex);
-      setError("");
-      return matches || [];
+      return { error: "", matches: matches || [] };
     } catch (e) {
-      setError((e as Error).message);
-      return [];
+      return { error: (e as Error).message, matches: [] };
     }
-  };
+  }, [pattern, flags, testString]);
 
-  const matches = testRegex();
+  const matches = regexResult.matches;
+  const currentError = regexResult.error;
 
-  const highlightMatches = () => {
+  const highlightedParts = useMemo(() => {
     try {
-      const regex = new RegExp(pattern, flags);
       let lastIndex = 0;
-      const parts = [];
+      const parts: { text: string; highlight: boolean }[] = [];
       let match;
-      const regexCopy = new RegExp(pattern, flags);
+      const safeFlags = flags.includes("g") ? flags : `${flags}g`;
+      const regexCopy = new RegExp(pattern, safeFlags);
       
       while ((match = regexCopy.exec(testString)) !== null) {
         if (match.index > lastIndex) {
@@ -41,17 +41,25 @@ const RegexTester = () => {
         }
         parts.push({ text: match[0], highlight: true });
         lastIndex = match.index + match[0].length;
-        if (!flags.includes('g')) break;
+        if (match[0].length === 0) {
+          regexCopy.lastIndex++;
+          if (regexCopy.lastIndex > testString.length) break;
+        }
       }
       
       if (lastIndex < testString.length) {
         parts.push({ text: testString.slice(lastIndex), highlight: false });
       }
       
-      return parts;
+      return parts.length ? parts : [{ text: testString, highlight: false }];
     } catch {
       return [{ text: testString, highlight: false }];
     }
+  }, [pattern, flags, testString]);
+
+  const copyMatches = async () => {
+    await navigator.clipboard.writeText(matches.join("\n"));
+    toast.success("Matches copied to clipboard");
   };
 
   return (
@@ -89,9 +97,9 @@ const RegexTester = () => {
           </div>
         </div>
 
-        {error && (
+        {currentError && (
           <div className="bg-destructive/10 text-destructive p-4 rounded-lg">
-            Error: {error}
+            Error: {currentError}
           </div>
         )}
 
@@ -110,9 +118,15 @@ const RegexTester = () => {
           <h3 className="font-semibold text-lg mb-4">Result</h3>
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground mb-2">
-                Matches: {matches.length}
-              </p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm text-muted-foreground">Matches: {matches.length}</p>
+                {matches.length > 0 && (
+                  <Button variant="outline" size="sm" onClick={copyMatches}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy Matches
+                  </Button>
+                )}
+              </div>
               <div className="flex flex-wrap gap-2">
                 {matches.map((match, idx) => (
                   <Badge key={idx} variant="secondary">{match}</Badge>
@@ -123,7 +137,7 @@ const RegexTester = () => {
             <div>
               <p className="text-sm text-muted-foreground mb-2">Highlighted Text:</p>
               <div className="bg-muted p-4 rounded-lg font-mono">
-                {highlightMatches().map((part, idx) => (
+                {highlightedParts.map((part, idx) => (
                   <span
                     key={idx}
                     className={part.highlight ? "bg-yellow-300 dark:bg-yellow-600" : ""}

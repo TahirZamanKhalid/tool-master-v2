@@ -6,31 +6,35 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AdRow } from "@/components/AdRow";
+import { toast } from "sonner";
+import { caesarShift } from "@/utils/textTools";
+import { Copy } from "lucide-react";
 
 const CaesarCipher = () => {
   const [text, setText] = useState("");
   const [shift, setShift] = useState(3);
   const [result, setResult] = useState("");
 
-  const caesar = (str: string, shift: number) => {
-    return str.split("").map(char => {
-      if (char.match(/[a-z]/i)) {
-        const code = char.charCodeAt(0);
-        const base = code >= 65 && code <= 90 ? 65 : 97;
-        return String.fromCharCode(((code - base + shift) % 26) + base);
-      }
-      return char;
-    }).join("");
+  const runCipher = (direction: 1 | -1) => {
+    if (!text) {
+      toast.error("Please enter text");
+      return;
+    }
+    setResult(caesarShift(text, shift * direction));
   };
 
-  const encrypt = () => setResult(caesar(text, shift));
-  const decrypt = () => setResult(caesar(text, -shift));
+  const encrypt = () => runCipher(1);
+  const decrypt = () => runCipher(-1);
+  const copyResult = () => {
+    navigator.clipboard.writeText(result);
+    toast.success("Copied to clipboard");
+  };
 
   return (
     <ToolLayout
       title="Caesar Cipher"
       description="Encrypt and decrypt text using Caesar cipher"
-      category="Security Tools"
+      category="Text Tools"
     >
       <AdRow className="mb-6" />
       <Card>
@@ -53,7 +57,15 @@ const CaesarCipher = () => {
             <Button onClick={encrypt}>Encrypt</Button>
             <Button onClick={decrypt} variant="outline">Decrypt</Button>
           </div>
-          {result && <Textarea value={result} readOnly rows={4} />}
+          {result && (
+            <>
+              <Textarea value={result} readOnly rows={4} />
+              <Button onClick={copyResult} variant="outline" className="w-full">
+                <Copy className="h-4 w-4 mr-2" />
+                Copy
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
       <AdRow className="mt-6" />

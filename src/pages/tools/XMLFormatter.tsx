@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { AdSpace } from "@/components/AdSpace";
+import { formatXMLString } from "@/utils/developerText";
 
 const XMLFormatter = () => {
   const [input, setInput] = useState("");
@@ -17,17 +18,10 @@ const XMLFormatter = () => {
     }
 
     try {
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(input, "text/xml");
-      const serializer = new XMLSerializer();
-      const formatted = serializer.serializeToString(xmlDoc);
-      
-      // Basic indentation
-      const indented = formatted.replace(/></g, ">\n<");
-      setOutput(indented);
+      setOutput(formatXMLString(input));
       toast.success("XML formatted successfully!");
     } catch (error) {
-      toast.error("Invalid XML format");
+      toast.error(error instanceof Error ? error.message : "Invalid XML format");
     }
   };
 

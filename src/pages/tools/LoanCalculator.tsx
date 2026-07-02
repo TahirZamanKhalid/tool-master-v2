@@ -12,18 +12,20 @@ const LoanCalculator = () => {
   const [loanTerm, setLoanTerm] = useState<string>("12");
   const [termUnit, setTermUnit] = useState<"months" | "years">("months");
 
-  const principal = parseFloat(loanAmount) || 0;
-  const rate = parseFloat(interestRate) || 0;
-  const term = parseFloat(loanTerm) || 0;
+  const principal = Math.max(0, parseFloat(loanAmount) || 0);
+  const rate = Math.max(0, parseFloat(interestRate) || 0);
+  const term = Math.max(0, parseFloat(loanTerm) || 0);
 
   // Convert to months if years
   const months = termUnit === "years" ? term * 12 : term;
 
   // Calculate monthly payment using loan formula
   const monthlyRate = rate / 100 / 12;
-  const monthlyPayment = months > 0 && monthlyRate > 0
-    ? principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1)
-    : principal / months;
+  const monthlyPayment = months <= 0
+    ? 0
+    : monthlyRate > 0
+      ? principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1)
+      : principal / months;
 
   const totalPayment = monthlyPayment * months;
   const totalInterest = totalPayment - principal;
@@ -57,9 +59,9 @@ const LoanCalculator = () => {
         "View monthly payment, total interest, and payment schedule"
       ]}
       relatedTools={[
-        { name: "Mortgage Calculator", path: "/tools/mortgage-calculator" },
-        { name: "Investment Calculator", path: "/tools/investment-calculator" },
-        { name: "Salary Calculator", path: "/tools/salary-calculator" }
+        { name: "Compound Interest Calculator", path: "/tools/compound-interest-calculator" },
+        { name: "Savings Goal Calculator", path: "/tools/savings-goal-calculator" },
+        { name: "Budget Planner", path: "/tools/budget-planner" }
       ]}
     >
       <div className="grid gap-6">
@@ -171,10 +173,10 @@ const LoanCalculator = () => {
                   <div className="pt-4 border-t space-y-2">
                     <h4 className="font-semibold text-sm mb-2">Loan Details</h4>
                     <div className="text-sm space-y-1 text-muted-foreground">
-                      <p>• Loan Amount: ${principal.toFixed(2)}</p>
-                      <p>• Interest Rate: {rate}% per year</p>
-                      <p>• Loan Term: {months} months ({(months / 12).toFixed(1)} years)</p>
-                      <p>• Total Interest Paid: ${isFinite(totalInterest) ? totalInterest.toFixed(2) : '0.00'}</p>
+                      <p>- Loan Amount: ${principal.toFixed(2)}</p>
+                      <p>- Interest Rate: {rate}% per year</p>
+                      <p>- Loan Term: {months} months ({(months / 12).toFixed(1)} years)</p>
+                      <p>- Total Interest Paid: ${isFinite(totalInterest) ? totalInterest.toFixed(2) : '0.00'}</p>
                     </div>
                   </div>
                 </div>

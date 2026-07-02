@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { AdSpace } from "@/components/AdSpace";
+import { formatSQLQuery } from "@/utils/developerText";
 
 const SQLFormatter = () => {
   const [input, setInput] = useState("");
@@ -16,17 +17,7 @@ const SQLFormatter = () => {
       return;
     }
 
-    // Basic SQL formatting
-    const formatted = input
-      .replace(/\s+/g, " ")
-      .replace(/SELECT/gi, "\nSELECT")
-      .replace(/FROM/gi, "\nFROM")
-      .replace(/WHERE/gi, "\nWHERE")
-      .replace(/ORDER BY/gi, "\nORDER BY")
-      .replace(/GROUP BY/gi, "\nGROUP BY")
-      .replace(/JOIN/gi, "\nJOIN")
-      .trim();
-    
+    const formatted = formatSQLQuery(input);
     setOutput(formatted);
     toast.success("SQL formatted successfully!");
   };

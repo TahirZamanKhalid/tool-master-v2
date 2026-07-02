@@ -27,13 +27,12 @@ const HeadingAnalyzer = () => {
     const foundHeadings: HeadingItem[] = [];
     const allIssues: string[] = [];
 
-    // Extract headings using regex
-    const headingRegex = /<(h[1-6])[^>]*>(.*?)<\/\1>/gi;
-    let match;
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    const headingElements = Array.from(doc.querySelectorAll("h1, h2, h3, h4, h5, h6"));
 
-    while ((match = headingRegex.exec(html)) !== null) {
-      const level = parseInt(match[1].substring(1));
-      const text = match[2].replace(/<[^>]*>/g, "").trim();
+    headingElements.forEach((element) => {
+      const level = parseInt(element.tagName.substring(1), 10);
+      const text = element.textContent?.replace(/\s+/g, " ").trim() || "";
 
       const itemIssues: string[] = [];
 
@@ -53,7 +52,7 @@ const HeadingAnalyzer = () => {
       }
 
       foundHeadings.push({ level, text: text || "(empty)", issues: itemIssues });
-    }
+    });
 
     // Analyze structure
     const h1Count = foundHeadings.filter(h => h.level === 1).length;
@@ -75,7 +74,7 @@ const HeadingAnalyzer = () => {
       const previous = foundHeadings[i - 1].level;
 
       if (current - previous > 1) {
-        allIssues.push(`Skipped heading level: H${previous} → H${current} (line ${i + 1})`);
+        allIssues.push(`Skipped heading level: H${previous} -> H${current} (line ${i + 1})`);
       }
     }
 
@@ -109,10 +108,6 @@ const HeadingAnalyzer = () => {
       "text-purple-600"
     ];
     return colors[level - 1] || "text-gray-600";
-  };
-
-  const getIndentation = (level: number) => {
-    return `pl-${(level - 1) * 4}`;
   };
 
   return (
@@ -193,7 +188,8 @@ const HeadingAnalyzer = () => {
                   {headings.map((heading, index) => (
                     <div
                       key={index}
-                      className={`p-3 bg-muted/50 rounded-lg ${getIndentation(heading.level)}`}
+                      className="p-3 bg-muted/50 rounded-lg"
+                      style={{ paddingLeft: `${0.75 + (heading.level - 1) * 1}rem` }}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -233,7 +229,7 @@ const HeadingAnalyzer = () => {
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                <span><strong>Logical hierarchy:</strong> Don't skip heading levels (H1 → H2 → H3)</span>
+                <span><strong>Logical hierarchy:</strong> Don't skip heading levels (H1, H2, H3)</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />

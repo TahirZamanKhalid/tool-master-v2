@@ -207,43 +207,43 @@ export const generateBreadcrumbsFromPath = (
 export const BREADCRUMB_PRESETS = {
   imageTools: (toolName: string, toolPath: string): BreadcrumbItem[] => [
     { label: "Tools", path: "/tools" },
-    { label: "Image Tools", path: "category/image-tools" },
+    { label: "Image Tools", path: "/category/image-tools" },
     { label: toolName, path: toolPath, current: true },
   ],
 
   pdfTools: (toolName: string, toolPath: string): BreadcrumbItem[] => [
     { label: "Tools", path: "/tools" },
-    { label: "PDF Tools", path: "/tools/pdf-tools" },
+    { label: "PDF Tools", path: "/category/pdf-tools" },
     { label: toolName, path: toolPath, current: true },
   ],
 
   textTools: (toolName: string, toolPath: string): BreadcrumbItem[] => [
     { label: "Tools", path: "/tools" },
-    { label: "Text Tools", path: "/tools/text-tools" },
+    { label: "Text Tools", path: "/category/text-tools" },
     { label: toolName, path: toolPath, current: true },
   ],
 
   utilities: (toolName: string, toolPath: string): BreadcrumbItem[] => [
     { label: "Tools", path: "/tools" },
-    { label: "Utilities", path: "/tools/utilities" },
+    { label: "Utilities", path: "/category/utilities" },
     { label: toolName, path: toolPath, current: true },
   ],
 
   converters: (toolName: string, toolPath: string): BreadcrumbItem[] => [
     { label: "Tools", path: "/tools" },
-    { label: "Converters", path: "/tools/converters" },
+    { label: "Converters", path: "/category/file-converters" },
     { label: toolName, path: toolPath, current: true },
   ],
 
   calculators: (toolName: string, toolPath: string): BreadcrumbItem[] => [
     { label: "Tools", path: "/tools" },
-    { label: "Calculators", path: "/tools/calculators" },
+    { label: "Calculators", path: "/category/calculators" },
     { label: toolName, path: toolPath, current: true },
   ],
 
   generators: (toolName: string, toolPath: string): BreadcrumbItem[] => [
     { label: "Tools", path: "/tools" },
-    { label: "Generators", path: "/tools/generators" },
+    { label: "Generators", path: "/category/generators" },
     { label: toolName, path: toolPath, current: true },
   ],
 

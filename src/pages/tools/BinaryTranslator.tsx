@@ -4,24 +4,30 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { AdRow } from "@/components/AdRow";
+import { toast } from "sonner";
+import { binaryToTextUtf8, textToBinaryUtf8 } from "@/utils/textTools";
 
 const BinaryTranslator = () => {
   const [text, setText] = useState("");
   const [binary, setBinary] = useState("");
 
   const textToBinary = () => {
-    setBinary(text.split("").map(char => 
-      char.charCodeAt(0).toString(2).padStart(8, "0")
-    ).join(" "));
+    if (!text) {
+      toast.error("Please enter text to convert");
+      return;
+    }
+    setBinary(textToBinaryUtf8(text));
   };
 
   const binaryToText = () => {
     try {
-      setText(binary.split(" ").map(bin => 
-        String.fromCharCode(parseInt(bin, 2))
-      ).join(""));
-    } catch {
-      setText("Invalid binary");
+      if (!binary.trim()) {
+        toast.error("Please enter binary to convert");
+        return;
+      }
+      setText(binaryToTextUtf8(binary));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Invalid binary");
     }
   };
 
@@ -29,7 +35,7 @@ const BinaryTranslator = () => {
     <ToolLayout
       title="Binary Translator"
       description="Convert text to binary and vice versa"
-      category="Converter Tools"
+      category="Text Tools"
     >
       <AdRow className="mb-6" />
       <Card>

@@ -34,9 +34,18 @@ interface Holiday {
   name: string;
 }
 
+const formatDateInput = (date: Date) => {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+};
+
+const parseLocalDate = (value: string) => {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Date(year, month - 1, day);
+};
+
 const DateDifferenceCalculator = () => {
-  const [startDate, setStartDate] = useState<string>(new Date().toISOString().split("T")[0]);
-  const [endDate, setEndDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [startDate, setStartDate] = useState<string>(formatDateInput(new Date()));
+  const [endDate, setEndDate] = useState<string>(formatDateInput(new Date()));
   const [startTime, setStartTime] = useState<string>("00:00");
   const [endTime, setEndTime] = useState<string>("00:00");
   const [includeTime, setIncludeTime] = useState(false);
@@ -86,8 +95,10 @@ const DateDifferenceCalculator = () => {
 
     const start = new Date(startDate + (includeTime ? `T${startTime}:00` : "T00:00:00"));
     const end = new Date(endDate + (includeTime ? `T${endTime}:00` : "T00:00:00"));
+    const earlier = start <= end ? start : end;
+    const later = start <= end ? end : start;
 
-    const diffMs = Math.abs(end.getTime() - start.getTime());
+    const diffMs = later.getTime() - earlier.getTime();
 
     // Calculate total units
     const totalSeconds = Math.floor(diffMs / 1000);
@@ -97,8 +108,8 @@ const DateDifferenceCalculator = () => {
     const totalWeeks = Math.floor(totalDays / 7);
 
     // Calculate broken down units
-    let tempStart = new Date(start);
-    const tempEnd = new Date(end);
+    let tempStart = new Date(earlier);
+    const tempEnd = new Date(later);
 
     let years = 0;
     let months = 0;
@@ -115,7 +126,7 @@ const DateDifferenceCalculator = () => {
     }
 
     // Calculate months
-    tempStart = new Date(start);
+    tempStart = new Date(earlier);
     tempStart.setFullYear(tempStart.getFullYear() + years);
 
     while (tempStart.getMonth() + months !== tempEnd.getMonth() || tempStart.getFullYear() !== tempEnd.getFullYear()) {
@@ -129,7 +140,7 @@ const DateDifferenceCalculator = () => {
     }
 
     // Calculate remaining days
-    tempStart = new Date(start);
+    tempStart = new Date(earlier);
     tempStart.setFullYear(tempStart.getFullYear() + years);
     tempStart.setMonth(tempStart.getMonth() + months);
 
@@ -141,7 +152,7 @@ const DateDifferenceCalculator = () => {
 
     // Calculate business days
     const businessDays = excludeWeekends || excludeHolidays
-      ? calculateBusinessDays(start, end)
+      ? calculateBusinessDays(earlier, later)
       : totalDays;
 
     // Approximate total months and years
@@ -172,12 +183,12 @@ const DateDifferenceCalculator = () => {
     const months = parseInt(addMonths) || 0;
     const years = parseInt(addYears) || 0;
 
-    const date = new Date(startDate);
+    const date = parseLocalDate(startDate);
     date.setDate(date.getDate() + days);
     date.setMonth(date.getMonth() + months);
     date.setFullYear(date.getFullYear() + years);
 
-    setEndDate(date.toISOString().split("T")[0]);
+    setEndDate(formatDateInput(date));
     setAddDays("");
     setAddMonths("");
     setAddYears("");
@@ -188,20 +199,21 @@ const DateDifferenceCalculator = () => {
     const months = parseInt(addMonths) || 0;
     const years = parseInt(addYears) || 0;
 
-    const date = new Date(startDate);
+    const date = parseLocalDate(startDate);
     date.setDate(date.getDate() - days);
     date.setMonth(date.getMonth() - months);
     date.setFullYear(date.getFullYear() - years);
 
-    setEndDate(date.toISOString().split("T")[0]);
+    setEndDate(formatDateInput(date));
     setAddDays("");
     setAddMonths("");
     setAddYears("");
   };
 
   const setToToday = () => {
-    setStartDate(new Date().toISOString().split("T")[0]);
-    setEndDate(new Date().toISOString().split("T")[0]);
+    const today = formatDateInput(new Date());
+    setStartDate(today);
+    setEndDate(today);
   };
 
   const swapDates = () => {
@@ -623,9 +635,9 @@ const DateDifferenceCalculator = () => {
                         <Button
                           variant="outline"
                           onClick={() => {
-                            const date = new Date(startDate);
+                            const date = parseLocalDate(startDate);
                             date.setDate(date.getDate() + 30);
-                            setEndDate(date.toISOString().split("T")[0]);
+                            setEndDate(formatDateInput(date));
                           }}
                         >
                           + 30 days
@@ -633,9 +645,9 @@ const DateDifferenceCalculator = () => {
                         <Button
                           variant="outline"
                           onClick={() => {
-                            const date = new Date(startDate);
+                            const date = parseLocalDate(startDate);
                             date.setDate(date.getDate() + 90);
-                            setEndDate(date.toISOString().split("T")[0]);
+                            setEndDate(formatDateInput(date));
                           }}
                         >
                           + 90 days (3 months)
@@ -643,9 +655,9 @@ const DateDifferenceCalculator = () => {
                         <Button
                           variant="outline"
                           onClick={() => {
-                            const date = new Date(startDate);
+                            const date = parseLocalDate(startDate);
                             date.setMonth(date.getMonth() + 6);
-                            setEndDate(date.toISOString().split("T")[0]);
+                            setEndDate(formatDateInput(date));
                           }}
                         >
                           + 6 months
@@ -653,9 +665,9 @@ const DateDifferenceCalculator = () => {
                         <Button
                           variant="outline"
                           onClick={() => {
-                            const date = new Date(startDate);
+                            const date = parseLocalDate(startDate);
                             date.setFullYear(date.getFullYear() + 1);
-                            setEndDate(date.toISOString().split("T")[0]);
+                            setEndDate(formatDateInput(date));
                           }}
                         >
                           + 1 year
@@ -663,9 +675,9 @@ const DateDifferenceCalculator = () => {
                         <Button
                           variant="outline"
                           onClick={() => {
-                            const date = new Date(startDate);
+                            const date = parseLocalDate(startDate);
                             date.setFullYear(date.getFullYear() + 5);
-                            setEndDate(date.toISOString().split("T")[0]);
+                            setEndDate(formatDateInput(date));
                           }}
                         >
                           + 5 years
@@ -673,9 +685,9 @@ const DateDifferenceCalculator = () => {
                         <Button
                           variant="outline"
                           onClick={() => {
-                            const date = new Date(startDate);
+                            const date = parseLocalDate(startDate);
                             date.setFullYear(date.getFullYear() + 10);
-                            setEndDate(date.toISOString().split("T")[0]);
+                            setEndDate(formatDateInput(date));
                           }}
                         >
                           + 10 years

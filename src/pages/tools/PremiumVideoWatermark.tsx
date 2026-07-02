@@ -14,6 +14,14 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { normalizeHexColor } from "@/utils/imageFiles";
+import {
+  escapeDrawTextValue,
+  getVideoDownloadName,
+  revokeMediaUrl,
+  validateVideoFile,
+  validateWatermarkImageFile,
+} from "@/utils/videoFiles";
 
 type WatermarkType = "text" | "image";
 type Position = "topleft" | "topright" | "bottomleft" | "bottomright" | "center";
@@ -52,14 +60,18 @@ const PremiumVideoWatermark = () => {
     loadFFmpeg();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      revokeMediaUrl(videoUrl);
+      revokeMediaUrl(watermarkImageUrl);
+      revokeMediaUrl(outputUrl);
+    };
+  }, [videoUrl, watermarkImageUrl, outputUrl]);
+
   const loadFFmpeg = async () => {
     try {
       const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
       const ffmpeg = ffmpegRef.current;
-
-      ffmpeg.on('log', ({ message }) => {
-        console.log(message);
-      });
 
       ffmpeg.on('progress', ({ progress }) => {
         setProcessingProgress(Math.round(progress * 100));
@@ -72,8 +84,7 @@ const PremiumVideoWatermark = () => {
 
       setFfmpegLoaded(true);
       toast({ title: "Watermark tool loaded!" });
-    } catch (error) {
-      console.error('Failed to load FFmpeg:', error);
+    } catch {
       toast({ title: "Failed to load watermark tool", variant: "destructive" });
     }
   };
@@ -82,11 +93,14 @@ const PremiumVideoWatermark = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('video/')) {
-      toast({ title: "Please upload a video file", variant: "destructive" });
+    const validationError = validateVideoFile(file);
+    if (validationError) {
+      toast({ title: validationError, variant: "destructive" });
       return;
     }
 
+    revokeMediaUrl(videoUrl);
+    revokeMediaUrl(outputUrl);
     setVideoFile(file);
     const url = URL.createObjectURL(file);
     setVideoUrl(url);
@@ -98,11 +112,13 @@ const PremiumVideoWatermark = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast({ title: "Please upload an image file", variant: "destructive" });
+    const validationError = validateWatermarkImageFile(file);
+    if (validationError) {
+      toast({ title: validationError, variant: "destructive" });
       return;
     }
 
+    revokeMediaUrl(watermarkImageUrl);
     setWatermarkImage(file);
     const url = URL.createObjectURL(file);
     setWatermarkImageUrl(url);
@@ -166,12 +182,19 @@ const PremiumVideoWatermark = () => {
       if (watermarkType === "text") {
         // Text watermark using drawtext filter
         const posCoords = getPositionCoordinates();
-        const bgColor = backgroundColor.replace('#', '');
-        const fgColor = textColor.replace('#', '');
+        const safeTextColor = normalizeHexColor(textColor);
+        const safeBackgroundColor = normalizeHexColor(backgroundColor);
+        if (!safeTextColor || !safeBackgroundColor) {
+          toast({ title: "Please enter valid HEX colors", variant: "destructive" });
+          return;
+        }
+
+        const bgColor = safeBackgroundColor.replace('#', '');
+        const fgColor = safeTextColor.replace('#', '');
         const bgAlpha = Math.round(backgroundOpacity[0] * 255).toString(16).padStart(2, '0');
         const fgAlpha = Math.round(textOpacity[0] * 255).toString(16).padStart(2, '0');
 
-        const drawtext = `drawtext=text='${watermarkText}':fontsize=${fontSize[0]}:fontcolor=0x${fgColor}${fgAlpha}:${posCoords}:box=1:boxcolor=0x${bgColor}${bgAlpha}:boxborderw=5`;
+        const drawtext = `drawtext=text='${escapeDrawTextValue(watermarkText.trim())}':fontsize=${fontSize[0]}:fontcolor=0x${fgColor}${fgAlpha}:${posCoords}:box=1:boxcolor=0x${bgColor}${bgAlpha}:boxborderw=5`;
 
         args.push('-vf', drawtext);
       } else {
@@ -181,8 +204,7 @@ const PremiumVideoWatermark = () => {
         const scale = imageScale[0];
         const opacity = imageOpacity[0];
 
-        const overlay = `[0:v][1:v]overlay=${posCoords}:format=auto:alpha=${opacity}`;
-        const scaleFilter = `[1:v]scale=iw*${scale}:ih*${scale}[wm];[0:v][wm]overlay=${posCoords}`;
+        const scaleFilter = `[1:v]scale=iw*${scale}:ih*${scale},format=rgba,colorchannelmixer=aa=${opacity}[wm];[0:v][wm]overlay=${posCoords}`;
 
         args.push('-i', 'watermark.png');
         args.push('-filter_complex', scaleFilter);
@@ -191,19 +213,19 @@ const PremiumVideoWatermark = () => {
       args.push('-codec:a', 'copy');
       args.push('-c:v', 'libx264');
       args.push('-crf', '23');
+      args.push('-y');
       args.push('output.mp4');
 
-      console.log('FFmpeg args:', args);
       await ffmpeg.exec(args);
 
       const data = await ffmpeg.readFile('output.mp4');
       const blob = new Blob([data as BlobPart], { type: 'video/mp4' });
+      revokeMediaUrl(outputUrl);
       const url = URL.createObjectURL(blob);
 
       setOutputUrl(url);
       toast({ title: "Watermark added successfully!" });
-    } catch (error) {
-      console.error('Error adding watermark:', error);
+    } catch {
       toast({ title: "Failed to add watermark", variant: "destructive" });
     } finally {
       setIsProcessing(false);
@@ -216,7 +238,7 @@ const PremiumVideoWatermark = () => {
 
     const link = document.createElement('a');
     link.href = outputUrl;
-    link.download = `watermarked-video-${Date.now()}.mp4`;
+    link.download = getVideoDownloadName("watermarked", videoFile, "mp4");
     link.click();
     toast({ title: "Downloading watermarked video..." });
   };

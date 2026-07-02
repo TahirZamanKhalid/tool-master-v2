@@ -131,6 +131,9 @@ const TDEECalculator = () => {
     ) {
       return null;
     }
+    const safeBodyFatPercent = bodyFatPercent !== null && bodyFatPercent > 0 && bodyFatPercent < 100
+      ? bodyFatPercent
+      : null;
 
     let bmr = 0;
 
@@ -149,9 +152,9 @@ const TDEECalculator = () => {
       } else {
         bmr = 447.593 + 9.247 * weightKg + 3.098 * heightCm - 4.33 * ageNum;
       }
-    } else if (bmrFormula === "katch" && bodyFatPercent !== null) {
+    } else if (bmrFormula === "katch" && safeBodyFatPercent !== null) {
       // Katch-McArdle (uses lean body mass - more accurate if body fat % is known)
-      const leanMass = weightKg * (1 - bodyFatPercent / 100);
+      const leanMass = weightKg * (1 - safeBodyFatPercent / 100);
       bmr = 370 + 21.6 * leanMass;
     } else {
       // Default to Mifflin if Katch selected but no body fat provided
@@ -178,44 +181,24 @@ const TDEECalculator = () => {
     const idealWeightMin = 18.5 * heightM * heightM;
     const idealWeightMax = 24.9 * heightM * heightM;
 
+    const createCalorieTarget = (offset: number, description: string, weeklyChange: number): CalorieTarget => {
+      const calories = Math.max(0, Math.round(tdee + offset));
+      return {
+        calories,
+        description,
+        weeklyChange,
+        macros: getMacroSplit(calories, dietType),
+      };
+    };
+
     // Create calorie targets for different goals
     const goals = {
-      extremeLoss: {
-        calories: Math.round(tdee - 1000),
-        description: "Extreme Weight Loss (2 lbs/week)",
-        weeklyChange: -2,
-        macros: getMacroSplit(Math.round(tdee - 1000), dietType),
-      },
-      moderateLoss: {
-        calories: Math.round(tdee - 500),
-        description: "Moderate Weight Loss (1 lb/week)",
-        weeklyChange: -1,
-        macros: getMacroSplit(Math.round(tdee - 500), dietType),
-      },
-      mildLoss: {
-        calories: Math.round(tdee - 250),
-        description: "Mild Weight Loss (0.5 lbs/week)",
-        weeklyChange: -0.5,
-        macros: getMacroSplit(Math.round(tdee - 250), dietType),
-      },
-      maintenance: {
-        calories: Math.round(tdee),
-        description: "Maintain Current Weight",
-        weeklyChange: 0,
-        macros: getMacroSplit(Math.round(tdee), dietType),
-      },
-      mildGain: {
-        calories: Math.round(tdee + 250),
-        description: "Mild Weight Gain (0.5 lbs/week)",
-        weeklyChange: 0.5,
-        macros: getMacroSplit(Math.round(tdee + 250), dietType),
-      },
-      moderateGain: {
-        calories: Math.round(tdee + 500),
-        description: "Moderate Weight Gain (1 lb/week)",
-        weeklyChange: 1,
-        macros: getMacroSplit(Math.round(tdee + 500), dietType),
-      },
+      extremeLoss: createCalorieTarget(-1000, "Extreme Weight Loss (2 lbs/week)", -2),
+      moderateLoss: createCalorieTarget(-500, "Moderate Weight Loss (1 lb/week)", -1),
+      mildLoss: createCalorieTarget(-250, "Mild Weight Loss (0.5 lbs/week)", -0.5),
+      maintenance: createCalorieTarget(0, "Maintain Current Weight", 0),
+      mildGain: createCalorieTarget(250, "Mild Weight Gain (0.5 lbs/week)", 0.5),
+      moderateGain: createCalorieTarget(500, "Moderate Weight Gain (1 lb/week)", 1),
     };
 
     return {
@@ -240,7 +223,7 @@ const TDEECalculator = () => {
   ];
 
   return (
-    <ToolLayout title="TDEE Calculator" description="Calculate your Total Daily Energy Expenditure and get personalized nutrition recommendations." category="Health">
+    <ToolLayout title="TDEE Calculator" description="Calculate your Total Daily Energy Expenditure and get personalized nutrition recommendations." category="Calculators">
       <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">

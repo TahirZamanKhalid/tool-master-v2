@@ -8,6 +8,7 @@ import { Copy, ArrowDown, ArrowUp, Code, Shield, Zap, Globe, HelpCircle, FileTex
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { Helmet } from "react-helmet-async";
+import { decodeBase64Unicode, encodeBase64Unicode } from "@/utils/developerText";
 
 const Base64Encoder = () => {
   const [textInput, setTextInput] = useState("");
@@ -19,8 +20,19 @@ const Base64Encoder = () => {
   const { toast } = useToast();
 
   const encodeToBase64 = () => {
+    if (!textInput) {
+      setEncodeError("Please enter text to encode.");
+      setEncodedOutput("");
+      toast({
+        title: "No Input",
+        description: "Please enter text to encode.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      const encoded = btoa(textInput);
+      const encoded = encodeBase64Unicode(textInput);
       setEncodedOutput(encoded);
       setEncodeError("");
       toast({
@@ -33,8 +45,19 @@ const Base64Encoder = () => {
   };
 
   const decodeFromBase64 = () => {
+    if (!textInput.trim()) {
+      setEncodeError("Please enter Base64 text to decode.");
+      setDecodedOutput("");
+      toast({
+        title: "No Input",
+        description: "Please enter Base64 text to decode.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      const decoded = atob(textInput);
+      const decoded = decodeBase64Unicode(textInput);
       setDecodedOutput(decoded);
       setEncodeError("");
       toast({
@@ -168,7 +191,7 @@ const Base64Encoder = () => {
           },
           {
             question: "Can I encode special characters and Unicode?",
-            answer: "The browser's built-in btoa() function works with Latin-1 characters. For Unicode text (like emojis or non-Latin scripts), you may need to first encode the text to UTF-8 bytes before Base64 encoding. Our tool handles standard ASCII and Latin-1 text.",
+            answer: "Yes. This tool converts text to UTF-8 bytes before Base64 encoding, so Unicode text and non-Latin scripts are supported.",
           },
           {
             question: "What is the difference between Base64 and Base64URL?",
@@ -179,7 +202,7 @@ const Base64Encoder = () => {
           { name: "JSON Formatter", path: "/tools/json-formatter" },
           { name: "Hash Generator", path: "/tools/hash-generator" },
           { name: "URL Encoder/Decoder", path: "/tools/url-encoder" },
-          { name: "JWT Decoder", path: "/tools/jwt-decoder" },
+          { name: "JSON Validator", path: "/tools/json-validator" },
         ]}
       >
         {/* Main Tool */}

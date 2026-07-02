@@ -60,7 +60,7 @@ const CompoundInterestCalculator = () => {
       return null;
     }
 
-    if (p < 0 || c < 0 || r < 0 || y <= 0 || freq <= 0) {
+    if (p < 0 || c < 0 || r < 0 || inflation <= -1 || y <= 0 || freq <= 0 || (p === 0 && c === 0)) {
       return null;
     }
 
@@ -108,11 +108,13 @@ const CompoundInterestCalculator = () => {
     const finalBalance = balance;
     const totalInterest = finalBalance - totalContributions;
     const effectiveRate = Math.pow(1 + ratePerPeriod, periodsPerYear) - 1;
-    const roi = (totalInterest / totalContributions) * 100;
+    const roi = totalContributions > 0 ? (totalInterest / totalContributions) * 100 : 0;
 
     // Calculate inflation-adjusted final balance
     const inflationAdjustedBalance = finalBalance / Math.pow(1 + inflation, y);
-    const realReturn = ((inflationAdjustedBalance - totalContributions) / totalContributions) * 100;
+    const realReturn = totalContributions > 0
+      ? ((inflationAdjustedBalance - totalContributions) / totalContributions) * 100
+      : 0;
 
     return {
       yearlyBreakdown,
@@ -263,7 +265,7 @@ const CompoundInterestCalculator = () => {
   };
 
   return (
-    <ToolLayout title="Compound Interest Calculator" description="Calculate compound interest and visualize investment growth over time." category="Finance">
+    <ToolLayout title="Compound Interest Calculator" description="Calculate compound interest and visualize investment growth over time." category="Calculators">
       <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">

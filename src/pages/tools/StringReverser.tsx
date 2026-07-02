@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { AdRow } from "@/components/AdRow";
 import { useToast } from "@/hooks/use-toast";
+import { reverseText } from "@/utils/textTools";
 
 const StringReverser = () => {
   const [input, setInput] = useState("");
@@ -12,7 +13,11 @@ const StringReverser = () => {
   const { toast } = useToast();
 
   const reverse = () => {
-    setOutput(input.split("").reverse().join(""));
+    if (!input) {
+      toast({ description: "Please enter text to reverse", variant: "destructive" });
+      return;
+    }
+    setOutput(reverseText(input));
   };
 
   const copy = () => {

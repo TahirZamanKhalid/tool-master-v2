@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Upload, FileText, Copy, Image as ImageIcon } from "lucide-react";
+import { Download, Upload, FileText, Copy, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { AdSpace } from "@/components/AdSpace";
 import Tesseract from "tesseract.js";
+import { getSafeFileStem, isRasterImageFile } from "@/utils/imageFiles";
+
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+const SUPPORTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/bmp"];
 
 const ImageToText = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -14,13 +18,18 @@ const ImageToText = () => {
   const [extractedText, setExtractedText] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState<number>(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const processSelectedFile = (file: File) => {
     if (!file) return;
 
-    if (!file.type.match(/image\/(jpeg|jpg|png|webp|bmp)/)) {
+    if (!isRasterImageFile(file, SUPPORTED_TYPES)) {
       toast.error("Please select an image file (JPG, PNG, WebP, BMP)");
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      toast.error("Please upload an image smaller than 10 MB");
       return;
     }
 
@@ -32,6 +41,18 @@ const ImageToText = () => {
     reader.readAsDataURL(file);
     setExtractedText("");
     setProgress(0);
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.currentTarget.value = "";
+    if (file) processSelectedFile(file);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) processSelectedFile(file);
   };
 
   const extractText = async () => {
@@ -69,6 +90,18 @@ const ImageToText = () => {
     toast.success("Text copied to clipboard!");
   };
 
+  const downloadText = () => {
+    if (!extractedText) return;
+    const blob = new Blob([extractedText], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${getSafeFileStem(selectedFile?.name || "extracted-text", "extracted-text")}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+    toast.success("Text downloaded!");
+  };
+
   return (
     <ToolLayout
       title="Image to Text Converter (OCR)"
@@ -94,7 +127,11 @@ const ImageToText = () => {
           <div>
             <Label>Upload Image</Label>
             <div className="mt-2">
-              <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted transition-colors">
+              <label
+                className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted transition-colors"
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={handleDrop}
+              >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   <Upload className="h-12 w-12 mb-4 text-muted-foreground" />
                   <p className="mb-2 text-sm text-muted-foreground">
@@ -103,9 +140,10 @@ const ImageToText = () => {
                   <p className="text-xs text-muted-foreground">PNG, JPG, WebP, BMP (MAX. 10MB)</p>
                 </div>
                 <input
+                  ref={fileInputRef}
                   type="file"
                   className="hidden"
-                  accept="image/*"
+                  accept={SUPPORTED_TYPES.join(",")}
                   onChange={handleFileSelect}
                 />
               </label>
@@ -154,6 +192,10 @@ const ImageToText = () => {
                   <Button onClick={copyText} size="lg" className="flex-1">
                     <Copy className="h-4 w-4 mr-2" />
                     Copy Text
+                  </Button>
+                  <Button onClick={downloadText} size="lg" variant="outline" className="flex-1">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
                   </Button>
                 </div>
               </div>

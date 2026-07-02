@@ -5,6 +5,21 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { AdSpace } from "@/components/AdSpace";
 
+const commonPasswords = new Set([
+  "password",
+  "password123",
+  "123456",
+  "123456789",
+  "qwerty",
+  "admin",
+  "letmein",
+  "welcome",
+  "iloveyou",
+]);
+
+const hasSequence = (value: string) =>
+  /(?:0123|1234|2345|3456|4567|5678|6789|abcd|bcde|cdef|qwer|asdf)/i.test(value);
+
 const PasswordStrengthChecker = () => {
   const [password, setPassword] = useState("");
 
@@ -15,10 +30,23 @@ const PasswordStrengthChecker = () => {
     if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) strength += 25;
     if (/[0-9]/.test(pwd)) strength += 15;
     if (/[^a-zA-Z0-9]/.test(pwd)) strength += 10;
-    return strength;
+
+    if (commonPasswords.has(pwd.toLowerCase())) strength -= 35;
+    if (/(.)\1{2,}/.test(pwd)) strength -= 15;
+    if (hasSequence(pwd)) strength -= 15;
+
+    return Math.max(0, Math.min(100, strength));
   };
 
   const strength = checkStrength(password);
+  const checks = [
+    { label: "At least 8 characters", passed: password.length >= 8 },
+    { label: "Uppercase and lowercase", passed: /[a-z]/.test(password) && /[A-Z]/.test(password) },
+    { label: "Numbers", passed: /[0-9]/.test(password) },
+    { label: "Special characters", passed: /[^a-zA-Z0-9]/.test(password) },
+    { label: "No obvious repeats or sequences", passed: !/(.)\1{2,}/.test(password) && !hasSequence(password) },
+  ];
+
   const getStrengthLabel = () => {
     if (strength < 25) return "Weak";
     if (strength < 50) return "Fair";
@@ -47,6 +75,8 @@ const PasswordStrengthChecker = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter password to check strength"
+            autoComplete="off"
+            spellCheck={false}
           />
           {password && (
             <>
@@ -55,10 +85,11 @@ const PasswordStrengthChecker = () => {
                 Strength: {getStrengthLabel()} ({strength}%)
               </p>
               <div className="text-sm space-y-1 text-muted-foreground">
-                <p>✓ At least 8 characters {password.length >= 8 ? "✅" : "❌"}</p>
-                <p>✓ Uppercase and lowercase {/[a-z]/.test(password) && /[A-Z]/.test(password) ? "✅" : "❌"}</p>
-                <p>✓ Numbers {/[0-9]/.test(password) ? "✅" : "❌"}</p>
-                <p>✓ Special characters {/[^a-zA-Z0-9]/.test(password) ? "✅" : "❌"}</p>
+                {checks.map((check) => (
+                  <p key={check.label}>
+                    {check.passed ? "Pass" : "Missing"}: {check.label}
+                  </p>
+                ))}
               </div>
             </>
           )}

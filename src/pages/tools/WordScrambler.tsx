@@ -11,10 +11,14 @@ const WordScrambler = () => {
   const { toast } = useToast();
 
   const scrambleWords = () => {
+    if (!input) {
+      toast({ description: "Please enter text", variant: "destructive" });
+      return;
+    }
     const words = input.split(/\s+/).filter(w => w);
     const scrambled = words.map(word => {
       if (word.length <= 2) return word;
-      const chars = word.split("");
+      const chars = Array.from(word);
       for (let i = chars.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [chars[i], chars[j]] = [chars[j], chars[i]];
@@ -25,7 +29,11 @@ const WordScrambler = () => {
   };
 
   const scrambleCharacters = () => {
-    const chars = input.split("");
+    if (!input) {
+      toast({ description: "Please enter text", variant: "destructive" });
+      return;
+    }
+    const chars = Array.from(input);
     for (let i = chars.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [chars[i], chars[j]] = [chars[j], chars[i]];

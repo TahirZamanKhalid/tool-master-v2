@@ -46,7 +46,7 @@ const PercentageCalculator = () => {
       category="Calculators"
       relatedTools={[
         { name: "Currency Converter", path: "/tools/currency-converter" },
-        { name: "Unit Converter", path: "/tools/unit-converter" },
+        { name: "Unit Converter", path: "/tools/premium-plus-unit-converter" },
         { name: "BMI Calculator", path: "/tools/bmi-calculator" }
       ]}
     >

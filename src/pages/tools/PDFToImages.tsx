@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Download, Upload, FileImage, Loader2 } from "lucide-react";
+import { Download, Upload, FileImage, Loader2, Check } from "lucide-react";
 import * as pdfjsLib from 'pdfjs-dist';
+import PdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?worker";
 
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Configure PDF.js worker from the local bundle so conversion works without a CDN.
+pdfjsLib.GlobalWorkerOptions.workerPort = new PdfWorker();
 
 const PDFToImages = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -21,13 +22,14 @@ const PDFToImages = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile && selectedFile.type === "application/pdf") {
+    if (selectedFile && (selectedFile.type === "application/pdf" || selectedFile.name.toLowerCase().endsWith(".pdf"))) {
       setFile(selectedFile);
       setImages([]);
       toast.success("PDF loaded successfully!");
     } else {
       toast.error("Please select a valid PDF file");
     }
+    e.target.value = "";
   };
 
   const convertToImages = async () => {
@@ -257,23 +259,23 @@ const PDFToImages = () => {
             <h3 className="text-lg font-semibold mb-4">Why Use Our PDF to Images Converter?</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <span><strong>All Pages at Once:</strong> Convert entire PDF to images in one click</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <span><strong>High Quality:</strong> Choose from standard to maximum resolution</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <span><strong>100% Private:</strong> All conversion happens in your browser</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <span><strong>No File Size Limit:</strong> Convert PDFs of any size</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <span><strong>Format Choice:</strong> PNG for quality or JPG for smaller files</span>
               </li>
             </ul>

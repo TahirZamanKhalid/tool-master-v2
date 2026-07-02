@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Code, Copy, Download } from "lucide-react";
+import { normalizeAbsoluteUrl } from "@/utils/seoTools";
 
 const SchemaMarkupGenerator = () => {
   const [schemaType, setSchemaType] = useState("article");
@@ -57,7 +58,14 @@ const SchemaMarkupGenerator = () => {
           name: articleAuthor
         };
         if (articleDate) schema.datePublished = articleDate;
-        if (articleImage) schema.image = articleImage;
+        if (articleImage) {
+          const imageUrl = normalizeAbsoluteUrl(articleImage);
+          if (!imageUrl) {
+            toast.error("Please enter a valid article image URL");
+            return;
+          }
+          schema.image = imageUrl;
+        }
         break;
 
       case "organization":
@@ -67,8 +75,20 @@ const SchemaMarkupGenerator = () => {
         }
         schema["@type"] = "Organization";
         schema.name = orgName;
-        schema.url = orgUrl;
-        if (orgLogo) schema.logo = orgLogo;
+        const normalizedOrgUrl = normalizeAbsoluteUrl(orgUrl);
+        if (!normalizedOrgUrl) {
+          toast.error("Please enter a valid organization URL");
+          return;
+        }
+        schema.url = normalizedOrgUrl;
+        if (orgLogo) {
+          const logoUrl = normalizeAbsoluteUrl(orgLogo);
+          if (!logoUrl) {
+            toast.error("Please enter a valid logo URL");
+            return;
+          }
+          schema.logo = logoUrl;
+        }
         if (orgDescription) schema.description = orgDescription;
         break;
 
@@ -80,7 +100,18 @@ const SchemaMarkupGenerator = () => {
         schema["@type"] = "Product";
         schema.name = productName;
         schema.description = productDescription;
-        if (productImage) schema.image = productImage;
+        if (productImage) {
+          const imageUrl = normalizeAbsoluteUrl(productImage);
+          if (!imageUrl) {
+            toast.error("Please enter a valid product image URL");
+            return;
+          }
+          schema.image = imageUrl;
+        }
+        if (!Number.isFinite(Number(productPrice)) || Number(productPrice) <= 0) {
+          toast.error("Please enter a valid product price");
+          return;
+        }
         schema.offers = {
           "@type": "Offer",
           price: productPrice,
@@ -123,8 +154,9 @@ const SchemaMarkupGenerator = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `schema-${schemaType}.json`;
+    a.download = `schema-${schemaType}.html`;
     a.click();
+    URL.revokeObjectURL(url);
     toast.success("Schema downloaded!");
   };
 
@@ -411,23 +443,23 @@ const SchemaMarkupGenerator = () => {
             <h3 className="text-lg font-semibold mb-4">Schema Markup Benefits</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Rich snippets:</strong> Enhanced search results with ratings, images, prices</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Better CTR:</strong> Stand out in search results with additional information</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Voice search:</strong> Help voice assistants understand your content</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Knowledge panels:</strong> Increase chances of appearing in knowledge graphs</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Validation:</strong> Test with Google Rich Results Test tool</span>
               </li>
             </ul>

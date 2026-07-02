@@ -1,4 +1,4 @@
-// pages/BackgroundRemover.tsx
+﻿// pages/BackgroundRemover.tsx
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom"; // or next/link
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ import { InFeedAd } from "@/components/InFeedAd";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay";
 import { ImageEditor } from "@/components/ImageEditor";
 import { removeBackground, validateImageFile } from "@/utils/backgroundRemoval";
+import { isHexColor } from "@/utils/imageFiles";
 
 // Ad slot configurations
 const AD_SLOTS = {
@@ -51,8 +52,7 @@ const BackgroundRemover = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const processImageFile = (file: File) => {
     if (!file) return;
 
     const validation = validateImageFile(file);
@@ -75,11 +75,32 @@ const BackgroundRemover = () => {
     reader.readAsDataURL(file);
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.currentTarget.value = "";
+    if (file) processImageFile(file);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) processImageFile(file);
+  };
+
   const handleRemoveBackground = async () => {
     if (!selectedFile || !selectedImage) {
       toast({
         title: "No Image",
         description: "Please select an image first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (backgroundColor && !isHexColor(backgroundColor)) {
+      toast({
+        title: "Invalid color",
+        description: "Enter a valid hex color like #ffffff, or clear the field for transparency.",
         variant: "destructive",
       });
       return;
@@ -197,9 +218,9 @@ const BackgroundRemover = () => {
       desc: "Resize images to any dimension",
     },
     {
-      name: "Image Converter",
-      path: "/tools/image-converter",
-      desc: "Convert between image formats",
+      name: "Advanced Image Compressor",
+      path: "/tools/advanced-image-compressor",
+      desc: "Compress and convert image formats",
     },
     {
       name: "Image Cropper",
@@ -287,6 +308,8 @@ const BackgroundRemover = () => {
                   {!selectedImage ? (
                     <div
                       onClick={() => fileInputRef.current?.click()}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={handleDrop}
                       onKeyDown={(e) => e.key === "Enter" && fileInputRef.current?.click()}
                       className="border-2 border-dashed border-primary/30 rounded-xl p-8 sm:p-12 text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                       role="button"
@@ -350,10 +373,7 @@ const BackgroundRemover = () => {
                               </Button>
                             )}
                           </div>
-                          <p className="text-xs text-gray-500">
-                            💡 Leave empty for transparent background (.png), or choose a
-                            color
-                          </p>
+                          <p className="text-xs text-gray-500">Leave empty for transparent background (.png), or choose a color.</p>
                         </div>
                       )}
 
@@ -702,10 +722,10 @@ const BackgroundRemover = () => {
                   </li>
                   <li>
                     <Link
-                      to="/tools/image-converter"
+                      to="/tools/advanced-image-compressor"
                       className="text-gray-600 hover:text-primary"
                     >
-                      Image Converter
+                      Image Compressor
                     </Link>
                   </li>
                   <li>
@@ -723,15 +743,15 @@ const BackgroundRemover = () => {
                 <ul className="space-y-2 text-sm">
                   <li>
                     <Link
-                      to="/tools/pdf-to-word"
+                      to="/tools/pdf-to-text"
                       className="text-gray-600 hover:text-primary"
                     >
-                      PDF to Word
+                      PDF to Text
                     </Link>
                   </li>
                   <li>
                     <Link
-                      to="/tools/merge-pdf"
+                      to="/tools/pdf-merger"
                       className="text-gray-600 hover:text-primary"
                     >
                       Merge PDF
@@ -739,7 +759,7 @@ const BackgroundRemover = () => {
                   </li>
                   <li>
                     <Link
-                      to="/tools/compress-pdf"
+                      to="/tools/pdf-compressor"
                       className="text-gray-600 hover:text-primary"
                     >
                       Compress PDF
@@ -752,7 +772,7 @@ const BackgroundRemover = () => {
                 <ul className="space-y-2 text-sm">
                   <li>
                     <Link
-                      to="/tools/word-counter"
+                      to="/tools/premium-plus-word-counter"
                       className="text-gray-600 hover:text-primary"
                     >
                       Word Counter
@@ -795,7 +815,7 @@ const BackgroundRemover = () => {
               </div>
             </div>
             <div className="text-center text-gray-500 text-xs sm:text-sm py-4 border-t">
-              <p>© {new Date().getFullYear()} ToolMaster Cloud. All rights reserved.</p>
+              <p>(c) {new Date().getFullYear()} ToolMaster Cloud. All rights reserved.</p>
               <p className="mt-1">Free online tools for everyone. No signup required.</p>
             </div>
           </footer>

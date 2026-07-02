@@ -10,6 +10,7 @@ import { Download, QrCode } from "lucide-react";
 import { toast } from "sonner";
 import QRCodeLib from "qrcode";
 import { AdRow } from "@/components/AdRow";
+import { normalizeHexColor } from "@/utils/imageFiles";
 
 const QRCodeGenerator = () => {
   const [text, setText] = useState("");
@@ -30,14 +31,20 @@ const QRCodeGenerator = () => {
     try {
       const canvas = canvasRef.current;
       if (!canvas) return;
+      const safeColor = normalizeHexColor(color);
+      const safeBgColor = normalizeHexColor(bgColor);
+      if (!safeColor || !safeBgColor) {
+        toast.error("Please enter valid HEX colors, like #000000");
+        return;
+      }
 
       await QRCodeLib.toCanvas(canvas, text, {
         width: size,
         margin: margin,
         errorCorrectionLevel: errorCorrectionLevel,
         color: {
-          dark: color,
-          light: bgColor,
+          dark: safeColor,
+          light: safeBgColor,
         },
       });
 
@@ -45,8 +52,7 @@ const QRCodeGenerator = () => {
       setQrCode(dataUrl);
 
       toast.success("QR code generated successfully!");
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Failed to generate QR code. Check your input.");
     }
   };

@@ -39,7 +39,7 @@ const TextDiff = () => {
       description="Compare two texts and highlight differences"
       category="Text Tools"
       relatedTools={[
-        { name: "Word Counter", path: "/tools/word-counter" },
+        { name: "Word Counter", path: "/tools/premium-plus-word-counter" },
         { name: "Case Converter", path: "/tools/case-converter" },
         { name: "Markdown Preview", path: "/tools/markdown-preview" }
       ]}

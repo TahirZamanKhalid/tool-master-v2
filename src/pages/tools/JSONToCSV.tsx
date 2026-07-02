@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { AdSpace } from "@/components/AdSpace";
+import { stringifyCSV } from "@/utils/developerText";
 
 const JSONToCSV = () => {
   const [jsonInput, setJsonInput] = useState("");
@@ -33,27 +34,7 @@ const JSONToCSV = () => {
         return;
       }
 
-      // Collect all unique headers from all objects
-      const allHeaders = new Set<string>();
-      arrayData.forEach(obj => {
-        Object.keys(obj).forEach(key => allHeaders.add(key));
-      });
-      const headers = Array.from(allHeaders);
-
-      // Escape CSV values properly
-      const escapeCSV = (value: any): string => {
-        if (value === null || value === undefined) return "";
-        const str = String(value);
-        if (str.includes(",") || str.includes('"') || str.includes("\n")) {
-          return `"${str.replace(/"/g, '""')}"`;
-        }
-        return str;
-      };
-
-      const csv = [
-        headers.map(escapeCSV).join(","),
-        ...arrayData.map(row => headers.map(h => escapeCSV(row[h])).join(","))
-      ].join("\n");
+      const csv = stringifyCSV(arrayData);
 
       setCsvOutput(csv);
       toast.success("Converted to CSV successfully!");

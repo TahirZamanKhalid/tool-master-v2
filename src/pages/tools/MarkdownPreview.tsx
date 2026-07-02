@@ -2,7 +2,6 @@ import { useState } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { FileText } from "lucide-react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 
@@ -31,7 +30,7 @@ const MarkdownPreview = () => {
       relatedTools={[
         { name: "JSON Formatter", path: "/tools/json-formatter" },
         { name: "HTML Encoder", path: "/tools/html-encoder" },
-        { name: "Word Counter", path: "/tools/word-counter" }
+        { name: "Word Counter", path: "/tools/premium-plus-word-counter" }
       ]}
     >
       <div className="grid md:grid-cols-2 gap-6">

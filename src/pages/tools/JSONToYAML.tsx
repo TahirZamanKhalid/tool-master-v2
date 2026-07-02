@@ -6,110 +6,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Copy, ArrowRightLeft } from "lucide-react";
 import { toast } from "sonner";
+import { jsonToYaml as stringifyYaml, simpleYamlToJson } from "@/utils/developerText";
 
 const JSONToYAML = () => {
   const [jsonInput, setJsonInput] = useState("");
   const [yamlInput, setYamlInput] = useState("");
   const [jsonOutput, setJsonOutput] = useState("");
   const [yamlOutput, setYamlOutput] = useState("");
-
-  const jsonToYaml = (json: string): string => {
-    const obj = JSON.parse(json);
-    return convertToYAML(obj, 0);
-  };
-
-  const convertToYAML = (obj: any, indent: number): string => {
-    const spaces = "  ".repeat(indent);
-    let yaml = "";
-
-    if (Array.isArray(obj)) {
-      obj.forEach((item) => {
-        if (typeof item === "object" && item !== null) {
-          yaml += `${spaces}-\n${convertToYAML(item, indent + 1)}`;
-        } else {
-          yaml += `${spaces}- ${item}\n`;
-        }
-      });
-    } else if (typeof obj === "object" && obj !== null) {
-      Object.keys(obj).forEach((key) => {
-        const value = obj[key];
-        if (typeof value === "object" && value !== null) {
-          if (Array.isArray(value)) {
-            yaml += `${spaces}${key}:\n${convertToYAML(value, indent + 1)}`;
-          } else {
-            yaml += `${spaces}${key}:\n${convertToYAML(value, indent + 1)}`;
-          }
-        } else {
-          yaml += `${spaces}${key}: ${value}\n`;
-        }
-      });
-    }
-
-    return yaml;
-  };
-
-  const yamlToJson = (yaml: string): string => {
-    const lines = yaml.split("\n").filter((line) => line.trim());
-    const result = parseYAML(lines);
-    return JSON.stringify(result, null, 2);
-  };
-
-  const parseYAML = (lines: string[]): any => {
-    const stack: any[] = [{}];
-    const indentStack: number[] = [0];
-    let currentIndent = 0;
-
-    lines.forEach((line) => {
-      const trimmed = line.trimEnd();
-      const indent = trimmed.search(/\S/);
-      const content = trimmed.trim();
-
-      if (!content || content.startsWith("#")) return;
-
-      while (indent < currentIndent) {
-        stack.pop();
-        indentStack.pop();
-        currentIndent = indentStack[indentStack.length - 1] || 0;
-      }
-
-      const current = stack[stack.length - 1];
-
-      if (content.startsWith("- ")) {
-        const value = content.slice(2).trim();
-        if (!Array.isArray(current)) {
-          const arr: any[] = [];
-          stack.push(arr);
-        }
-        if (value.includes(":")) {
-          const obj = {};
-          const [key, val] = value.split(":").map((s) => s.trim());
-          (obj as any)[key] = val;
-          if (Array.isArray(current)) {
-            current.push(obj);
-          }
-        } else {
-          if (Array.isArray(current)) {
-            current.push(value);
-          }
-        }
-      } else if (content.includes(":")) {
-        const colonIndex = content.indexOf(":");
-        const key = content.slice(0, colonIndex).trim();
-        const value = content.slice(colonIndex + 1).trim();
-
-        if (value) {
-          current[key] = value;
-        } else {
-          current[key] = {};
-          stack.push(current[key]);
-          indentStack.push(indent);
-          currentIndent = indent;
-        }
-      }
-    });
-
-    return stack[0];
-  };
 
   const handleJSONToYAML = () => {
     if (!jsonInput.trim()) {
@@ -118,7 +21,7 @@ const JSONToYAML = () => {
     }
 
     try {
-      const yaml = jsonToYaml(jsonInput);
+      const yaml = stringifyYaml(JSON.parse(jsonInput)).trim();
       setYamlOutput(yaml);
       toast.success("Successfully converted JSON to YAML");
     } catch (error) {
@@ -133,7 +36,7 @@ const JSONToYAML = () => {
     }
 
     try {
-      const json = yamlToJson(yamlInput);
+      const json = JSON.stringify(simpleYamlToJson(yamlInput), null, 2);
       setJsonOutput(json);
       toast.success("Successfully converted YAML to JSON");
     } catch (error) {

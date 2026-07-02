@@ -15,8 +15,12 @@ const LineNumberAdder = () => {
   const { toast } = useToast();
 
   const addLineNumbers = () => {
+    if (!input) {
+      toast({ description: "Please enter text", variant: "destructive" });
+      return;
+    }
     const lines = input.split("\n");
-    const start = parseInt(startNum) || 1;
+    const start = Math.max(0, parseInt(startNum) || 1);
     const numbered = lines.map((line, i) => `${start + i}${separator}${line}`);
     setOutput(numbered.join("\n"));
   };

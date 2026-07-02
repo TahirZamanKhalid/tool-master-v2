@@ -12,7 +12,7 @@ const TipCalculator = () => {
   const [tipPercent, setTipPercent] = useState<number>(15);
   const [splitCount, setSplitCount] = useState<number>(1);
 
-  const bill = parseFloat(billAmount) || 0;
+  const bill = Math.max(0, parseFloat(billAmount) || 0);
   const tipAmount = bill * (tipPercent / 100);
   const total = bill + tipAmount;
   const perPerson = total / splitCount;
@@ -33,7 +33,7 @@ const TipCalculator = () => {
       ]}
       relatedTools={[
         { name: "Discount Calculator", path: "/tools/discount-calculator" },
-        { name: "Tax Calculator", path: "/tools/tax-calculator" },
+        { name: "Discount Calculator", path: "/tools/discount-calculator" },
         { name: "Percentage Calculator", path: "/tools/percentage-calculator" }
       ]}
     >
@@ -106,7 +106,7 @@ const TipCalculator = () => {
                   id="split-count"
                   type="number"
                   value={splitCount}
-                  onChange={(e) => setSplitCount(Math.max(1, parseInt(e.target.value) || 1))}
+                  onChange={(e) => setSplitCount(Math.min(100, Math.max(1, parseInt(e.target.value, 10) || 1)))}
                   min="1"
                   max="100"
                   className="pl-10"
@@ -156,11 +156,11 @@ const TipCalculator = () => {
               <div className="pt-4 border-t space-y-2">
                 <h4 className="font-semibold text-sm mb-2">Summary</h4>
                 <div className="text-sm space-y-1 text-muted-foreground">
-                  <p>• Original Bill: ${bill.toFixed(2)}</p>
-                  <p>• Tip ({tipPercent}%): ${tipAmount.toFixed(2)}</p>
-                  <p>• Grand Total: ${total.toFixed(2)}</p>
+                  <p>- Original Bill: ${bill.toFixed(2)}</p>
+                  <p>- Tip ({tipPercent}%): ${tipAmount.toFixed(2)}</p>
+                  <p>- Grand Total: ${total.toFixed(2)}</p>
                   {splitCount > 1 && (
-                    <p>• Each Person Pays: ${perPerson.toFixed(2)}</p>
+                    <p>- Each Person Pays: ${perPerson.toFixed(2)}</p>
                   )}
                 </div>
               </div>

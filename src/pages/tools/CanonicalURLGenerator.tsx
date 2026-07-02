@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Link2, Copy, Code } from "lucide-react";
+import { escapeHtmlAttribute, normalizeAbsoluteUrl } from "@/utils/seoTools";
 
 const CanonicalURLGenerator = () => {
   const [pageUrl, setPageUrl] = useState("");
@@ -23,11 +24,10 @@ const CanonicalURLGenerator = () => {
       return;
     }
 
-    let url = pageUrl.trim();
-
-    // Ensure protocol
-    if (!url.startsWith("http://") && !url.startsWith("https://")) {
-      url = "https://" + url;
+    let url = normalizeAbsoluteUrl(pageUrl);
+    if (!url) {
+      toast.error("Invalid URL format");
+      return;
     }
 
     // Force HTTPS
@@ -55,12 +55,12 @@ const CanonicalURLGenerator = () => {
       const urlObj = new URL(url);
       urlObj.hostname = urlObj.hostname.toLowerCase();
       url = urlObj.href;
-    } catch (e) {
+    } catch {
       toast.error("Invalid URL format");
       return;
     }
 
-    const tag = `<link rel="canonical" href="${url}" />`;
+    const tag = `<link rel="canonical" href="${escapeHtmlAttribute(url)}" />`;
     setCanonicalTag(tag);
     setCleanUrl(url);
     toast.success("Canonical URL generated!");
@@ -217,27 +217,27 @@ const CanonicalURLGenerator = () => {
             <h3 className="text-lg font-semibold mb-4">When to Use Canonical URLs</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Duplicate content:</strong> When same content exists on multiple URLs</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>URL parameters:</strong> Tracking parameters (UTM), session IDs, sorting options</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>HTTP vs HTTPS:</strong> Point to preferred protocol version</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>WWW vs non-WWW:</strong> Specify preferred subdomain</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Pagination:</strong> Point paginated pages to the main page</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Syndicated content:</strong> Reposted content from other sites</span>
               </li>
             </ul>

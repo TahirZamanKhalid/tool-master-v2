@@ -88,6 +88,25 @@ const BarcodeGenerator = () => {
       return;
     }
 
+    const trimmed = text.trim();
+    const validators: Record<string, { regex: RegExp; message: string }> = {
+      EAN13: { regex: /^\d{13}$/, message: "EAN-13 requires exactly 13 digits" },
+      EAN8: { regex: /^\d{8}$/, message: "EAN-8 requires exactly 8 digits" },
+      UPC: { regex: /^\d{12}$/, message: "UPC-A requires exactly 12 digits" },
+      ITF14: { regex: /^\d{14}$/, message: "ITF-14 requires exactly 14 digits" },
+      MSI: { regex: /^\d+$/, message: "MSI supports numbers only" },
+      pharmacode: { regex: /^(?:[3-9]|[1-9]\d{1,5}|1[0-2]\d{5}|130\d{3}|1310[0-6]\d|131070)$/, message: "Pharmacode must be a number from 3 to 131070" },
+      codabar: { regex: /^[A-D][0-9$:+./-]+[A-D]$/i, message: "Codabar must start and end with A, B, C, or D" },
+      CODE39: { regex: /^[0-9A-Z .$/+%-]+$/i, message: "CODE39 supports A-Z, 0-9, spaces, and . $ / + % -" },
+    };
+
+    const validator = validators[format];
+    if (validator && !validator.regex.test(trimmed)) {
+      setBarcodeGenerated(false);
+      toast.error(validator.message);
+      return;
+    }
+
     try {
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -98,7 +117,7 @@ const BarcodeGenerator = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
       }
 
-      JsBarcode(canvas, text, {
+      JsBarcode(canvas, trimmed, {
         format: format,
         width: width,
         height: height,
@@ -110,8 +129,7 @@ const BarcodeGenerator = () => {
       });
 
       setBarcodeGenerated(true);
-    } catch (error) {
-      console.error(error);
+    } catch {
       setBarcodeGenerated(false);
       toast.error("Invalid input for this barcode format. Check requirements.");
     }

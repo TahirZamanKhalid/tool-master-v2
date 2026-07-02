@@ -14,6 +14,13 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import {
+  formatFileSize,
+  getVideoDownloadName,
+  getVideoMimeType,
+  revokeMediaUrl,
+  validateVideoFile,
+} from "@/utils/videoFiles";
 
 type CompressionPreset = "ultrafast" | "superfast" | "veryfast" | "faster" | "fast" | "medium" | "slow" | "slower" | "veryslow";
 type Resolution = "keep" | "4k" | "1080p" | "720p" | "480p" | "360p";
@@ -36,6 +43,7 @@ const PremiumVideoCompressor = () => {
   const [preset, setPreset] = useState<CompressionPreset>("medium");
   const [resolution, setResolution] = useState<Resolution>("keep");
   const [format, setFormat] = useState("mp4");
+  const [lastOutputFormat, setLastOutputFormat] = useState("mp4");
   const [codec, setCodec] = useState("h264");
   const [fps, setFps] = useState("keep");
   const [bitrate, setBitrate] = useState("2000");
@@ -51,14 +59,17 @@ const PremiumVideoCompressor = () => {
     loadFFmpeg();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      revokeMediaUrl(videoUrl);
+      revokeMediaUrl(outputUrl);
+    };
+  }, [videoUrl, outputUrl]);
+
   const loadFFmpeg = async () => {
     try {
       const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
       const ffmpeg = ffmpegRef.current;
-
-      ffmpeg.on('log', ({ message }) => {
-        console.log(message);
-      });
 
       ffmpeg.on('progress', ({ progress }) => {
         setProcessingProgress(Math.round(progress * 100));
@@ -71,8 +82,7 @@ const PremiumVideoCompressor = () => {
 
       setFfmpegLoaded(true);
       toast({ title: "Video compressor loaded!" });
-    } catch (error) {
-      console.error('Failed to load FFmpeg:', error);
+    } catch {
       toast({ title: "Failed to load compressor", variant: "destructive" });
     }
   };
@@ -81,11 +91,14 @@ const PremiumVideoCompressor = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('video/')) {
-      toast({ title: "Please upload a video file", variant: "destructive" });
+    const validationError = validateVideoFile(file);
+    if (validationError) {
+      toast({ title: validationError, variant: "destructive" });
       return;
     }
 
+    revokeMediaUrl(videoUrl);
+    revokeMediaUrl(outputUrl);
     setVideoFile(file);
     setOriginalSize(file.size);
     const url = URL.createObjectURL(file);
@@ -130,10 +143,11 @@ const PremiumVideoCompressor = () => {
       const ffmpeg = ffmpegRef.current;
       await ffmpeg.writeFile('input.mp4', await fetchFile(videoFile));
 
+      const outputFormat = codec === "vp9" || format === "webm" ? "webm" : format;
       const args = ['-i', 'input.mp4'];
 
       // Video codec
-      args.push('-c:v', codec === 'h264' ? 'libx264' : codec === 'h265' ? 'libx265' : 'libvpx-vp9');
+      args.push('-c:v', outputFormat === 'webm' ? 'libvpx-vp9' : codec === 'h265' ? 'libx265' : 'libx264');
 
       // Preset (encoding speed)
       args.push('-preset', preset);
@@ -160,32 +174,33 @@ const PremiumVideoCompressor = () => {
       if (removeAudio) {
         args.push('-an');
       } else {
-        args.push('-c:a', 'aac');
+        args.push('-c:a', outputFormat === 'webm' ? 'libopus' : 'aac');
         args.push('-b:a', `${audioBitrate}k`);
       }
 
       // Optimize for web
-      if (format === 'mp4') {
+      if (outputFormat === 'mp4') {
         args.push('-movflags', '+faststart');
       }
 
       // Output
-      const outputFile = `output.${format}`;
+      const outputFile = `output.${outputFormat}`;
+      args.push('-y');
       args.push(outputFile);
 
-      console.log('FFmpeg args:', args);
       await ffmpeg.exec(args);
 
       const data = await ffmpeg.readFile(outputFile);
-      const mimeType = format === 'webm' ? 'video/webm' : 'video/mp4';
+      const mimeType = getVideoMimeType(outputFormat);
       const blob = new Blob([data as BlobPart], { type: mimeType });
       setCompressedSize(blob.size);
+      revokeMediaUrl(outputUrl);
       const url = URL.createObjectURL(blob);
 
+      setLastOutputFormat(outputFormat);
       setOutputUrl(url);
       toast({ title: "Video compressed successfully!" });
-    } catch (error) {
-      console.error('Error compressing video:', error);
+    } catch {
       toast({ title: "Failed to compress video", variant: "destructive" });
     } finally {
       setIsProcessing(false);
@@ -198,17 +213,9 @@ const PremiumVideoCompressor = () => {
 
     const link = document.createElement('a');
     link.href = outputUrl;
-    link.download = `compressed-video-${Date.now()}.${format}`;
+    link.download = getVideoDownloadName("compressed", videoFile, lastOutputFormat);
     link.click();
     toast({ title: "Downloading compressed video..." });
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
   const getCompressionRatio = () => {
@@ -260,7 +267,7 @@ const PremiumVideoCompressor = () => {
               >
                 <FileVideo className="w-12 h-12 mx-auto mb-4 text-green-600" />
                 <p className="text-lg font-medium mb-2">Click to upload video</p>
-                <p className="text-sm text-muted-foreground">All formats supported - up to 2GB</p>
+                <p className="text-sm text-muted-foreground">All common video formats supported - up to 500MB</p>
                 {!ffmpegLoaded && (
                   <p className="text-xs text-yellow-600 mt-2">Loading compressor...</p>
                 )}

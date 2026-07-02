@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { FileText, Copy, Download } from "lucide-react";
+import { normalizeAbsoluteUrl } from "@/utils/seoTools";
 
 const RobotsTxtGenerator = () => {
   const [sitemap, setSitemap] = useState("");
@@ -28,15 +29,17 @@ const RobotsTxtGenerator = () => {
       if (disallowPaths.trim()) {
         const paths = disallowPaths.split("\n").filter(p => p.trim());
         paths.forEach(path => {
-          content += `Disallow: ${path.trim()}\n`;
+          const cleanPath = path.trim().startsWith("/") ? path.trim() : `/${path.trim()}`;
+          content += `Disallow: ${cleanPath}\n`;
         });
       } else {
         content += "Allow: /\n";
       }
 
       // Add crawl delay if specified
-      if (crawlDelay && parseInt(crawlDelay) > 0) {
-        content += `Crawl-delay: ${crawlDelay}\n`;
+      const delay = Number.parseInt(crawlDelay, 10);
+      if (Number.isFinite(delay) && delay > 0) {
+        content += `Crawl-delay: ${Math.min(delay, 120)}\n`;
       }
 
       content += "\n";
@@ -55,12 +58,8 @@ const RobotsTxtGenerator = () => {
     if (sitemap.trim()) {
       const sitemaps = sitemap.split("\n").filter(s => s.trim());
       sitemaps.forEach(sm => {
-        const url = sm.trim();
-        if (url.startsWith("http")) {
-          content += `Sitemap: ${url}\n`;
-        } else {
-          content += `Sitemap: https://${url}\n`;
-        }
+        const url = normalizeAbsoluteUrl(sm);
+        if (url) content += `Sitemap: ${url}\n`;
       });
     }
 
@@ -68,8 +67,8 @@ const RobotsTxtGenerator = () => {
     toast.success("robots.txt generated successfully!");
   };
 
-  const copyRobots = () => {
-    navigator.clipboard.writeText(generatedRobots);
+  const copyRobots = async () => {
+    await navigator.clipboard.writeText(generatedRobots);
     toast.success("Copied to clipboard!");
   };
 
@@ -80,6 +79,7 @@ const RobotsTxtGenerator = () => {
     a.href = url;
     a.download = "robots.txt";
     a.click();
+    URL.revokeObjectURL(url);
     toast.success("robots.txt downloaded!");
   };
 
@@ -247,27 +247,27 @@ const RobotsTxtGenerator = () => {
             <h3 className="text-lg font-semibold mb-4">robots.txt Best Practices</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Location:</strong> Place robots.txt in your website root directory</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Test it:</strong> Use Google Search Console to test your robots.txt</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Don't hide sensitive data:</strong> robots.txt is publicly accessible</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Sitemap:</strong> Always include your sitemap URL(s)</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Wildcards:</strong> Use * for pattern matching (e.g., /private*)</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Case-sensitive:</strong> Paths in robots.txt are case-sensitive</span>
               </li>
             </ul>

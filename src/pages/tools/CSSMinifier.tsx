@@ -6,27 +6,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Copy, Minimize2 } from "lucide-react";
 import { toast } from "sonner";
+import { formatBytes, getSizeStats, minifyCSSBasic } from "@/utils/developerText";
 
 const CSSMinifier = () => {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
   const [stats, setStats] = useState({ original: 0, minified: 0, saved: 0 });
-
-  const minifyCSS = (css: string): string => {
-    return css
-      // Remove comments
-      .replace(/\/\*[\s\S]*?\*\//g, "")
-      // Remove whitespace around selectors, braces, colons, and semicolons
-      .replace(/\s*([{}:;,])\s*/g, "$1")
-      // Remove unnecessary semicolons before closing braces
-      .replace(/;}/g, "}")
-      // Remove whitespace at the beginning and end
-      .trim()
-      // Replace multiple spaces with single space
-      .replace(/\s+/g, " ")
-      // Remove spaces around combinators
-      .replace(/\s*([>+~])\s*/g, "$1");
-  };
 
   const handleMinify = () => {
     if (!input.trim()) {
@@ -35,18 +20,9 @@ const CSSMinifier = () => {
     }
 
     try {
-      const minified = minifyCSS(input);
+      const minified = minifyCSSBasic(input);
       setOutput(minified);
-
-      const originalSize = new Blob([input]).size;
-      const minifiedSize = new Blob([minified]).size;
-      const savedPercent = ((originalSize - minifiedSize) / originalSize * 100).toFixed(2);
-
-      setStats({
-        original: originalSize,
-        minified: minifiedSize,
-        saved: parseFloat(savedPercent),
-      });
+      setStats(getSizeStats(input, minified));
 
       toast.success("CSS minified successfully");
     } catch (error) {
@@ -57,14 +33,6 @@ const CSSMinifier = () => {
   const copyToClipboard = () => {
     navigator.clipboard.writeText(output);
     toast.success("Minified CSS copied to clipboard");
-  };
-
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   return (

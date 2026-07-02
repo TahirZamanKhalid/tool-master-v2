@@ -33,6 +33,13 @@ import { useToast } from "@/hooks/use-toast";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
 import { SEOHead } from "@/components/SEOHead";
+import {
+  getAtempoFilters,
+  getVideoDownloadName,
+  getVideoMimeType,
+  revokeMediaUrl,
+  validateVideoFile,
+} from "@/utils/videoFiles";
 
 interface TextOverlay {
   id: string;
@@ -99,25 +106,14 @@ const PremiumVideoEditor = () => {
   const gainNodeRef = useRef<GainNode | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
 
-  const UNDER_DEVELOPMENT = true;
-
   useEffect(() => {
-    if (UNDER_DEVELOPMENT) return;
     loadFFmpeg();
   }, []);
 
   const loadFFmpeg = async () => {
     const ffmpeg = ffmpegRef.current;
     try {
-      ffmpeg.on("log", ({ message }) => {
-        console.log(message);
-      });
-
-      ffmpeg.on("progress", ({ progress, time }) => {
-        console.log(`Processing: ${(progress * 100).toFixed(2)}%`);
-      });
-
-      const baseURL = "/ffmpeg";
+      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
 
       await ffmpeg.load({
         coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
@@ -130,8 +126,7 @@ const PremiumVideoEditor = () => {
         title: "Video editor loaded successfully!",
         description: "You can now upload and edit your videos",
       });
-    } catch (error) {
-      console.error("Failed to load FFmpeg:", error);
+    } catch {
       toast({
         title: "Failed to load video editor",
         description: "Please refresh and try again.",
@@ -158,9 +153,7 @@ const PremiumVideoEditor = () => {
       gainNodeRef.current.gain.value = settings.volume;
 
       setIsAudioReady(true);
-      console.log("Audio setup completed successfully");
-    } catch (error) {
-      console.warn("Web Audio API not supported, using fallback:", error);
+    } catch {
       setIsAudioReady(false);
     }
   };
@@ -222,27 +215,19 @@ const PremiumVideoEditor = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("video/")) {
+    const validationError = validateVideoFile(file);
+    if (validationError) {
       toast({
-        title: "Invalid file type",
-        description: "Please upload a video file (MP4, MOV, AVI, WebM, etc.)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (file.size > 500 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please upload a video smaller than 500MB",
+        title: "Invalid video",
+        description: validationError,
         variant: "destructive",
       });
       return;
     }
 
     // Clean up previous URLs
-    if (videoUrl) URL.revokeObjectURL(videoUrl);
-    if (outputUrl) URL.revokeObjectURL(outputUrl);
+    revokeMediaUrl(videoUrl);
+    revokeMediaUrl(outputUrl);
 
     setVideoFile(file);
     const url = URL.createObjectURL(file);
@@ -281,8 +266,7 @@ const PremiumVideoEditor = () => {
         await video.play();
         setIsPlaying(true);
       }
-    } catch (error) {
-      console.error("Playback error:", error);
+    } catch {
       toast({
         title: "Playback error",
         description: "Could not play the video",
@@ -321,9 +305,9 @@ const PremiumVideoEditor = () => {
     // Color adjustments with better filter composition
     const colorFilters = [];
     if (settings.brightness !== 1 || settings.contrast !== 1 || settings.saturation !== 1) {
-      colorFilters.push(`eq=brightness=${(settings.brightness - 1) * 0.3}`);
-      colorFilters.push(`contrast=${settings.contrast}`);
-      colorFilters.push(`saturation=${settings.saturation}`);
+      colorFilters.push(
+        `eq=brightness=${(settings.brightness - 1) * 0.3}:contrast=${settings.contrast}:saturation=${settings.saturation}`
+      );
     }
 
     if (colorFilters.length > 0) {
@@ -374,6 +358,15 @@ const PremiumVideoEditor = () => {
       return;
     }
 
+    if (trimStart >= trimEnd) {
+      toast({
+        title: "Invalid trim range",
+        description: "Start time must be before end time.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsProcessing(true);
 
     toast({
@@ -400,10 +393,7 @@ const PremiumVideoEditor = () => {
       // Speed adjustment
       if (settings.speed !== 1) {
         videoFilters.push(`setpts=${1 / settings.speed}*PTS`);
-        audioFilters.push(`atempo=${Math.min(settings.speed, 2)}`);
-        if (settings.speed > 2) {
-          audioFilters.push(`atempo=${settings.speed / 2}`);
-        }
+        audioFilters.push(...getAtempoFilters(settings.speed));
       }
 
       // Add trim if specified
@@ -417,11 +407,11 @@ const PremiumVideoEditor = () => {
         args.push("-vf", videoFilters.join(","));
       }
 
-      // Apply audio filters
+      if (settings.volume !== 1) {
+        audioFilters.push(`volume=${settings.volume}`);
+      }
       if (audioFilters.length > 0) {
         args.push("-af", audioFilters.join(","));
-      } else if (settings.volume !== 1) {
-        args.push("-af", `volume=${settings.volume}`);
       }
 
       // Quality settings
@@ -436,26 +426,27 @@ const PremiumVideoEditor = () => {
       // Output format specific settings
       if (format === "webm") {
         args.push("-c:v", "libvpx-vp9", "-b:v", "2M");
+        args.push("-c:a", "libopus");
       } else if (format === "avi") {
         args.push("-c:v", "mpeg4", "-qscale:v", "3");
       } else {
         args.push("-c:v", "libx264", "-profile:v", "high", "-level", "4.0");
+        args.push("-c:a", "aac");
+        args.push("-movflags", "+faststart");
       }
 
-      args.push("-movflags", "+faststart");
       args.push("-y"); // Overwrite output file
 
       const outputFile = `output.${format}`;
       args.push(outputFile);
 
-      console.log("FFmpeg processing with args:", args);
-
       await ffmpeg.exec(args);
 
       // Read and create output URL
       const data = await ffmpeg.readFile(outputFile);
-      const mimeType = format === "webm" ? "video/webm" : format === "avi" ? "video/x-msvideo" : "video/mp4";
+      const mimeType = getVideoMimeType(format);
       const blob = new Blob([data as BlobPart], { type: mimeType });
+      revokeMediaUrl(outputUrl);
       const url = URL.createObjectURL(blob);
 
       setOutputUrl(url);
@@ -464,8 +455,7 @@ const PremiumVideoEditor = () => {
         title: "Processing complete!",
         description: "Your video is ready for download",
       });
-    } catch (error) {
-      console.error("Error processing video:", error);
+    } catch {
       toast({
         title: "Processing failed",
         description: "There was an error processing your video. Please try again.",
@@ -481,7 +471,7 @@ const PremiumVideoEditor = () => {
 
     const link = document.createElement("a");
     link.href = outputUrl;
-    link.download = `edited-video-${Date.now()}.${format}`;
+    link.download = getVideoDownloadName("edited", videoFile, format);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -511,52 +501,19 @@ const PremiumVideoEditor = () => {
   };
 
   const formatTime = (seconds: number) => {
-    if (!isFinite(seconds)) return "0:00";
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
+    const safeSeconds = Number.isFinite(seconds) && seconds > 0 ? seconds : 0;
+    const mins = Math.floor(safeSeconds / 60);
+    const secs = Math.floor(safeSeconds % 60);
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (videoUrl) URL.revokeObjectURL(videoUrl);
-      if (outputUrl) URL.revokeObjectURL(outputUrl);
+      revokeMediaUrl(videoUrl);
+      revokeMediaUrl(outputUrl);
     };
   }, [videoUrl, outputUrl]);
-
-  if (UNDER_DEVELOPMENT) {
-    return (
-      <>
-        <SEOHead
-          title="Premium Video Editor (Under Development)"
-          description="This tool is currently under development. Please try our other video tools."
-          keywords="video editor under development, video tools"
-          canonical="https://toolmaster.cloud/tools/premium-video-editor"
-        />
-        <div className="min-h-screen bg-gradient-to-br from-muted/20 to-background p-6 md:p-12">
-          <div className="max-w-2xl mx-auto">
-            <h1 className="text-3xl font-bold mb-4">Premium Video Editor — Under Development</h1>
-            <Card className="border-2">
-              <CardHeader>
-                <CardTitle>Premium Video Editor</CardTitle>
-                <CardDescription>This tool is currently under development</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Thanks for your patience! In the meantime, you can use these alternatives:
-                </p>
-                <ul className="list-disc pl-5 space-y-1 text-sm">
-                  <li><a href="/tools/video-trimmer" className="underline">Video Trimmer</a></li>
-                  <li><a href="/tools/video-to-gif" className="underline">Video to GIF</a></li>
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </>
-    );
-  }
 
   return (
     <ToolLayout title="AI Video Editor" description="Edit videos with AI-powered tools including trim, merge, and effects." category="Video Tools">
@@ -787,7 +744,7 @@ const PremiumVideoEditor = () => {
                       <span className="text-lg font-bold text-blue-700">{formatTime(trimEnd - trimStart)}</span>
                     </div>
                     <p className="text-xs text-blue-600 mt-1">
-                      Original: {formatTime(duration)} • Removed: {formatTime(duration - (trimEnd - trimStart))}
+                      Original: {formatTime(duration)} - Removed: {formatTime(duration - (trimEnd - trimStart))}
                     </p>
                   </div>
                 </CardContent>
@@ -889,7 +846,7 @@ const PremiumVideoEditor = () => {
                     <div className="space-y-2">
                       <Label className="flex justify-between">
                         <span>Hue</span>
-                        <span className="text-blue-600 font-mono">{settings.hue}°</span>
+                        <span className="text-blue-600 font-mono">{settings.hue} deg</span>
                       </Label>
                       <Slider
                         value={[settings.hue]}
@@ -916,7 +873,7 @@ const PremiumVideoEditor = () => {
                     <div className="space-y-2">
                       <Label className="flex justify-between">
                         <span>Rotation</span>
-                        <span className="text-blue-600 font-mono">{settings.rotation}°</span>
+                        <span className="text-blue-600 font-mono">{settings.rotation} deg</span>
                       </Label>
                       <Slider
                         value={[settings.rotation]}

@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
 
 interface SavingsGoal {
   id: string;
@@ -28,6 +29,7 @@ interface GoalCalculation {
   requiredMonthlyPayment: number;
   projectedCompletionDate: Date;
   onTrack: boolean;
+  isReachable: boolean;
 }
 
 const SavingsGoalCalculator = () => {
@@ -39,20 +41,41 @@ const SavingsGoalCalculator = () => {
   const [newGoalRate, setNewGoalRate] = useState("2");
   const [newGoalDate, setNewGoalDate] = useState("");
 
+  const getTodayInputValue = () => {
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+  };
+
   const calculateGoal = (goal: SavingsGoal): GoalCalculation => {
-    const remaining = goal.targetAmount - goal.currentSavings;
+    const remaining = Math.max(0, goal.targetAmount - goal.currentSavings);
     const monthlyRate = goal.interestRate / 100 / 12;
 
     let months = 0;
     let balance = goal.currentSavings;
     const contributions = goal.monthlyContribution;
+    let isReachable = true;
+
+    if (remaining === 0) {
+      return {
+        goal,
+        monthsToGoal: 0,
+        totalContributions: 0,
+        totalInterest: 0,
+        finalAmount: goal.currentSavings,
+        progressPercentage: 100,
+        requiredMonthlyPayment: 0,
+        projectedCompletionDate: new Date(),
+        onTrack: true,
+        isReachable: true,
+      };
+    }
 
     if (contributions <= 0) {
       // No contributions, only compound interest
-      if (monthlyRate > 0) {
+      if (monthlyRate > 0 && goal.currentSavings > 0) {
         months = Math.log(goal.targetAmount / goal.currentSavings) / Math.log(1 + monthlyRate);
       } else {
-        months = Infinity;
+        isReachable = false;
       }
     } else {
       // With monthly contributions and compound interest
@@ -69,20 +92,22 @@ const SavingsGoalCalculator = () => {
           balance = balance * (1 + monthlyRate) + contributions;
           months++;
         }
+        if (balance < goal.targetAmount) isReachable = false;
       } else {
         // No interest, simple addition
         months = remaining / contributions;
       }
     }
 
-    const totalContributions = contributions * months;
-    const totalInterest = goal.targetAmount - goal.currentSavings - totalContributions;
-    const progressPercentage = (goal.currentSavings / goal.targetAmount) * 100;
+    const roundedMonths = isReachable ? Math.ceil(months) : 0;
+    const totalContributions = isReachable ? contributions * roundedMonths : 0;
+    const totalInterest = isReachable ? Math.max(0, goal.targetAmount - goal.currentSavings - totalContributions) : 0;
+    const progressPercentage = Math.min(100, (goal.currentSavings / goal.targetAmount) * 100);
 
     // Calculate required monthly payment if target date is set
     let requiredMonthlyPayment = contributions;
     if (goal.targetDate) {
-      const targetDate = new Date(goal.targetDate);
+      const targetDate = new Date(`${goal.targetDate}T00:00:00`);
       const today = new Date();
       const monthsToTarget = (targetDate.getFullYear() - today.getFullYear()) * 12 +
                              (targetDate.getMonth() - today.getMonth());
@@ -98,38 +123,60 @@ const SavingsGoalCalculator = () => {
     }
 
     const projectedCompletionDate = new Date();
-    projectedCompletionDate.setMonth(projectedCompletionDate.getMonth() + months);
+    if (isReachable) {
+      projectedCompletionDate.setMonth(projectedCompletionDate.getMonth() + roundedMonths);
+    }
 
     const onTrack = goal.targetDate
-      ? new Date(goal.targetDate) >= projectedCompletionDate
+      ? isReachable && new Date(`${goal.targetDate}T00:00:00`) >= projectedCompletionDate
       : true;
 
     return {
       goal,
-      monthsToGoal: Math.ceil(months),
+      monthsToGoal: roundedMonths,
       totalContributions,
       totalInterest,
-      finalAmount: goal.targetAmount,
+      finalAmount: isReachable ? goal.targetAmount : goal.currentSavings,
       progressPercentage,
       requiredMonthlyPayment: Math.max(0, requiredMonthlyPayment),
       projectedCompletionDate,
       onTrack,
+      isReachable,
     };
   };
 
   const calculations = useMemo<GoalCalculation[]>(() => {
-    return goals.map(goal => calculateGoal(goal)).sort((a, b) => a.monthsToGoal - b.monthsToGoal);
+    return goals.map(goal => calculateGoal(goal)).sort((a, b) => {
+      const aMonths = a.isReachable ? a.monthsToGoal : Number.POSITIVE_INFINITY;
+      const bMonths = b.isReachable ? b.monthsToGoal : Number.POSITIVE_INFINITY;
+      return aMonths - bMonths;
+    });
   }, [goals]);
 
   const addGoal = () => {
+    const targetAmount = Math.max(0, parseFloat(newGoalTarget) || 0);
+    const currentSavings = Math.max(0, parseFloat(newGoalCurrent) || 0);
+    const monthlyContribution = Math.max(0, parseFloat(newGoalMonthly) || 0);
+    const interestRate = Math.max(0, parseFloat(newGoalRate) || 0);
+
+    if (!newGoalName.trim() || targetAmount <= 0) {
+      toast.error("Enter a goal name and a target amount greater than zero");
+      return;
+    }
+
+    if (currentSavings < targetAmount && monthlyContribution <= 0 && (interestRate <= 0 || currentSavings <= 0)) {
+      toast.error("Add a monthly contribution or current savings with interest so the goal can be reached");
+      return;
+    }
+
     if (newGoalName && newGoalTarget) {
       const newGoal: SavingsGoal = {
         id: Date.now().toString(),
-        name: newGoalName,
-        targetAmount: parseFloat(newGoalTarget),
-        currentSavings: parseFloat(newGoalCurrent) || 0,
-        monthlyContribution: parseFloat(newGoalMonthly) || 0,
-        interestRate: parseFloat(newGoalRate),
+        name: newGoalName.trim(),
+        targetAmount,
+        currentSavings,
+        monthlyContribution,
+        interestRate,
         targetDate: newGoalDate || undefined,
       };
       setGoals([...goals, newGoal]);
@@ -147,17 +194,18 @@ const SavingsGoalCalculator = () => {
 
   const updateGoalCurrent = (id: string, amount: number) => {
     setGoals(goals.map(goal =>
-      goal.id === id ? { ...goal, currentSavings: amount } : goal
+      goal.id === id ? { ...goal, currentSavings: Math.max(0, amount) } : goal
     ));
   };
 
   const updateGoalMonthly = (id: string, amount: number) => {
     setGoals(goals.map(goal =>
-      goal.id === id ? { ...goal, monthlyContribution: amount } : goal
+      goal.id === id ? { ...goal, monthlyContribution: Math.max(0, amount) } : goal
     ));
   };
 
   const exportToCSV = () => {
+    const csvEscape = (value: string | number) => `"${String(value).replace(/"/g, '""')}"`;
     const csvContent = [
       ["Savings Goals Report"],
       [""],
@@ -169,8 +217,8 @@ const SavingsGoalCalculator = () => {
         calc.goal.monthlyContribution.toFixed(2),
         `${calc.goal.interestRate}%`,
         calc.goal.targetDate || "Not set",
-        calc.monthsToGoal,
-        calc.projectedCompletionDate.toLocaleDateString(),
+        calc.isReachable ? calc.monthsToGoal : "Not reachable",
+        calc.isReachable ? calc.projectedCompletionDate.toLocaleDateString() : "Not reachable",
         `${calc.progressPercentage.toFixed(1)}%`,
       ]),
       [""],
@@ -180,7 +228,7 @@ const SavingsGoalCalculator = () => {
       ["Total Monthly Contributions", calculations.reduce((sum, calc) => sum + calc.goal.monthlyContribution, 0).toFixed(2)],
       ["Overall Progress", `${calculations.length > 0 ? (calculations.reduce((sum, calc) => sum + calc.progressPercentage, 0) / calculations.length).toFixed(1) : 0}%`],
     ]
-      .map(row => row.join(","))
+      .map(row => row.map(csvEscape).join(","))
       .join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv" });
@@ -193,10 +241,12 @@ const SavingsGoalCalculator = () => {
   };
 
   const formatDate = (date: Date): string => {
+    if (Number.isNaN(date.getTime())) return "Not reachable";
     return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   };
 
   const yearsMonths = (months: number): string => {
+    if (!Number.isFinite(months)) return "Not reachable";
     const years = Math.floor(months / 12);
     const remainingMonths = months % 12;
 
@@ -226,7 +276,7 @@ const SavingsGoalCalculator = () => {
   }, [calculations]);
 
   return (
-    <ToolLayout title="Savings Goal Calculator" description="Plan and track multiple savings goals with timelines and monthly targets." category="Finance">
+    <ToolLayout title="Savings Goal Calculator" description="Plan and track multiple savings goals with timelines and monthly targets." category="Calculators">
       <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
@@ -384,7 +434,7 @@ const SavingsGoalCalculator = () => {
                   type="date"
                   value={newGoalDate}
                   onChange={(e) => setNewGoalDate(e.target.value)}
-                  min={new Date().toISOString().split("T")[0]}
+                  min={getTodayInputValue()}
                 />
               </div>
             </div>
@@ -417,7 +467,7 @@ const SavingsGoalCalculator = () => {
 
                 <TabsContent value="goals" className="space-y-4">
                   {calculations.map((calc) => (
-                    <Card key={calc.goal.id} className={`border-l-4 ${calc.onTrack ? "border-l-green-500" : "border-l-orange-500"}`}>
+                    <Card key={calc.goal.id} className={`border-l-4 ${!calc.isReachable ? "border-l-red-500" : calc.onTrack ? "border-l-green-500" : "border-l-orange-500"}`}>
                       <CardHeader>
                         <div className="flex items-center justify-between">
                           <CardTitle className="text-xl">{calc.goal.name}</CardTitle>
@@ -452,14 +502,14 @@ const SavingsGoalCalculator = () => {
                           <div>
                             <div className="text-sm text-muted-foreground">Remaining</div>
                             <div className="text-lg font-bold">
-                              ${(calc.goal.targetAmount - calc.goal.currentSavings).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                              ${Math.max(0, calc.goal.targetAmount - calc.goal.currentSavings).toLocaleString("en-US", { maximumFractionDigits: 0 })}
                             </div>
                           </div>
 
                           <div>
                             <div className="text-sm text-muted-foreground">Time to Goal</div>
                             <div className="text-lg font-bold">
-                              {yearsMonths(calc.monthsToGoal)}
+                              {calc.isReachable ? yearsMonths(calc.monthsToGoal) : "Not reachable"}
                             </div>
                           </div>
 
@@ -488,16 +538,21 @@ const SavingsGoalCalculator = () => {
                                   <strong>Target Date:</strong> {formatDate(new Date(calc.goal.targetDate))}
                                 </div>
                                 <div>
-                                  <strong>Projected Completion:</strong> {formatDate(calc.projectedCompletionDate)}
+                                  <strong>Projected Completion:</strong> {calc.isReachable ? formatDate(calc.projectedCompletionDate) : "Not reachable"}
                                 </div>
-                                {!calc.onTrack && (
-                                  <div className="text-orange-600 mt-2">
-                                    ⚠ You need to save <strong>${calc.requiredMonthlyPayment.toLocaleString("en-US", { maximumFractionDigits: 0 })}/month</strong> to reach your goal by the target date.
+                                {!calc.isReachable && (
+                                  <div className="text-red-600 mt-2">
+                                    Add a monthly contribution or increase current savings to make this goal reachable.
                                   </div>
                                 )}
-                                {calc.onTrack && calc.goal.monthlyContribution < calc.requiredMonthlyPayment && (
+                                {calc.isReachable && !calc.onTrack && (
+                                  <div className="text-orange-600 mt-2">
+                                    You need to save <strong>${calc.requiredMonthlyPayment.toLocaleString("en-US", { maximumFractionDigits: 0 })}/month</strong> to reach your goal by the target date.
+                                  </div>
+                                )}
+                                {calc.isReachable && calc.onTrack && calc.goal.monthlyContribution < calc.requiredMonthlyPayment && (
                                   <div className="text-green-600 mt-2">
-                                    ✓ On track! Current pace will reach goal by {formatDate(calc.projectedCompletionDate)}
+                                    On track. Current pace will reach goal by {formatDate(calc.projectedCompletionDate)}
                                   </div>
                                 )}
                               </div>
@@ -552,10 +607,10 @@ const SavingsGoalCalculator = () => {
                             <div className="flex-1">
                               <h3 className="font-semibold text-lg">{calc.goal.name}</h3>
                               <div className="text-sm text-muted-foreground">
-                                Projected completion: {formatDate(calc.projectedCompletionDate)}
+                                Projected completion: {calc.isReachable ? formatDate(calc.projectedCompletionDate) : "Not reachable"}
                               </div>
                               <div className="text-sm text-muted-foreground">
-                                {yearsMonths(calc.monthsToGoal)} from now
+                                {calc.isReachable ? `${yearsMonths(calc.monthsToGoal)} from now` : "Not reachable"}
                               </div>
                             </div>
                             <div className="text-right">
@@ -580,19 +635,19 @@ const SavingsGoalCalculator = () => {
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">First goal completion:</span>
                         <span className="font-semibold">
-                          {calculations.length > 0 ? formatDate(calculations[0].projectedCompletionDate) : "N/A"}
+                          {calculations.length > 0 ? (calculations[0].isReachable ? formatDate(calculations[0].projectedCompletionDate) : "Not reachable") : "N/A"}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Last goal completion:</span>
                         <span className="font-semibold">
-                          {calculations.length > 0 ? formatDate(calculations[calculations.length - 1].projectedCompletionDate) : "N/A"}
+                          {calculations.length > 0 ? (calculations[calculations.length - 1].isReachable ? formatDate(calculations[calculations.length - 1].projectedCompletionDate) : "Not reachable") : "N/A"}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Total timespan:</span>
                         <span className="font-semibold">
-                          {calculations.length > 0 ? yearsMonths(calculations[calculations.length - 1].monthsToGoal) : "N/A"}
+                          {calculations.length > 0 ? (calculations[calculations.length - 1].isReachable ? yearsMonths(calculations[calculations.length - 1].monthsToGoal) : "Not reachable") : "N/A"}
                         </span>
                       </div>
                       <div className="flex justify-between pt-3 border-t">

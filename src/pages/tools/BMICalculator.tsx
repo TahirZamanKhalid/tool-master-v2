@@ -82,7 +82,7 @@ const EnhancedBMICalculator = () => {
     const w = parseFloat(weight);
     const h = parseFloat(height);
 
-    if (isNaN(w) || isNaN(h) || h === 0) return 0;
+    if (isNaN(w) || isNaN(h) || w <= 0 || h <= 0) return 0;
 
     if (unit === "metric") {
       const heightInMeters = h / 100;
@@ -97,7 +97,7 @@ const EnhancedBMICalculator = () => {
     const h = parseFloat(height);
     const a = parseFloat(age);
 
-    if (isNaN(w) || isNaN(h) || isNaN(a)) return 0;
+    if (isNaN(w) || isNaN(h) || isNaN(a) || w <= 0 || h <= 0 || a <= 0) return 0;
 
     // Mifflin-St Jeor Equation
     if (unit === "metric") {
@@ -131,7 +131,7 @@ const EnhancedBMICalculator = () => {
 
   const calculateIdealWeight = () => {
     const h = parseFloat(height);
-    if (isNaN(h)) return { min: 0, max: 0 };
+    if (isNaN(h) || h <= 0) return { min: 0, max: 0 };
 
     if (unit === "metric") {
       const heightInMeters = h / 100;
@@ -153,21 +153,32 @@ const EnhancedBMICalculator = () => {
     const neckVal = parseFloat(neck);
     const hipVal = parseFloat(hip);
 
-    if (isNaN(w) || isNaN(h) || isNaN(waistVal) || isNaN(neckVal)) return 0;
+    if (isNaN(w) || isNaN(h) || isNaN(waistVal) || isNaN(neckVal) || h <= 0 || waistVal <= 0 || neckVal <= 0) return 0;
+
+    const heightInches = unit === "metric" ? h / 2.54 : h;
+    const waistInches = unit === "metric" ? waistVal / 2.54 : waistVal;
+    const neckInches = unit === "metric" ? neckVal / 2.54 : neckVal;
+    const hipInches = unit === "metric" ? hipVal / 2.54 : hipVal;
 
     // US Navy Method
     if (gender === "male") {
-      return 495 / (1.0324 - 0.19077 * Math.log10(waistVal - neckVal) + 0.15456 * Math.log10(h)) - 450;
+      const circumference = waistInches - neckInches;
+      if (circumference <= 0 || heightInches <= 0) return 0;
+      const result = 495 / (1.0324 - 0.19077 * Math.log10(circumference) + 0.15456 * Math.log10(heightInches)) - 450;
+      return Number.isFinite(result) && result > 0 ? result : 0;
     } else {
-      if (isNaN(hipVal)) return 0;
-      return 495 / (1.29579 - 0.35004 * Math.log10(waistVal + hipVal - neckVal) + 0.221 * Math.log10(h)) - 450;
+      if (isNaN(hipVal) || hipVal <= 0) return 0;
+      const circumference = waistInches + hipInches - neckInches;
+      if (circumference <= 0 || heightInches <= 0) return 0;
+      const result = 495 / (1.29579 - 0.35004 * Math.log10(circumference) + 0.221 * Math.log10(heightInches)) - 450;
+      return Number.isFinite(result) && result > 0 ? result : 0;
     }
   };
 
   const calculateWHR = () => {
     const waistVal = parseFloat(waist);
     const hipVal = parseFloat(hip);
-    if (isNaN(waistVal) || isNaN(hipVal) || hipVal === 0) return 0;
+    if (isNaN(waistVal) || isNaN(hipVal) || waistVal <= 0 || hipVal <= 0) return 0;
     return waistVal / hipVal;
   };
 
@@ -253,7 +264,7 @@ const EnhancedBMICalculator = () => {
   const bmr = calculateBMR();
   const tdee = calculateTDEE();
   const idealWeight = calculateIdealWeight();
-  const bodyFatPercent = showAdvanced ? calculateBodyFatPercentage() : parseFloat(bodyFat);
+  const bodyFatPercent = showAdvanced ? calculateBodyFatPercentage() : Math.max(0, parseFloat(bodyFat) || 0);
   const whr = calculateWHR();
   const { category, color, bgColor, description, risk } = getBMICategory(bmi);
   const bodyFatCategory = getBodyFatCategory(bodyFatPercent);
@@ -395,9 +406,12 @@ const EnhancedBMICalculator = () => {
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
+    const reportDate = new Date();
+    const reportDateSegment = `${reportDate.getFullYear()}-${String(reportDate.getMonth() + 1).padStart(2, "0")}-${String(reportDate.getDate()).padStart(2, "0")}`;
     a.href = url;
-    a.download = `bmi-report-${new Date().toISOString().split("T")[0]}.json`;
+    a.download = `bmi-report-${reportDateSegment}.json`;
     a.click();
+    URL.revokeObjectURL(url);
   };
 
   const COLORS = ["#22c55e", "#eab308", "#f97316", "#ef4444"];
@@ -409,7 +423,7 @@ const EnhancedBMICalculator = () => {
       category="Calculators"
       relatedTools={[
         { name: "Percentage Calculator", path: "/tools/percentage-calculator" },
-        { name: "Unit Converter", path: "/tools/unit-converter" },
+        { name: "Unit Converter", path: "/tools/premium-plus-unit-converter" },
         { name: "Currency Converter", path: "/tools/currency-converter" },
       ]}
     >

@@ -89,7 +89,7 @@ export const ProcessingOverlay = ({
             </div>
           </div>
           <h3 className="text-xl font-bold text-center">
-            AI is Processing Your Image
+            Processing Your File
           </h3>
           <p className="text-white/80 text-center text-sm mt-1">{message}</p>
         </div>
@@ -103,14 +103,14 @@ export const ProcessingOverlay = ({
             </div>
             <Progress value={progress} className="h-3" />
             <div className="flex justify-between text-xs text-gray-500">
-              <span>Analyzing image...</span>
+              <span>Preparing file...</span>
               <span>
                 {progress < 30
-                  ? "Loading AI model"
+                  ? "Reading file"
                   : progress < 60
-                    ? "Detecting edges"
+                    ? "Processing pages"
                     : progress < 90
-                      ? "Removing background"
+                      ? "Optimizing result"
                       : "Finalizing"}
               </span>
             </div>
@@ -179,7 +179,7 @@ export const ProcessingOverlay = ({
           )}
           <div className="flex items-center justify-center gap-2 text-xs text-gray-500 bg-green-50 dark:bg-green-950/30 p-3 rounded-lg">
             <Shield className="h-4 w-4 text-green-600" />
-            <span>Your image is processed locally - 100% private & secure</span>
+            <span>Your file is processed locally - 100% private and secure</span>
           </div>
         </div>
       </div>

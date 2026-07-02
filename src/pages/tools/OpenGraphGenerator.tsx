@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Copy, Check, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { escapeHtmlAttribute, normalizeAbsoluteUrl } from "@/utils/seoTools";
 
 const OpenGraphGenerator = () => {
   const { toast } = useToast();
@@ -30,19 +31,21 @@ const OpenGraphGenerator = () => {
 
   const generateOpenGraphTags = () => {
     const tags = [];
+    const pageUrl = normalizeAbsoluteUrl(formData.url);
+    const imageUrl = normalizeAbsoluteUrl(formData.image);
     
-    if (formData.title) tags.push(`<meta property="og:title" content="${formData.title}" />`);
-    if (formData.description) tags.push(`<meta property="og:description" content="${formData.description}" />`);
-    if (formData.image) tags.push(`<meta property="og:image" content="${formData.image}" />`);
-    if (formData.url) tags.push(`<meta property="og:url" content="${formData.url}" />`);
-    if (formData.siteName) tags.push(`<meta property="og:site_name" content="${formData.siteName}" />`);
-    tags.push(`<meta property="og:type" content="${formData.type}" />`);
-    tags.push(`<meta property="og:locale" content="${formData.locale}" />`);
+    if (formData.title) tags.push(`<meta property="og:title" content="${escapeHtmlAttribute(formData.title.trim())}" />`);
+    if (formData.description) tags.push(`<meta property="og:description" content="${escapeHtmlAttribute(formData.description.trim())}" />`);
+    if (imageUrl) tags.push(`<meta property="og:image" content="${escapeHtmlAttribute(imageUrl)}" />`);
+    if (pageUrl) tags.push(`<meta property="og:url" content="${escapeHtmlAttribute(pageUrl)}" />`);
+    if (formData.siteName) tags.push(`<meta property="og:site_name" content="${escapeHtmlAttribute(formData.siteName.trim())}" />`);
+    tags.push(`<meta property="og:type" content="${escapeHtmlAttribute(formData.type)}" />`);
+    tags.push(`<meta property="og:locale" content="${escapeHtmlAttribute(formData.locale)}" />`);
     
     // Twitter Card tags
-    if (formData.title) tags.push(`<meta name="twitter:title" content="${formData.title}" />`);
-    if (formData.description) tags.push(`<meta name="twitter:description" content="${formData.description}" />`);
-    if (formData.image) tags.push(`<meta name="twitter:image" content="${formData.image}" />`);
+    if (formData.title) tags.push(`<meta name="twitter:title" content="${escapeHtmlAttribute(formData.title.trim())}" />`);
+    if (formData.description) tags.push(`<meta name="twitter:description" content="${escapeHtmlAttribute(formData.description.trim())}" />`);
+    if (imageUrl) tags.push(`<meta name="twitter:image" content="${escapeHtmlAttribute(imageUrl)}" />`);
     tags.push(`<meta name="twitter:card" content="summary_large_image" />`);
 
     return tags.join('\n');

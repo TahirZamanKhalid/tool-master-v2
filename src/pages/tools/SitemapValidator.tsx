@@ -29,6 +29,11 @@ const SitemapValidator = () => {
     const warnings: string[] = [];
     const success: string[] = [];
     let urlCount = 0;
+    const parsedXml = new DOMParser().parseFromString(sitemapXml, "application/xml");
+    const parserError = parsedXml.querySelector("parsererror");
+    if (parserError) {
+      issues.push("XML parser error - check for unclosed tags or invalid characters");
+    }
 
     // Check if it's XML
     if (!sitemapXml.trim().startsWith("<?xml") && !sitemapXml.trim().startsWith("<")) {
@@ -80,7 +85,7 @@ const SitemapValidator = () => {
     if (priorityMatches) {
       priorityMatches.forEach(match => {
         const value = parseFloat(match.replace(/<\/?priority>/g, ""));
-        if (value < 0 || value > 1) {
+        if (!Number.isFinite(value) || value < 0 || value > 1) {
           issues.push(`Invalid priority value: ${value} (must be 0.0-1.0)`);
         }
       });
@@ -91,7 +96,7 @@ const SitemapValidator = () => {
     if (changefreqMatches) {
       const validFreqs = ["always", "hourly", "daily", "weekly", "monthly", "yearly", "never"];
       changefreqMatches.forEach(match => {
-        const freq = match.replace(/<\/?changefreq>/g, "");
+        const freq = match.replace(/<\/?changefreq>/g, "").trim().toLowerCase();
         if (!validFreqs.includes(freq)) {
           issues.push(`Invalid changefreq value: ${freq}`);
         }
@@ -102,7 +107,7 @@ const SitemapValidator = () => {
     const locUrls = sitemapXml.match(/<loc>(.*?)<\/loc>/g);
     if (locUrls) {
       locUrls.forEach(loc => {
-        const url = loc.replace(/<\/?loc>/g, "");
+        const url = loc.replace(/<\/?loc>/g, "").trim();
         if (!url.startsWith("http://") && !url.startsWith("https://")) {
           issues.push(`Invalid URL format: ${url.substring(0, 50)}...`);
         }
@@ -289,27 +294,27 @@ const SitemapValidator = () => {
             <h3 className="text-lg font-semibold mb-4">Sitemap Requirements</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Max URLs:</strong> 50,000 URLs per sitemap file</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Max size:</strong> 50MB uncompressed (10MB compressed)</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>URL format:</strong> Must start with http:// or https://</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Priority:</strong> Value between 0.0 and 1.0 (optional)</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Changefreq:</strong> always, hourly, daily, weekly, monthly, yearly, never</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-primary">✓</span>
+                <span className="text-primary">-</span>
                 <span><strong>Submit to:</strong> Google Search Console and Bing Webmaster Tools</span>
               </li>
             </ul>

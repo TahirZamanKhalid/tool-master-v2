@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { Fragment, useState, useCallback, useMemo, useEffect } from "react";
 import { AdSpace } from "@/components/AdSpace";
 import { AdRow } from "@/components/AdRow";
 import { InFeedAd } from "@/components/InFeedAd";
@@ -42,6 +42,7 @@ import {
   Award,
   History,
 } from "lucide-react";
+import { getSafeFileSegment } from "@/utils/seoTools";
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 
@@ -252,8 +253,8 @@ const fetchWhoisData = async (domain: string): Promise<WhoisData> => {
         }
       }
     }
-  } catch (e) {
-    console.warn("PHP proxy unavailable for WHOIS:", e);
+  } catch {
+    // Continue to the next lookup source.
   }
 
   try {
@@ -284,8 +285,8 @@ const fetchWhoisData = async (domain: string): Promise<WhoisData> => {
         return parseRDAPData(rdapData, domain);
       }
     }
-  } catch (e) {
-    console.warn("RDAP lookup failed:", e);
+  } catch {
+    // Continue to the next lookup source.
   }
 
   try {
@@ -303,8 +304,8 @@ const fetchWhoisData = async (domain: string): Promise<WhoisData> => {
         return normalizeApiData(apiData, domain);
       }
     }
-  } catch (e) {
-    console.warn("Alternative WHOIS API failed:", e);
+  } catch {
+    // Report one clean user-facing error after every source has failed.
   }
 
   throw new Error(
@@ -533,9 +534,8 @@ const DomainAgeChecker = () => {
         addToHistory(cleaned, ageStr);
 
         toast.success(`Domain lookup complete in ${Math.round(endTime - startTime)}ms`);
-      } catch (err: any) {
-        console.error("Domain lookup error:", err);
-        const msg = err.message || "Failed to look up domain. Please try again.";
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Failed to look up domain. Please try again.";
         setError(msg);
         toast.error(msg);
       } finally {
@@ -580,7 +580,7 @@ const DomainAgeChecker = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `domain-age-${result.domainName}-${Date.now()}.json`;
+    a.download = `domain-age-${getSafeFileSegment(result.domainName || "domain")}-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("JSON exported!");
@@ -615,7 +615,7 @@ const DomainAgeChecker = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `domain-age-${result.domainName}-${Date.now()}.txt`;
+    a.download = `domain-age-${getSafeFileSegment(result.domainName || "domain")}-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
     toast.success("Report exported!");
@@ -633,7 +633,7 @@ const DomainAgeChecker = () => {
         return;
       } catch { /* fall through */ }
     }
-    navigator.clipboard.writeText(text);
+    await navigator.clipboard.writeText(text);
     toast.success("Result copied to clipboard!");
   }, [result, domainAge]);
 
@@ -1316,7 +1316,7 @@ const DomainAgeChecker = () => {
                 <p>
                   Our free domain age checker performs a real-time <strong>WHOIS lookup</strong> to retrieve
                   the exact registration date, expiration date, registrar information, name servers, and
-                  domain status codes—all without leaving the page.
+                  domain status codes - all without leaving the page.
                 </p>
               </CardContent>
             </Card>
@@ -1395,7 +1395,7 @@ const DomainAgeChecker = () => {
                 {
                   id: "seo-impact",
                   q: "Does domain age directly affect SEO rankings?",
-                  a: "While Google has stated that domain age is not a direct ranking factor, older domains tend to have more backlinks, content, and established authority—all of which positively influence rankings. It's more of a correlation than a direct cause.",
+                  a: "While Google has stated that domain age is not a direct ranking factor, older domains tend to have more backlinks, content, and established authority - all of which positively influence rankings. It's more of a correlation than a direct cause.",
                 },
                 {
                   id: "expired",
@@ -1408,8 +1408,8 @@ const DomainAgeChecker = () => {
                   a: "Our tool uses real-time WHOIS/RDAP lookups from official registry databases, providing the most accurate registration dates available. Some registries may have different date formats or redacted information due to privacy regulations.",
                 },
               ].map(({ id, q, a }, index) => (
-                <>
-                  <div key={id} className="p-4 bg-muted/30 rounded-lg border">
+                <Fragment key={id}>
+                  <div className="p-4 bg-muted/30 rounded-lg border">
                     <h3 className="font-semibold text-foreground mb-1.5">{q}</h3>
                     <p className="text-muted-foreground leading-relaxed">{a}</p>
                   </div>
@@ -1419,7 +1419,7 @@ const DomainAgeChecker = () => {
                       <AdSpace slot="2889043946" size="leaderboard" className="w-full" />
                     </div>
                   )}
-                </>
+                </Fragment>
               ))}
             </CardContent>
           </Card>

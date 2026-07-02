@@ -4,13 +4,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { AdSpace } from "@/components/AdSpace";
+import { toast } from "sonner";
 
 const TextCompare = () => {
   const [text1, setText1] = useState("");
   const [text2, setText2] = useState("");
   const [differences, setDifferences] = useState<string[]>([]);
+  const [hasCompared, setHasCompared] = useState(false);
 
   const compare = () => {
+    if (!text1 && !text2) {
+      toast.error("Please enter text to compare");
+      return;
+    }
     const lines1 = text1.split("\n");
     const lines2 = text2.split("\n");
     const diffs: string[] = [];
@@ -23,6 +29,7 @@ const TextCompare = () => {
     }
 
     setDifferences(diffs);
+    setHasCompared(true);
   };
 
   return (
@@ -39,7 +46,10 @@ const TextCompare = () => {
               <h3 className="font-semibold mb-2">Text 1</h3>
               <Textarea
                 value={text1}
-                onChange={(e) => setText1(e.target.value)}
+                onChange={(e) => {
+                  setText1(e.target.value);
+                  setHasCompared(false);
+                }}
                 rows={10}
               />
             </CardContent>
@@ -49,7 +59,10 @@ const TextCompare = () => {
               <h3 className="font-semibold mb-2">Text 2</h3>
               <Textarea
                 value={text2}
-                onChange={(e) => setText2(e.target.value)}
+                onChange={(e) => {
+                  setText2(e.target.value);
+                  setHasCompared(false);
+                }}
                 rows={10}
               />
             </CardContent>
@@ -70,10 +83,10 @@ const TextCompare = () => {
             </CardContent>
           </Card>
         )}
-        {differences.length === 0 && text1 && text2 && (
+        {hasCompared && differences.length === 0 && text1 && text2 && (
           <Card>
             <CardContent className="p-6 text-center text-green-600">
-              ✓ No differences found - texts are identical
+              No differences found - texts are identical
             </CardContent>
           </Card>
         )}

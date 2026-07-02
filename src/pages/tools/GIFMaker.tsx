@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+﻿import { useState, useRef, useEffect } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,11 @@ import {
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { SEOHead } from "@/components/SEOHead";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { isRasterImageFile } from "@/utils/imageFiles";
+import { encodeGif, type GifFrameInput } from "@/utils/simpleGifEncoder";
+
+const MAX_FRAME_SIZE = 10 * 1024 * 1024;
+const SUPPORTED_FRAME_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/bmp"];
 
 interface Frame {
   id: string;
@@ -146,17 +151,24 @@ const GIFMaker = () => {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    e.currentTarget.value = "";
 
     if (files.length === 0) return;
 
-    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+    const imageFiles = files.filter(
+      (file) => isRasterImageFile(file, SUPPORTED_FRAME_TYPES) && file.size <= MAX_FRAME_SIZE,
+    );
 
     if (imageFiles.length === 0) {
-      toast.error("Please upload image files");
+      toast.error("Please upload JPG, PNG, WebP, or BMP images under 10 MB each");
       return;
     }
 
-    if (imageFiles.length < 2) {
+    if (imageFiles.length !== files.length) {
+      toast.warning("Some unsupported or oversized files were skipped");
+    }
+
+    if (frames.length + imageFiles.length < 2) {
       toast.error("Please upload at least 2 images to create an animation");
       return;
     }
@@ -454,6 +466,7 @@ const GIFMaker = () => {
       });
       setFrames(updatedFrames);
       toast.success(`Text added to ${selectedFrames.size} frame(s)`);
+      drawFrame(updatedFrames[currentFrame], currentFrame);
     } else {
       // Add text to current frame
       const updatedFrames = [...frames];
@@ -463,9 +476,9 @@ const GIFMaker = () => {
       };
       setFrames(updatedFrames);
       toast.success("Text added to current frame");
+      drawFrame(updatedFrames[currentFrame], currentFrame);
     }
 
-    drawFrame(frames[currentFrame], currentFrame);
     setShowTextEditor(false);
   };
 
@@ -489,6 +502,7 @@ const GIFMaker = () => {
       });
       setFrames(updatedFrames);
       toast.success(`Filters applied to ${selectedFrames.size} frame(s)`);
+      drawFrame(updatedFrames[currentFrame], currentFrame);
     } else {
       const updatedFrames = [...frames];
       updatedFrames[currentFrame] = {
@@ -497,9 +511,8 @@ const GIFMaker = () => {
       };
       setFrames(updatedFrames);
       toast.success("Filters applied to current frame");
+      drawFrame(updatedFrames[currentFrame], currentFrame);
     }
-
-    drawFrame(frames[currentFrame], currentFrame);
   };
 
   const resetFilters = () => {
@@ -575,6 +588,11 @@ const GIFMaker = () => {
     toast.success("Frame order updated");
   };
 
+  const updateFrameDuration = (value: number[]) => {
+    setGlobalFrameDuration(value);
+    setFrames((prev) => prev.map((frame) => ({ ...frame, duration: value[0] })));
+  };
+
   const handleDownload = () => {
     if (frames.length < 1) {
       toast.error("Add at least 1 frame to create an animation");
@@ -595,14 +613,7 @@ const GIFMaker = () => {
 
     try {
       const processedFrames = getProcessedFrames();
-
-      if (exportFormat === "gif") {
-        await downloadAsGIF(processedFrames);
-      } else if (exportFormat === "webp") {
-        await downloadAsWebP(processedFrames);
-      } else {
-        await downloadAsVideo(processedFrames);
-      }
+      await downloadAsGIF(processedFrames);
     } catch (error) {
       console.error("Error creating animation:", error);
       toast.error("Failed to create animation");
@@ -612,58 +623,44 @@ const GIFMaker = () => {
   };
 
   const downloadAsGIF = async (processedFrames: Frame[]) => {
-    // For true GIF encoding, you would need gif.js library
-    // For now, we'll create an enhanced HTML animation
     const canvas = document.createElement("canvas");
     canvas.width = width;
     canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not get canvas context");
 
-    const frameDataUrls = await Promise.all(
-      processedFrames.map(async (frame, index) => {
-        const ctx = canvas.getContext("2d");
-        if (!ctx) throw new Error("Could not get canvas context");
+    const gifFrames: GifFrameInput[] = processedFrames.map((frame, index) => {
+      if (transparentBackground) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      } else {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
 
-        // Clear canvas
-        if (transparentBackground) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-        } else {
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
+      if (frame.filters) applyFilters(ctx, frame.filters);
 
-        // Apply filters
-        if (frame.filters) {
-          applyFilters(ctx, frame.filters);
-        }
+      const scale = Math.min(canvas.width / frame.image.width, canvas.height / frame.image.height);
+      const scaledWidth = frame.image.width * scale;
+      const scaledHeight = frame.image.height * scale;
+      const x = (canvas.width - scaledWidth) / 2;
+      const y = (canvas.height - scaledHeight) / 2;
 
-        // Draw image
-        const scale = Math.min(canvas.width / frame.image.width, canvas.height / frame.image.height);
-        const scaledWidth = frame.image.width * scale;
-        const scaledHeight = frame.image.height * scale;
-        const x = (canvas.width - scaledWidth) / 2;
-        const y = (canvas.height - scaledHeight) / 2;
+      ctx.drawImage(frame.image, x, y, scaledWidth, scaledHeight);
+      ctx.filter = "none";
 
-        ctx.drawImage(frame.image, x, y, scaledWidth, scaledHeight);
-        ctx.filter = "none";
+      if (frame.text) drawTextOverlay(ctx, frame.text, index);
 
-        // Draw text
-        if (frame.text) {
-          drawTextOverlay(ctx, frame.text, index);
-        }
+      return {
+        data: ctx.getImageData(0, 0, canvas.width, canvas.height).data,
+        width: canvas.width,
+        height: canvas.height,
+        delayMs: Math.max(50, frame.duration),
+      };
+    });
 
-        return {
-          dataUrl: canvas.toDataURL("image/png"),
-          duration: frame.duration,
-        };
-      }),
-    );
-
-    const htmlContent = generateAnimationHTML(frameDataUrls);
-    downloadFile(htmlContent, `animation-${Date.now()}.html`, "text/html");
-
-    toast.success(
-      "Animation HTML downloaded! Open in browser to view or use screen recording tools to convert to GIF/video.",
-    );
+    const blob = encodeGif(gifFrames, loop ? loopCount : 1);
+    downloadBlob(blob, `animation-${Date.now()}.gif`);
+    toast.success("GIF downloaded successfully!");
   };
 
   const downloadAsWebP = async (processedFrames: Frame[]) => {
@@ -881,7 +878,7 @@ const GIFMaker = () => {
       </div>
       <div class="info-item">
         <span class="info-label">Dimensions</span>
-        <span>${width} × ${height}px</span>
+        <span>${width}  x  ${height}px</span>
       </div>
       <div class="info-item">
         <span class="info-label">Total Frames</span>
@@ -894,7 +891,7 @@ const GIFMaker = () => {
     </div>
     
     <div class="note">
-      <strong>💡 Tip:</strong> Use screen recording software (OBS, QuickTime, etc.) to capture this animation 
+      <strong>Tip:</strong> Use screen recording software (OBS, QuickTime, etc.) to capture this animation 
       and convert it to GIF or MP4 format. Or use online tools like ezgif.com for conversion.
     </div>
     
@@ -1028,6 +1025,10 @@ const GIFMaker = () => {
 
   const downloadFile = (content: string, filename: string, mimeType: string) => {
     const blob = new Blob([content], { type: mimeType });
+    downloadBlob(blob, filename);
+  };
+
+  const downloadBlob = (blob: Blob, filename: string) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -1102,7 +1103,7 @@ const GIFMaker = () => {
           "Use timeline controls to edit individual frames",
           "Apply effects like boomerang, reverse, and transitions",
           "Preview your animation with playback controls",
-          "Export as HTML animation (or screen record for GIF/MP4)",
+          "Download a real animated GIF file",
         ]}
         relatedTools={[
           { name: "Video Trimmer", path: "/tools/video-trimmer" },
@@ -1129,7 +1130,7 @@ const GIFMaker = () => {
                       <input
                         ref={fileInputRef}
                         type="file"
-                        accept="image/*"
+                        accept={SUPPORTED_FRAME_TYPES.join(",")}
                         multiple
                         onChange={handleImageUpload}
                         className="hidden"
@@ -1151,7 +1152,7 @@ const GIFMaker = () => {
                             max={2000}
                             step={50}
                             value={globalFrameDuration}
-                            onValueChange={setGlobalFrameDuration}
+                            onValueChange={updateFrameDuration}
                             className="mt-2"
                           />
                           <div className="flex justify-between text-xs text-muted-foreground mt-1">
@@ -1202,9 +1203,7 @@ const GIFMaker = () => {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="gif">GIF (HTML Animation)</SelectItem>
-                              <SelectItem value="webp">WebP (Coming Soon)</SelectItem>
-                              <SelectItem value="mp4">MP4 Video (Coming Soon)</SelectItem>
+                              <SelectItem value="gif">GIF (.gif)</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -1392,7 +1391,7 @@ const GIFMaker = () => {
                     </div>
 
                     <div>
-                      <Label>Hue Rotate: {hue[0]}°</Label>
+                      <Label>Hue Rotate: {hue[0]}deg</Label>
                       <Slider min={0} max={360} value={hue} onValueChange={setHue} className="mt-2" />
                     </div>
 
@@ -1592,7 +1591,7 @@ const GIFMaker = () => {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Dimensions:</span>
                       <span className="font-medium">
-                        {width} × {height}px
+                        {width}  x  {height}px
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -1617,11 +1616,11 @@ const GIFMaker = () => {
                   Pro Tips
                 </h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Use 5-30 frames for smooth animations</li>
-                  <li>• 100-200ms per frame = natural speed</li>
-                  <li>• Shift+Click to select multiple frames</li>
-                  <li>• Drag frames to reorder them</li>
-                  <li>• Add text with animations for impact</li>
+                  <li>- Use 5-30 frames for smooth animations</li>
+                  <li>- 100-200ms per frame = natural speed</li>
+                  <li>- Shift+Click to select multiple frames</li>
+                  <li>- Drag frames to reorder them</li>
+                  <li>- Add text with animations for impact</li>
                 </ul>
               </CardContent>
             </Card>
@@ -1641,10 +1640,10 @@ const GIFMaker = () => {
                   Text Overlays
                 </h4>
                 <ul className="space-y-1 text-muted-foreground">
-                  <li>• Multiple font options</li>
-                  <li>• Custom colors & sizes</li>
-                  <li>• Text animations (fade, slide, bounce)</li>
-                  <li>• Bold, italic, outline effects</li>
+                  <li>- Multiple font options</li>
+                  <li>- Custom colors & sizes</li>
+                  <li>- Text animations (fade, slide, bounce)</li>
+                  <li>- Bold, italic, outline effects</li>
                 </ul>
               </div>
               <div>
@@ -1653,10 +1652,10 @@ const GIFMaker = () => {
                   Image Filters
                 </h4>
                 <ul className="space-y-1 text-muted-foreground">
-                  <li>• Brightness & contrast</li>
-                  <li>• Saturation & hue rotation</li>
-                  <li>• Blur, sepia, grayscale</li>
-                  <li>• Apply to individual/all frames</li>
+                  <li>- Brightness & contrast</li>
+                  <li>- Saturation & hue rotation</li>
+                  <li>- Blur, sepia, grayscale</li>
+                  <li>- Apply to individual/all frames</li>
                 </ul>
               </div>
               <div>
@@ -1665,10 +1664,10 @@ const GIFMaker = () => {
                   Special Effects
                 </h4>
                 <ul className="space-y-1 text-muted-foreground">
-                  <li>• Boomerang effect</li>
-                  <li>• Reverse playback</li>
-                  <li>• Variable playback speed</li>
-                  <li>• Transparent backgrounds</li>
+                  <li>- Boomerang effect</li>
+                  <li>- Reverse playback</li>
+                  <li>- Variable playback speed</li>
+                  <li>- Transparent backgrounds</li>
                 </ul>
               </div>
             </div>

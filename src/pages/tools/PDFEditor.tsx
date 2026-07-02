@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import * as pdfjsLib from "pdfjs-dist";
+import PdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?worker";
 import {
   FileText, Download, Upload, Bold, Italic, Underline,
   AlignLeft, AlignCenter, AlignRight, AlignJustify,
@@ -16,8 +17,8 @@ import {
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { SEOHead } from "@/components/SEOHead";
 
-// Set up PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Set up PDF.js worker from the local bundle so editing works without a CDN.
+pdfjsLib.GlobalWorkerOptions.workerPort = new PdfWorker();
 
 const PDFEditor = () => {
   const [fileName, setFileName] = useState("");
@@ -55,7 +56,7 @@ const PDFEditor = () => {
 
     setFileName(file.name.replace('.pdf', ''));
 
-    if (file.type === "application/pdf") {
+    if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
       setIsLoading(true);
       setExtractedContent(""); // Clear previous content
 
@@ -157,6 +158,8 @@ const PDFEditor = () => {
     } else {
       toast.error("Please upload a PDF file");
     }
+
+    e.target.value = "";
   };
 
   const formatLine = (lineItems: any[]): string => {
@@ -589,21 +592,21 @@ const PDFEditor = () => {
             <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
               <div>
                 <h4 className="font-semibold text-foreground mb-2">Editing Existing PDFs:</h4>
-                <ul className="space-y-1">
-                  <li>• Click "Upload PDF" to load a PDF file</li>
-                  <li>• Text is extracted with <strong>original styling preserved</strong></li>
-                  <li>• Fonts, sizes, bold, italic are maintained</li>
-                  <li>• Edit like a Word document</li>
-                  <li>• Download as new PDF when done</li>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>Click "Upload PDF" to load a PDF file</li>
+                  <li>Text is extracted with <strong>original styling preserved</strong></li>
+                  <li>Fonts, sizes, bold, italic are maintained</li>
+                  <li>Edit like a Word document</li>
+                  <li>Download as new PDF when done</li>
                 </ul>
               </div>
               <div>
                 <h4 className="font-semibold text-foreground mb-2">Creating New Documents:</h4>
-                <ul className="space-y-1">
-                  <li>• Click "New Document" to start fresh</li>
-                  <li>• Type and format text like in Word</li>
-                  <li>• Use toolbar for formatting options</li>
-                  <li>• Download as PDF when complete</li>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>Click "New Document" to start fresh</li>
+                  <li>Type and format text like in Word</li>
+                  <li>Use toolbar for formatting options</li>
+                  <li>Download as PDF when complete</li>
                 </ul>
               </div>
             </div>

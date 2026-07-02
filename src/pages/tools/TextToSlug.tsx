@@ -6,20 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { AdSpace } from "@/components/AdSpace";
+import { createSlug } from "@/utils/textTools";
 
 const TextToSlug = () => {
   const [text, setText] = useState("");
 
-  const generateSlug = (text: string) => {
-    return text
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "");
-  };
-
-  const slug = generateSlug(text);
+  const slug = createSlug(text);
 
   const copySlug = () => {
     navigator.clipboard.writeText(slug);

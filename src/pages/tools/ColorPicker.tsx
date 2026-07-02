@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Copy } from "lucide-react";
+import { normalizeHexColor } from "@/utils/imageFiles";
 
 const ColorPicker = () => {
   const [color, setColor] = useState("#3b82f6");
+  const [colorText, setColorText] = useState("#3b82f6");
   const { toast } = useToast();
 
   const hexToRgb = (hex: string) => {
@@ -92,14 +94,14 @@ const ColorPicker = () => {
     <ToolLayout
         title="Color Picker"
         description="Pick colors and generate color palettes with HEX, RGB, and HSL values"
-        category="Developer Tools"
+        category="Image Tools"
         instructions={[
           "Use the color picker to select your desired color",
           "Copy color values in different formats (HEX, RGB, HSL)",
           "View and copy generated color shades",
         ]}
         relatedTools={[
-          { name: "JSON Formatter", path: "/tools/json-formatter" },
+          { name: "Color Converter", path: "/tools/color-converter" },
           { name: "Image Size Reducer", path: "/tools/image-size-reducer" },
         ]}
       >
@@ -112,13 +114,29 @@ const ColorPicker = () => {
                   <input
                     type="color"
                     value={color}
-                    onChange={(e) => setColor(e.target.value)}
+                    onChange={(e) => {
+                      setColor(e.target.value);
+                      setColorText(e.target.value);
+                    }}
                     className="w-full h-64 rounded-lg cursor-pointer border-2"
                   />
                   <Input
                     type="text"
-                    value={color}
-                    onChange={(e) => setColor(e.target.value)}
+                    value={colorText}
+                    onChange={(e) => {
+                      setColorText(e.target.value);
+                      const normalized = normalizeHexColor(e.target.value);
+                      if (normalized) setColor(normalized);
+                    }}
+                    onBlur={() => {
+                      const normalized = normalizeHexColor(colorText);
+                      if (normalized) {
+                        setColor(normalized);
+                        setColorText(normalized);
+                      } else {
+                        setColorText(color);
+                      }
+                    }}
                     className="font-mono text-center text-lg"
                   />
                 </div>
@@ -201,6 +219,7 @@ const ColorPicker = () => {
                   style={{ backgroundColor: shade }}
                   onClick={() => {
                     setColor(shade);
+                    setColorText(shade);
                     copyToClipboard(shade, "Shade");
                   }}
                   title={shade}

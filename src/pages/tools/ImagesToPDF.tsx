@@ -18,14 +18,24 @@ const ImagesToPDF = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    const imageFiles = files.filter(file =>
+      file.type === 'image/jpeg' ||
+      file.type === 'image/png' ||
+      /\.(jpe?g|png)$/i.test(file.name)
+    );
     
     if (imageFiles.length !== files.length) {
-      toast.error("Some files were not images and were skipped");
+      toast.error("Only JPG and PNG files are supported. Other files were skipped.");
     }
-    
+
+    if (imageFiles.length === 0) {
+      e.target.value = "";
+      return;
+    }
+
     setImages(prev => [...prev, ...imageFiles]);
     toast.success(`${imageFiles.length} image(s) added`);
+    e.target.value = "";
   };
 
   const removeImage = (index: number) => {
@@ -54,6 +64,8 @@ const ImagesToPDF = () => {
     try {
       const pdfDoc = await PDFDocument.create();
 
+      let embeddedImages = 0;
+
       for (const imageFile of images) {
         const imageBytes = await imageFile.arrayBuffer();
         let image;
@@ -66,6 +78,8 @@ const ImagesToPDF = () => {
           continue;
         }
 
+        embeddedImages += 1;
+
         const page = pdfDoc.addPage([image.width, image.height]);
         page.drawImage(image, {
           x: 0,
@@ -73,6 +87,10 @@ const ImagesToPDF = () => {
           width: image.width,
           height: image.height,
         });
+      }
+
+      if (embeddedImages === 0) {
+        throw new Error("No supported images found");
       }
 
       const pdfBytes = await pdfDoc.save();
@@ -113,7 +131,7 @@ const ImagesToPDF = () => {
       category="PDF Tools"
       instructions={[
         "Upload one or more images (JPG, PNG)",
-        "Reorder images by dragging or using arrows",
+        "Reorder images using the arrow buttons",
         "Click 'Create PDF' to combine all images",
         "Download the generated PDF file",
       ]}

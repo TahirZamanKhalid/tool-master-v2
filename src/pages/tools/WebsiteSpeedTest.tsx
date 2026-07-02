@@ -5,13 +5,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Zap, ExternalLink, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
+import { normalizeAbsoluteUrl } from "@/utils/seoTools";
 
 const WebsiteSpeedTest = () => {
   const [url, setUrl] = useState("");
 
   const testSpeed = (service: string) => {
-    if (!url) return;
-    const encodedUrl = encodeURIComponent(url);
+    const normalizedUrl = normalizeAbsoluteUrl(url);
+    if (!normalizedUrl) {
+      toast.error("Please enter a valid website URL");
+      return;
+    }
+
+    const encodedUrl = encodeURIComponent(normalizedUrl);
     
     const urls: { [key: string]: string } = {
       pagespeed: `https://pagespeed.web.dev/analysis?url=${encodedUrl}`,
@@ -20,7 +27,7 @@ const WebsiteSpeedTest = () => {
       webpagetest: `https://www.webpagetest.org/?url=${encodedUrl}`,
     };
 
-    window.open(urls[service], "_blank");
+    window.open(urls[service], "_blank", "noopener,noreferrer");
   };
 
   return (

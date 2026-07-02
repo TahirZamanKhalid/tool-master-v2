@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { escapeHtmlAttribute, escapeHtmlText, normalizeAbsoluteUrl } from "@/utils/seoTools";
 
 const MetaTagGenerator = () => {
   const { toast } = useToast();
@@ -29,10 +30,10 @@ const MetaTagGenerator = () => {
 
   const generateBasicMeta = () => {
     const tags = [];
-    if (formData.title) tags.push(`<title>${formData.title}</title>`);
-    if (formData.description) tags.push(`<meta name="description" content="${formData.description}">`);
-    if (formData.keywords) tags.push(`<meta name="keywords" content="${formData.keywords}">`);
-    if (formData.author) tags.push(`<meta name="author" content="${formData.author}">`);
+    if (formData.title) tags.push(`<title>${escapeHtmlText(formData.title.trim())}</title>`);
+    if (formData.description) tags.push(`<meta name="description" content="${escapeHtmlAttribute(formData.description.trim())}">`);
+    if (formData.keywords) tags.push(`<meta name="keywords" content="${escapeHtmlAttribute(formData.keywords.trim())}">`);
+    if (formData.author) tags.push(`<meta name="author" content="${escapeHtmlAttribute(formData.author.trim())}">`);
     tags.push(`<meta name="viewport" content="width=device-width, initial-scale=1.0">`);
     tags.push(`<meta charset="UTF-8">`);
     return tags.join('\n');
@@ -40,22 +41,25 @@ const MetaTagGenerator = () => {
 
   const generateOpenGraph = () => {
     const tags = [];
-    if (formData.title) tags.push(`<meta property="og:title" content="${formData.title}">`);
-    if (formData.description) tags.push(`<meta property="og:description" content="${formData.description}">`);
-    if (formData.url) tags.push(`<meta property="og:url" content="${formData.url}">`);
-    if (formData.image) tags.push(`<meta property="og:image" content="${formData.image}">`);
-    if (formData.siteName) tags.push(`<meta property="og:site_name" content="${formData.siteName}">`);
+    const pageUrl = normalizeAbsoluteUrl(formData.url);
+    const imageUrl = normalizeAbsoluteUrl(formData.image);
+    if (formData.title) tags.push(`<meta property="og:title" content="${escapeHtmlAttribute(formData.title.trim())}">`);
+    if (formData.description) tags.push(`<meta property="og:description" content="${escapeHtmlAttribute(formData.description.trim())}">`);
+    if (pageUrl) tags.push(`<meta property="og:url" content="${escapeHtmlAttribute(pageUrl)}">`);
+    if (imageUrl) tags.push(`<meta property="og:image" content="${escapeHtmlAttribute(imageUrl)}">`);
+    if (formData.siteName) tags.push(`<meta property="og:site_name" content="${escapeHtmlAttribute(formData.siteName.trim())}">`);
     tags.push(`<meta property="og:type" content="website">`);
     return tags.join('\n');
   };
 
   const generateTwitterCard = () => {
     const tags = [];
+    const imageUrl = normalizeAbsoluteUrl(formData.image);
     tags.push(`<meta name="twitter:card" content="summary_large_image">`);
-    if (formData.title) tags.push(`<meta name="twitter:title" content="${formData.title}">`);
-    if (formData.description) tags.push(`<meta name="twitter:description" content="${formData.description}">`);
-    if (formData.image) tags.push(`<meta name="twitter:image" content="${formData.image}">`);
-    if (formData.twitterHandle) tags.push(`<meta name="twitter:site" content="@${formData.twitterHandle.replace('@', '')}">`);
+    if (formData.title) tags.push(`<meta name="twitter:title" content="${escapeHtmlAttribute(formData.title.trim())}">`);
+    if (formData.description) tags.push(`<meta name="twitter:description" content="${escapeHtmlAttribute(formData.description.trim())}">`);
+    if (imageUrl) tags.push(`<meta name="twitter:image" content="${escapeHtmlAttribute(imageUrl)}">`);
+    if (formData.twitterHandle) tags.push(`<meta name="twitter:site" content="@${escapeHtmlAttribute(formData.twitterHandle.replace('@', '').trim())}">`);
     return tags.join('\n');
   };
 
@@ -66,8 +70,8 @@ const MetaTagGenerator = () => {
     return `${basicMeta}\n\n${ogTags}\n\n${twitterTags}`;
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const copyToClipboard = async (text: string) => {
+    await navigator.clipboard.writeText(text);
     setCopied(true);
     toast({
       title: "Copied!",
