@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { Upload, Film, Download, Loader2 } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { fetchFile } from '@ffmpeg/util';
+import { deleteFFmpegFiles, loadFFmpegCore } from "@/utils/ffmpeg";
 import { getVideoDownloadName, revokeMediaUrl, validateVideoFile } from "@/utils/videoFiles";
 
 const VideoToGIF = () => {
@@ -38,13 +39,8 @@ const VideoToGIF = () => {
   const loadFFmpeg = async () => {
     try {
       const ffmpeg = ffmpegRef.current;
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/umd';
 
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
-      });
+      await loadFFmpegCore(ffmpeg);
 
       setFfmpegLoaded(true);
       toast.success("GIF converter ready!");
@@ -118,6 +114,7 @@ const VideoToGIF = () => {
 
       const data = await ffmpeg.readFile('output.gif');
       const blob = new Blob([data as BlobPart], { type: 'image/gif' });
+      await deleteFFmpegFiles(ffmpeg, ["input.mp4", "output.gif"]);
       revokeMediaUrl(outputUrl);
       const url = URL.createObjectURL(blob);
       

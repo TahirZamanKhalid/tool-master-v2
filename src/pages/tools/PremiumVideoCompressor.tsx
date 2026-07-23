@@ -13,7 +13,8 @@ import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { fetchFile } from '@ffmpeg/util';
+import { deleteFFmpegFiles, loadFFmpegCore } from "@/utils/ffmpeg";
 import {
   formatFileSize,
   getVideoDownloadName,
@@ -68,17 +69,13 @@ const PremiumVideoCompressor = () => {
 
   const loadFFmpeg = async () => {
     try {
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
       const ffmpeg = ffmpegRef.current;
 
       ffmpeg.on('progress', ({ progress }) => {
         setProcessingProgress(Math.round(progress * 100));
       });
 
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-      });
+      await loadFFmpegCore(ffmpeg);
 
       setFfmpegLoaded(true);
       toast({ title: "Video compressor loaded!" });
@@ -193,6 +190,7 @@ const PremiumVideoCompressor = () => {
       const data = await ffmpeg.readFile(outputFile);
       const mimeType = getVideoMimeType(outputFormat);
       const blob = new Blob([data as BlobPart], { type: mimeType });
+      await deleteFFmpegFiles(ffmpeg, ["input.mp4", outputFile]);
       setCompressedSize(blob.size);
       revokeMediaUrl(outputUrl);
       const url = URL.createObjectURL(blob);

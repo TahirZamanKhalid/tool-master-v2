@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { fetchFile } from "@ffmpeg/util";
 import { LazyAdSpace } from "@/components/LazyAdSpace";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -33,6 +33,7 @@ import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { deleteFFmpegFiles, loadFFmpegCore } from "@/utils/ffmpeg";
 import {
   getAtempoFilters,
   getVideoDownloadName,
@@ -161,16 +162,12 @@ const VideoTrimmer = () => {
   const loadFFmpeg = async () => {
     try {
       const ffmpeg = ffmpegRef.current;
-      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
 
       ffmpeg.on("progress", ({ progress }) => {
         setProcessingProgress(Math.round(progress * 100));
       });
 
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-      });
+      await loadFFmpegCore(ffmpeg);
 
       setFfmpegLoaded(true);
       toast.success("Video editor ready!");
@@ -359,6 +356,7 @@ const VideoTrimmer = () => {
       const blob = new Blob([data as BlobPart], {
         type: getVideoMimeType(settings.format),
       });
+      await deleteFFmpegFiles(ffmpeg, ["input.mp4", outputFile]);
       revokeMediaUrl(outputUrl);
       const url = URL.createObjectURL(blob);
 

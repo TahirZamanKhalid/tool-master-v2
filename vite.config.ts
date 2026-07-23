@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
       },
     },
     optimizeDeps: {
-      exclude: ['@imgly/background-removal']
+      exclude: ['@imgly/background-removal', '@ffmpeg/ffmpeg']
     },
     build: {
       outDir: 'build',

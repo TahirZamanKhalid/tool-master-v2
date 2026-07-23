@@ -31,8 +31,9 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { fetchFile } from "@ffmpeg/util";
 import { SEOHead } from "@/components/SEOHead";
+import { deleteFFmpegFiles, loadFFmpegCore } from "@/utils/ffmpeg";
 import {
   getAtempoFilters,
   getVideoDownloadName,
@@ -113,13 +114,7 @@ const PremiumVideoEditor = () => {
   const loadFFmpeg = async () => {
     const ffmpeg = ffmpegRef.current;
     try {
-      const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd";
-
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript"),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm"),
-        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, "text/javascript"),
-      });
+      await loadFFmpegCore(ffmpeg);
 
       setFfmpegLoaded(true);
       toast({
@@ -446,6 +441,7 @@ const PremiumVideoEditor = () => {
       const data = await ffmpeg.readFile(outputFile);
       const mimeType = getVideoMimeType(format);
       const blob = new Blob([data as BlobPart], { type: mimeType });
+      await deleteFFmpegFiles(ffmpeg, ["input.mp4", outputFile]);
       revokeMediaUrl(outputUrl);
       const url = URL.createObjectURL(blob);
 

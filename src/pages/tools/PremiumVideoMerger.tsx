@@ -9,9 +9,10 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { fetchFile } from '@ffmpeg/util';
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { ProcessingOverlay } from "@/components/ProcessingOverlay";
+import { deleteFFmpegFiles, loadFFmpegCore } from "@/utils/ffmpeg";
 import { getVideoDownloadName, revokeMediaUrl, validateVideoFile } from "@/utils/videoFiles";
 
 interface VideoItem {
@@ -85,11 +86,7 @@ const PremiumVideoMerger = () => {
         setProcessingProgress(Math.round(progress * 100));
       });
 
-      // Load from local public folder to avoid CDN issues
-      await ffmpeg.load({
-        coreURL: '/ffmpeg/ffmpeg-core.js',
-        wasmURL: await toBlobURL('https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm', 'application/wasm'),
-      });
+      await loadFFmpegCore(ffmpeg);
 
       setFfmpegLoaded(true);
       toast({ title: "Video merger ready!" });
@@ -212,6 +209,11 @@ const PremiumVideoMerger = () => {
 
       const data = await ffmpeg.readFile('output.mp4');
       const blob = new Blob([data as BlobPart], { type: 'video/mp4' });
+      await deleteFFmpegFiles(ffmpeg, [
+        ...videos.map((_, index) => `input${index}.mp4`),
+        "concat.txt",
+        "output.mp4",
+      ]);
       revokeMediaUrl(outputUrl);
       const url = URL.createObjectURL(blob);
 

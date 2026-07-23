@@ -13,8 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile, toBlobURL } from '@ffmpeg/util';
+import { fetchFile } from '@ffmpeg/util';
 import { normalizeHexColor } from "@/utils/imageFiles";
+import { deleteFFmpegFiles, loadFFmpegCore } from "@/utils/ffmpeg";
 import {
   escapeDrawTextValue,
   getVideoDownloadName,
@@ -70,17 +71,13 @@ const PremiumVideoWatermark = () => {
 
   const loadFFmpeg = async () => {
     try {
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
       const ffmpeg = ffmpegRef.current;
 
       ffmpeg.on('progress', ({ progress }) => {
         setProcessingProgress(Math.round(progress * 100));
       });
 
-      await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
-        wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
-      });
+      await loadFFmpegCore(ffmpeg);
 
       setFfmpegLoaded(true);
       toast({ title: "Watermark tool loaded!" });
@@ -220,6 +217,7 @@ const PremiumVideoWatermark = () => {
 
       const data = await ffmpeg.readFile('output.mp4');
       const blob = new Blob([data as BlobPart], { type: 'video/mp4' });
+      await deleteFFmpegFiles(ffmpeg, ["input.mp4", "watermark.png", "output.mp4"]);
       revokeMediaUrl(outputUrl);
       const url = URL.createObjectURL(blob);
 
