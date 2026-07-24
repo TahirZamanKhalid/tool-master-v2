@@ -6,7 +6,7 @@ import { Loader2, Sparkles, Shield } from "lucide-react";
 
 declare global {
   interface Window {
-    adsbygoogle: any[];
+    adsbygoogle: unknown[];
   }
 }
 

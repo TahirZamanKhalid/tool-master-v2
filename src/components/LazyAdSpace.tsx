@@ -1,17 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import type { ReactNode, CSSProperties } from "react";
+import { useRef } from "react";
+import type { ReactNode } from "react";
 import type { AdSpaceProps } from "./AdSpace";
-
-declare global {
-  interface Window {
-    adsbygoogle: any[];
-  }
-}
+import { ADSENSE_CLIENT, useAdSenseUnit } from "@/hooks/useAdSenseUnit";
+import { useInlineAdsAllowed } from "@/hooks/useInlineAdsAllowed";
 
 export interface LazyAdSpaceProps extends AdSpaceProps {
   children?: ReactNode;
   format?: "horizontal" | "vertical" | "auto";
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 const AD_SLOTS = {
@@ -34,96 +30,48 @@ export const LazyAdSpace = ({
 }: LazyAdSpaceProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [adFailed, setAdFailed] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-
-  // Lazy load: only load when visible in viewport
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "200px" }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
-  // Push ad when visible and container has width
-  useEffect(() => {
-    if (!isVisible) return;
-
-    const timer = setTimeout(() => {
-      try {
-        if (adRef.current && containerRef.current) {
-          const width = containerRef.current.offsetWidth;
-          if (width > 0) {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-          } else {
-            setAdFailed(true);
-          }
-        }
-      } catch (error) {
-        console.error("AdSense lazy ad error:", error);
-        setAdFailed(true);
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [isVisible]);
-
+  const inlineAdsAllowed = useInlineAdsAllowed();
   const config = FORMAT_CONFIG[format];
-  const adSlot = slot || AD_SLOTS[format] || AD_SLOTS.auto;
+  const adSlot = slot || AD_SLOTS[format];
+  const adAllowed = inlineAdsAllowed || format === "vertical";
+
+  useAdSenseUnit({
+    adRef,
+    containerRef,
+    enabled: adAllowed,
+    lazy: true,
+    minWidth: 10,
+    rootMargin: "250px",
+  });
+
+  if (!adAllowed) return null;
 
   return (
     <div
       ref={containerRef}
-      className={`lazy-ad-container ${className}`}
+      className={`overflow-hidden ${className}`}
       style={{
         minWidth: config.minWidth,
         minHeight: config.minHeight,
-        overflow: "hidden",
         ...style,
       }}
+      data-ad-container-slot={adSlot}
     >
-      {adFailed ? (
-        <div
-          className="flex items-center justify-center bg-muted/20 rounded-lg border border-dashed border-border/40 text-muted-foreground text-xs"
-          style={{ width: "100%", height: config.minHeight }}
-        >
-          Advertisement
-        </div>
-      ) : isVisible ? (
-        <ins
-          ref={adRef}
-          className="adsbygoogle"
-          style={{
-            display: "block",
-            width: config.width,
-            height: config.height,
-            minWidth: config.minWidth,
-            minHeight: config.minHeight,
-          }}
-          data-ad-client="ca-pub-7382531001943020"
-          data-ad-slot={adSlot}
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
-      ) : (
-        <div
-          className="flex items-center justify-center bg-muted/10 rounded-lg text-muted-foreground text-xs"
-          style={{ width: "100%", height: config.minHeight }}
-        >
-          Loading ad...
-        </div>
-      )}
+      <ins
+        ref={adRef}
+        className="adsbygoogle"
+        style={{
+          display: "block",
+          width: config.width,
+          height: config.height,
+          minWidth: config.minWidth,
+          minHeight: config.minHeight,
+        }}
+        data-ad-client={ADSENSE_CLIENT}
+        data-ad-slot={adSlot}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
     </div>
   );
 };

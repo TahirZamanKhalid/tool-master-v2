@@ -3,7 +3,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ToolCard } from "@/components/ToolCard";
 import { SEOHead } from "@/components/SEOHead";
-import { AdRow } from "@/components/AdRow";
+import { ToolAdSidebar } from "@/components/ToolAdSidebar";
 import { SidebarAd } from "@/components/SidebarAd";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,8 @@ import { useState, useMemo } from "react";
 import {
   Sparkles, Image, FileText, Calculator, QrCode, Video,
   TrendingUp, Code, Shield, Dices, ArrowRightLeft,
-  Receipt, Hash, Brain, Type, Search, ArrowLeft, Wrench
+  Receipt, Hash, Brain, Type, Search, ArrowLeft, Wrench,
+  type LucideIcon,
 } from "lucide-react";
 
 const categoryMap: Record<string, string> = {
@@ -34,7 +35,7 @@ const categoryMap: Record<string, string> = {
   generators: "Generators",
 };
 
-const categoryMeta: Record<string, { icon: any; gradient: string; tagline: string }> = {
+const categoryMeta: Record<string, { icon: LucideIcon; gradient: string; tagline: string }> = {
   "AI & Content": { icon: Sparkles, gradient: "from-blue-500 to-purple-600", tagline: "AI-powered writing, chatbots, and content generation tools" },
   "Image Tools": { icon: Image, gradient: "from-pink-500 to-rose-600", tagline: "Edit, compress, convert and transform images instantly" },
   "Developer Tools": { icon: Code, gradient: "from-green-500 to-emerald-600", tagline: "JSON, formatters, validators, and web dev utilities" },
@@ -157,14 +158,12 @@ const CategoryTools = () => {
       </section>
 
       <main className="flex-1 container max-w-7xl mx-auto px-4 py-8">
-
-
-
-        {/* Layout: Tools + Sidebar */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-6">
+        {/* Layout: left ad rail, tools, right ad rail and category navigation */}
+        <div className="flex gap-4">
+          <ToolAdSidebar side="left" />
 
           {/* Left: Search + Tools */}
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             {/* Search */}
             <div className="mb-6 relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -178,25 +177,16 @@ const CategoryTools = () => {
 
             {categoryTools.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {categoryTools.map((tool, index) => {
-                  const showAdAfter = (index + 1) % 6 === 0 && index < categoryTools.length - 1;
-                  return (
-                    <div key={tool.path} className="contents">
-                      <div
-                        className="animate-fade-in-up cursor-pointer"
-                        style={{ animationDelay: `${index * 0.04}s` }}
-                        onClick={() => tool.path && navigate(tool.path)}
-                      >
-                        <ToolCard {...tool} />
-                      </div>
-                      {showAdAfter && (
-                        <div className="col-span-1 sm:col-span-2 lg:col-span-3">
-                          <AdRow slot="2127993591" />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                {categoryTools.map((tool, index) => (
+                  <div
+                    key={tool.path}
+                    className="animate-fade-in-up cursor-pointer"
+                    style={{ animationDelay: `${index * 0.04}s` }}
+                    onClick={() => tool.path && navigate(tool.path)}
+                  >
+                    <ToolCard {...tool} />
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="text-center py-16 bg-card rounded-2xl border border-border/60">
@@ -215,16 +205,10 @@ const CategoryTools = () => {
               </div>
             )}
 
-            {/* Bottom Ad */}
-            {categoryTools.length > 0 && (
-              <div className="mt-8">
-                <AdRow slot="1212397554" />
-              </div>
-            )}
           </div>
 
           {/* Right Sticky Sidebar */}
-          <aside className="hidden xl:block">
+          <aside className="hidden w-[300px] shrink-0 xl:block">
             <div className="sticky top-20 space-y-4">
               <div className="ad-container-sidebar w-full">
                 <SidebarAd slot="4351073152" position="right" index={1} width={300} height={600} />

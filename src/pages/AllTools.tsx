@@ -5,7 +5,6 @@ import { ToolCard } from "@/components/ToolCard";
 import { SEOHead } from "@/components/SEOHead";
 import { Input } from "@/components/ui/input";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
-import { AdRow } from "@/components/AdRow";
 import { SidebarAd } from "@/components/SidebarAd";
 import { useState, useMemo, useEffect } from "react";
 import { allTools } from "@/data/allTools";
@@ -117,8 +116,6 @@ const AllTools = () => {
       </section>
 
       <main className="flex-1 container max-w-7xl mx-auto px-4 py-8">
-
-
         {/* Layout: Filter Sidebar + Tools Grid + Ad Sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr] xl:grid-cols-[200px_1fr_300px] gap-6">
 
@@ -186,25 +183,16 @@ const AllTools = () => {
 
             {filteredTools.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-                {filteredTools.map((tool, index) => {
-                  const showAdAfter = (index + 1) % 9 === 0 && index < filteredTools.length - 1;
-                  return (
-                    <div key={tool.path} className="contents">
-                      <div
-                        className="animate-fade-in-up cursor-pointer"
-                        style={{ animationDelay: `${(index % 12) * 0.03}s` }}
-                        onClick={() => tool.path && navigate(tool.path)}
-                      >
-                        <ToolCard {...tool} />
-                      </div>
-                      {showAdAfter && (
-                        <div className="col-span-1 sm:col-span-2 xl:col-span-3">
-                          <AdRow slot="2127993591" />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                {filteredTools.map((tool, index) => (
+                  <div
+                    key={tool.path}
+                    className="animate-fade-in-up cursor-pointer"
+                    style={{ animationDelay: `${(index % 12) * 0.03}s` }}
+                    onClick={() => tool.path && navigate(tool.path)}
+                  >
+                    <ToolCard {...tool} />
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="text-center py-16 bg-card rounded-2xl border border-border/60">

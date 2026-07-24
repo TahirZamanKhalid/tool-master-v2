@@ -8,8 +8,7 @@ import { Breadcrumbs, BREADCRUMB_PRESETS, generateBreadcrumbsFromPath } from "@/
 import { SEOHead } from "@/components/SEOHead";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ToolFAQ } from "@/components/ToolFAQ";
-import { SidebarAd } from "@/components/SidebarAd";
-import { AdRow } from "@/components/AdRow";
+import { ToolAdSidebar } from "@/components/ToolAdSidebar";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { blogPosts } from "@/data/blogPosts";
 import { toCanonicalUrl } from "@/utils/seo";
@@ -31,28 +30,6 @@ interface ToolLayoutProps {
 }
 
 /* ─── Sticky sidebar ad column ───────────────────────────────────────────── */
-// Hidden below lg. Replace the inner <div> with your real <ins class="adsbygoogle"> tags.
-// Recommended slots: 160×600 "wide skyscraper" or two stacked 160×250 units.
-
-const AdSidebar = ({ side }: { side: "left" | "right" }) => (
-  <aside
-    aria-label={`${side === "left" ? "Left" : "Right"} advertisement`}
-    className="hidden lg:flex lg:w-[160px] lg:shrink-0 lg:flex-col lg:gap-3"
-  >
-    {/* Top ad unit — replace with real AdSense ins tag */}
-    <div className="flex min-h-[250px] w-full flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 text-center text-xs text-muted-foreground">
-      <span className="mb-1 text-[10px] uppercase tracking-widest opacity-40">Ad</span>
-      <span className="opacity-30">160 x 250</span>
-    </div>
-
-    {/* Second ad unit (sticky, floats as user scrolls) */}
-    <div className="sticky top-4 flex min-h-[250px] w-full flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 text-center text-xs text-muted-foreground">
-      <span className="mb-1 text-[10px] uppercase tracking-widest opacity-40">Ad</span>
-      <span className="opacity-30">160 x 250</span>
-    </div>
-  </aside>
-);
-
 /* ─── Component ──────────────────────────────────────────────────────────── */
 
 export const ToolLayout = ({
@@ -267,7 +244,7 @@ export const ToolLayout = ({
           <div className="flex gap-4">
 
             {/* Left sidebar ad */}
-            <AdSidebar side="left" />
+            <ToolAdSidebar side="left" />
 
             {/* ── Centre column ── */}
             <div className="min-w-0 flex-1 space-y-5">
@@ -277,11 +254,6 @@ export const ToolLayout = ({
                 <div className="p-4 md:p-5">
                   {children}
                 </div>
-              </div>
-
-              {/* Mobile-only mid ad (hidden on lg where sidebars show) */}
-              <div className="lg:hidden">
-                <AdRow slot="1575962277" />
               </div>
 
               {/* How to use */}
@@ -388,14 +360,11 @@ export const ToolLayout = ({
                 </Button>
               </div>
 
-              {/* Bottom ad */}
-              <AdRow slot="1212397554" />
-
             </div>
             {/* end centre column */}
 
             {/* Right sidebar ad */}
-            <AdSidebar side="right" />
+            <ToolAdSidebar side="right" />
 
           </div>
           {/* end 3-col flex */}

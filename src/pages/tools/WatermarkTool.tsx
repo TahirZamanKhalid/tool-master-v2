@@ -84,8 +84,6 @@ import {
 import { SEOHead } from "@/components/SEOHead";
 import { Breadcrumbs, BREADCRUMB_PRESETS } from "@/components/Breadcrumbs";
 import { SidebarAd } from "@/components/SidebarAd";
-import { FixedSizeAd } from "@/components/FixedSizeAd";
-import { InFeedAd } from "@/components/InFeedAd";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import JSZip from "jszip";
 import { isRasterImageFile } from "@/utils/imageFiles";
@@ -266,9 +264,6 @@ const AD_SLOTS = {
   leftSidebar2: "2677639655", // 150x600
   rightSidebar1: "6536993616", // 150x600
   rightSidebar2: "6732434737", // 150x600
-  display800x200: "9047597148",
-  display800x100: "3583527217",
-  videoAuto: "5112231300",
 };
 
 // Keyboard shortcuts
@@ -1105,10 +1100,6 @@ const WatermarkTool = () => {
 
             {/* Main Center Content */}
             <main className="flex-1 min-w-0">
-              {/* Top Banner Ad */}
-              <div className="flex justify-center mb-8">
-                <FixedSizeAd slot={AD_SLOTS.display800x200} width={800} height={200} />
-              </div>
               {/* Header */}
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -1231,11 +1222,6 @@ const WatermarkTool = () => {
                           Select multiple images
                         </p>
                       </div>
-                    </div>
-
-                    {/* In-Feed Ad 1 */}
-                    <div className="mt-6">
-                      <InFeedAd slot={AD_SLOTS.videoAuto} />
                     </div>
 
                     {/* Presets */}
@@ -2021,10 +2007,6 @@ const WatermarkTool = () => {
                       )}
                     </div>
 
-                    {/* In-Feed Ad (Video slot) */}
-                    <div className="mt-8">
-                      <InFeedAd slot={AD_SLOTS.videoAuto} />
-                    </div>
                   </TabsContent>
 
                   {/* Batch Tab */}
@@ -2132,11 +2114,6 @@ const WatermarkTool = () => {
                   </ul>
                 </div>
               </Card>
-
-              {/* Bottom Banner Ad */}
-              <div className="flex justify-center mt-8">
-                <FixedSizeAd slot={AD_SLOTS.display800x100} width={800} height={100} />
-              </div>
 
               {/* Related Tools */}
               <div className="mt-6">
