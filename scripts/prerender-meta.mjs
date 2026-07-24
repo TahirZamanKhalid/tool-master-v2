@@ -31,6 +31,8 @@ const routePath = (url) => {
   return parsed.pathname === "/" ? "/" : parsed.pathname.replace(/\/$/, "");
 };
 
+const canonicalUrl = (pagePath) => `${siteUrl}${pagePath === "/" ? "/" : `${pagePath.replace(/\/$/, "")}/`}`;
+
 const readToolMetadata = async () => {
   const source = await readFile(path.join(root, "src", "data", "allTools.ts"), "utf8");
   const tools = new Map();
@@ -146,7 +148,7 @@ const replaceOrInsert = (html, pattern, replacement, insertBefore = "</head>") =
 };
 
 const renderPageHtml = (baseHtml, pagePath, metadata) => {
-  const canonical = `${siteUrl}${pagePath === "/" ? "/" : pagePath}`;
+  const canonical = canonicalUrl(pagePath);
   let html = baseHtml;
 
   html = replaceOrInsert(html, /<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(metadata.title)}</title>`);

@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { normalizeCanonicalUrl, SITE_URL, toCanonicalUrl } from "@/utils/seo";
 
 interface BreadcrumbItem {
   name: string;
@@ -28,8 +29,6 @@ interface SEOHeadProps {
 }
 
 const DEFAULT_OG_IMAGE = "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/social-images/social-1759510890634-toolmasterpro logo.jpeg";
-const SITE_URL = "https://toolmaster.cloud";
-
 export const SEOHead = ({
   title,
   description,
@@ -48,7 +47,7 @@ export const SEOHead = ({
   const finalTitle = title === "ToolMaster Pro" ? title : `${title} | ToolMaster Pro`;
   const truncatedTitle = finalTitle.length > 60 ? finalTitle.substring(0, 57) + "..." : finalTitle;
   const truncatedDesc = description.length > 160 ? description.substring(0, 157) + "..." : description;
-  const finalCanonical = canonical || SITE_URL;
+  const finalCanonical = normalizeCanonicalUrl(canonical || SITE_URL);
 
   const robotsContent = noindex
     ? "noindex, nofollow"
@@ -62,7 +61,7 @@ export const SEOHead = ({
       "@type": "ListItem",
       position: i + 1,
       name: item.name,
-      item: item.url.startsWith("http") ? item.url : `${SITE_URL}${item.url}`,
+      item: item.url.startsWith("http") ? normalizeCanonicalUrl(item.url) : toCanonicalUrl(item.url),
     })),
   } : null;
 

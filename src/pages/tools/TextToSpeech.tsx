@@ -91,8 +91,8 @@ const TextToSpeech = () => {
           "Click Play to hear your text spoken aloud"
         ]}
         relatedTools={[
-          { name: "Morse Code Translator", path: "/tools/morse-code-translator" },
-          { name: "Word Counter", path: "/tools/word-counter" }
+          { name: "Morse Code Translator", path: "/tools/morse-code" },
+          { name: "Word Counter", path: "/tools/premium-plus-word-counter" }
         ]}
       >
 

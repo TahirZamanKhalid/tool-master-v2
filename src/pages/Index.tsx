@@ -11,6 +11,7 @@ import { AdRow } from "@/components/AdRow";
 import { InFeedAd } from "@/components/InFeedAd";
 import { useState, useEffect, useMemo } from "react";
 import { allTools } from "@/data/allTools";
+import { toCanonicalUrl } from "@/utils/seo";
 import { ArrowRight, CheckCircle, Zap, Shield, Globe, Star } from "lucide-react";
 import {
   Sparkles, Image, FileText, Calculator, QrCode, Video,
@@ -186,18 +187,18 @@ const Index = () => {
             description: "Top free tools on ToolMaster Pro",
             numberOfItems: 12,
             itemListElement: [
-              { "@type": "ListItem", position: 1, name: "Background Remover", url: "https://toolmaster.cloud/tools/background-remover" },
-              { "@type": "ListItem", position: 2, name: "PDF Merger", url: "https://toolmaster.cloud/tools/pdf-merger" },
-              { "@type": "ListItem", position: 3, name: "QR Code Generator", url: "https://toolmaster.cloud/tools/qr-code-generator" },
-              { "@type": "ListItem", position: 4, name: "Image Size Reducer", url: "https://toolmaster.cloud/tools/image-size-reducer" },
-              { "@type": "ListItem", position: 5, name: "JSON Formatter", url: "https://toolmaster.cloud/tools/json-formatter" },
-              { "@type": "ListItem", position: 6, name: "Password Generator", url: "https://toolmaster.cloud/tools/password-generator" },
-              { "@type": "ListItem", position: 7, name: "Word Counter", url: "https://toolmaster.cloud/tools/word-counter" },
-              { "@type": "ListItem", position: 8, name: "Color Picker", url: "https://toolmaster.cloud/tools/color-picker" },
-              { "@type": "ListItem", position: 9, name: "Essay Writer", url: "https://toolmaster.cloud/tools/essay-writer" },
-              { "@type": "ListItem", position: 10, name: "Blog Writer", url: "https://toolmaster.cloud/tools/blog-article-writer" },
-              { "@type": "ListItem", position: 11, name: "Image Editor", url: "https://toolmaster.cloud/tools/advanced-image-editor" },
-              { "@type": "ListItem", position: 12, name: "Watermark Tool", url: "https://toolmaster.cloud/tools/watermark-tool" },
+              { "@type": "ListItem", position: 1, name: "Background Remover", url: toCanonicalUrl("/tools/background-remover") },
+              { "@type": "ListItem", position: 2, name: "PDF Merger", url: toCanonicalUrl("/tools/pdf-merger") },
+              { "@type": "ListItem", position: 3, name: "QR Code Generator", url: toCanonicalUrl("/tools/qr-code-generator") },
+              { "@type": "ListItem", position: 4, name: "Image Size Reducer", url: toCanonicalUrl("/tools/image-size-reducer") },
+              { "@type": "ListItem", position: 5, name: "JSON Formatter", url: toCanonicalUrl("/tools/json-formatter") },
+              { "@type": "ListItem", position: 6, name: "Password Generator", url: toCanonicalUrl("/tools/password-generator") },
+              { "@type": "ListItem", position: 7, name: "Word Counter", url: toCanonicalUrl("/tools/premium-plus-word-counter") },
+              { "@type": "ListItem", position: 8, name: "Color Picker", url: toCanonicalUrl("/tools/color-picker") },
+              { "@type": "ListItem", position: 9, name: "Essay Writer", url: toCanonicalUrl("/tools/essay-writer") },
+              { "@type": "ListItem", position: 10, name: "Blog Writer", url: toCanonicalUrl("/tools/blog-article-writer") },
+              { "@type": "ListItem", position: 11, name: "Image Editor", url: toCanonicalUrl("/tools/advanced-image-editor") },
+              { "@type": "ListItem", position: 12, name: "Watermark Tool", url: toCanonicalUrl("/tools/watermark-tool") },
             ],
           },
         ]}

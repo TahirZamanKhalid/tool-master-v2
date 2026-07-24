@@ -96,7 +96,7 @@ const LoremIpsumAdvanced = () => {
           "Copy result for use in your designs"
         ]}
         relatedTools={[
-          { name: "Word Counter", path: "/tools/word-counter" },
+          { name: "Word Counter", path: "/tools/premium-plus-word-counter" },
           { name: "Text to Slug", path: "/tools/text-to-slug" }
         ]}
       >

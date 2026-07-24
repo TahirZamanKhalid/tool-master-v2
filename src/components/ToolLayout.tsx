@@ -12,6 +12,7 @@ import { SidebarAd } from "@/components/SidebarAd";
 import { AdRow } from "@/components/AdRow";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { blogPosts } from "@/data/blogPosts";
+import { toCanonicalUrl } from "@/utils/seo";
 import { ArrowRight, BookOpen, ChevronRight, Download, Sparkles } from "lucide-react";
 
 interface ToolLayoutProps {
@@ -92,7 +93,7 @@ export const ToolLayout = ({
     "ToolMaster Pro",
   ].join(", ");
 
-  const canonicalUrl = `https://toolmaster.cloud${location.pathname}`;
+  const canonicalUrl = toCanonicalUrl(location.pathname);
 
   /* ── Breadcrumbs ── */
   const getBreadcrumbs = () => {

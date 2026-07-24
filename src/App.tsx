@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { lazy, Suspense, useEffect } from "react";
 import { HelmetProvider } from "react-helmet-async";
@@ -242,7 +242,7 @@ const App = () => {
                 <Route path="/tools/pdf-merger" element={<PDFMerger />} />
                 <Route path="/tools/image-size-reducer" element={<ImageSizeReducer />} />
                 <Route path="/tools/image-to-text" element={<ImageToText />} />
-                <Route path="/tools/word-counter" element={<WordCounter />} />
+                <Route path="/tools/word-counter" element={<Navigate to="/tools/premium-plus-word-counter/" replace />} />
                 <Route path="/tools/password-generator" element={<PasswordGenerator />} />
                 <Route path="/tools/json-formatter" element={<JSONFormatter />} />
                 <Route path="/tools/color-picker" element={<ColorPicker />} />
@@ -259,14 +259,14 @@ const App = () => {
                 <Route path="/tools/text-diff" element={<TextDiff />} />
                 <Route path="/tools/regex-tester" element={<RegexTester />} />
                 <Route path="/tools/code-beautifier" element={<CodeBeautifier />} />
-                <Route path="/tools/unit-converter" element={<UnitConverter />} />
+                <Route path="/tools/unit-converter" element={<Navigate to="/tools/premium-plus-unit-converter/" replace />} />
                 <Route path="/tools/percentage-calculator" element={<PercentageCalculator />} />
                 <Route path="/tools/bmi-calculator" element={<BMICalculator />} />
                 <Route path="/tools/image-resizer" element={<ImageResizer />} />
                 <Route path="/tools/image-cropper" element={<ImageCropper />} />
                 <Route path="/tools/advanced-image-editor" element={<AdvancedImageEditor />} />
                 <Route path="/tools/watermark-tool" element={<WatermarkTool />} />
-                <Route path="/tools/watermark" element={<WatermarkTool />} />
+                <Route path="/tools/watermark" element={<Navigate to="/tools/watermark-tool/" replace />} />
                 <Route path="/tools/photo-collage-maker" element={<PhotoCollageMaker />} />
                 <Route path="/tools/gif-maker" element={<GIFMaker />} />
                 <Route path="/tools/meme-generator" element={<MemeGenerator />} />
@@ -282,10 +282,10 @@ const App = () => {
                 <Route path="/tools/color-converter" element={<ColorConverter />} />
                 <Route path="/tools/gradient-generator" element={<GradientGenerator />} />
                 <Route path="/tools/text-to-slug" element={<TextToSlug />} />
-                <Route path="/tools/random-number" element={<RandomNumberGenerator />} />
+                <Route path="/tools/random-number" element={<Navigate to="/tools/premium-plus-random-number-generator/" replace />} />
                 <Route path="/tools/dice-roller" element={<DiceRoller />} />
                 <Route path="/tools/countdown-timer" element={<CountdownTimer />} />
-                <Route path="/tools/stopwatch" element={<StopwatchTimer />} />
+                <Route path="/tools/stopwatch" element={<Navigate to="/tools/premium-plus-multi-stopwatch/" replace />} />
                 <Route path="/tools/age-calculator" element={<AgeCalculator />} />
                 <Route path="/tools/meta-tag-generator" element={<MetaTagGenerator />} />
                 <Route path="/tools/barcode-generator" element={<BarcodeGenerator />} />

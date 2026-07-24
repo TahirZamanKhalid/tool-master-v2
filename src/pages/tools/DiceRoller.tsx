@@ -246,10 +246,9 @@ const DiceRoller = () => {
 
   // Related tools
   const relatedTools = [
-    { name: "Random Number Generator", path: "/tools/random-number-generator", desc: "Generate random numbers" },
+    { name: "Random Number Generator", path: "/tools/premium-plus-random-number-generator", desc: "Generate random numbers" },
     { name: "Coin Flip", path: "/tools/coin-flip", desc: "Flip a virtual coin" },
     { name: "Password Generator", path: "/tools/password-generator", desc: "Create secure passwords" },
-    { name: "Lottery Number Picker", path: "/tools/lottery-picker", desc: "Pick random lottery numbers" },
   ];
 
   return (
@@ -825,7 +824,7 @@ const DiceRoller = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link to="/tools/random-number" className="text-gray-600 hover:text-primary">
+                    <Link to="/tools/premium-plus-random-number-generator" className="text-gray-600 hover:text-primary">
                       Random Number
                     </Link>
                   </li>
@@ -850,7 +849,7 @@ const DiceRoller = () => {
                 <h4 className="font-bold mb-4 text-sm sm:text-base">Text Tools</h4>
                 <ul className="space-y-2 text-sm">
                   <li>
-                    <Link to="/tools/word-counter" className="text-gray-600 hover:text-primary">
+                    <Link to="/tools/premium-plus-word-counter" className="text-gray-600 hover:text-primary">
                       Word Counter
                     </Link>
                   </li>

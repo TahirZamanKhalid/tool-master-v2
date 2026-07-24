@@ -758,7 +758,7 @@ const PDFToText = () => {
                   {[
                     { name: "PDF Splitter", path: "/tools/pdf-splitter" },
                     { name: "PDF Merger", path: "/tools/pdf-merger" },
-                    { name: "Word Counter", path: "/tools/word-counter" },
+                    { name: "Word Counter", path: "/tools/premium-plus-word-counter" },
                     { name: "PDF Compressor", path: "/tools/pdf-compressor" },
                   ].map((tool) => (
                     <Link
