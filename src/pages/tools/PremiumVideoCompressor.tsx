@@ -37,6 +37,7 @@ const PremiumVideoCompressor = () => {
   const [originalSize, setOriginalSize] = useState(0);
   const [compressedSize, setCompressedSize] = useState(0);
   const [processingProgress, setProcessingProgress] = useState(0);
+  const [activeTab, setActiveTab] = useState("quick");
 
   // Compression settings
   const [compressionMode, setCompressionMode] = useState<"quality" | "custom">("quality");
@@ -102,6 +103,7 @@ const PremiumVideoCompressor = () => {
     setVideoUrl(url);
     setOutputUrl("");
     setCompressedSize(0);
+    setActiveTab("quick");
     toast({ title: "Video loaded successfully!" });
   };
 
@@ -308,7 +310,7 @@ const PremiumVideoCompressor = () => {
 
         {/* Compression Settings */}
         {videoUrl && (
-          <Tabs defaultValue="quick" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="quick">
                 <Zap className="w-4 h-4 mr-2" />
@@ -384,24 +386,33 @@ const PremiumVideoCompressor = () => {
                     </Select>
                   </div>
 
-                  <Button
-                    onClick={compressVideo}
-                    disabled={isProcessing || !ffmpegLoaded}
-                    className="w-full bg-gradient-to-r from-green-600 to-teal-600"
-                    size="lg"
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Compressing... {processingProgress}%
-                      </>
-                    ) : (
-                      <>
-                        <Minimize2 className="w-4 h-4 mr-2" />
-                        Compress Video
-                      </>
+                  <div className={`grid gap-3 ${outputUrl && !isProcessing ? "md:grid-cols-2" : ""}`}>
+                    <Button
+                      onClick={compressVideo}
+                      disabled={isProcessing || !ffmpegLoaded}
+                      className="w-full bg-gradient-to-r from-green-600 to-teal-600"
+                      size="lg"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Compressing... {processingProgress}%
+                        </>
+                      ) : (
+                        <>
+                          <Minimize2 className="w-4 h-4 mr-2" />
+                          {outputUrl ? "Compress Again" : "Compress Video"}
+                        </>
+                      )}
+                    </Button>
+
+                    {outputUrl && !isProcessing && (
+                      <Button onClick={downloadVideo} className="w-full" size="lg">
+                        <Download className="w-4 h-4 mr-2" />
+                        Download Compressed Video
+                      </Button>
                     )}
-                  </Button>
+                  </div>
 
                   {isProcessing && (
                     <Progress value={processingProgress} className="h-2" />
@@ -535,24 +546,33 @@ const PremiumVideoCompressor = () => {
                     <Label>Remove Audio (Video only)</Label>
                   </div>
 
-                  <Button
-                    onClick={compressVideo}
-                    disabled={isProcessing || !ffmpegLoaded}
-                    className="w-full bg-gradient-to-r from-green-600 to-teal-600"
-                    size="lg"
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Compressing...
-                      </>
-                    ) : (
-                      <>
-                        <Minimize2 className="w-4 h-4 mr-2" />
-                        Compress with Advanced Settings
-                      </>
+                  <div className={`grid gap-3 ${outputUrl && !isProcessing ? "md:grid-cols-2" : ""}`}>
+                    <Button
+                      onClick={compressVideo}
+                      disabled={isProcessing || !ffmpegLoaded}
+                      className="w-full bg-gradient-to-r from-green-600 to-teal-600"
+                      size="lg"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Compressing...
+                        </>
+                      ) : (
+                        <>
+                          <Minimize2 className="w-4 h-4 mr-2" />
+                          {outputUrl ? "Compress Again" : "Compress with Advanced Settings"}
+                        </>
+                      )}
+                    </Button>
+
+                    {outputUrl && !isProcessing && (
+                      <Button onClick={downloadVideo} className="w-full" size="lg">
+                        <Download className="w-4 h-4 mr-2" />
+                        Download Compressed Video
+                      </Button>
                     )}
-                  </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

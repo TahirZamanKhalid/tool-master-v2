@@ -7,6 +7,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { lazy, Suspense, useEffect } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { CookieConsent } from "@/components/CookieConsent";
+import { applyTheme, getInitialTheme } from "@/utils/theme";
 import Index from "./pages/Index";
 
 // Lazy-loaded basic pages
@@ -218,15 +219,7 @@ const LoadingFallback = () => (
 
 const App = () => {
   useEffect(() => {
-    // Only allow dark/light. Migrate any legacy theme key to dark.
-    const stored = localStorage.getItem('theme');
-    const theme = stored === 'light' ? 'light' : 'dark';
-    if (stored !== 'light' && stored !== 'dark') {
-      localStorage.setItem('theme', 'dark');
-    }
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark", "midnight", "forest", "sunset");
-    root.classList.add(theme);
+    applyTheme(getInitialTheme());
   }, []);
 
   return (

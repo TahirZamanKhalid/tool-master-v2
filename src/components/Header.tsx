@@ -2,6 +2,7 @@ import { Menu, Wrench, Sun, Moon, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { applyTheme, getInitialTheme, saveThemePreference, type AppTheme } from "@/utils/theme";
 import {
   Sheet,
   SheetContent,
@@ -11,18 +12,12 @@ import {
 export const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [theme, setTheme] = useState<"dark" | "light">(() => {
-    const stored = localStorage.getItem("theme");
-    return stored === "light" ? "light" : "dark";
-  });
+  const [theme, setTheme] = useState<AppTheme>(() => getInitialTheme());
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark", "midnight", "forest", "sunset");
-    root.classList.add(theme);
-    localStorage.setItem("theme", theme);
+    applyTheme(theme);
   }, [theme]);
 
   useEffect(() => {
@@ -31,7 +26,13 @@ export const Header = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+  const toggleTheme = () => {
+    setTheme((current) => {
+      const next = current === "dark" ? "light" : "dark";
+      saveThemePreference(next);
+      return next;
+    });
+  };
 
   const navLinks = [
     { name: "Tools", path: "/tools" },
