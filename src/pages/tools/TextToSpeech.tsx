@@ -5,8 +5,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { Volume2, Pause, StopCircle } from "lucide-react";
+import { Volume2, Pause, StopCircle, Info } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
 
 const TextToSpeech = () => {
@@ -98,6 +99,13 @@ const TextToSpeech = () => {
 
         <Card>
           <CardContent className="p-6 space-y-6">
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                Languages, voices, and accent options depend on your current system and browser. This tool only shows options your device reports as available.
+              </AlertDescription>
+            </Alert>
+
             <div>
               <label className="text-sm font-medium mb-2 block">Enter Text</label>
               <Textarea
