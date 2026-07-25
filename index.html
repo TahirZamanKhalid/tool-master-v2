@@ -473,6 +473,65 @@
       min-height: 100vh
     }
 
+    .seo-fallback {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 48px 20px;
+      color: #1e293b;
+      background: #ffffff
+    }
+
+    .seo-fallback header,
+    .seo-fallback section,
+    .seo-fallback nav,
+    .seo-fallback footer {
+      margin-bottom: 28px
+    }
+
+    .seo-fallback h1 {
+      font-size: clamp(2rem, 6vw, 3.25rem);
+      line-height: 1.1;
+      margin-bottom: 16px
+    }
+
+    .seo-fallback h2 {
+      font-size: 1.5rem;
+      margin-bottom: 12px
+    }
+
+    .seo-fallback p,
+    .seo-fallback li {
+      color: #475569;
+      font-size: 1rem
+    }
+
+    .seo-fallback a {
+      color: #4f46e5;
+      text-decoration: underline
+    }
+
+    .seo-fallback .fallback-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      list-style: none;
+      padding: 0
+    }
+
+    .seo-fallback .fallback-grid li,
+    .seo-fallback .fallback-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px;
+      background: #f8fafc
+    }
+
+    .seo-fallback .fallback-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px
+    }
+
     .loading-spinner {
       display: flex;
       align-items: center;
@@ -550,8 +609,7 @@
 
   <!-- Main App Container -->
   <div id="root">
-    <!-- SEO Content for Crawlers (Hidden visually but readable) -->
-    <div style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">
+    <main class="seo-fallback" id="seo-fallback" aria-label="ToolMaster Pro page summary">
       <header>
         <h1>ToolMaster Pro™ - 100+ Free Online Tools</h1>
         <p>Access the best free online tools instantly. No signup required. 100% browser-based and privacy-focused.</p>
@@ -620,7 +678,7 @@
         </nav>
         <p>© 2024-2026 ToolMaster Pro™. All rights reserved.</p>
       </footer>
-    </div>
+    </main>
 
     <!-- Loading State -->
     <div class="loading-spinner" id="initial-loader"></div>
