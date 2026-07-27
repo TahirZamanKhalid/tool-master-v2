@@ -1,10 +1,9 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, Clock, Share2 } from "lucide-react";
 import { SEOHead } from "@/components/SEOHead";
-import { BlogPostingSchema } from "@/components/SEOSchema";
 import { blogPosts } from "@/data/blogPosts";
 import { allTools } from "@/data/allTools";
 import { Badge } from "@/components/ui/badge";
@@ -12,14 +11,15 @@ import { toast } from "sonner";
 
 const BlogPostDetail = () => {
     const { slug } = useParams();
-    const navigate = useNavigate();
     const post = blogPosts.find((p) => p.slug === slug);
 
     if (!post) {
         return (
             <div className="min-h-screen bg-background flex flex-col items-center justify-center">
                 <h1 className="text-2xl font-bold mb-4">Post not found</h1>
-                <Button onClick={() => navigate("/blog")}>Back to Blog</Button>
+                <Button asChild>
+                    <Link to="/blog">Back to Blog</Link>
+                </Button>
             </div>
         );
     }
@@ -81,9 +81,11 @@ const BlogPostDetail = () => {
 
             <main className="flex-1 py-12 px-4">
                 <div className="container max-w-4xl mx-auto">
-                    <Button variant="ghost" onClick={() => navigate("/blog")} className="mb-8">
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Back to Articles
+                    <Button variant="ghost" asChild className="mb-8">
+                        <Link to="/blog">
+                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            Back to Articles
+                        </Link>
                     </Button>
 
                     <article className="prose prose-slate dark:prose-invert max-w-none">
@@ -142,10 +144,11 @@ const BlogPostDetail = () => {
                         </h2>
                         <div className="grid sm:grid-cols-2 gap-4">
                             {relatedTools.map((tool, idx) => (
-                                <div
+                                <Link
                                     key={idx}
-                                    onClick={() => navigate(tool.path)}
-                                    className="bg-card p-4 rounded-xl border border-border hover:border-primary/50 cursor-pointer transition-all flex items-center gap-4 group"
+                                    to={tool.path}
+                                    className="bg-card p-4 rounded-xl border border-border hover:border-primary/50 transition-all flex items-center gap-4 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                                    aria-label={`Use ${tool.title}`}
                                 >
                                     <div className="bg-primary/5 p-3 rounded-lg group-hover:bg-primary/10 transition-colors">
                                         <tool.icon className="h-6 w-6 text-primary" />
@@ -154,14 +157,14 @@ const BlogPostDetail = () => {
                                         <h3 className="font-semibold">{tool.title}</h3>
                                         <p className="text-sm text-muted-foreground line-clamp-1">{tool.description}</p>
                                     </div>
-                                </div>
+                                </Link>
                             ))}
-                            <div
-                                onClick={() => navigate("/")}
+                            <Link
+                                to="/tools"
                                 className="sm:col-span-2 bg-primary text-primary-foreground p-4 rounded-xl hover:bg-primary/90 cursor-pointer transition-all text-center font-bold"
                             >
-                                Explore All 100+ Free Tools Now!
-                            </div>
+                                Explore All Free Tools
+                            </Link>
                         </div>
                     </section>
                 </div>

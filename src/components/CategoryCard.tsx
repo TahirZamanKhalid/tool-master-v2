@@ -1,5 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface CategoryCardProps {
   icon: LucideIcon;
@@ -7,6 +8,7 @@ interface CategoryCardProps {
   description: string;
   toolCount: number;
   color: string;
+  path?: string;
   isSelected?: boolean;
   comingSoon?: boolean;
 }
@@ -17,19 +19,20 @@ export const CategoryCard = ({
   description,
   toolCount,
   color,
+  path,
   isSelected = false,
   comingSoon = false,
 }: CategoryCardProps) => {
-  return (
-    <div
-      className={`group relative flex flex-col h-full rounded-2xl border transition-all duration-300 overflow-hidden cursor-pointer ${
-        isSelected
-          ? "border-primary/70 bg-primary/8 shadow-glow ring-2 ring-primary/20"
-          : comingSoon
-          ? "border-border/40 bg-card/50 opacity-70 cursor-not-allowed"
-          : "border-border/50 bg-card hover:border-primary/40 hover:-translate-y-1 hover:shadow-card-hover shadow-card"
-      }`}
-    >
+  const className = `group relative flex flex-col h-full rounded-2xl border transition-all duration-300 overflow-hidden cursor-pointer ${
+    isSelected
+      ? "border-primary/70 bg-primary/8 shadow-glow ring-2 ring-primary/20"
+      : comingSoon
+      ? "border-border/40 bg-card/50 opacity-70 cursor-not-allowed"
+      : "border-border/50 bg-card hover:border-primary/40 hover:-translate-y-1 hover:shadow-card-hover shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+  }`;
+
+  const content = (
+    <>
       {/* Top gradient accent */}
       <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${color} opacity-60 group-hover:opacity-100 transition-opacity duration-300`} />
 
@@ -64,6 +67,20 @@ export const CategoryCard = ({
           <ArrowRight className="h-4 w-4 text-muted-foreground/50 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200" />
         </div>
       </div>
+    </>
+  );
+
+  if (path && !comingSoon) {
+    return (
+      <Link to={path} className={className} aria-label={`Browse ${title}`}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={className}>
+      {content}
     </div>
   );
 };

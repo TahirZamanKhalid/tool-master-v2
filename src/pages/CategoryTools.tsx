@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ToolCard } from "@/components/ToolCard";
@@ -54,7 +54,6 @@ const categoryMeta: Record<string, { icon: LucideIcon; gradient: string; tagline
 };
 
 const CategoryTools = () => {
-  const navigate = useNavigate();
   const { category } = useParams();
   const [search, setSearch] = useState("");
 
@@ -180,9 +179,8 @@ const CategoryTools = () => {
                 {categoryTools.map((tool, index) => (
                   <div
                     key={tool.path}
-                    className="animate-fade-in-up cursor-pointer"
+                    className="animate-fade-in-up"
                     style={{ animationDelay: `${index * 0.04}s` }}
-                    onClick={() => tool.path && navigate(tool.path)}
                   >
                     <ToolCard {...tool} />
                   </div>
@@ -200,7 +198,9 @@ const CategoryTools = () => {
                 {search ? (
                   <Button variant="outline" onClick={() => setSearch("")}>Clear Search</Button>
                 ) : (
-                  <Button onClick={() => navigate("/tools")}>Browse All Tools</Button>
+                  <Button asChild>
+                    <Link to="/tools">Browse All Tools</Link>
+                  </Button>
                 )}
               </div>
             )}
@@ -228,20 +228,20 @@ const CategoryTools = () => {
                     .filter(([slug]) => slug !== category)
                     .slice(0, 8)
                     .map(([slug, name]) => (
-                      <button
+                      <Link
                         key={slug}
-                        onClick={() => navigate(`/category/${slug}`)}
                         className="text-[11px] px-2.5 py-1 rounded-full bg-muted/60 hover:bg-primary/10 hover:text-primary text-muted-foreground border border-border/40 transition-all"
+                        to={`/category/${slug}`}
                       >
                         {name}
-                      </button>
+                      </Link>
                     ))}
                 </div>
                 <Button
-                  onClick={() => navigate("/tools")}
+                  asChild
                   className="w-full mt-4 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl text-sm"
                 >
-                  View All Tools
+                  <Link to="/tools">View All Tools</Link>
                 </Button>
               </div>
             </div>

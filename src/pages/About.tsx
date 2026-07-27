@@ -2,13 +2,11 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Target, Users, Zap, Heart, Shield, Globe, Sparkles, ArrowRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { SEOHead } from "@/components/SEOHead";
 import { AdRow } from "@/components/AdRow";
 
 const About = () => {
-  const navigate = useNavigate();
-
   const values = [
     { icon: Target, title: "Our Vision", text: "To be the world's most trusted free online tools platform, empowering millions every day." },
     { icon: Users, title: "Our Community", text: "Serving thousands of users daily — students, developers, designers, and businesses worldwide." },
@@ -156,17 +154,19 @@ const About = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button
-              onClick={() => navigate("/tools")}
+              asChild
               className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-11"
             >
-              Browse All Tools <ArrowRight className="ml-1.5 h-4 w-4" />
+              <Link to="/tools">
+                Browse All Tools <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Link>
             </Button>
             <Button
               variant="outline"
-              onClick={() => navigate("/contact")}
+              asChild
               className="rounded-xl px-6 h-11 font-bold"
             >
-              Contact Us
+              <Link to="/contact">Contact Us</Link>
             </Button>
           </div>
         </section>

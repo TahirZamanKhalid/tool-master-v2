@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { OptimizedHero } from "@/components/OptimizedHero";
@@ -11,6 +11,7 @@ import { AdRow } from "@/components/AdRow";
 import { InFeedAd } from "@/components/InFeedAd";
 import { useState, useEffect, useMemo } from "react";
 import { allTools } from "@/data/allTools";
+import { faqData } from "@/data/faqData";
 import { toCanonicalUrl } from "@/utils/seo";
 import { ArrowRight, CheckCircle, Zap, Shield, Globe, Star } from "lucide-react";
 import {
@@ -201,6 +202,18 @@ const Index = () => {
               { "@type": "ListItem", position: 12, name: "Watermark Tool", url: toCanonicalUrl("/tools/watermark-tool") },
             ],
           },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqData.map((faq) => ({
+              "@type": "Question",
+              name: faq.question,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: faq.answer,
+              },
+            })),
+          },
         ]}
       />
       <Header />
@@ -244,9 +257,14 @@ const Index = () => {
                   key={category.title}
                   className="animate-fade-in-up"
                   style={{ animationDelay: `${index * 0.04}s` }}
-                  onClick={() => navigate(`/category/${categorySlugMap[category.title]}`)}
                 >
-                  <CategoryCard {...category} isSelected={false} comingSoon={false} />
+                  <CategoryCard
+                    {...category}
+                    path={`/category/${categorySlugMap[category.title]}`}
+                    toolCount={allTools.filter((tool) => tool.category === category.title).length}
+                    isSelected={false}
+                    comingSoon={false}
+                  />
                 </div>
               ))}
             </div>
@@ -275,12 +293,12 @@ const Index = () => {
                 </p>
               </div>
               {!searchQuery && !selectedCategory && (
-                <button
-                  onClick={() => navigate("/tools")}
+                <Link
+                  to="/tools"
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary/90 transition-all shadow-md shadow-primary/20 shrink-0"
                 >
                   View All Tools <ArrowRight className="h-4 w-4" />
-                </button>
+                </Link>
               )}
             </div>
 
@@ -307,7 +325,6 @@ const Index = () => {
                       <div
                         className="animate-fade-in-up"
                         style={{ animationDelay: `${index * 0.04}s` }}
-                        onClick={() => tool.path && navigate(tool.path)}
                       >
                         <ToolCard {...tool} />
                       </div>
@@ -352,12 +369,12 @@ const Index = () => {
                 <p className="text-muted-foreground text-base leading-relaxed">
                   ToolMasterPro was built with one mission — give everyone instant access to professional-grade tools without logins, fees, or friction. Everything runs in your browser for maximum speed and privacy.
                 </p>
-                <button
-                  onClick={() => navigate("/tools")}
+                <Link
+                  to="/tools"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary/90 transition-all shadow-md shadow-primary/20"
                 >
                   Explore All Tools <ArrowRight className="h-4 w-4" />
-                </button>
+                </Link>
               </div>
 
               <div className="bg-card rounded-2xl border border-border/60 p-6 shadow-card">

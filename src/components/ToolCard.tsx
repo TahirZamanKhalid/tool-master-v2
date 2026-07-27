@@ -1,24 +1,26 @@
 import type { LucideIcon } from "lucide-react";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface ToolCardProps {
   icon: LucideIcon;
   title: string;
   description: string;
   category: string;
+  path?: string;
   popular?: boolean;
   comingSoon?: boolean;
 }
 
-export const ToolCard = ({ icon: Icon, title, description, category, popular, comingSoon }: ToolCardProps) => {
-  return (
-    <div
-      className={`group relative flex flex-col h-full rounded-2xl border transition-all duration-300 overflow-hidden ${
-        comingSoon
-          ? "border-border/40 bg-card/50 cursor-not-allowed opacity-70"
-          : "border-border/50 bg-card hover:border-primary/40 hover:-translate-y-1 hover:shadow-card-hover cursor-pointer shadow-card"
-      }`}
-    >
+export const ToolCard = ({ icon: Icon, title, description, category, path, popular, comingSoon }: ToolCardProps) => {
+  const className = `group relative flex flex-col h-full rounded-2xl border transition-all duration-300 overflow-hidden ${
+    comingSoon
+      ? "border-border/40 bg-card/50 cursor-not-allowed opacity-70"
+      : "border-border/50 bg-card hover:border-primary/40 hover:-translate-y-1 hover:shadow-card-hover cursor-pointer shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+  }`;
+
+  const content = (
+    <>
       {/* Top accent line on hover */}
       {!comingSoon && (
         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -83,6 +85,20 @@ export const ToolCard = ({ icon: Icon, title, description, category, popular, co
           )}
         </div>
       </div>
+    </>
+  );
+
+  if (path && !comingSoon) {
+    return (
+      <Link to={path} className={className} aria-label={`Use ${title}`}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={className}>
+      {content}
     </div>
   );
 };

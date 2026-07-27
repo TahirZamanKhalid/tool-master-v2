@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/Header";
@@ -49,21 +49,25 @@ const NotFound = () => {
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
             <Button
-              onClick={() => navigate("/")}
+              asChild
               size="lg"
               className="bg-primary hover:bg-primary/90 text-white font-bold rounded-xl px-6 h-11 shadow-md shadow-primary/25"
             >
-              <Home className="mr-2 h-4 w-4" />
-              Go Home
+              <Link to="/">
+                <Home className="mr-2 h-4 w-4" />
+                Go Home
+              </Link>
             </Button>
             <Button
-              onClick={() => navigate("/tools")}
+              asChild
               variant="outline"
               size="lg"
               className="rounded-xl px-6 h-11 font-bold"
             >
-              <Wrench className="mr-2 h-4 w-4" />
-              Browse Tools
+              <Link to="/tools">
+                <Wrench className="mr-2 h-4 w-4" />
+                Browse Tools
+              </Link>
             </Button>
             <Button
               onClick={() => navigate(-1)}

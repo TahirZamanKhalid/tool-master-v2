@@ -235,6 +235,17 @@ const replaceOrInsert = (html, pattern, replacement, insertBefore = "</head>") =
   return html.replace(insertBefore, `${replacement}\n${insertBefore}`);
 };
 
+const markHelmetManagedHeadTags = (html) =>
+  html
+    .replace(
+      /<meta\b(?![^>]*\bdata-rh=)(?=[^>]*(?:\bname="(?:title|description|keywords|author|robots|googlebot|bingbot|viewport|format-detection|language|rating|distribution|revisit-after|theme-color|msapplication-TileColor|apple-mobile-web-app-capable|apple-mobile-web-app-status-bar-style|apple-mobile-web-app-title|twitter:[^"]+)"|\bproperty="(?:og:[^"]+|article:[^"]+)"|\bhttp-equiv="content-language"))/gi,
+      '<meta data-rh="true"',
+    )
+    .replace(
+      /<link\b(?![^>]*\bdata-rh=)(?=[^>]*\brel="(?:canonical|alternate)")/gi,
+      '<link data-rh="true"',
+    );
+
 const toolCard = (tool) => `
           <li class="fallback-card">
             <a href="${hrefPath(tool.path)}">${escapeHtml(tool.title)}</a><br />
@@ -397,7 +408,7 @@ const renderPageHtml = (baseHtml, pagePath, metadata, allFallbackTools) => {
     `${renderFallback(pagePath, metadata, allFallbackTools)}\n\n    <!-- Loading State -->`,
   );
 
-  return html;
+  return markHelmetManagedHeadTags(html);
 };
 
 const writeRouteHtml = async (pagePath, html) => {

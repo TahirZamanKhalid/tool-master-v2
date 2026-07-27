@@ -2,20 +2,33 @@ import { Search, Sparkles, Zap, Shield } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, memo } from "react";
+import { Link } from "react-router-dom";
 
 interface HeroProps {
   searchQuery?: string;
   onSearch?: (query: string) => void;
 }
 
-const TrendingPill = memo(({ term, onClick }: { term: string; onClick: (term: string) => void }) => (
-  <button
-    onClick={() => onClick(term)}
-    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-border/60 bg-card/60 text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/8 transition-all duration-200 backdrop-blur-sm"
-  >
-    {term}
-  </button>
-));
+const trendingPillClass = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-border/60 bg-card/60 text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/8 transition-all duration-200 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
+
+const TrendingPill = memo(({ term, path, onClick }: { term: string; path?: string; onClick: (term: string) => void }) => {
+  if (path) {
+    return (
+      <Link to={path} className={trendingPillClass}>
+        {term}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => onClick(term)}
+      className={trendingPillClass}
+    >
+      {term}
+    </button>
+  );
+});
 TrendingPill.displayName = "TrendingPill";
 
 const StatBadge = ({ icon: Icon, label }: { icon: React.ElementType; label: string }) => (
@@ -37,29 +50,17 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
     onSearch?.(localSearch);
   };
 
-  const handleTrendingClick = (term: string) => {
-    import("@/data/allTools").then(({ allTools }) => {
-      const tool = allTools.find(t =>
-        t.title.toLowerCase().includes(term.toLowerCase()) ||
-        term.toLowerCase().includes(t.title.toLowerCase().replace("free online ", ""))
-      );
-      if (tool) {
-        window.location.href = tool.path;
-      } else {
-        onSearch?.(term.toLowerCase());
-      }
-    });
-  };
+  const handleTrendingClick = (term: string) => onSearch?.(term.toLowerCase());
 
   const trendingTerms = [
-    "Background Remover",
-    "PDF Merger",
-    "Image Compressor",
-    "QR Generator",
-    "AI Essay Writer",
-    "JSON Formatter",
-    "Video Trimmer",
-    "Password Generator",
+    { term: "Background Remover", path: "/tools/background-remover" },
+    { term: "PDF Merger", path: "/tools/pdf-merger" },
+    { term: "Image Compressor", path: "/tools/advanced-image-compressor" },
+    { term: "QR Generator", path: "/tools/qr-code-generator" },
+    { term: "AI Essay Writer", path: "/tools/essay-writer" },
+    { term: "JSON Formatter", path: "/tools/json-formatter" },
+    { term: "Video Trimmer", path: "/tools/video-trimmer" },
+    { term: "Password Generator", path: "/tools/password-generator" },
   ];
 
   return (
@@ -126,8 +127,8 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
           {/* Trending pills */}
           <div className="flex flex-wrap justify-center gap-2 animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
             <span className="self-center text-xs font-bold text-primary uppercase tracking-wider">🔥 Popular:</span>
-            {trendingTerms.map((term) => (
-              <TrendingPill key={term} term={term} onClick={handleTrendingClick} />
+            {trendingTerms.map(({ term, path }) => (
+              <TrendingPill key={term} term={term} path={path} onClick={handleTrendingClick} />
             ))}
           </div>
 

@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ToolCard } from "@/components/ToolCard";
@@ -11,7 +11,6 @@ import { allTools } from "@/data/allTools";
 import { Search, Sparkles, Filter, X } from "lucide-react";
 
 const AllTools = () => {
-  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const [search, setSearch] = useState(params.get("q") || "");
   const [selectedCat, setSelectedCat] = useState(params.get("category") || "");
@@ -186,9 +185,8 @@ const AllTools = () => {
                 {filteredTools.map((tool, index) => (
                   <div
                     key={tool.path}
-                    className="animate-fade-in-up cursor-pointer"
+                    className="animate-fade-in-up"
                     style={{ animationDelay: `${(index % 12) * 0.03}s` }}
-                    onClick={() => tool.path && navigate(tool.path)}
                   >
                     <ToolCard {...tool} />
                   </div>

@@ -1,7 +1,6 @@
 // components/Breadcrumbs.tsx
 import { ChevronRight, Home } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useMemo } from "react";
 
 interface BreadcrumbItem {
   label: string;
@@ -26,55 +25,11 @@ export const Breadcrumbs = ({
 }: BreadcrumbsProps) => {
   const location = useLocation();
 
-  // Generate breadcrumb schema markup for SEO
-  const schemaData = useMemo(() => {
-    const itemListElement = [];
-
-    // Add home
-    if (showHome) {
-      itemListElement.push({
-        "@type": "ListItem",
-        position: 1,
-        name: homeLabel,
-        item: baseUrl,
-      });
-    }
-
-    // Add other items
-    items.forEach((item, index) => {
-      const position = showHome ? index + 2 : index + 1;
-      const itemUrl = item.path
-        ? `${baseUrl}${item.path}`
-        : item.current
-          ? `${baseUrl}${location.pathname}`
-          : baseUrl;
-
-      itemListElement.push({
-        "@type": "ListItem",
-        position,
-        name: item.label,
-        item: itemUrl,
-      });
-    });
-
-    return {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement,
-    };
-  }, [items, showHome, homeLabel, baseUrl, location.pathname]);
-
   // Determine if an item is the last one (current page)
   const isLastItem = (index: number) => index === items.length - 1;
 
   return (
     <>
-      {/* Schema.org structured data for breadcrumbs - SEO */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
-      />
-
       {/* Visual breadcrumb navigation */}
       <nav
         aria-label="Breadcrumb navigation"

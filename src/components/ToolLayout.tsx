@@ -1,13 +1,13 @@
 import { ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Breadcrumbs, BREADCRUMB_PRESETS, generateBreadcrumbsFromPath } from "@/components/Breadcrumbs";
 import { SEOHead } from "@/components/SEOHead";
 import { ShareButtons } from "@/components/ShareButtons";
-import { ToolFAQ } from "@/components/ToolFAQ";
+import { ToolFAQ, getToolFAQSchema } from "@/components/ToolFAQ";
 import { ToolAdSidebar } from "@/components/ToolAdSidebar";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { blogPosts } from "@/data/blogPosts";
@@ -46,7 +46,6 @@ export const ToolLayout = ({
   downloadLabel = "Download Result",
   customFAQs,
 }: ToolLayoutProps) => {
-  const navigate = useNavigate();
   const location = useLocation();
   const [adModalOpen, setAdModalOpen] = useState(false);
 
@@ -128,13 +127,6 @@ export const ToolLayout = ({
         url: "https://storage.googleapis.com/gpt-engineer-file-uploads/yMvNOmZBvnfsQnZifJHbZHWPZ6n1/uploads/1759510903222-toolmasterpro logo.jpeg",
       },
     },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "4.8",
-      ratingCount: "1250",
-      bestRating: "5",
-      worstRating: "1",
-    },
     featureList:
       features?.join(", ") ||
       "Free, no signup, browser-based, privacy-first, mobile-friendly",
@@ -164,6 +156,7 @@ export const ToolLayout = ({
 
   const allSchemas: object[] = [webAppSchema];
   if (howToSchema) allSchemas.push(howToSchema);
+  allSchemas.push(getToolFAQSchema(title, customFAQs));
 
   const handleDownloadClick = () => {
     if (showDownloadAd && onDownload) {
@@ -316,16 +309,16 @@ export const ToolLayout = ({
                   <h2 className="mb-3 text-lg font-black text-foreground">Related Tools</h2>
                   <div className="grid gap-2.5 sm:grid-cols-2">
                     {relatedTools.map((tool, i) => (
-                      <button
+                      <Link
                         key={i}
-                        onClick={() => navigate(tool.path)}
-                        className="group flex items-center justify-between gap-2 rounded-xl border border-border/60 bg-muted/30 px-4 py-2.5 text-left transition-all hover:border-primary/40 hover:bg-primary/5"
+                        to={tool.path}
+                        className="group flex items-center justify-between gap-2 rounded-xl border border-border/60 bg-muted/30 px-4 py-2.5 text-left transition-all hover:border-primary/40 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                       >
                         <span className="text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
                           {tool.name}
                         </span>
                         <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground group-hover:text-primary" />
-                      </button>
+                      </Link>
                     ))}
                   </div>
                 </div>
@@ -339,24 +332,22 @@ export const ToolLayout = ({
                 </p>
                 <div className="mb-3 grid gap-3 sm:grid-cols-2">
                   {blogPosts.slice(0, 2).map((post) => (
-                    <div
+                    <Link
                       key={post.id}
-                      className="group cursor-pointer rounded-xl border border-border/40 bg-card/60 p-3 transition-all hover:border-primary/30"
-                      onClick={() => navigate(`/blog/${post.slug}`)}
+                      to={`/blog/${post.slug}`}
+                      className="group cursor-pointer rounded-xl border border-border/40 bg-card/60 p-3 transition-all hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     >
                       <h4 className="mb-1 line-clamp-1 text-xs font-semibold transition-colors group-hover:text-primary">
                         {post.title}
                       </h4>
                       <p className="line-clamp-2 text-xs text-muted-foreground">{post.excerpt}</p>
-                    </div>
+                    </Link>
                   ))}
                 </div>
-                <Button
-                  variant="link"
-                  onClick={() => navigate("/blog")}
-                  className="h-auto p-0 text-xs font-bold text-primary"
-                >
-                  View All Guides <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                <Button variant="link" asChild className="h-auto p-0 text-xs font-bold text-primary">
+                  <Link to="/blog">
+                    View All Guides <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                  </Link>
                 </Button>
               </div>
 
