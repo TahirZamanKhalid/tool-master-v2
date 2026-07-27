@@ -1,4 +1,5 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import type { AdSenseSlotStatus } from "@/hooks/useAdSenseUnit";
 import { ADSENSE_CLIENT, useAdSenseUnit } from "@/hooks/useAdSenseUnit";
 
 interface SidebarAdProps {
@@ -20,6 +21,7 @@ export const SidebarAd = ({
 }: SidebarAdProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [slotStatus, setSlotStatus] = useState<AdSenseSlotStatus>("idle");
 
   useAdSenseUnit({
     adRef,
@@ -28,6 +30,7 @@ export const SidebarAd = ({
     lazy: true,
     minWidth: 10,
     rootMargin: "250px",
+    onStatusChange: setSlotStatus,
   });
 
   if (!slot) return null;
@@ -39,6 +42,7 @@ export const SidebarAd = ({
       className={`overflow-hidden rounded-xl border border-border/60 bg-card ${className}`}
       style={{ width: `${width}px`, minHeight: `${height + 25}px` }}
       data-ad-container-slot={slot}
+      data-ad-slot-status={slotStatus}
     >
       <div className="border-b border-border/40 bg-muted/30 py-1.5 text-center text-[10px] uppercase text-muted-foreground">
         Advertisement

@@ -1,5 +1,6 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { CSSProperties } from "react";
+import type { AdSenseSlotStatus } from "@/hooks/useAdSenseUnit";
 import { ADSENSE_CLIENT, useAdSenseUnit } from "@/hooks/useAdSenseUnit";
 import { useInlineAdsAllowed } from "@/hooks/useInlineAdsAllowed";
 
@@ -62,6 +63,7 @@ export const AdSpace = ({
 }: AdSpaceProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [slotStatus, setSlotStatus] = useState<AdSenseSlotStatus>("idle");
   const inlineAdsAllowed = useInlineAdsAllowed();
 
   const resolvedSize = size || (slot ? SLOT_SIZE_MAP[slot] : undefined) || "leaderboard";
@@ -78,6 +80,16 @@ export const AdSpace = ({
     "medium-rect",
   ].includes(resolvedSize);
   const adAllowed = inlineAdsAllowed || isSidebarSize;
+  const canCollapse = !isSidebarSize;
+  const isCollapsedSlot = slotStatus === "unfilled" || slotStatus === "blocked";
+  const shouldReserveSpace =
+    !canCollapse ||
+    !lazy ||
+    slotStatus === "requested" ||
+    slotStatus === "filled" ||
+    slotStatus === "unfill-optimized";
+  const isVisible = shouldReserveSpace && !(canCollapse && isCollapsedSlot);
+  const collapsedHeight = isCollapsedSlot ? "0px" : "1px";
 
   useAdSenseUnit({
     adRef,
@@ -86,6 +98,7 @@ export const AdSpace = ({
     lazy,
     minWidth: 10,
     rootMargin: "300px",
+    onStatusChange: setSlotStatus,
   });
 
   if (!adAllowed) return null;
@@ -94,15 +107,21 @@ export const AdSpace = ({
     <div
       ref={containerRef}
       className={className}
+      aria-hidden={canCollapse && !isVisible}
       style={{
+        ...style,
         display: "block",
         width: isSidebarSize ? config.width : "100%",
         minWidth: config.minWidth,
-        minHeight: config.minHeight,
+        minHeight: isVisible ? config.minHeight : collapsedHeight,
+        height: isVisible ? undefined : collapsedHeight,
         margin: "0 auto",
-        ...style,
+        overflow: "hidden",
+        opacity: isVisible ? 1 : 0,
+        pointerEvents: isVisible ? undefined : "none",
       }}
       data-ad-container-slot={adSlot}
+      data-ad-slot-status={slotStatus}
     >
       <ins
         ref={adRef}
@@ -112,7 +131,7 @@ export const AdSpace = ({
           width: isSidebarSize ? config.width : "100%",
           height: isSidebarSize ? config.height : "auto",
           minWidth: config.minWidth,
-          minHeight: config.minHeight,
+          minHeight: isVisible ? config.minHeight : collapsedHeight,
         }}
         data-ad-client={ADSENSE_CLIENT}
         data-ad-slot={adSlot}

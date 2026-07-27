@@ -1,326 +1,605 @@
-# ToolMaster Pro SEO, AdSense, and Site Quality Audit
-
-Date: 2026-07-25
-Status: In progress
-Scope: Technical SEO, crawl/indexability, AdSense availability/eligibility signals, visible content quality, design/UX, accessibility, and trust signals for `toolmaster.cloud` and the current repository.
-
-## Change Policy During Audit
-
-- Broad sitewide SEO, content, design, or AdSense changes are intentionally deferred until the full audit can be reviewed holistically.
-- The only implementation change made during this audit is the separately authorized Text-to-Speech browser/system voice availability notice.
-- This document records verified findings as evidence is collected.
-
-## Verified Findings
-
-### 1. Text-to-Speech Uses Browser-Reported Voices Only
-
-- Category: Text-to-Speech behavior / user communication
-- Evidence: `src/pages/tools/TextToSpeech.tsx` calls `speechSynthesis.getVoices()`, stores the returned `SpeechSynthesisVoice[]`, selects the first returned voice when available, renders each option as `name (lang)`, and uses the selected voice on `SpeechSynthesisUtterance`. No static language or accent list is present.
-- Impact/Priority: Medium. Existing behavior is accurate but could mislead users unless the UI explains that voice availability varies by browser/device.
-- Recommended remediation: Add a visible note near the start of the Text-to-Speech tool explaining that only system/browser-reported languages, voices, and accents are shown.
-- Dependencies/Risks: Must preserve existing `speechSynthesis` behavior and avoid promising a complete global language list.
-- Status: Fixed in `src/pages/tools/TextToSpeech.tsx`; verification below.
-
-### 2. Robots.txt Is Reachable and Does Not Block Public Tool/Crawl Paths
-
-- Category: Technical SEO / crawl access / AdSense availability
-- Evidence: Live `https://toolmaster.cloud/robots.txt` returned `200 OK` with `Content-Type: text/plain`. It allows `/`, `/assets/`, `/tools/`, `/category/`, and `/blog/`; blocks only `/auth/`, `/admin/`, `/api/`, `/private/`, `/.git/`, and `/.env`; declares `Sitemap: https://toolmaster.cloud/sitemap.xml`.
-- Impact/Priority: Positive baseline. No evidence that robots.txt is causing the low crawled-page count or AdSense "site down" state.
-- Recommended remediation: Keep robots.txt deployed at the domain root. Consider adding explicit `User-agent: Googlebot`, `AdsBot-Google`, and `Mediapartners-Google` allow blocks only if future Search Console/AdSense diagnostics show ambiguity; not currently necessary.
-- Dependencies/Risks: Overediting robots rules can create accidental blocks.
-- Status: Verified; no code change recommended now.
-
-### 3. Sitemap Is Reachable and Contains Many Canonical URLs
-
-- Category: Technical SEO / sitemap coverage
-- Evidence: Live `https://toolmaster.cloud/sitemap.xml` returned `200 OK` with `Content-Type: application/xml`. The repository-generated sitemap contains 198 URLs, including 163 `/tools/` URLs, category URLs, static legal/company pages, and blog URLs. The build log also reported `Generated sitemap.xml with 198 canonical URLs.`
-- Impact/Priority: Positive baseline. A missing sitemap is not the immediate cause of only about 11 crawled pages.
-- Recommended remediation: Keep generating the sitemap in the production build. Add `lastmod` later if deployment can provide reliable modification dates, but do not fabricate dates.
-- Dependencies/Risks: `lastmod` should reflect real content updates; inaccurate timestamps can reduce trust.
-- Status: Verified; no code change recommended now.
-
-### 4. Canonical Host and HTTPS Redirects Are Working
-
-- Category: Technical SEO / canonicalization / AdSense availability
-- Evidence: Live checks showed `http://toolmaster.cloud/` redirects to `https://toolmaster.cloud/`; `https://www.toolmaster.cloud/` redirects to `https://toolmaster.cloud/`. Representative non-trailing-slash tool routes such as `/tools/text-to-speech` and `/tools/premium-plus-word-counter` redirect to trailing-slash URLs.
-- Impact/Priority: Positive baseline with minor crawl-efficiency consideration. Canonical host consistency is good, but internal links using non-trailing-slash paths create avoidable 301 hops before canonical URLs.
-- Recommended remediation: Later, normalize internal links/navigation paths to canonical trailing-slash URLs where practical, or configure the app/router/build to emit canonical hrefs consistently.
-- Dependencies/Risks: React Router routes currently use non-trailing paths; changes should be tested to avoid navigation regressions.
-- Status: Verified; trailing-slash internal link normalization remains a later remediation item.
-
-### 5. Representative Tool Pages Return 200 for Google and AdSense User Agents
-
-- Category: Technical SEO / AdSense availability
-- Evidence: `https://toolmaster.cloud/tools/text-to-speech/` returned `200 OK` for default curl, Googlebot user agent, and `Mediapartners-Google`. `https://toolmaster.cloud/` returned `200 OK` for `AdsBot-Google`. Policy/contact pages such as `/privacy-policy/` and `/contact/` also returned `200 OK`.
-- Impact/Priority: Positive baseline. Current live HTTP responses do not reproduce an obvious "site down" condition for Google/AdSense crawlers.
-- Recommended remediation: After AdSense review, monitor whether the prior downtime status clears. If it does not, validate from multiple regions and in Google Search Console URL Inspection / AdSense site review diagnostics.
-- Dependencies/Risks: We did not access the user's AdSense account and cannot verify account-side review state.
-- Status: Verified externally; no code change recommended now.
-
-### 6. Ads.txt Is Present and Matches the AdSense Publisher ID Used in Code
-
-- Category: AdSense eligibility / ads.txt
-- Evidence: Live `https://toolmaster.cloud/ads.txt` returned `200 OK`, `Content-Type: text/plain`, and contains `google.com, pub-7382531001943020, DIRECT, f08c47fec0942fa0`. The same publisher ID appears in the AdSense script/client configuration in page HTML.
-- Impact/Priority: Positive baseline. ads.txt configuration does not appear to be blocking ad eligibility.
-- Recommended remediation: Keep `ads.txt` at the root and ensure deployment preserves it.
-- Dependencies/Risks: If the AdSense account uses a different publisher ID, update both ads.txt and the script/client configuration together.
-- Status: Verified; no code change recommended now.
-
-### 7. Built Tool Pages Have Unique Head Metadata but Duplicated Body Fallback Content
-
-- Category: Technical SEO / SSR-prerender / content quality
-- Evidence: `scripts/prerender-meta.mjs` creates per-route HTML files and replaces title, description, canonical, Open Graph, and Twitter tags. It does not prerender route-specific React body content. Built pages such as `build/tools/text-to-speech/index.html`, `build/tools/premium-plus-word-counter/index.html`, and `build/tools/index.html` share the same static body fallback: generic ToolMaster Pro content, five hardcoded popular tool links, category links, and loading spinner. The Text-to-Speech built HTML has title `Text to Speech | ToolMaster Pro` and canonical `/tools/text-to-speech/`, but the raw body H1 is still generic `ToolMaster Pro™ - 100+ Free Online Tools`.
-- Impact/Priority: High. This is a plausible explanation for low crawl depth and weak organic performance. Crawlers that do not fully render JS, or render only partially, see many unique URLs with mostly identical body content and only a small hardcoded link set.
-- Recommended remediation: Implement real route body prerendering/SSG for important pages, or generate static fallback content per route with route-specific H1, tool description, instructions, related links, and indexable links to all tools/category contents.
-- Dependencies/Risks: Needs careful architecture decision. Full prerendering should avoid hydration mismatches and should be validated against production hosting rewrites.
-- Status: Remediated in repository in Phase 1 by adding route-specific visible fallback content generation in `scripts/prerender-meta.mjs`; pending deployment verification after push.
-
-### 8. Raw HTML Internal Links Expose Only a Small Subset of Tools
-
-- Category: Technical SEO / URL discoverability / internal linking
-- Evidence: In built raw HTML for `build/tools/index.html` and `build/tools/text-to-speech/index.html`, there are 27 internal hrefs and 11 tool href occurrences, but only 6 unique tool hrefs: `/tools`, `/tools/background-remover`, `/tools/image-size-reducer`, `/tools/json-formatter`, `/tools/pdf-merger`, and `/tools/qr-code-generator`. The React app has 152 tool entries in `allTools.ts` and the sitemap has 163 tool URLs.
-- Impact/Priority: High. Search crawlers can discover the sitemap, but the non-rendered HTML internal link graph does not expose most tool URLs. This can contribute to shallow crawling and weak page discovery, especially after a downtime event.
-- Recommended remediation: Add a crawlable static all-tools link list in the built HTML or implement SSG/prerendered `/tools` and category pages with real `<a href>` links for every tool. Prefer semantic anchors over click-only cards.
-- Dependencies/Risks: `ToolCard` and category cards currently navigate via click handlers in several places; converting to links must preserve styling, keyboard behavior, and app navigation.
-- Status: Partially remediated in repository in Phase 1 by generating crawlable fallback links for `/tools/`, category pages, and tool pages. Runtime card semantics still require Phase 2.
-
-### 9. Tool Cards Are Clickable Divs Rather Than Semantic Links in Main Listings
-
-- Category: Technical SEO / UX / accessibility
-- Evidence: `src/pages/Index.tsx`, `src/pages/AllTools.tsx`, and `src/pages/CategoryTools.tsx` wrap `ToolCard` in clickable `div` elements and call `navigate(tool.path)` on click. `ToolCard` itself renders a `div` and does not include an anchor. Without JS-rendering, those links are absent; even with JS, keyboard and assistive-tech semantics are weaker than normal links.
-- Impact/Priority: High for crawl discoverability and accessibility. This likely contributes to a weak internal link graph for crawlers and keyboard users.
-- Recommended remediation: Refactor tool cards/listings to render semantic `<Link>` or `<a>` elements for each tool path, while preserving card layout and click area.
-- Dependencies/Risks: Must avoid nested interactive elements and keep existing search/filter interactions working.
-- Status: Verified; deferred for holistic remediation.
-
-### 10. H1/Heading Structure in Raw Built Pages Is Generic and Duplicated
-
-- Category: Content quality / information architecture
-- Evidence: Built `build/tools/text-to-speech/index.html` has two raw H1 occurrences before JS execution: one in `<noscript>` and one in hidden SEO content, both generic ToolMaster Pro headings. It does not include a raw route-specific H1 such as "Free Text to Speech" in the static body.
-- Impact/Priority: Medium-High. Route-specific head tags help, but duplicated generic static headings weaken page specificity and may make many tool pages look like near-duplicates to crawlers before rendering.
-- Recommended remediation: Ensure each prerendered route has one route-specific visible or crawlable H1 and supporting copy in the initial HTML.
-- Dependencies/Risks: Needs alignment with the SSG/prerender strategy chosen for Findings 7 and 8.
-- Status: Remediated in repository in Phase 1 for generated HTML; sampled route output now has one route-specific fallback H1.
-
-### 11. Full-Repo Lint Currently Fails on Pre-Existing Issues
-
-- Category: Engineering quality / maintainability
-- Evidence: `npm.cmd run lint` ran after `npm.cmd ci` and reported 109 problems across many files. The touched Text-to-Speech component only reported one pre-existing warning: `React Hook useEffect has a missing dependency: 'selectedVoice'`.
-- Impact/Priority: Medium. Existing lint debt can hide regressions and reduces confidence in future sitewide SEO/content refactors.
-- Recommended remediation: Address lint debt in a separate cleanup pass, prioritizing parser/config issues and shared components first.
-- Dependencies/Risks: Some lint fixes may alter behavior; do not combine broad lint cleanup with SEO/content changes.
-- Status: Verified; no broad fix made.
-
-### 12. Hidden Generic SEO Fallback Content Is Present in the Base HTML
-
-- Category: Content quality / search policy risk / SSR-prerender
-- Evidence: `index.html` contains a visually hidden "SEO Content for Crawlers" block using absolute positioning, 1px dimensions, clipping, and generic ToolMaster Pro copy. This same fallback content is inherited by built route HTML before React renders.
-- Impact/Priority: High. Hidden generic crawler-targeted text can make many pages appear duplicated and may be interpreted as low-quality or manipulative if the visible page content differs from the static fallback.
-- Recommended remediation: Replace the hidden generic block with visible, route-specific, useful initial content generated through a real prerender/SSG strategy. If a fallback remains, it should be honest, visible when appropriate, and not duplicate the same content across all tools.
-- Dependencies/Risks: Should be solved together with route prerendering and internal-link remediation to avoid removing the only static content crawlers currently see.
-- Status: Remediated in repository in Phase 1. The base root fallback is visible, and generated route HTML replaces it with route-specific visible content.
-
-### 13. Live Rendered Pages Produce Duplicate Head Tags After React Loads
-
-- Category: Technical SEO / metadata quality
-- Evidence: On live `https://toolmaster.cloud/tools/text-to-speech/`, the rendered DOM had two canonical tags pointing to the same URL, two descriptions with different text, duplicate robots tags, duplicate Open Graph titles, and duplicate Open Graph URLs. On live `/tools/`, the rendered DOM also had duplicate canonical and description tags.
-- Impact/Priority: Medium-High. Duplicate or conflicting metadata can weaken page clarity for crawlers and social parsers, especially when prerendered head tags and React-managed SEO tags both exist.
-- Recommended remediation: Define one owner for canonical, robots, description, Open Graph, Twitter, and route JSON-LD tags. If both prerender and React Helmet are kept, ensure hydration replaces rather than duplicates tags.
-- Dependencies/Risks: Needs testing on built static HTML and live rendered DOM. Avoid removing tags until the prerender strategy is chosen.
-- Status: Verified on live pages; no code change made.
-
-### 14. Structured Data Is Duplicated and Too Generic Sitewide
-
-- Category: Structured data / search quality
-- Evidence: Live Text-to-Speech rendered DOM contained 9 JSON-LD blocks with types including `Organization`, `WebSite`, `SoftwareApplication`, `ItemList`, `BreadcrumbList`, `FAQPage`, `ProfessionalService`, another `BreadcrumbList`, and another `FAQPage`. Base `index.html` ships generic JSON-LD blocks sitewide, while route components add additional structured data at runtime.
-- Impact/Priority: Medium-High. Generic duplicated FAQ, breadcrumb, software, and professional-service schema across unrelated routes can reduce trust in structured data and may trigger rich-result ineligibility or warnings.
-- Recommended remediation: Keep global Organization/WebSite schema only where appropriate, and generate route-specific Tool/Breadcrumb/FAQ schema only once per route, matching visible page content.
-- Dependencies/Risks: Schema should be validated with Google's Rich Results Test or Schema.org validator after changes.
-- Status: Verified; deferred for holistic remediation.
-
-### 15. Tool Listings Render Many Cards but Few Crawlable Tool Anchors
-
-- Category: Technical SEO / internal linking / discoverability
-- Evidence: After JavaScript rendered live `/tools/`, tool cards were visible, but only a small set of unique `/tools/...` anchor hrefs appeared in the DOM. The all-tools data contains about 152 tool entries, while rendered anchors exposed only a handful of tool URLs.
-- Impact/Priority: High. Even JS-rendering crawlers may receive weak link signals if cards are click handlers instead of anchors. This aligns with the user's report that only about 11 pages are crawled despite many tools.
-- Recommended remediation: Render each tool card as a semantic link and ensure `/tools/` and category pages expose every tool URL as crawlable anchors.
-- Dependencies/Risks: Must preserve current click behavior, filters, layout, and accessibility.
-- Status: Verified; deferred for holistic remediation.
-
-### 16. Title Handling Can Truncate Brand and Produce Lower-Quality Search Snippets
-
-- Category: Metadata quality / content quality
-- Evidence: `SEOHead.tsx` truncates titles to 60 characters by substring plus ellipsis and appends `| ToolMaster Pro` unless the title is exactly `ToolMaster Pro`. The live `/tools/` title rendered as a visibly truncated `All Free Online Tools - 150+ Browser-Based Utilities | To...`.
-- Impact/Priority: Medium. Truncated brand text and inconsistent title construction can reduce search result clarity and click-through rate.
-- Recommended remediation: Replace generic substring truncation with manually authored route titles within sensible length limits. Avoid appending the brand when the caller already includes it.
-- Dependencies/Risks: Requires auditing title inputs so route pages do not double-brand.
-- Status: Verified; deferred for holistic remediation.
-
-### 17. AdSense Baseline Configuration Looks Present, but Consent Flow Needs Policy Review
-
-- Category: AdSense eligibility / privacy / consent
-- Evidence: `index.html` loads the AdSense script with `client=ca-pub-7382531001943020`, includes a `google-adsense-account` meta tag, and live `ads.txt` matches the same publisher ID. `CookieConsent.tsx` stores a simple accepted/declined flag and mentions personalized ads/content, but no granular ad/analytics categories or Google consent-mode integration was observed. The AdSense script is loaded early in the document head.
-- Impact/Priority: Medium. The current setup is not an obvious availability blocker, but consent and personalized-ads behavior may need review depending on visitor regions and AdSense requirements.
-- Recommended remediation: Confirm target regions and legal requirements. If needed, implement a compliant CMP/consent-mode flow before enabling personalized ads or analytics behavior.
-- Dependencies/Risks: Legal/policy decision needed; do not change without owner direction.
-- Status: Partially verified; no code change made.
-
-### 18. Ad Density and Ad-Gated Workflows May Be a User-Trust and Policy Risk
-
-- Category: AdSense quality / UX / policy risk
-- Evidence: Tool layouts include sidebar ad slots on desktop and ad rows around tool content. Some components include ad watch or processing overlay patterns; `AdWatchModal` displays "Watch ad to continue" and includes countdown behavior.
-- Impact/Priority: Medium-High. Forced or gated ad interactions and dense ads around tools can hurt user trust, Core Web Vitals, and AdSense quality review. This is especially important after a fresh AdSense re-review.
-- Recommended remediation: Review all ad placements against current AdSense policies. Avoid requiring users to watch ads to complete core tool actions unless the format is explicitly policy-compliant.
-- Dependencies/Risks: Requires product and policy decision. Removing or changing ads affects monetization.
-- Status: Verified in repository; no code change made.
-
-### 19. Trust and Scale Claims Need Substantiation or Softer Wording
-
-- Category: Content quality / E-E-A-T / AdSense quality
-- Evidence: About/home copy includes claims such as "world's most trusted free online tools platform", "Trusted by millions of users worldwide", "1M+ Monthly Users", "10M+ Files Processed", and "Serving thousands of users daily". No supporting analytics, press, customer proof, or public evidence was found in the repository.
-- Impact/Priority: Medium-High. Unsupported scale/trust claims can reduce user trust and may be viewed poorly in quality assessment.
-- Recommended remediation: Either substantiate claims with credible public evidence or revise copy to factual, modest statements about what the site provides.
-- Dependencies/Risks: Requires owner confirmation of analytics/proof before preserving numeric claims.
-- Status: Verified in repository; no content change made.
-
-### 20. Contact Identity Is Inconsistent
-
-- Category: Trust / policy pages / content quality
-- Evidence: `Contact.tsx` lists `tzaman208@gmail.com`, while `Footer.tsx` uses `contact@toolmaster.cloud`. Contact copy also promises or implies a 24-hour response window.
-- Impact/Priority: Medium. Inconsistent contact channels can reduce user trust and may weaken AdSense/site-quality review signals.
-- Recommended remediation: Use one monitored, domain-branded contact address if available, and only promise response timing that can be met reliably.
-- Dependencies/Risks: Requires owner confirmation of the correct monitored mailbox.
-- Status: Verified in repository; no content change made.
-
-### 21. Large Bundles and Heavy WASM Assets Create Performance Risk
-
-- Category: Performance / Core Web Vitals
-- Evidence: Production build output includes large assets such as `ffmpeg-core` WASM around 32 MB, ONNX Runtime WASM around 24 MB, a HEIC conversion chunk around 1.36 MB, and other large PDF/XLSX/JS chunks. Vite warned that some chunks exceed 1000 kB after minification.
-- Impact/Priority: Medium. Many heavy assets appear tool-specific and may be lazy loaded, but accidental eager loading would harm crawl rendering, mobile UX, Core Web Vitals, and ad viewability.
-- Recommended remediation: Audit network waterfalls for home, `/tools/`, and representative tool pages. Keep heavy conversion libraries strictly lazy-loaded on user action or route entry, and avoid loading unrelated tool bundles globally.
-- Dependencies/Risks: Needs Lighthouse/WebPageTest or browser performance trace to separate theoretical bundle risk from actual initial-load impact.
-- Status: Build-output verified; deeper performance audit pending.
-
-### 22. URL Coverage Counts Are Inconsistent Across Routes, Sitemap, and Tool Data
-
-- Category: Technical SEO / data consistency
-- Evidence: Repository checks found about 181 declared routes, 167 tool routes, 198 sitemap URLs, 163 sitemap tool URLs, and about 152 all-tools entries with one apparent duplicate path/title entry. Counts do not need to match exactly, but the gaps should be explained.
-- Impact/Priority: Medium. Unexplained URL/data mismatches can create orphan pages, omitted tools, duplicate paths, or sitemap entries without strong internal links.
-- Recommended remediation: Produce a route-to-sitemap-to-tool-data coverage table, then decide which routes should be indexable, linked, canonical, or excluded.
-- Dependencies/Risks: Some routes may intentionally exist outside `allTools.ts` or may be landing/category/legal/blog pages.
-- Status: Partially verified; deeper coverage mapping pending.
-
-### 23. Live Raw HTML Confirms the Same Generic Initial Body Across Multiple Tool URLs
-
-- Category: Technical SEO / SSR-prerender / crawl rendering
-- Evidence: Live raw HTML fetches for `https://toolmaster.cloud/tools/text-to-speech/`, `/tools/`, `/tools/word-counter/`, `/tools/random-number/`, `/tools/stopwatch/`, `/tools/watermark/`, and `/tools/unit-converter/` all returned the same small initial HTML body pattern: two generic H1s reading `ToolMaster Pro™ - 100+ Free Online Tools`, the hidden SEO fallback block, and only 6 unique tool hrefs. The route-specific Text-to-Speech notice does not appear in raw HTML because tool UI content is rendered by JavaScript.
-- Impact/Priority: High. This confirms on the live deployment, not only in the local build, that non-JS or partial-render crawlers see mostly identical generic content across many distinct URLs.
-- Recommended remediation: Prioritize real route-specific prerendered body content and crawlable internal links for tool and hub pages.
-- Dependencies/Risks: This should be addressed through an architecture-level prerender/SSG fix, not by adding more hidden fallback text.
-- Status: Remediated in repository in Phase 1; live deployment still needs to pick up the pushed build source.
-
-### 24. Some Sitemaped Tool Routes Are Missing From the Main Tool Data/Listings
-
-- Category: Technical SEO / internal linking / content inventory
-- Evidence: A repository coverage check found 167 unique app tool routes, 162 unique sitemap tool paths, 152 `allTools.ts` entries, and 151 unique `allTools.ts` paths. `allTools.ts` is the source for main listings/search/category pages. All `allTools.ts` paths are covered by app routes and sitemap entries, but 11 sitemaped tool URLs are not present in `allTools.ts`: `/tools/ai-chat`, `/tools/bracket-matcher`, `/tools/email-validator`, `/tools/hex-converter`, `/tools/lorem-ipsum-pro`, `/tools/number-base-converter`, `/tools/premium-plagiarism-ai-tool`, `/tools/rgb-converter`, `/tools/roman-numeral-converter`, `/tools/temperature-converter`, and `/tools/user-agent-parser`. `allTools.ts` also contains a duplicate path, `/tools/images-to-pdf`, in two categories.
-- Impact/Priority: High. These sitemaped tools may be reachable directly and via sitemap, but can be absent from the primary browsing/search/category experience. That weakens internal link equity and can create orphaned or near-orphaned pages.
-- Recommended remediation: Decide whether each missing route should be public/indexable. If yes, add it to the canonical tool inventory and category navigation; if no, remove it from sitemap or mark it appropriately.
-- Dependencies/Risks: Duplicate category membership may be intentional, but duplicate paths should be represented deliberately rather than accidentally.
-- Status: Verified in repository; no behavior change made.
-
-### 25. Duplicate SEO Ownership Is Systemic in Tool Pages
-
-- Category: Technical SEO / metadata architecture
-- Evidence: `ToolLayout` renders `SEOHead` internally. A source scan found 22 tool files that render both `<SEOHead>` and `<ToolLayout>`, plus 4 tool files using manual Helmet/canonical/robots patterns instead of the shared component.
-- Impact/Priority: Medium-High. This explains the duplicate canonical, description, robots, Open Graph, and JSON-LD tags observed in live rendered DOM. It also creates inconsistent metadata behavior across tool pages.
-- Recommended remediation: Make `ToolLayout` the single SEO owner for standard tool pages, or explicitly disable its SEO output when a page supplies custom metadata. Migrate manual Helmet pages to the shared path after confirming their special needs.
-- Dependencies/Risks: Changes must be validated route by route because some tools may have custom schema or canonical requirements.
-- Status: Verified in repository; no behavior change made.
-
-### 26. Ad-Gated Modal Usage Is Widespread
-
-- Category: AdSense quality / UX / policy risk
-- Evidence: A tool-page source scan found 17 tool files referencing `AdWatchModal`. Examples include PDF, image, GIF, resume, video, Base64, URL encoder, and watermark tools. Several modal titles or flows ask the user to watch an ad before download or continuation.
-- Impact/Priority: Medium-High. This is broader than an isolated implementation detail and should be reviewed before AdSense re-approval or traffic growth, especially for user trust and ad policy compliance.
-- Recommended remediation: Inventory every `AdWatchModal` use, classify whether it gates core functionality, and replace forced ad-watch requirements where policy risk is high.
-- Dependencies/Risks: Requires monetization and policy decision; do not alter until the owner chooses the ad strategy.
-- Status: Verified in repository; no behavior change made.
-
-### 27. Legacy Redirects Work Live but Are Partly Host-Dependent
-
-- Category: Deployment / redirects / URL consistency
-- Evidence: Live `https://toolmaster.cloud/tools/word-counter/` returns an HTTP `301 Moved Permanently` to `https://toolmaster.cloud/tools/premium-plus-word-counter/`, then `200 OK`. Similar live checks showed `/tools/random-number/`, `/tools/stopwatch/`, `/tools/watermark/`, and `/tools/unit-converter/` resolving to their canonical replacement URLs. The repository contains React `<Navigate>` routes and a `legacyRedirects` exclusion list in `scripts/generate-sitemap.mjs`, but no checked-in `_redirects`, `.htaccess`, `vercel.json`, or equivalent host redirect config was found in the audited files.
-- Impact/Priority: Medium. Current live redirects are healthy, but if hosting is rebuilt or migrated without preserving host-layer redirects, legacy URLs may fall back to generic SPA HTML or break.
-- Recommended remediation: Document and version-control production redirect rules where possible, or generate host redirect config from the same `legacyRedirects` source used by the sitemap script.
-- Dependencies/Risks: Hostinger redirect rules may live outside the repo; owner or hosting access may be needed.
-- Status: Verified live and in repository; no behavior change made.
-
-## Remediation Changelog
-
-### Phase 1 - Route-Specific Visible Fallback HTML
-
-- Date: 2026-07-25
-- Files changed: `index.html`, `scripts/prerender-meta.mjs`, and this audit document.
-- Changes: Replaced the hidden crawler-only root block in `index.html` with a visible `seo-fallback` container. Reworked `scripts/prerender-meta.mjs` so production builds generate route-specific visible fallback content for every sitemap URL, including one page-specific H1, useful summary copy, tool instructions for tool routes, category links, related tool links, and a complete crawlable all-tools fallback list on `/tools/`.
-- Verification: `npm.cmd run build` passed and reported `Prerendered metadata and fallback content for 198 sitemap URLs.` Raw generated HTML checks confirmed `build/tools/text-to-speech/index.html` has H1 `Text to Speech`, `build/tools/index.html` has H1 `All Free Online Tools` and 163 unique tool hrefs, `build/category/text-tools/index.html` has H1 `Free Text Tools`, and `build/tools/user-agent-parser/index.html` has H1 `User Agent Parser`. Sampled generated pages no longer contain `SEO Content for Crawlers`, `clip:rect(0,0,0,0)`, or the 1px hidden fallback pattern.
-- Remaining risks: This improves generated static HTML but does not yet fix runtime duplicate head tags or click-only React tool cards. Those remain planned for later phases.
-- Deployment status: Pending commit and push for this phase.
-
-## Prioritized Next Actions
-
-### Highest Impact / Medium to High Effort
-
-1. Implement a real prerender/SSG strategy for tool, category, and hub pages so initial HTML contains route-specific visible H1s, useful copy, tool instructions, related links, and crawlable anchors.
-2. Replace click-only tool cards and category cards with semantic `Link`/anchor elements while preserving the existing design and filtering behavior.
-3. Remove the hidden generic crawler SEO block once route-specific initial content exists.
-4. Rationalize metadata ownership so each route has exactly one canonical, description, robots tag set, Open Graph/Twitter set, and route-specific JSON-LD set.
-
-### Highest Impact / Low to Medium Effort
-
-1. Make `/tools/` a complete crawlable link hub for all public tools, with static or prerendered anchors for every indexable tool URL.
-2. Normalize internal links to canonical trailing-slash URLs where the deployed site redirects to trailing slashes.
-3. Audit route, sitemap, and `allTools.ts` coverage so every public tool has one canonical URL, one sitemap entry, and at least one crawlable internal link.
-4. Soften or substantiate trust and usage claims before broad content expansion.
-
-### AdSense Review Priority
-
-1. Keep current `ads.txt` and publisher ID alignment intact.
-2. Review ad density and ad-gated flows such as "Watch ad to continue" against current AdSense policies before the fresh review completes.
-3. Confirm privacy/cookie requirements for the target regions and decide whether a CMP or Google consent mode implementation is required.
-4. Keep contact, privacy, terms, and about information consistent and factual.
-
-### Medium Impact / Low Effort
-
-1. Replace automatic title truncation with manually authored titles and descriptions for important pages.
-2. Remove duplicate or generic FAQ/Breadcrumb/ProfessionalService schema from pages where it does not match visible content.
-3. Align contact email across footer and contact page.
-4. Add or verify descriptive alt text on meaningful images during a later content pass.
-
-### Performance and Quality Follow-Up
-
-1. Run Lighthouse or WebPageTest on home, `/tools/`, Text-to-Speech, a heavy media tool, and a PDF tool.
-2. Verify that heavy WASM and conversion libraries are lazy-loaded and not pulled into unrelated page visits.
-3. Add a recurring build/check step that validates sitemap count, duplicate canonicals/descriptions, missing anchors, and route metadata consistency.
-
-## Verification Log
-
-- Installed dependencies with `npm.cmd ci` from `package-lock.json`.
-- `npm.cmd run build`: passed after rerunning with required permissions for Vite/esbuild config loading. Build generated sitemap and prerendered metadata for 198 sitemap URLs.
-- `npx.cmd eslint src/pages/tools/TextToSpeech.tsx`: completed with 0 errors and 1 pre-existing hook dependency warning.
-- `git diff --check -- src/pages/tools/TextToSpeech.tsx`: passed.
-- Local dev server: `http://127.0.0.1:8080/tools/text-to-speech` returned `200`.
-- Live HTTP checks: `https://toolmaster.cloud/robots.txt`, `https://toolmaster.cloud/sitemap.xml`, `https://toolmaster.cloud/ads.txt`, `https://toolmaster.cloud/tools/text-to-speech/`, `https://toolmaster.cloud/privacy-policy/`, and `https://toolmaster.cloud/contact/` returned `200 OK` during checks.
-- Live redirect checks: `http://toolmaster.cloud/` redirected to `https://toolmaster.cloud/`, `https://www.toolmaster.cloud/` redirected to `https://toolmaster.cloud/`, and non-trailing tool URLs redirected to trailing-slash canonicals.
-- Live rendered DOM checks: Text-to-Speech and `/tools/` were inspected after JavaScript execution for duplicate head tags, structured data, headings, and visible link behavior.
-- Continued audit checks: repository coverage script compared app tool routes, `allTools.ts` paths, and sitemap tool paths; results were added in Findings 24 and 25.
-- Continued live raw HTML checks: fetched multiple tool URLs with `curl.exe -L` and confirmed identical generic initial H1/fallback/link patterns; results were added in Finding 23.
-- Continued live redirect checks: traced `https://toolmaster.cloud/tools/word-counter/` with `curl.exe -I -L` and confirmed an HTTP `301` to the canonical premium-plus URL, then `200 OK`; related legacy routes were spot-checked with effective URL/status output.
-- Continued source checks: scanned tool files for `AdWatchModal`, mixed `SEOHead`/`ToolLayout` ownership, manual canonical/robots patterns, and noindex usage.
-
-## Open Audit Areas
-
-- Full Lighthouse/Core Web Vitals lab run and network waterfall inspection.
-- Route-by-route title/meta/heading/content uniqueness audit across all tools.
-- Complete image alt text and media asset review.
-- Structured data validation in Google's Rich Results Test after deduplication strategy is chosen.
-- AdSense policy review of ad density and gated ad patterns by the site owner or policy specialist.
+# ToolMaster Pro SEO, AdSense, Layout, and Desktop Quality Audit
+
+Audit file maintained in: `SEO_ADSENSE_SITE_QUALITY_AUDIT_2026-07-25.md`
+
+Latest audit update: 2026-07-27
+Status: Active isolated remediation in progress. SEO/crawlability phases and the ad-layout phase are local worktree changes only; no publish/deploy was performed in this pass.
+Scope: `toolmaster.cloud`, current repository source, current generated `build/` output, and the desktop-only PageSpeed Insights report captured 2026-07-25 13:39:13 GMT+5.
+
+## Change Policy
+
+- Do not implement broad fixes until this audit is reviewed.
+- Preserve all existing user and agent changes.
+- Existing uncommitted implementation work is left untouched and documented below.
+- Future remediation should be isolated by concern, validated, committed, and pushed one phase at a time.
+
+## Current Worktree State
+
+Current checkout: detached `HEAD` at `91499e4` (`origin/main`, `origin/HEAD`) with local `main` still at `f46eb1d`.
+
+Current modified files before this audit-document update:
+
+- `src/components/AdRow.tsx`
+- `src/components/AdSpace.tsx`
+- `src/components/CategoryCard.tsx`
+- `src/components/FixedSizeAd.tsx`
+- `src/components/InFeedAd.tsx`
+- `src/components/LazyAdSpace.tsx`
+- `src/components/ToolCard.tsx`
+- `src/components/ToolLayout.tsx`
+- `src/hooks/useAdSenseUnit.ts`
+- `src/pages/AllTools.tsx`
+- `src/pages/BlogPostDetail.tsx`
+- `src/pages/CategoryTools.tsx`
+- `src/pages/Index.tsx`
+
+These are existing uncommitted remediation edits from before the audit-only instruction. They were not reverted or overwritten.
+
+## Evidence Collected
+
+- Live HTTP checks with `curl.exe` on 2026-07-27:
+  - `https://toolmaster.cloud/`: `200 OK`
+  - `http://toolmaster.cloud/`: `301` to `https://toolmaster.cloud/`, then `200 OK`
+  - `https://www.toolmaster.cloud/`: `301` to `https://toolmaster.cloud/`, then `200 OK`
+  - Googlebot user agent on homepage: `200 OK`
+  - `Mediapartners-Google` user agent on `/tools/text-to-speech/`: `200 OK`
+  - `https://toolmaster.cloud/ads.txt`: `200 OK`
+  - `https://toolmaster.cloud/robots.txt`: `200 OK`
+  - `https://toolmaster.cloud/sitemap.xml`: `200 OK` on header check
+- Live browser-rendered checks at desktop viewport `1440x1000`:
+  - Homepage React app rendered with headings including `One Platform.Every Tool You Need.`, `Browse Tools by Category`, `How It Works`, `Most Popular Tools`.
+  - Homepage had 3 ad containers.
+  - `/tools/` and `/tools/text-to-speech/` rendered sidebar ad containers.
+  - `/tools/text-to-speech/` live head tags were inspected after JavaScript execution.
+- Source checks:
+  - `index.html`, `public/_headers`, `public/robots.txt`, `public/ads.txt`, `public/llms.txt`
+  - `src/components/AdRow.tsx`, `AdSpace.tsx`, `SidebarAd.tsx`, `FixedSizeAd.tsx`, `InFeedAd.tsx`, `LazyAdSpace.tsx`
+  - `src/hooks/useAdSenseUnit.ts`
+  - `src/components/SEOHead.tsx`, `src/components/ToolLayout.tsx`, `scripts/generate-sitemap.mjs`, `scripts/prerender-meta.mjs`
+  - route, sitemap, and `allTools.ts` coverage script
+- Authoritative ad-behavior sources checked:
+  - Google AdSense Help: `Use the data-ad-status parameter to hide unfilled ad units` (`https://support.google.com/adsense/answer/10762946`)
+  - Google AdSense Help: `How to modify your responsive ad code` (`https://support.google.com/adsense/answer/9183363`)
+  - Google AdSense Help: `About the responsive behavior of display ad units` (`https://support.google.com/adsense/answer/9183362`)
+  - Google AdSense Help: `AdSense Program policies` (`https://support.google.com/adsense/answer/48182`)
+- Build checks from the current worktree:
+  - `npm.cmd run build` passed.
+  - Build output generated sitemap and route fallback HTML for 198 sitemap URLs.
+  - Local generated `build/tools/index.html` contains 162 unique tool hrefs.
+  - Local generated `build/tools/text-to-speech/index.html` has route-specific fallback H1 `Text to Speech`.
+- Live representative tool smoke checks:
+  - Word Counter: rendered at `/tools/premium-plus-word-counter/`; textarea accepted `Hello world. This is a smoke test.`; word, character, and reading metrics appeared.
+  - JSON Formatter: rendered at `/tools/json-formatter/`; formatting `{"a":1,"b":[2,3]}` produced formatted output in the second textarea.
+  - QR Code Generator: rendered at `/tools/qr-code-generator/`; entering `https://toolmaster.cloud/` generated a QR output and exposed a download option.
+  - Text-to-Speech: rendered at `/tools/text-to-speech/`; availability notice and controls appeared. Playback was not validated because this in-app browser reported no `window.speechSynthesis` support.
+- Tool inventory smoke script:
+  - `App.tsx` route count: 181 total routes, 167 `/tools/` route entries.
+  - `src/pages/tools`: 167 `.tsx` files.
+  - `allTools.ts`: 152 entries, 151 unique paths, duplicate `/tools/images-to-pdf`.
+  - Category counts in `allTools.ts`: AI & Content 6, Image Tools 18, Developer Tools 22, QR & Barcodes 5, PDF Tools 6, Text Tools 23, Video Tools 6, SEO & Marketing 18, Calculators 14, Security Tools 4, Utilities 9, File Converters 8, Business Tools 2, Social Media 3, Generators 8.
+- User-provided PageSpeed Insights report, desktop only:
+  - Performance 85, Accessibility 96, Best Practices 77, SEO 100.
+  - FCP 0.9s, LCP 2.0s, TBT 10ms, CLS 0, Speed Index 2.1s.
+
+## Track 1: Live-Site Availability and AdSense Delivery/Visibility
+
+### A1. Live Site Is Currently Reachable To Normal and Google Crawler User Agents
+
+- Evidence: On 2026-07-27, live `curl.exe` checks returned `200 OK` for `https://toolmaster.cloud/`, Googlebot on homepage, `Mediapartners-Google` on `/tools/text-to-speech/`, `/ads.txt`, `/robots.txt`, and `/sitemap.xml` header check. `http://toolmaster.cloud/` and `https://www.toolmaster.cloud/` redirected to the canonical HTTPS apex host.
+- Likely root cause: Current AdSense "site down" warnings, if still present in the account, are probably stale from the prior hosting lapse or account-side review state, not because the public homepage is currently unreachable.
+- Status: Confirmed current availability from this environment. Account-side AdSense review state is unconfirmed because no AdSense account access was used.
+- Affected scope: Whole site availability, AdSense review precondition, Google crawl access.
+- Priority: High positive baseline.
+- Recommended isolated fix: No code fix for availability unless fresh monitoring shows real downtime. In AdSense/Search Console, request/await recrawl or review outcome. If warnings persist, verify with Google Search Console URL Inspection and AdSense site review diagnostics.
+
+### A2. Some External Fetches Failed Transiently, But Adjacent Site Checks Succeeded
+
+- Evidence: During parallel/serial checks, a few `curl.exe` GET requests for `sitemap.xml`, `llms.txt`, or a tool route failed quickly with `curl: (7) Failed to connect`, while adjacent checks for homepage, `/tools/text-to-speech/`, `/contact/`, robots, ads.txt, and sitemap HEAD returned `200 OK`.
+- Likely root cause: Transient local/network/edge behavior or connection throttling from the audit environment. Current evidence does not prove the live site is down.
+- Status: Confirmed intermittent from audit environment; production-wide availability unconfirmed without external uptime monitoring.
+- Affected scope: Crawl reliability monitoring, not necessarily user-facing uptime.
+- Priority: Medium.
+- Recommended isolated fix: Add external uptime monitoring from at least two regions for homepage, robots, sitemap, ads.txt, one tool page, and one policy page. Do not change application code based only on these mixed local results.
+
+### A3. AdSense Site-Side Prerequisites Are Present
+
+- Evidence: Live `ads.txt` contains `google.com, pub-7382531001943020, DIRECT, f08c47fec0942fa0`. `index.html` includes `google-adsense-account` with `ca-pub-7382531001943020` and the AdSense script URL with the same publisher ID. Direct fetch of `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7382531001943020` returned `200 OK`.
+- Likely root cause: If ads are not filling, the basic publisher ID and ads.txt alignment are not the obvious defect.
+- Status: Confirmed.
+- Affected scope: AdSense crawler/account verification.
+- Priority: High positive baseline.
+- Recommended isolated fix: Keep `ads.txt` and publisher ID synchronized. Only change if the AdSense account shows a different publisher ID.
+
+### A4. Ad Containers Are Rendering But Often Unfilled
+
+- Evidence: Live browser check on `/tools/` found sidebar containers with `data-ad-status="unfilled"`, iframe present, and visible reserved boxes. Live `/tools/text-to-speech/` showed four sidebar ad containers, all `data-ad-status="unfilled"`. PageSpeed desktop report also logged a Google/Doubleclick ad request returning `403 Forbidden`.
+- Likely root cause: Ad fill/account/review/policy/auction behavior, or AdSense refusing some requests while site review is pending. This is separate from live-site availability because the same live site returned `200 OK` and loaded the Google ad script.
+- Status: Confirmed unfilled ads on live rendered pages; exact AdSense account reason unconfirmed.
+- Affected scope: Ad visibility, blank ad placeholders, Best Practices score, monetization.
+- Priority: High for AdSense review and UX.
+- Recommended isolated fix: Do not change ad account settings in code. In code, handle unfilled/blocked slots so the UI does not reserve large blank spaces. In AdSense, review site status/policy center after the fresh review completes.
+
+### A5. Security Headers Are Partially Host-Controlled and Incomplete
+
+- Evidence: Live Hostinger responses include `Content-Security-Policy: upgrade-insecure-requests`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, and `Permissions-Policy`. Live responses did not show HSTS or COOP. Repository `public/_headers` defines cache and basic headers but no HSTS/COOP and may not be applied by Hostinger. `index.html` also defines a meta CSP with `unsafe-inline` and `unsafe-eval`.
+- Likely root cause: Hostinger/header configuration is not fully represented by `public/_headers`; CSP currently mixes host-level and meta-level policies.
+- Status: Confirmed from live headers and source.
+- Affected scope: PageSpeed Best Practices, security hardening, browser isolation.
+- Priority: Medium.
+- Recommended isolated fix: Treat headers as a deployment-config phase, not a React UI phase. Add HSTS and COOP only after confirming Hostinger supports them and after testing AdSense/popups/workers. Move CSP toward HTTP headers later; do not break ads or WASM workers casually.
+
+## Track 2: Shared Blank Layout and Ad-Slot Gaps
+
+### B1. Homepage Main-Content Blank Gap Is an Empty Inline Ad Row
+
+- Evidence: Live desktop browser measurement found three homepage ad containers. The first sits after category cards and before `How It Works`, slot `2127993591`, height `280px`, width `992px`, zero text, no iframe, and no `data-ad-status`. It follows heading `Generators` and precedes `How It Works`. Two additional empty inline containers measured `280px` and `250px`.
+- Likely root cause: Committed `AdRow` reserves `minHeight` of `280px` for multiplex ads or `250px` otherwise before fill status is known. `useAdSenseUnit` pushes ads but does not observe `data-ad-status`, iframe insertion, unfilled status, or timeout failure, so empty slots remain visible.
+- Status: Confirmed live and in committed source.
+- Affected scope: Homepage and any non-tool routes where `useInlineAdsAllowed()` allows inline ads, including homepage, about, blog, and any future content pages using `AdRow`.
+- Priority: High UX fix.
+- Recommended isolated fix: In a dedicated ad-layout commit, make inline ad wrappers status-aware. Reserve space only once the lazy slot is being requested, collapse slots marked unfilled or blocked after a bounded timeout, and preserve filled ad dimensions. Validate homepage desktop/mobile, blog/about pages, and at least one page with multiple inline ads.
+
+### B2. Sidebar Ad Slots Are Unfilled But Still Occupy Rail Space
+
+- Evidence: Live `/tools/` desktop showed two sidebar ads, both `data-ad-status="unfilled"`, with visible heights `634px` and `284px`. Live `/tools/text-to-speech/` showed four sidebar ads, all `unfilled`, each about `284px` high.
+- Likely root cause: `SidebarAd` always reserves `height + 25px`, and sidebar-sized `AdSpace` placements are allowed even where inline ads are disabled.
+- Status: Confirmed live.
+- Affected scope: Desktop tool/listing layouts with side ad rails.
+- Priority: Medium. Less likely to create the reported main vertical gap, but still creates visible empty ad surfaces.
+- Recommended isolated fix: Keep sidebar slots independently eligible. A later sidebar placement must still request and display normally even when an earlier sidebar slot is unfilled. Any future sidebar collapse or placeholder behavior must be per-slot, status-aware, and validated without gating the whole sidebar stack.
+
+### B3. Ad-Gap Fix Has Been Continued and Validated Locally
+
+- Evidence: Current worktree has uncommitted edits in `src/hooks/useAdSenseUnit.ts`, `AdRow.tsx`, `AdSpace.tsx`, `LazyAdSpace.tsx`, `FixedSizeAd.tsx`, `InFeedAd.tsx`, and `SidebarAd.tsx`. The phase now adds shared per-slot status tracking, observes AdSense `data-ad-status` and iframe insertion, collapses only inline placements on `unfilled`/blocked states, treats `filled` and `unfill-optimized` as visible, and leaves sidebar placements independently mounted/reserved.
+- Likely root cause: The live gap came from unconditional inline ad reservation. Sidebar empty space is a separate rail/monetization behavior and must not be fixed by suppressing the whole sidebar stack.
+- Status: Confirmed in source and validated locally against production build output. Not committed or published.
+- Affected scope: Local worktree only.
+- Priority: High process note.
+- Recommended isolated fix: If accepted, stage only the ad hook/component files plus this audit update in a dedicated ad-layout commit after one final git diff review. Do not mix with SEO links, contrast, metadata, or unrelated tool changes.
+
+### B4. Future Ad-Behavior Decision: Inline Collapse, Sidebar Per-Slot Independence
+
+- Evidence: User direction on 2026-07-27: empty inline placements should collapse only while unfilled and expand/display normally when AdSense fills them. Sidebar placements should remain a vertical sequence of independently eligible slots; later slots must remain able to display even if earlier slots are unfilled. Source validation: `AdRow` owns inline placements and can be made status-aware per component instance. `ToolAdSidebar` renders two independent `SidebarAd` children per side, but `SidebarAd` currently does not expose fill/unfill state to its wrapper.
+- Likely root cause: The current live gap is caused by unconditional inline reservation, while the sidebar concern is a separate layout/monetization decision. Treating all ad containers with one global collapse rule could accidentally suppress later sidebar opportunities after an earlier no-fill.
+- Status: Implemented locally in the current ad-layout phase and validated against current component boundaries. Not committed or published.
+- Affected scope: Inline `AdRow` placements on homepage/content pages; sidebar rails in `ToolAdSidebar` and `SidebarAd`; any generic ad wrappers that may be reused in both contexts.
+- Priority: High for the next ad-layout implementation phase.
+- Policy validation: Google AdSense documents that AdSense adds `data-ad-status` after an ad request, including `filled`, `unfilled`, and `unfill-optimized`; Google also documents that publishers may hide unfilled ad units with CSS or JavaScript and may use `MutationObserver` to react to status changes. Google warns against loading AdSense units as initially hidden because the request may not execute. Google also permits limited responsive ad code modifications when they do not violate placement/program policies or artificially inflate ad performance.
+- Technical constraints:
+  - Do not set AdSense `<ins>` elements to `display: none` before the ad request is made.
+  - Before pushing an ad request, the parent container must have enough width for AdSense to calculate a responsive size.
+  - Inline slots may briefly reserve the expected size while a visible/in-viewport request is pending; after confirmed no-fill or bounded timeout failure, the inline wrapper should collapse.
+  - Treat `data-ad-status="filled"` and detected child iframes as filled. Treat `data-ad-status="unfilled"` as collapsible. Treat `data-ad-status="unfill-optimized"` conservatively: do not collapse unless later manual validation shows the optimized state is truly empty and policy-safe to hide.
+  - Timeout-based "blocked" state is a fallback for script/ad-block/network failure and must not permanently suppress future slots globally.
+  - Sidebar state must remain local to each `SidebarAd`; no shared parent flag should remove the whole `<aside>` or prevent the second slot from requesting.
+- Acceptance criteria for implementation:
+  - Inline: an empty `AdRow` collapses after its own slot reports `data-ad-status="unfilled"` or after a bounded no-status/no-iframe failure timeout.
+  - Inline: a filled `AdRow` remains visible and keeps a stable, appropriate display area.
+  - Inline: an `AdRow` is not initialized as `display:none`, and the request is made only after the slot is measurable and eligible.
+  - Inline: homepage gap before `How It Works` is gone when the inline slot is unfilled, with normal section spacing retained.
+  - Sidebar: each `SidebarAd` owns its own request/status. Slot 2 still mounts, requests, and can display if slot 1 is unfilled.
+  - Sidebar: the parent `ToolAdSidebar` does not collapse solely because one child slot is unfilled.
+  - Sidebar: any hidden/unfilled sidebar wrapper behavior is per-slot and does not remove later eligible placements.
+  - Validation: desktop and mobile checks cover homepage, `/tools/`, one category page, and one tool page. At least one synthetic/manual status check verifies `filled`, `unfilled`, and timeout paths without changing unrelated SEO/link behavior.
+
+## Track 3: SEO, Crawlability, Metadata, and Internal Links
+
+### C1. Runtime Tool Cards Still Expose Too Few Crawlable Tool Anchors Live
+
+- Evidence: Live browser-rendered homepage reported only 6 `/tools/` anchors. Live `/tools/` also reported only 6 `/tools/` anchors, despite showing many tool cards. Committed `ToolCard` renders a `div`, while listings in `Index.tsx`, `AllTools.tsx`, and `CategoryTools.tsx` navigate through click handlers. Local generated `build/tools/index.html` from current source contains 162 unique tool hrefs in fallback HTML.
+- Likely root cause: The static fallback generation improved raw HTML, but the React runtime still uses click-only cards on live. Crawlers and accessibility tools benefit from real anchors in the rendered app too.
+- Status: Confirmed live and in source. A partial semantic-link refactor exists uncommitted but is not validated/published.
+- Affected scope: Homepage, `/tools/`, category pages, related tools/cards in blogs/tool layouts.
+- Priority: High.
+- Recommended isolated fix: In a separate internal-link phase, convert tool/category/related cards to semantic `Link` elements without nested interactive controls. Validate rendered anchor counts, keyboard focus, card layout, and search/filter behavior.
+
+### C2. Generated Build Has Better Route-Specific Fallback Than The Original Generic Pattern
+
+- Evidence: Current `npm.cmd run build` passed and generated route fallback for 198 sitemap URLs. `build/tools/text-to-speech/index.html` has fallback H1 `Text to Speech`. `build/tools/index.html` has fallback H1 `All Free Online Tools` and 162 unique tool hrefs.
+- Likely root cause: Phase 1 fallback generation in `scripts/prerender-meta.mjs` is working locally.
+- Status: Confirmed in local build. Live deployment/cache alignment should still be verified after each deploy because live text extraction of the homepage can still show a small generic fallback/link set in some external tools.
+- Affected scope: Non-JavaScript/partial-render crawlers and AI text extraction.
+- Priority: High positive baseline with deployment-verification risk.
+- Recommended isolated fix: Add a post-deploy check that fetches live raw HTML for `/`, `/tools/`, one category, and representative tools and verifies route-specific H1 plus expected link counts.
+
+### C3. Live Text-to-Speech Metadata Is Duplicated After React Loads
+
+- Evidence: Live rendered `/tools/text-to-speech/` head had two canonical tags with the same URL, two meta descriptions with different content, duplicate robots tags, duplicate Open Graph titles/URLs, and 7 JSON-LD blocks: `Organization`, `WebSite`, `SoftwareApplication`, `ItemList`, `BreadcrumbList`, `FAQPage`, `ProfessionalService`.
+- Likely root cause: Base/prerender metadata and runtime `SEOHead` both emit route metadata. Several tool pages also render both page-level `SEOHead` and `ToolLayout`, while `ToolLayout` itself renders SEO.
+- Status: Confirmed live and in source.
+- Affected scope: Tool pages and possibly hub pages with mixed SEO ownership.
+- Priority: High.
+- Recommended isolated fix: Establish one SEO owner. Either let `ToolLayout` own standard tool SEO and remove page-level duplicates, or add an explicit `disableSeo`/metadata override path. Validate rendered head counts for representative pages.
+
+### C4. Route, Sitemap, and Tool Inventory Are Inconsistent
+
+- Evidence: Source/build coverage script found 162 concrete tool routes, 162 sitemap tool paths, 152 `allTools.ts` entries, 151 unique `allTools.ts` paths, and 162 unique tool hrefs in generated `/tools/` fallback. Sitemap/tool routes missing from `allTools.ts`: `/tools/ai-chat`, `/tools/bracket-matcher`, `/tools/email-validator`, `/tools/hex-converter`, `/tools/lorem-ipsum-pro`, `/tools/number-base-converter`, `/tools/premium-plagiarism-ai-tool`, `/tools/rgb-converter`, `/tools/roman-numeral-converter`, `/tools/temperature-converter`, `/tools/user-agent-parser`. Duplicate `allTools.ts` path: `/tools/images-to-pdf`.
+- Likely root cause: `App.tsx`, sitemap generation, and `allTools.ts` are maintained separately.
+- Status: Confirmed.
+- Affected scope: Internal link equity, browse/search coverage, category pages, sitemap consistency.
+- Priority: High.
+- Recommended isolated fix: Create one tool registry or generate sitemap/listings from the same canonical source. First decide whether all 11 missing routes should be public/indexable; then add/remove consistently.
+
+### C5. Title Generation Can Truncate Important Search Snippets
+
+- Evidence: `SEOHead.tsx` appends `| ToolMaster Pro`, then truncates final titles over 60 characters with `substring(0, 57) + "..."`. The PageSpeed/live rendered title examples include truncated brand text.
+- Likely root cause: Generic truncation is applied after automatic branding rather than authoring titles to fit.
+- Status: Confirmed in source and prior live observations.
+- Affected scope: Search snippets and social previews.
+- Priority: Medium.
+- Recommended isolated fix: Remove automatic truncation for titles. Use route-specific authored titles/descriptions that fit recommended lengths and avoid double-branding.
+
+## Track 4: Desktop Performance and Accessibility
+
+### D1. Desktop Lighthouse Baseline Is Usable But Has Clear First-Party Opportunities
+
+- Evidence: User-provided PageSpeed desktop report: Performance 85, Accessibility 96, Best Practices 77, SEO 100; FCP 0.9s, LCP 2.0s, TBT 10ms, CLS 0, Speed Index 2.1s. LCP element is the hero H1 with about 3.07s render delay.
+- Likely root cause: Hero render timing depends on JS/CSS/app hydration and third-party script contention, even though core metrics are not catastrophic.
+- Status: Confirmed from user-provided desktop report. Mobile is out of scope for this report.
+- Affected scope: Homepage desktop lab performance.
+- Priority: Medium.
+- Recommended isolated fix: Profile desktop homepage after ad-gap and SEO-link changes. Keep hero content and critical CSS lean; avoid adding more startup JS.
+
+### D2. Third-Party Ads and FundingChoices Add Significant Payload
+
+- Evidence: PageSpeed desktop report attributes substantial transfer and unused JavaScript to Google/Doubleclick Ads and Google FundingChoices. Direct AdSense script fetch returned `200 OK` with `Content-Length: 200777`.
+- Likely root cause: AdSense/FundingChoices scripts load early and bring additional ad-quality and consent resources. Some of this is inherent to AdSense.
+- Status: Confirmed from PageSpeed report and direct script check.
+- Affected scope: Performance, Best Practices, ad review UX.
+- Priority: Medium-High.
+- Recommended isolated fix: Do not remove AdSense arbitrarily. First fix empty-slot behavior. Later, evaluate whether script loading can be delayed until after primary content without violating AdSense requirements or harming revenue.
+
+### D3. Non-Composited Animations Are Widespread
+
+- Evidence: PageSpeed desktop report flags 160 non-composited animated elements, mostly color, border, and shadow transitions. Source scan finds many `transition-all`, `hover:shadow`, `hover:-translate-y`, and border/color hover transitions in cards, header, footer, and tool UI.
+- Likely root cause: Broad Tailwind `transition-all` and hover shadow/color transitions are used across reusable components.
+- Status: Confirmed from PageSpeed report and source scan.
+- Affected scope: Homepage card grids and many tool pages.
+- Priority: Medium.
+- Recommended isolated fix: Replace broad `transition-all` on common cards/buttons with targeted `transition-transform`, `transition-colors`, or no transition where appropriate. Keep this separate from semantic-link changes unless the same component is already being validated.
+
+### D4. Low Contrast On `Use Tool` Card CTA Labels
+
+- Evidence: PageSpeed Accessibility report flags multiple `Use Tool` labels. Committed `ToolCard` uses `text-primary/70` for the non-hover CTA, which can be low contrast against card backgrounds.
+- Likely root cause: Alpha-reduced primary text on dark/card background.
+- Status: Confirmed from PageSpeed report and source.
+- Affected scope: Tool cards on homepage/listing/category pages.
+- Priority: Medium.
+- Recommended isolated fix: Use a stronger accessible color for the CTA text, such as `text-primary` or `text-foreground`, and verify contrast on light/dark themes. If done during semantic-link work, explicitly validate contrast as part of that same component phase.
+
+### D5. `llms.txt` Needs Agent-Friendly Markdown Links
+
+- Evidence: `public/llms.txt` has a valid H1 (`# ToolMaster Pro`) and useful sections, but navigation entries are plain paths like `Home: /` rather than Markdown links. PageSpeed Agentic Browsing reported `llms.txt` does not follow recommendations and "File does not appear to contain any links."
+- Likely root cause: Plain text paths are not parsed as links by the PageSpeed/agentic browsing audit.
+- Status: Confirmed in source; live `llms.txt` fetch was intermittently unavailable from local curl during this audit, so live content should be rechecked after deploy/cache.
+- Affected scope: AI-agent/agentic browsing discoverability, not classic SEO score.
+- Priority: Low-Medium.
+- Recommended isolated fix: Convert `llms.txt` navigation/resources to absolute Markdown links, e.g. `[All Tools](https://toolmaster.cloud/tools/)`, and keep the H1. Validate live `llms.txt` after deployment.
+
+### D6. Heavy Assets Remain A Performance Risk If Loaded Eagerly
+
+- Evidence: Production build output includes large WASM/JS assets, including ffmpeg WASM around 32 MB, ONNX runtime WASM around 24 MB, HEIC conversion chunk around 1.36 MB, and several large PDF/XLSX chunks. Vite warns that some chunks exceed 1000 kB.
+- Likely root cause: Tool-specific media/PDF/AI dependencies are present; most should remain lazy-loaded by route or user action.
+- Status: Confirmed in build output; actual homepage waterfall impact needs a trace.
+- Affected scope: Heavy media/PDF/AI tools, mobile and desktop performance if imports become eager.
+- Priority: Medium.
+- Recommended isolated fix: Audit route-level waterfalls before changing. Ensure heavy conversion libraries are not statically imported into shared/home bundles.
+
+## Extended Track A: Visibility and Qualified-User Acquisition
+
+Goal: improve crawlability, indexability, qualified organic discovery, and trustworthy conversion paths without promising rankings, traffic, AdSense approval, or revenue.
+
+### VA1. Search Console Readiness and Ownership Are Not Verifiable From Source
+
+- Evidence: Source scan found no `google-site-verification` token, no Google tag/analytics ID, and no repository-controlled Search Console integration. Google Search Console requires property ownership verification before URL Inspection, indexing reports, sitemap monitoring, and crawl diagnostics can be reviewed. Official Google docs recommend adding/verifying a property, using URL Inspection for individual pages, and submitting/monitoring sitemaps through Search Console.
+- Likely root cause: Search Console is account-side and may exist outside the repository, but the repo has no visible verification or measurement artifact.
+- Status: Unconfirmed externally; source-confirmed absence of visible verification/analytics tags.
+- Affected scope: Acquisition diagnostics, crawl/index coverage debugging, sitemap monitoring, and issue validation.
+- Priority: High.
+- Risk: Without Search Console access, repository checks can confirm public availability but cannot explain "0 traffic", Google-selected canonicals, crawl discovery source, manual actions, security issues, or sitemap processing errors.
+- Remediation scope: External account setup plus optional small repository token only if the user chooses URL-prefix verification. Prefer a Domain property via DNS when possible.
+- Acceptance criteria:
+  - A `toolmaster.cloud` Domain property is verified in Search Console, or a URL-prefix property is intentionally verified with a documented method.
+  - `https://toolmaster.cloud/sitemap.xml` is submitted and visible in the Sitemaps report.
+  - URL Inspection live tests are run for homepage, `/tools/`, one category, Text-to-Speech, one PDF tool, one image tool, and one SEO tool.
+  - Representative inspections show crawl allowed, indexing allowed, `200` availability, rendered HTML, and expected user-declared canonical.
+
+### VA2. Technical Eligibility Baseline Is Mostly Present, But Availability Monitoring Is Still Needed
+
+- Evidence: Earlier live checks returned `200 OK` for homepage, robots, ads.txt, sitemap HEAD, Googlebot homepage, and Mediapartners-Google on Text-to-Speech. `robots.txt` allows `/`, `/assets/`, `/tools/`, `/category/`, and `/blog/`, and lists `Sitemap: https://toolmaster.cloud/sitemap.xml`. Later command-line `curl.exe`/PowerShell fetches intermittently returned connection failures or `000`, while the in-app browser could still load and interact with live pages.
+- Likely root cause: The site is publicly live now, but there may be transient local-network, edge, DNS, TLS, or rate/connection issues affecting command-line clients. Browser success means this is not enough evidence to call the site down.
+- Status: Partially confirmed; current browser availability confirmed, intermittent command-line failures confirmed from this environment.
+- Affected scope: Search crawling, AdSense review, monitoring confidence, and external tool audits.
+- Priority: High.
+- Risk: If the intermittent failures also occur for Googlebot/AdsBot from other networks, crawl and AdSense review could be affected. If they are local-only, code changes would not help.
+- Remediation scope: Monitoring/deployment diagnostics, not broad SEO code changes.
+- Acceptance criteria:
+  - From at least two external networks/tools, homepage, `/tools/`, sitemap, robots, ads.txt, and representative tool URLs return stable `200` or intended redirects.
+  - Search Console Crawl Stats and URL Inspection do not show fetch errors for submitted sitemap URLs.
+  - Any observed downtime includes timestamp, client, DNS result, TLS result, status/error, and affected URL before code remediation is considered.
+
+### VA3. Metadata and Structured Data Still Need One Owner
+
+- Evidence: Live Text-to-Speech rendered duplicate canonical, description, robots, OG, and multiple JSON-LD blocks after React loads. Source shows static metadata in `index.html`, route rewriting in `scripts/prerender-meta.mjs`, shared runtime metadata in `SEOHead`, tool-level `SEOHead`/`Helmet` usage, `ToolLayout` schema, and breadcrumb schema components. Google structured data guidelines require markup to represent visible page content and warn that misleading/irrelevant/hidden structured data can lose rich-result eligibility.
+- Likely root cause: Static fallback SEO, runtime shared SEO, and page-specific SEO were added independently.
+- Status: Confirmed live and in source.
+- Affected scope: All routes, especially tools with both page-level metadata and `ToolLayout` metadata.
+- Priority: High.
+- Risk: Duplicates can confuse canonicalization/snippets and structured data eligibility; fabricated ratings or non-visible structured data can create trust/policy risk.
+- Remediation scope: One SEO ownership phase only; do not mix with ad/layout or tool functionality fixes.
+- Acceptance criteria:
+  - Each route renders one canonical, one meta description, one robots directive, one OG URL/title/description set, and one Twitter URL/title/description set.
+  - JSON-LD is route-relevant, visible-content-aligned, and avoids unsupported or unverifiable claims such as aggregate ratings unless real rating data exists.
+  - Rich Results Test and URL Inspection do not report structured data errors for representative routes.
+
+### VA4. Runtime Internal Linking Is Still Too Sparse For Discovery
+
+- Evidence: Earlier live browser checks found only about 6 tool anchors on homepage/runtime listing views, while generated fallback HTML exposes 162 tool links. Google's link best practices state that crawlable links should be `<a>` elements with `href` attributes and that every important page should be linked from at least one other page.
+- Likely root cause: Many visible cards used click handlers/buttons rather than semantic anchors; a partial semantic-link refactor exists uncommitted but is not validated/published.
+- Status: Confirmed live; local partial fix unvalidated.
+- Affected scope: Homepage, all-tools, category pages, related tools, blog-related cards.
+- Priority: High.
+- Risk: Google may discover sitemap URLs, but sparse runtime anchors weaken crawl paths, PageRank flow, anchor context, keyboard accessibility, and user navigation.
+- Remediation scope: Runtime internal-link phase across cards/listings only.
+- Acceptance criteria:
+  - Homepage, `/tools/`, category pages, related tools, and blog/tool CTAs expose real anchors with descriptive text or accessible names.
+  - Rendered React anchor counts align with visible card counts.
+  - No nested interactive controls are introduced.
+  - Keyboard focus and click behavior remain correct on desktop and mobile.
+
+### VA5. Search-Intent Coverage and Content Usefulness Are Uneven
+
+- Evidence: Some pages contain useful, intent-specific content and examples, such as WiFi QR Generator and Backlink Checker. Many `allTools.ts` descriptions are short or boilerplate, and `ToolLayout` supplies generic FAQ/benefit text across tools. About page copy includes high-trust claims such as "Serving thousands of users daily" and metadata says "Trusted by millions" without source evidence found in the repo. Google helpful-content guidance emphasizes people-first content, clear purpose, first-hand value, and transparency about who/how/why content is created.
+- Likely root cause: Large tool expansion appears to use shared templates with inconsistent depth per tool.
+- Status: Confirmed in source samples; needs page-by-page content QA.
+- Affected scope: Tool pages, category pages, About page, homepage value proposition, AdSense quality review.
+- Priority: Medium-High.
+- Risk: Thin/duplicated/generic content can reduce user trust and make many tool pages look interchangeable. Unsupported usage claims can harm trust.
+- Remediation scope: Content backlog, prioritized by high-intent tools and categories; avoid fabricated claims.
+- Acceptance criteria:
+  - Top-priority tool pages each include unique visible copy explaining what the tool does, correct inputs/outputs, privacy/data handling, limitations, examples, and troubleshooting.
+  - Repeated FAQ/benefit blocks are customized or reduced where they add no new information.
+  - Unsupported traffic/trust claims are removed or backed by real evidence.
+  - Category pages summarize the category with useful distinctions and link to top tasks, not just card lists.
+
+### VA6. Trust, Legal, Contact, and Consent Signals Exist But Need Verification
+
+- Evidence: Repository includes `/about`, `/contact`, `/privacy-policy`, `/terms-of-service`, `/cookie-policy`, `/disclaimer`, and `/dmca`. Contact page displays an email address and a contact form that posts to `/api-proxy.php`. Cookie consent text mentions personalized ads/content and traffic analysis, but no analytics tag was found in source; AdSense scripts are present.
+- Likely root cause: Trust pages were added, but operational verification and consent behavior were not fully audited.
+- Status: Partially confirmed in source and live browser; contact delivery untested.
+- Affected scope: User trust, AdSense suitability, support flow, legal/compliance presentation.
+- Priority: Medium-High.
+- Risk: A broken contact form or inaccurate consent/usage claims can reduce trust and review quality.
+- Remediation scope: Trust/legal/contact verification phase, separate from SEO metadata.
+- Acceptance criteria:
+  - Contact form submit path is tested end-to-end or the page clearly provides a reliable email fallback.
+  - Privacy/cookie pages accurately describe current AdSense, cookies, analytics, local processing, external APIs, and contact handling.
+  - About page claims are truthful and supportable.
+  - Cookie choices are respected for any non-essential analytics/measurement introduced later.
+
+### VA7. Analytics and Conversion Measurement Are Not Established In Source
+
+- Evidence: Source scan found no `gtag`, Google Analytics measurement ID, Plausible/PostHog/Umami/Clarity snippet, conversion event tracking, or Search Console verification token. `index.html` includes DNS prefetch for Google Analytics but no analytics loader.
+- Likely root cause: Measurement may be absent or configured outside this repo.
+- Status: Source-confirmed absence; account-side unconfirmed.
+- Affected scope: Diagnosing "0 organic traffic", identifying qualified-user acquisition, measuring tool starts/completions/downloads, and prioritizing reliability QA by real usage.
+- Priority: Medium.
+- Risk: Without measurement, remediation priority is guesswork and improvements cannot be tied to acquisition or tool usage.
+- Remediation scope: Measurement plan and consent-aware implementation only after the user chooses analytics tooling.
+- Acceptance criteria:
+  - A measurement plan defines primary events: page view, tool start, tool success, tool error, download/copy, outbound external dependency click, contact submit.
+  - Analytics respects consent requirements and does not collect tool input contents or uploaded file data.
+  - Search Console and analytics are linked or at least reviewed together for landing-page/query/tool performance.
+
+### VA8. Core Web Vitals and Page Experience Should Be Treated As Acquisition Hygiene
+
+- Evidence: Desktop PageSpeed report is usable but not perfect: Performance 85, Accessibility 96, Best Practices 77, SEO 100; LCP 2.0s, CLS 0, TBT 10ms, and hero H1 render delay about 3.07s. Google Core Web Vitals guidance recommends good LCP, INP, and CLS, and Search Console includes Core Web Vitals/Page Experience reports.
+- Likely root cause: Third-party ads/FundingChoices, broad transitions, empty ad slots, and app hydration contend with first paint and page experience.
+- Status: Confirmed for desktop PageSpeed report only; field data unconfirmed.
+- Affected scope: Homepage desktop acquisition and user trust; mobile not covered by this PageSpeed report.
+- Priority: Medium.
+- Risk: Lab scores alone do not prove field experience, but obvious first-party issues should still be fixed after ad/layout and SEO-link phases.
+- Remediation scope: Desktop performance/accessibility phase after ad and metadata fixes.
+- Acceptance criteria:
+  - Search Console CWV report is reviewed for field LCP/INP/CLS by URL group.
+  - Desktop homepage remains at or above current metric baseline after fixes.
+  - First-party changes reduce blank slots, low contrast labels, broad non-composited transitions, and unnecessary startup work.
+
+## Extended Track B: Tool Reliability and Functional QA
+
+Goal: verify that qualified users landing on tool pages can complete core actions successfully across representative categories, with clear error handling and known dependency risks.
+
+### TR1. Tool Inventory Has Multiple Sources That Do Not Agree
+
+- Evidence: Source inventory found 167 `/tools/` route entries in `App.tsx`, 167 `.tsx` files in `src/pages/tools`, and 152 `allTools.ts` entries with 151 unique paths. `/tools/images-to-pdf` appears twice in `allTools.ts`. Earlier route/sitemap comparison found 162 concrete tool routes and 11 routes missing from `allTools.ts`.
+- Likely root cause: Routes, page files, sitemap generation, generated fallback links, and visible tool listings are maintained separately.
+- Status: Confirmed.
+- Affected scope: Tool discovery, category coverage, sitemap coverage, QA coverage, and navigation.
+- Priority: High.
+- Risk: Some real tools may be invisible from listings, while duplicated entries dilute category quality and confuse QA priorities.
+- Remediation scope: Registry coverage phase after semantic links; no behavior changes until route/listing policy is chosen.
+- Acceptance criteria:
+  - One canonical tool registry drives route inventory checks, sitemap inclusion, fallback links, category listing, and QA manifests.
+  - Redirect-only legacy routes are explicitly marked and not counted as separate canonical tools.
+  - Duplicate listing entries are removed or intentionally represented in multiple categories with a canonical primary path.
+  - A CI/read-only script fails when route/listing/sitemap coverage diverges.
+
+### TR2. Representative Low-Dependency Tools Passed Basic Live Smoke Checks
+
+- Evidence: Live browser smoke checks confirmed:
+  - Word Counter accepted sample text and displayed word/character/reading metrics.
+  - JSON Formatter formatted compact valid JSON into formatted output.
+  - QR Code Generator generated a QR output and download option from a URL input.
+- Likely root cause: These tools rely mostly on deterministic client-side logic and local browser APIs.
+- Status: Confirmed basic desktop live smoke only; not exhaustive correctness QA.
+- Affected scope: Text Tools, Developer Tools, QR & Barcodes representative confidence.
+- Priority: Medium positive baseline.
+- Risk: Passing one happy path does not cover invalid input, copy/download actions, mobile layout, or edge cases.
+- Remediation scope: Add repeatable smoke tests/harness before broad tool rewrites.
+- Acceptance criteria:
+  - For each priority tool, automated or documented smoke covers page load, core input, core action, visible output, invalid input/error, copy/download if present, and no console crash.
+  - Smoke checks run at desktop and mobile viewports for top-priority categories.
+  - Test fixtures avoid uploading private/user data.
+
+### TR3. Text-to-Speech Is Browser-Capability Dependent
+
+- Evidence: Live Text-to-Speech rendered textarea, voice selector, Play/Stop controls, and the new system/browser availability notice. In this in-app browser, `window.speechSynthesis` was unavailable, so playback could not be validated. Source uses `speechSynthesis.getVoices()`, `speechSynthesis.onvoiceschanged`, `SpeechSynthesisUtterance`, and `speechSynthesis.speak()`.
+- Likely root cause: Text-to-Speech depends on the browser/system Web Speech API and installed voices; availability varies by environment.
+- Status: UI confirmed; playback unconfirmed in this browser; dependency confirmed in source.
+- Affected scope: Text-to-Speech functionality, mobile/desktop support messaging, user expectations.
+- Priority: High for this specific tool because it is a visible, user-reported focus.
+- Risk: Browsers without Web Speech support may show controls that cannot work unless detection disables or explains them.
+- Remediation scope: TTS reliability phase, separate from SEO/ad work.
+- Acceptance criteria:
+  - Supported browsers with voices: voice list populates, sample text speaks, Stop cancels playback, speed/pitch apply.
+  - Unsupported browsers: controls are disabled or a clear message explains that browser/system speech support is unavailable.
+  - Empty voices: page explains that no system/browser voices were reported and suggests trying another browser/device without implying the site provides server voices.
+  - Mobile and desktop layout keep the notice visible before controls.
+
+### TR4. External/API-Dependent Tools Need Explicit Dependency QA
+
+- Evidence: Source scan found network/proxy dependencies: Currency Converter fetches `https://api.exchangerate-api.com/v4/latest/USD`; API Tester posts through `/api-proxy.php`; Backlink Checker posts through `/api-proxy.php` to `api.commonbacklinks.com`; Domain Age Checker uses `/api-proxy.php`, `whois.freeaitools.me`, IANA RDAP bootstrap, RDAP servers, and API Ninjas fallback. Website Speed Test links users to external testing services.
+- Likely root cause: Browser CORS, API quotas, and third-party availability require proxy/external services for some tools.
+- Status: Source-confirmed; runtime external success not validated.
+- Affected scope: SEO & Marketing tools, Developer Tools, Calculators, and any tool claiming live external data.
+- Priority: High.
+- Risk: External outages, missing API keys, CORS failures, proxy downtime, or quota limits can make tools appear broken even if the React UI loads.
+- Remediation scope: Dependency audit and smoke tests per external-service family.
+- Acceptance criteria:
+  - Each external-dependent tool lists its dependency type in an internal QA manifest.
+  - Happy path and failure path are tested with timeout, invalid input, and offline/proxy failure.
+  - UI explains when data is third-party/live and when results are estimates or fallbacks.
+  - No tool silently fabricates external metrics without labeling them as estimates/sample data.
+
+### TR5. Heavy Client-Side Processing Tools Need Fixture-Based QA
+
+- Evidence: Source scan found heavy local libraries: PDF Merger uses `pdf-lib`; Image to Text uses `tesseract.js`; Video Trimmer uses `@ffmpeg/ffmpeg` and local FFmpeg utilities. Build output previously showed large WASM/media chunks. Many image/PDF/video tools use FileReader, Blob, canvas, object URLs, and downloads.
+- Likely root cause: Privacy-first client-side processing shifts correctness, memory, and performance risk into the browser.
+- Status: Source-confirmed; fixture processing not run in this audit.
+- Affected scope: PDF Tools, Image Tools, Video Tools, File Converters, OCR tools.
+- Priority: High for user trust and tool success.
+- Risk: Large assets can fail on mobile/low-memory browsers, workers/WASM can be blocked by CSP/headers, and output correctness may regress silently.
+- Remediation scope: Fixture QA suite plus targeted manual browser checks.
+- Acceptance criteria:
+  - Small known fixtures exist for PDF merge/split/text extract, image convert/compress/resize, OCR, and video trim/compress paths.
+  - Each fixture test validates output existence, approximate size/type, expected text/page count/dimensions/duration where feasible, and visible error handling.
+  - Mobile checks verify controls remain usable and large-file limits are clearly communicated.
+  - Heavy libraries remain lazy-loaded and do not enter homepage/listing bundles.
+
+### TR6. Camera, Clipboard, Download, and Permission Features Need Capability Fallbacks
+
+- Evidence: Source inventory found QR/Barcode scanner tools and multiple tools using clipboard/download/browser APIs. Permission-dependent tools are likely affected by browser/device policy, insecure contexts, and user denial.
+- Likely root cause: Feature availability varies by browser, device, HTTPS context, and permissions.
+- Status: Source-confirmed; not fully tested.
+- Affected scope: QR Scanner, Barcode Scanner, WiFi QR, generators with copy/download actions, file tools.
+- Priority: Medium-High.
+- Risk: A tool can pass page-load checks but fail at the moment of user value if camera, clipboard, or download APIs are blocked.
+- Remediation scope: Capability and permission QA pass.
+- Acceptance criteria:
+  - Each permission/API-dependent tool detects missing support before action.
+  - Permission denial displays an actionable message without breaking the page.
+  - Copy/download alternatives are available where practical.
+  - HTTPS-only features are not offered as if they work in unsupported contexts.
+
+### TR7. Mobile/Desktop Usability Needs Representative Category Coverage
+
+- Evidence: `ToolLayout` is responsive and sidebars hide below `lg`, but complex tools such as API Tester, Video Trimmer, Backlink Checker, image editors, and PDF tools have dense controls. Only limited desktop live smoke was performed in this audit.
+- Likely root cause: Large tool surface area and generated UI patterns make broad manual responsive QA expensive.
+- Status: Unconfirmed broad coverage; source risk confirmed.
+- Affected scope: All categories, especially complex tools with many controls.
+- Priority: Medium.
+- Risk: Mobile users may encounter overflow, hidden controls, blocked downloads, or unusable upload/edit flows even when desktop works.
+- Remediation scope: Representative viewport QA by category.
+- Acceptance criteria:
+  - At minimum, desktop `1440x1000` and mobile `390x844` checks cover one representative from Text, Developer, QR, PDF, Image, Video, Calculator, SEO, File Converter, and AI/Content categories.
+  - Checks record page load, first input visibility, primary action visibility, output area visibility, no horizontal overflow, no ad/content overlap, and no unusable sticky/sidebar behavior.
+  - Findings are linked to isolated component or page fixes.
+
+### TR8. Recommended Tool Reliability QA Order
+
+- Evidence: Popular flags, route coverage, dependency scans, and live smoke results identify a practical first pass.
+- Likely root cause: There is no visible test matrix or automated smoke suite for the tool catalog.
+- Status: Proposed based on confirmed inventory and dependency signals.
+- Affected scope: QA planning and remediation sequencing.
+- Priority: High planning item.
+- Risk: Testing randomly across 160+ tools will miss high-value failures and consume time without improving acquisition/user trust.
+- Remediation scope: Audit/test planning before implementation.
+- Acceptance criteria:
+  - Phase 1 low-dependency smoke: Word Counter, JSON Formatter, QR Code Generator, Password Generator, Case Converter, Unit/Tip/Loan calculators.
+  - Phase 2 external/API smoke: Currency Converter, API Tester, Backlink Checker, Domain Age Checker, Website Speed Test, IP Lookup.
+  - Phase 3 heavy fixture smoke: PDF Merger/Splitter/Text, Image Compressor/Converter/OCR, Video Trimmer/Compressor, Excel/CSV converters.
+  - Phase 4 browser capability smoke: Text-to-Speech, QR Scanner, Barcode Scanner, clipboard/download-heavy tools.
+  - Results are stored in this audit or a linked QA matrix before broad fixes are implemented.
+
+## Ordered Isolated Fix Plan
+
+1. **Ad layout gap phase**: Completed locally, pending review/commit/deploy approval. Inline slots now collapse only after per-slot no-fill/blocked status and display normally when filled. Sidebar slots remain independently eligible; slot 2 still mounts/reserves independently if slot 1 is unfilled. Final commit scope should stage only ad hook/component files plus this audit update.
+2. **Runtime internal links phase**: Convert tool/category/related cards from click-only divs to semantic links. Validate rendered anchor counts, keyboard focus, and no nested interactive controls. Stage only card/listing/link files.
+3. **SEO ownership phase**: Make one owner for canonical, descriptions, robots, OG/Twitter, and JSON-LD. Validate live/rendered head counts on homepage, `/tools/`, a category, Text-to-Speech, and a tool with custom metadata.
+4. **Tool registry coverage phase**: Reconcile `App.tsx`, `allTools.ts`, sitemap generation, and generated fallback link lists. Resolve the 11 missing inventory entries and `/tools/images-to-pdf` duplicate intentionally.
+5. **Search Console and measurement phase**: Verify Search Console property status, submit/monitor sitemap, run URL Inspection on representative routes, and define consent-aware analytics/conversion events if the user wants measurement in source.
+6. **Deployment/header phase**: Confirm Hostinger-supported header configuration. Add HSTS/COOP/CSP header improvements only after testing AdSense, popups, workers, and WASM.
+7. **Desktop accessibility/performance phase**: Fix `Use Tool` contrast and broad `transition-all` patterns in reusable components. Rerun desktop PageSpeed after the above changes.
+8. **Tool reliability QA phase**: Build a representative smoke matrix by category/dependency type before broad tool fixes. Start with low-dependency tools, then external/API tools, then heavy local-processing tools, then browser capability tools.
+9. **Agentic browsing phase**: Update `llms.txt` to include Markdown links and validate live fetch.
+
+## User Decisions Required
+
+- Sidebar behavior is now defined at the architectural level: preserve a vertical sequence of independently eligible sidebar slots. A later sidebar slot must not be removed or blocked because an earlier slot is unfilled. A remaining product decision is whether each individual unfilled sidebar slot should fully collapse, remain as a small labeled placeholder, or use another compliant fallback.
+- Confirm whether to continue from the existing uncommitted ad/link partial edits or restart those phases cleanly from `origin/main`.
+- Confirm access/control for Hostinger headers or deployment configuration before header remediation.
+- Check AdSense account review/policy center after the fresh review completes; repository checks cannot reveal account-side rejection reasons.
+- Confirm Search Console access and whether Domain property verification can be done via DNS.
+- Choose whether to add analytics/conversion measurement, and if yes choose a consent-aware provider and event scope.
+- Confirm whether tool reliability QA results should stay in this audit document or move to a separate detailed QA matrix linked from the audit.
+
+## Current Verification Summary
+
+- Site is currently reachable to normal and crawler user agents from audit checks.
+- AdSense publisher ID and `ads.txt` alignment are correct.
+- Live ads are loading as requests/frames in some slots but are unfilled. Homepage inline ad rows created confirmed blank gaps on live/current deployed code; the local worktree now validates a status-aware fix that collapses unfilled inline rows.
+- Local generated build has improved fallback/internal link coverage, but runtime React still exposes too few crawlable anchors.
+- Duplicate metadata remains live.
+- Desktop PageSpeed issues are actionable but should be handled after isolated ad/layout and SEO-link phases.
+
+## Implementation Log - Ad/Layout Remediation
+
+### 2026-07-27 Phase 1: Status-Aware Ad Slot Layout
+
+- Scope: Ad layout/state behavior only. No SEO metadata, internal-link, tool-functionality, account, or deployment changes were made in this phase.
+- Change: `useAdSenseUnit` now reports per-slot lifecycle status (`idle`, `requested`, `filled`, `unfilled`, `unfill-optimized`, `blocked`) by observing AdSense `data-ad-status`, inserted iframes, width eligibility, and a bounded no-status timeout. Inline ad components (`AdRow`, generic inline `AdSpace`, `LazyAdSpace`, `FixedSizeAd`, `InFeedAd`) stay mounted but collapse their own wrapper on `unfilled`/blocked states. Filled and `unfill-optimized` states remain visible/reserved. Sidebar placements (`SidebarAd` and sidebar-sized `AdSpace`/vertical `LazyAdSpace`) remain independently mounted/reserved so later slots can still request/display even if earlier slots are unfilled.
+- Policy/evidence basis: Google AdSense documentation confirms `data-ad-status` values including `filled`, `unfilled`, and `unfill-optimized`, and documents using CSS/JavaScript plus `MutationObserver` to hide unfilled ad units. The implementation does not initialize AdSense `<ins>` elements as `display:none`; lazy inline slots keep a measurable wrapper before request, then reserve normal height while requested/filled and collapse only after no-fill/blocked evidence.
+- Verification: `npm run build` passed, generated `sitemap.xml` with 198 canonical URLs, and prerendered metadata/fallback content for 198 sitemap URLs.
+- Desktop local browser verification: In a production-build preview with deterministic fake AdSense statuses, homepage inline slots were `1px` while idle, collapsed to `0px` with `aria-hidden="true"` when fake `data-ad-status="unfilled"`, expanded to `280px`/`250px` with iframe children when fake `data-ad-status="filled"`, and remained visible/reserved for fake `data-ad-status="unfill-optimized"`. The homepage gap before `How It Works` was removed under the unfilled condition, leaving normal section spacing.
+- Desktop sidebar verification: On `/tools?fakeAdStatus=unfilled`, sidebar slots `5628599414` and `7110517063` both remained mounted and visible/reserved at about `634px` and `284px` respectively. On `/tools/text-to-speech?fakeAdStatus=unfilled`, all four sidebar slots (`5628599414`, `7110517063`, `4153181237`, `7713152297`) remained mounted and independently reserved at about `284px` each.
+- Mobile verification: At `390x844`, homepage inline unfilled slots collapsed to `0px`. On `/tools/text-to-speech?fakeAdStatus=unfilled`, sidebar containers measured `0px` because their responsive columns are hidden on mobile, so they did not create mobile gaps.
+- Affected files: `src/hooks/useAdSenseUnit.ts`, `src/components/AdRow.tsx`, `src/components/AdSpace.tsx`, `src/components/LazyAdSpace.tsx`, `src/components/FixedSizeAd.tsx`, `src/components/InFeedAd.tsx`, `src/components/SidebarAd.tsx`, and this audit document.
+- Risk/interaction: The local test strips the external AdSense script only in a temporary local preview and injects fake statuses to exercise the same status observer path; repository files were not modified for the test harness. Live fill/account behavior remains account-side and cannot be guaranteed. This phase is not committed or deployed yet.
+
+## Implementation Log - SEO/Crawlability Remediation
+
+### 2026-07-27 Phase 1: Runtime Crawlable Internal Links
+
+- Scope: Runtime navigation surfaces only; ad-slot files and tool functionality were intentionally left untouched.
+- Evidence before/after: Source review found route discovery in header nav, tool cards, category cards, blog cards, category navigation, homepage CTAs, legal-page return links, and related content using script-only click behavior in several visible places. Updated those visible route-discovery controls to React Router `Link`/`Button asChild` anchors so crawlers and keyboard users receive real `href` attributes at runtime.
+- Remaining intentional script navigation: Homepage search still redirects exact search matches programmatically; 404 "Go Back" still uses browser history; share components still read `window.location.href` for sharing.
+- Status: Source/build/browser validation complete in this isolated SEO pass. Generated `/tools/` fallback HTML contains all previously missing tool links, and hydrated `/tools` renders 189 root anchors with 168 root tool anchors.
+- Affected files: `src/components/Header.tsx`, `src/components/ToolCard.tsx`, `src/components/CategoryCard.tsx`, `src/components/BlogPostCard.tsx`, `src/components/OptimizedHero.tsx`, `src/components/ToolLayout.tsx`, `src/pages/Index.tsx`, `src/pages/AllTools.tsx`, `src/pages/CategoryTools.tsx`, `src/pages/BlogPostDetail.tsx`, `src/pages/About.tsx`, `src/pages/NotFound.tsx`, and legal policy pages.
+- Risk/interaction: No ad behavior or content policy behavior changed. Button styling is preserved through `asChild` where existing design-system buttons were route links.
+
+### 2026-07-27 Phase 2: Metadata and Structured Data Ownership
+
+- Scope: Shared live-route metadata/schema ownership only; individual tool functionality and ad components were left untouched.
+- Evidence before: Static prerendered meta/canonical tags were not marked as Helmet-managed, so hydrated React routes could append duplicate title/description/canonical/robots/OG/Twitter ownership. Shared visual components (`Breadcrumbs`, `FAQ`, `ToolFAQ`) also emitted JSON-LD scripts outside the page-level `SEOHead` owner.
+- Change: Mark generated fallback meta/canonical/alternate head tags as `data-rh="true"` in `scripts/prerender-meta.mjs` so React Helmet can replace them during hydration. Kept generated JSON-LD outside Helmet management after local browser validation showed marking JSON-LD as Helmet-managed removed JSON-LD scripts after hydration. Removed direct JSON-LD emission from shared `Breadcrumbs`, homepage `FAQ`, and `ToolFAQ`; homepage and shared tool FAQ schemas now flow through `SEOHead`. Removed unverified shared aggregate-rating markup from the default `ToolLayout` software-application schema.
+- Verification: `npm run build` passed and prerendered 198 sitemap URLs. Static checks on homepage, `/tools/`, `/category/developer-tools/`, and `/tools/text-to-speech/` found 1 title, 1 marked description, 1 marked canonical, preserved JSON-LD, and crawlable fallback anchors. Local hydrated browser checks at `http://127.0.0.1:4183/`, `/tools`, `/category/developer-tools`, and `/tools/text-to-speech` found one canonical, one description, one robots tag, one OG URL, and 7 JSON-LD scripts on each representative route.
+- Residual: Legacy direct JSON-LD emitters remain in a few bespoke tool pages and in schema/code generator sample output. They should be handled in a later isolated schema-cleanup pass if the user wants complete component-level consolidation.
+- Risk/interaction: No live deployment was performed. Static JSON-LD remains as generated fallback data; this avoids JSON-LD disappearing during hydration while eliminating shared duplicate runtime emitters.
+
+### 2026-07-27 Phase 3: Tool Registry, Route, and Sitemap Coverage
+
+- Scope: `allTools` listing/discovery registry only; no tool implementations were modified.
+- Evidence before: `App.tsx` concrete routes, `allTools.ts`, and the generated sitemap were out of sync. The listing registry missed concrete routes for AI Chat, Bracket Matcher, Email Validator, Hex Converter, Lorem Ipsum Pro, Number Base Converter, AI Plagiarism Checker, RGB Converter, Roman Numeral Converter, Temperature Converter, and User Agent Parser. `/tools/images-to-pdf` appeared twice in `allTools`.
+- Change: Added the missing route-backed tools to `src/data/allTools.ts` with existing Lucide icons and truthful descriptions. Removed the duplicate `/tools/images-to-pdf` listing from Image Tools while preserving its PDF Tools listing.
+- Verification: Source inventory now reports 162 concrete non-legacy tool routes, 162 unique `allTools` paths, and 162 sitemap tool URLs, with no duplicate `allTools` paths and no route/registry/sitemap gaps. `npm run build` regenerated `public/sitemap.xml` with 198 canonical URLs. Generated `/tools/` fallback HTML contains links for all previously missing paths plus one `/tools/images-to-pdf/` link. Local hydrated `/tools` route rendered 189 root anchors, 168 root tool anchors, one `/tools/images-to-pdf` anchor, and links for `/tools/ai-chat` and `/tools/text-to-speech`.
+- Risk/interaction: Category counts changed where the listing registry now includes previously undiscoverable tools. No sitemap/public diff remained after regeneration beyond source-controlled registry behavior.

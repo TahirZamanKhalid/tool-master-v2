@@ -1,6 +1,7 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { AdSpaceProps } from "./AdSpace";
+import type { AdSenseSlotStatus } from "@/hooks/useAdSenseUnit";
 import { ADSENSE_CLIENT, useAdSenseUnit } from "@/hooks/useAdSenseUnit";
 import { useInlineAdsAllowed } from "@/hooks/useInlineAdsAllowed";
 
@@ -30,10 +31,20 @@ export const LazyAdSpace = ({
 }: LazyAdSpaceProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [slotStatus, setSlotStatus] = useState<AdSenseSlotStatus>("idle");
   const inlineAdsAllowed = useInlineAdsAllowed();
   const config = FORMAT_CONFIG[format];
   const adSlot = slot || AD_SLOTS[format];
   const adAllowed = inlineAdsAllowed || format === "vertical";
+  const canCollapse = format !== "vertical";
+  const isCollapsedSlot = slotStatus === "unfilled" || slotStatus === "blocked";
+  const shouldReserveSpace =
+    !canCollapse ||
+    slotStatus === "requested" ||
+    slotStatus === "filled" ||
+    slotStatus === "unfill-optimized";
+  const isVisible = shouldReserveSpace && !(canCollapse && isCollapsedSlot);
+  const collapsedHeight = isCollapsedSlot ? "0px" : "1px";
 
   useAdSenseUnit({
     adRef,
@@ -42,6 +53,7 @@ export const LazyAdSpace = ({
     lazy: true,
     minWidth: 10,
     rootMargin: "250px",
+    onStatusChange: setSlotStatus,
   });
 
   if (!adAllowed) return null;
@@ -50,12 +62,18 @@ export const LazyAdSpace = ({
     <div
       ref={containerRef}
       className={`overflow-hidden ${className}`}
+      aria-hidden={canCollapse && !isVisible}
       style={{
-        minWidth: config.minWidth,
-        minHeight: config.minHeight,
         ...style,
+        minWidth: config.minWidth,
+        minHeight: isVisible ? config.minHeight : collapsedHeight,
+        height: isVisible ? undefined : collapsedHeight,
+        margin: isVisible ? style?.margin : 0,
+        opacity: isVisible ? 1 : 0,
+        pointerEvents: isVisible ? undefined : "none",
       }}
       data-ad-container-slot={adSlot}
+      data-ad-slot-status={slotStatus}
     >
       <ins
         ref={adRef}
@@ -65,7 +83,7 @@ export const LazyAdSpace = ({
           width: config.width,
           height: config.height,
           minWidth: config.minWidth,
-          minHeight: config.minHeight,
+          minHeight: isVisible ? config.minHeight : collapsedHeight,
         }}
         data-ad-client={ADSENSE_CLIENT}
         data-ad-slot={adSlot}

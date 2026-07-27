@@ -1,5 +1,6 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
+import type { AdSenseSlotStatus } from "@/hooks/useAdSenseUnit";
 import { ADSENSE_CLIENT, useAdSenseUnit } from "@/hooks/useAdSenseUnit";
 import { useInlineAdsAllowed } from "@/hooks/useInlineAdsAllowed";
 
@@ -34,12 +35,21 @@ export const AdRow = ({
 }: AdRowProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [slotStatus, setSlotStatus] = useState<AdSenseSlotStatus>("idle");
   const inlineAdsAllowed = useInlineAdsAllowed();
 
   const slotId = slot || MULTIPLEX_SLOTS["multiplex-1"];
   const isMultiplexAd = isMultiplex || Object.values(MULTIPLEX_SLOTS).includes(slotId);
   const adFormat = isMultiplexAd ? "autorelaxed" : format;
   const reservedHeight = minHeight ?? (isMultiplexAd ? 280 : 250);
+  const isCollapsedSlot = slotStatus === "unfilled" || slotStatus === "blocked";
+  const shouldReserveSpace =
+    !lazy ||
+    slotStatus === "requested" ||
+    slotStatus === "filled" ||
+    slotStatus === "unfill-optimized";
+  const isVisible = shouldReserveSpace && !isCollapsedSlot;
+  const collapsedHeight = isCollapsedSlot ? "0px" : "1px";
 
   useAdSenseUnit({
     adRef,
@@ -48,6 +58,7 @@ export const AdRow = ({
     lazy,
     minWidth: 10,
     rootMargin: "300px",
+    onStatusChange: setSlotStatus,
   });
 
   if (!inlineAdsAllowed) return null;
@@ -56,15 +67,21 @@ export const AdRow = ({
     <div
       ref={containerRef}
       className={className}
+      aria-hidden={!isVisible}
       style={{
+        ...style,
         display: "block",
         width: "100%",
         minWidth: "300px",
-        minHeight: `${reservedHeight}px`,
+        minHeight: isVisible ? `${reservedHeight}px` : collapsedHeight,
+        height: isVisible ? undefined : collapsedHeight,
         margin: "0 auto",
-        ...style,
+        overflow: "hidden",
+        opacity: isVisible ? 1 : 0,
+        pointerEvents: isVisible ? undefined : "none",
       }}
       data-ad-container-slot={slotId}
+      data-ad-slot-status={slotStatus}
     >
       <ins
         ref={adRef}
@@ -73,7 +90,7 @@ export const AdRow = ({
           display: "block",
           width: "100%",
           minWidth: "300px",
-          minHeight: `${reservedHeight}px`,
+          minHeight: isVisible ? `${reservedHeight}px` : collapsedHeight,
         }}
         data-ad-format={adFormat}
         data-full-width-responsive="true"
