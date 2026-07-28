@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { lazy, Suspense, useEffect } from "react";
@@ -209,8 +208,6 @@ const PremiumPlusUnitConverter = lazy(() => import("./pages/tools/PremiumPlusUni
 const PremiumPlusRandomNumberGenerator = lazy(() => import("./pages/tools/PremiumPlusRandomNumberGenerator"));
 const PremiumPlusMultiStopwatch = lazy(() => import("./pages/tools/PremiumPlusMultiStopwatch"));
 
-const queryClient = new QueryClient();
-
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-screen bg-background">
     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -224,14 +221,13 @@ const App = () => {
 
   return (
     <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
-            <CookieConsent />
-            <Suspense fallback={<LoadingFallback />}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ScrollToTop />
+          <CookieConsent />
+          <Suspense fallback={<LoadingFallback />}>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
@@ -416,10 +412,9 @@ const App = () => {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </Suspense>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
+          </Suspense>
+        </BrowserRouter>
+      </TooltipProvider>
     </HelmetProvider>
   );
 };

@@ -9,7 +9,7 @@ interface HeroProps {
   onSearch?: (query: string) => void;
 }
 
-const trendingPillClass = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-border/60 bg-card/60 text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/8 transition-all duration-200 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
+const trendingPillClass = "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border border-border/60 bg-card/60 text-muted-foreground hover:border-primary/50 hover:text-primary hover:bg-primary/8 transition-colors duration-200 backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2";
 
 const TrendingPill = memo(({ term, path, onClick }: { term: string; path?: string; onClick: (term: string) => void }) => {
   if (path) {
@@ -67,7 +67,7 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
     <section className="relative w-full overflow-hidden">
       {/* Background layers */}
       <div className="absolute inset-0 -z-20 gradient-hero" />
-      <div className="absolute inset-0 -z-10 pointer-events-none">
+      <div className="absolute inset-0 -z-10 pointer-events-none hidden md:block">
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         <div className="absolute -top-24 -left-24 w-[500px] h-[500px] bg-primary/8 rounded-full blur-3xl" />
         <div className="absolute -bottom-24 -right-24 w-[600px] h-[600px] bg-accent/6 rounded-full blur-3xl" />
@@ -103,7 +103,7 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
             className="mx-auto max-w-2xl w-full animate-fade-in-up"
             style={{ animationDelay: "0.15s" }}
           >
-            <div className="relative flex items-center gap-2 p-1.5 bg-card/80 backdrop-blur-xl border border-border/70 rounded-2xl shadow-card-hover focus-within:border-primary/50 focus-within:shadow-glow transition-all duration-300">
+            <div className="relative flex items-center gap-2 p-1.5 bg-card/80 backdrop-blur-xl border border-border/70 rounded-2xl shadow-card-hover focus-within:border-primary/50 focus-within:shadow-glow transition-[border-color,box-shadow] duration-300">
               <div className="relative flex-1">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
                 <Input
@@ -117,7 +117,7 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
               <Button
                 type="submit"
                 size="lg"
-                className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/25 transition-all hover:shadow-primary/40 shrink-0"
+                className="h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold shadow-lg shadow-primary/25 transition-[background-color,box-shadow] hover:shadow-primary/40 shrink-0"
               >
                 Search
               </Button>
