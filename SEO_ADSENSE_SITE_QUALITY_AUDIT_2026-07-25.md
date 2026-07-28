@@ -3,7 +3,7 @@
 Audit file maintained in: `SEO_ADSENSE_SITE_QUALITY_AUDIT_2026-07-25.md`
 
 Latest audit update: 2026-07-28
-Status: Active isolated remediation in progress. Current local-only changes cover sidebar/mobile ad expansion on tool pages and `llms.txt` link remediation. No publish/deploy was performed in this pass.
+Status: Active isolated remediation in progress. Current local-only changes cover render-blocking CSS delivery and first-viewport critical shell CSS. No publish/deploy was performed in this pass.
 Scope: `toolmaster.cloud`, current repository source, current generated `build/` output, the desktop-only PageSpeed Insights report captured 2026-07-25 13:39:13 GMT+5, and the newer user-provided Lighthouse summary for desktop/mobile performance.
 
 ## Change Policy
@@ -15,15 +15,13 @@ Scope: `toolmaster.cloud`, current repository source, current generated `build/`
 
 ## Current Worktree State
 
-Current checkout: detached `HEAD` at `8aa0117` (`Collapse unfilled inline ad slots`), after previously published crawlability/metadata and inline-ad-collapse work.
+Current checkout: detached `HEAD` at `b881427` (`Improve mobile startup performance`), after previously published crawlability/metadata, ad layout, `llms.txt`, and first performance-pass work.
 
 Current modified files before this audit-document update:
 
-- `public/llms.txt`
-- `src/components/AdRow.tsx`
-- `src/components/SidebarAd.tsx`
-- `src/components/ToolAdSidebar.tsx`
-- `src/components/ToolLayout.tsx`
+- `index.html`
+- `package.json`
+- `scripts/optimize-css-delivery.mjs`
 
 These are the only current uncommitted implementation files before this audit-document update. They were not pushed or deployed.
 
@@ -648,8 +646,21 @@ Goal: verify that qualified users landing on tool pages can complete core action
 - Rendered ad-layout regression verification: At `390x844`, `/tools/text-to-speech/` still had both sidebar asides hidden at `display:none` and `0x0`; sidebar ad slots remained inside hidden sidebars and the main mobile inline ad remained outside sidebars. At `1440x1000`, `/tools/text-to-speech/` still displayed both desktop sidebars as flex rails with independent sidebar ad slots and no mobile inline ad mounted on desktop. Desktop homepage retained the three large blurred hero layers.
 - Lint status: `npm.cmd run lint` was attempted. It still fails on pre-existing repo-wide lint debt in unrelated files (for example existing `no-explicit-any`, `no-empty-object-type`, missing `react/no-danger` rule, and hook dependency warnings). No lint errors were reported for `src/App.tsx`, `src/components/Header.tsx`, `src/components/MobileMenuSheet.tsx`, `src/components/OptimizedHero.tsx`, `src/index.css`, or `vite.config.ts`.
 - Validation limitation: The local in-app browser surface did not expose standard `performance.getEntriesByType`, so exact local FCP/LCP/TBT before/after timings were not measured. Build asset deltas and rendered DOM/animation/layout checks were used locally; live PageSpeed should be rerun after deployment to measure real mobile impact under Google's throttling and ad conditions.
-- Remaining performance backlog:
-  - CSS remains the main first-party render-blocking asset (`index` CSS about 126.5 kB raw / 19.8 kB gzip after this build). A later isolated phase should audit Tailwind/content usage and critical CSS opportunities before changing broad styling.
+
+### 2026-07-28 Phase 2: Render-Blocking CSS Delivery
+
+- Scope: First-party CSS delivery and first-viewport shell styling only. No ad component behavior, SEO metadata ownership, route registry, tool functionality, or broad design changes were made in this phase.
+- Supplied baseline evidence: The user-provided mobile Lighthouse report identified the first-party CSS asset at about 17.9 KiB transferred with about 750 ms render-blocking impact, plus hero H1 render delay around 3.1 s. The desktop report similarly identified about 17.8 KiB CSS with about 430 ms render-blocking impact.
+- Local investigation: Production build from `b881427` emitted a single global Tailwind/app CSS file (`assets/index-U4B_XOHt.css`) at `126.48 kB` raw / `19.82 kB` gzip. Source review found `src/main.tsx` imports one global `index.css`; route-level CSS splitting would require broad styling architecture work and was not a safe isolated fix. CSS reduction was also not clearly safe in this pass because the generated CSS covers the large shared tool/catalog surface.
+- Change: Added critical app-shell/hero/header CSS to the existing inline critical style block in `index.html` so the first viewport has usable background, text, header, hero, search, and button styling before the full stylesheet finishes. Added `scripts/optimize-css-delivery.mjs`, a final post-build step that rewrites every generated HTML file from a top-level blocking stylesheet link to a stylesheet preload with an `onload` stylesheet handoff and a `<noscript>` stylesheet fallback.
+- Build verification: `npm run build` passed. The build regenerated `sitemap.xml` with 198 canonical URLs, prerendered metadata/fallback content for 198 sitemap URLs, and then optimized non-blocking CSS delivery in 198 generated HTML files. The CSS asset remains `126.48 kB` raw / `19.82 kB` gzip; this phase changes delivery path rather than CSS payload size.
+- Generated HTML verification: Static checks on `build/index.html`, `build/tools/text-to-speech/index.html`, and `build/category/text-tools/index.html` found `0` top-level render-blocking stylesheet links, `1` CSS preload, `1` `<noscript>` stylesheet fallback, and the expected preload `onload` handoff. Final generated sizes checked locally: `build/index.html` `66,284` bytes raw / `12,798` gzip; `build/tools/text-to-speech/index.html` `35,397` bytes raw / `8,009` gzip.
+- Hydrated browser verification: A corrected local production static server plus headless Chrome checks were run for `/`, `/tools/`, `/category/text-tools/`, and `/tools/text-to-speech/` at mobile `390x844` and desktop `1440x1000`. All checked routes reported no horizontal overflow and the main CSS link reached `rel="stylesheet"` with `sheetLoaded: true` after the preload handoff. Mobile homepage still hid the three large hero blur layers; desktop homepage still displayed them.
+- Ad-layout regression verification: At `390x844`, `/tools/text-to-speech/` kept both sidebar `<aside>` elements at `display:none` and `0x0`; sidebar ad slots stayed inside hidden sidebars, while the one main-column mobile inline slot `1575962277` remained present and collapsed to about `1px` when unfilled/blocked locally. At `1440x1000`, `/tools/text-to-speech/` kept both desktop sidebars visible as `160px` flex rails with independent sidebar ad slots, and the mobile inline slot was not mounted in the desktop ad list.
+- Risk/interaction: The preload handoff currently uses an inline `onload` attribute, which is compatible with the current CSP because `script-src` already allows `'unsafe-inline'`. If CSP is hardened later, this handoff must be replaced with a nonce/external-script-compatible approach. The change should reduce Lighthouse's render-blocking stylesheet audit, but real FCP/LCP impact still needs a live PageSpeed rerun after deployment because third-party ads/consent scripts and network conditions remain material.
+- Affected files: `index.html`, `package.json`, `scripts/optimize-css-delivery.mjs`, and this audit document.
+- Remaining performance backlog after this phase:
+  - CSS payload size is still `126.48 kB` raw / `19.82 kB` gzip. A later isolated phase can investigate safe Tailwind utility reduction, component-level CSS cleanup, or a deeper critical-CSS strategy, but that would have a broader styling blast radius.
   - Third-party Google Ads and FundingChoices remain large mobile contributors. Do not remove or delay them without an ad-policy/revenue decision; consider only policy-safe loading strategy changes after validating ad delivery.
   - App-wide `TooltipProvider`, shadcn toast, and Sonner still load on initial routes. They may be candidates for a later isolated provider/toast lazy-load pass, but tool tooltip/toast behavior should be audited first.
   - Large lazy tool chunks and heavy WASM/assets remain correctly outside the initial homepage preload, but representative tool routes should be profiled separately before changing tool-level imports.
