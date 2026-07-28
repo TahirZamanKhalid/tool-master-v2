@@ -9,6 +9,7 @@ interface SidebarAdProps {
   className?: string;
   width?: number;
   height?: number;
+  collapseWhenEmpty?: boolean;
 }
 
 export const SidebarAd = ({
@@ -18,10 +19,20 @@ export const SidebarAd = ({
   className = "",
   width = 200,
   height = 600,
+  collapseWhenEmpty = false,
 }: SidebarAdProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [slotStatus, setSlotStatus] = useState<AdSenseSlotStatus>("idle");
+  const isCollapsedSlot =
+    collapseWhenEmpty && (slotStatus === "unfilled" || slotStatus === "blocked");
+  const shouldReserveSpace =
+    !collapseWhenEmpty ||
+    slotStatus === "requested" ||
+    slotStatus === "filled" ||
+    slotStatus === "unfill-optimized";
+  const isVisible = shouldReserveSpace && !isCollapsedSlot;
+  const collapsedHeight = isCollapsedSlot ? "0px" : "1px";
 
   useAdSenseUnit({
     adRef,
@@ -39,8 +50,16 @@ export const SidebarAd = ({
     <div
       ref={containerRef}
       aria-label={`${position === "left" ? "Left" : "Right"} advertisement ${index}`}
+      aria-hidden={collapseWhenEmpty && !isVisible}
       className={`overflow-hidden rounded-xl border border-border/60 bg-card ${className}`}
-      style={{ width: `${width}px`, minHeight: `${height + 25}px` }}
+      style={{
+        width: `${width}px`,
+        minHeight: isVisible ? `${height + 25}px` : collapsedHeight,
+        height: isVisible ? undefined : collapsedHeight,
+        borderWidth: isVisible ? undefined : 0,
+        opacity: isVisible ? 1 : 0,
+        pointerEvents: isVisible ? undefined : "none",
+      }}
       data-ad-container-slot={slot}
       data-ad-slot-status={slotStatus}
     >
@@ -53,7 +72,7 @@ export const SidebarAd = ({
         style={{
           display: "inline-block",
           width: `${width}px`,
-          height: `${height}px`,
+          height: isVisible ? `${height}px` : collapsedHeight,
         }}
         data-ad-client={ADSENSE_CLIENT}
         data-ad-slot={slot}

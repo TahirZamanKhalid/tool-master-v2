@@ -2,9 +2,9 @@
 
 Audit file maintained in: `SEO_ADSENSE_SITE_QUALITY_AUDIT_2026-07-25.md`
 
-Latest audit update: 2026-07-27
-Status: Active isolated remediation in progress. SEO/crawlability phases and the ad-layout phase are local worktree changes only; no publish/deploy was performed in this pass.
-Scope: `toolmaster.cloud`, current repository source, current generated `build/` output, and the desktop-only PageSpeed Insights report captured 2026-07-25 13:39:13 GMT+5.
+Latest audit update: 2026-07-28
+Status: Active isolated remediation in progress. Current local-only changes cover sidebar/mobile ad expansion on tool pages and `llms.txt` link remediation. No publish/deploy was performed in this pass.
+Scope: `toolmaster.cloud`, current repository source, current generated `build/` output, the desktop-only PageSpeed Insights report captured 2026-07-25 13:39:13 GMT+5, and the newer user-provided Lighthouse summary for desktop/mobile performance.
 
 ## Change Policy
 
@@ -15,25 +15,17 @@ Scope: `toolmaster.cloud`, current repository source, current generated `build/`
 
 ## Current Worktree State
 
-Current checkout: detached `HEAD` at `91499e4` (`origin/main`, `origin/HEAD`) with local `main` still at `f46eb1d`.
+Current checkout: detached `HEAD` at `8aa0117` (`Collapse unfilled inline ad slots`), after previously published crawlability/metadata and inline-ad-collapse work.
 
 Current modified files before this audit-document update:
 
+- `public/llms.txt`
 - `src/components/AdRow.tsx`
-- `src/components/AdSpace.tsx`
-- `src/components/CategoryCard.tsx`
-- `src/components/FixedSizeAd.tsx`
-- `src/components/InFeedAd.tsx`
-- `src/components/LazyAdSpace.tsx`
-- `src/components/ToolCard.tsx`
+- `src/components/SidebarAd.tsx`
+- `src/components/ToolAdSidebar.tsx`
 - `src/components/ToolLayout.tsx`
-- `src/hooks/useAdSenseUnit.ts`
-- `src/pages/AllTools.tsx`
-- `src/pages/BlogPostDetail.tsx`
-- `src/pages/CategoryTools.tsx`
-- `src/pages/Index.tsx`
 
-These are existing uncommitted remediation edits from before the audit-only instruction. They were not reverted or overwritten.
+These are the only current uncommitted implementation files before this audit-document update. They were not pushed or deployed.
 
 ## Evidence Collected
 
@@ -80,6 +72,42 @@ These are existing uncommitted remediation edits from before the audit-only inst
 - User-provided PageSpeed Insights report, desktop only:
   - Performance 85, Accessibility 96, Best Practices 77, SEO 100.
   - FCP 0.9s, LCP 2.0s, TBT 10ms, CLS 0, Speed Index 2.1s.
+- User-provided newer Lighthouse summary:
+  - Desktop: Performance 76, Accessibility 96, Best Practices 96, SEO 100, Agentic Browsing 2/2.
+  - Mobile: Performance 67.
+- Live `llms.txt` refresh on 2026-07-28:
+  - `https://toolmaster.cloud/llms.txt` returned `200 OK`, `Content-Type: text/plain`, served from the root path.
+  - Current live content still has plain entries such as `Home: /` and no Markdown links; local source/build now contains absolute Markdown links and requires deployment before live changes.
+
+## 2026-07-28 Current Status Snapshot
+
+### Already Implemented and Published Before This Pass
+
+- `75d390c` added the Text-to-Voice availability notice and the consolidated audit document.
+- `91499e4` added route-specific fallback HTML for sitemap URLs.
+- `4badab9` improved runtime crawlable links, metadata ownership, and route/registry/sitemap coverage.
+- `8aa0117` collapsed unfilled inline ad slots while preserving filled ad behavior.
+
+### Covered By Current Sidebar/Mobile Ad Task, Local Only
+
+- `ToolAdSidebar` now calculates a bounded desktop rail count from measured tool content height: minimum 2 slots per side, maximum 6 slots per side, distributed down the sidebar on long tool pages.
+- `SidebarAd` now remains independently eligible per slot while collapsing idle, unfilled, or blocked sidebar placements so empty rails do not show blank ad boxes. Requested, filled, and `unfill-optimized` states remain eligible to display normally.
+- `ToolLayout` measures the main tool column and passes that height to both desktop sidebars.
+- `ToolLayout` mounts one mobile-only horizontal inline ad inside the main content column after the tool widget; no sidebar slots reflow above or below mobile content.
+- `AdRow` gained an explicit `allowOnToolRoutes` opt-in so tool pages can use the single controlled mobile inline placement without reopening broad inline ads across tool pages.
+
+### Covered By Current `llms.txt` Task, Local Only
+
+- `public/llms.txt` now keeps the H1 and concise summary but replaces plain text paths with 27 absolute Markdown links to primary pages, category pages, representative tools, policy pages, sitemap, robots.txt, and ads.txt.
+- `npm run build` copied the updated file into `build/llms.txt`, confirming the production artifact will serve the updated root file after deployment.
+
+### Remaining Actionable Backlog
+
+- Post-deploy verification: live `/llms.txt`, desktop/mobile tool page sidebars, inline mobile ad behavior, and live AdSense fill/no-fill statuses.
+- AdSense account-side review/policy status remains external; repository checks cannot determine the account review result.
+- Search Console readiness, sitemap monitoring, URL Inspection, and external uptime monitoring still require account/external-tool access.
+- Header hardening, CSP/HSTS/COOP decisions, low-contrast `Use Tool` labels, broad non-composited transitions, and broader performance work remain separate phases.
+- Tool reliability testing remains intentionally deferred to conserve usage.
 
 ## Track 1: Live-Site Availability and AdSense Delivery/Visibility
 
@@ -150,18 +178,18 @@ These are existing uncommitted remediation edits from before the audit-only inst
 
 ### B3. Ad-Gap Fix Has Been Continued and Validated Locally
 
-- Evidence: Current worktree has uncommitted edits in `src/hooks/useAdSenseUnit.ts`, `AdRow.tsx`, `AdSpace.tsx`, `LazyAdSpace.tsx`, `FixedSizeAd.tsx`, `InFeedAd.tsx`, and `SidebarAd.tsx`. The phase now adds shared per-slot status tracking, observes AdSense `data-ad-status` and iframe insertion, collapses only inline placements on `unfilled`/blocked states, treats `filled` and `unfill-optimized` as visible, and leaves sidebar placements independently mounted/reserved.
-- Likely root cause: The live gap came from unconditional inline ad reservation. Sidebar empty space is a separate rail/monetization behavior and must not be fixed by suppressing the whole sidebar stack.
-- Status: Confirmed in source and validated locally against production build output. Not committed or published.
-- Affected scope: Local worktree only.
+- Evidence: Inline gap remediation was previously published in `8aa0117`. The current local pass extends the same per-slot state model to sidebar tool-page rails: `SidebarAd` collapses idle/unfilled/blocked sidebar slots, while requested/filled/`unfill-optimized` states remain display-eligible. `ToolAdSidebar` now renders a bounded, content-height-based vertical sequence of slots on desktop.
+- Likely root cause: The original main-page blank gap came from unconditional inline ad reservation. The current sidebar concern is separate: tool pages had too few sidebar opportunities on long desktop content and could show blank rail boxes when local/live AdSense did not fill.
+- Status: Confirmed in source and validated locally against production build output on desktop and mobile. Not committed or published.
+- Affected scope: Local worktree only; desktop tool-page sidebars and one controlled mobile inline placement in `ToolLayout`.
 - Priority: High process note.
-- Recommended isolated fix: If accepted, stage only the ad hook/component files plus this audit update in a dedicated ad-layout commit after one final git diff review. Do not mix with SEO links, contrast, metadata, or unrelated tool changes.
+- Recommended isolated fix: If accepted, stage only `AdRow.tsx`, `SidebarAd.tsx`, `ToolAdSidebar.tsx`, `ToolLayout.tsx`, `public/llms.txt`, and this audit update in the next dedicated commit. Do not mix with contrast, header, performance, or unrelated tool changes.
 
 ### B4. Future Ad-Behavior Decision: Inline Collapse, Sidebar Per-Slot Independence
 
-- Evidence: User direction on 2026-07-27: empty inline placements should collapse only while unfilled and expand/display normally when AdSense fills them. Sidebar placements should remain a vertical sequence of independently eligible slots; later slots must remain able to display even if earlier slots are unfilled. Source validation: `AdRow` owns inline placements and can be made status-aware per component instance. `ToolAdSidebar` renders two independent `SidebarAd` children per side, but `SidebarAd` currently does not expose fill/unfill state to its wrapper.
+- Evidence: User direction on 2026-07-27 and 2026-07-28: empty inline placements should collapse only while unfilled and expand/display normally when AdSense fills them. Sidebar placements should remain a vertical sequence of independently eligible slots; later slots must remain able to display even if earlier slots are unfilled. Current local source validation: `AdRow` owns inline placements per component instance; `ToolAdSidebar` renders 2-6 independent `SidebarAd` children per side based on measured content height; `SidebarAd` owns its own fill/unfill state and wrapper visibility.
 - Likely root cause: The current live gap is caused by unconditional inline reservation, while the sidebar concern is a separate layout/monetization decision. Treating all ad containers with one global collapse rule could accidentally suppress later sidebar opportunities after an earlier no-fill.
-- Status: Implemented locally in the current ad-layout phase and validated against current component boundaries. Not committed or published.
+- Status: Implemented locally in the current ad-layout/sidebar phase and validated against current component boundaries. Not committed or published.
 - Affected scope: Inline `AdRow` placements on homepage/content pages; sidebar rails in `ToolAdSidebar` and `SidebarAd`; any generic ad wrappers that may be reused in both contexts.
 - Priority: High for the next ad-layout implementation phase.
 - Policy validation: Google AdSense documents that AdSense adds `data-ad-status` after an ad request, including `filled`, `unfilled`, and `unfill-optimized`; Google also documents that publishers may hide unfilled ad units with CSS or JavaScript and may use `MutationObserver` to react to status changes. Google warns against loading AdSense units as initially hidden because the request may not execute. Google also permits limited responsive ad code modifications when they do not violate placement/program policies or artificially inflate ad performance.
@@ -171,13 +199,13 @@ These are existing uncommitted remediation edits from before the audit-only inst
   - Inline slots may briefly reserve the expected size while a visible/in-viewport request is pending; after confirmed no-fill or bounded timeout failure, the inline wrapper should collapse.
   - Treat `data-ad-status="filled"` and detected child iframes as filled. Treat `data-ad-status="unfilled"` as collapsible. Treat `data-ad-status="unfill-optimized"` conservatively: do not collapse unless later manual validation shows the optimized state is truly empty and policy-safe to hide.
   - Timeout-based "blocked" state is a fallback for script/ad-block/network failure and must not permanently suppress future slots globally.
-  - Sidebar state must remain local to each `SidebarAd`; no shared parent flag should remove the whole `<aside>` or prevent the second slot from requesting.
+  - Sidebar state must remain local to each `SidebarAd`; no shared parent flag should remove the whole `<aside>` or prevent later slots from requesting.
 - Acceptance criteria for implementation:
   - Inline: an empty `AdRow` collapses after its own slot reports `data-ad-status="unfilled"` or after a bounded no-status/no-iframe failure timeout.
   - Inline: a filled `AdRow` remains visible and keeps a stable, appropriate display area.
   - Inline: an `AdRow` is not initialized as `display:none`, and the request is made only after the slot is measurable and eligible.
   - Inline: homepage gap before `How It Works` is gone when the inline slot is unfilled, with normal section spacing retained.
-  - Sidebar: each `SidebarAd` owns its own request/status. Slot 2 still mounts, requests, and can display if slot 1 is unfilled.
+  - Sidebar: each `SidebarAd` owns its own request/status. Later slots still mount, request when eligible, and can display if an earlier slot is unfilled.
   - Sidebar: the parent `ToolAdSidebar` does not collapse solely because one child slot is unfilled.
   - Sidebar: any hidden/unfilled sidebar wrapper behavior is per-slot and does not remove later eligible placements.
   - Validation: desktop and mobile checks cover homepage, `/tools/`, one category page, and one tool page. At least one synthetic/manual status check verifies `filled`, `unfilled`, and timeout paths without changing unrelated SEO/link behavior.
@@ -233,10 +261,10 @@ These are existing uncommitted remediation edits from before the audit-only inst
 
 ### D1. Desktop Lighthouse Baseline Is Usable But Has Clear First-Party Opportunities
 
-- Evidence: User-provided PageSpeed desktop report: Performance 85, Accessibility 96, Best Practices 77, SEO 100; FCP 0.9s, LCP 2.0s, TBT 10ms, CLS 0, Speed Index 2.1s. LCP element is the hero H1 with about 3.07s render delay.
-- Likely root cause: Hero render timing depends on JS/CSS/app hydration and third-party script contention, even though core metrics are not catastrophic.
-- Status: Confirmed from user-provided desktop report. Mobile is out of scope for this report.
-- Affected scope: Homepage desktop lab performance.
+- Evidence: User-provided PageSpeed desktop report: Performance 85, Accessibility 96, Best Practices 77, SEO 100; FCP 0.9s, LCP 2.0s, TBT 10ms, CLS 0, Speed Index 2.1s. LCP element is the hero H1 with about 3.07s render delay. Newer user-provided Lighthouse summary reports desktop Performance 76, Accessibility 96, Best Practices 96, SEO 100, Agentic Browsing 2/2, and mobile Performance 67.
+- Likely root cause: Hero render timing depends on JS/CSS/app hydration and third-party script contention, even though core metrics are not catastrophic. The lower mobile score is consistent with mobile throttling plus the same first-party JS/CSS, third-party ad/consent work, DOM size, and heavy route assets if any leak into startup.
+- Status: Confirmed from user-provided reports and current build warnings. Detailed mobile waterfall not yet traced.
+- Affected scope: Homepage desktop and mobile lab performance.
 - Priority: Medium.
 - Recommended isolated fix: Profile desktop homepage after ad-gap and SEO-link changes. Keep hero content and critical CSS lean; avoid adding more startup JS.
 
@@ -269,12 +297,12 @@ These are existing uncommitted remediation edits from before the audit-only inst
 
 ### D5. `llms.txt` Needs Agent-Friendly Markdown Links
 
-- Evidence: `public/llms.txt` has a valid H1 (`# ToolMaster Pro`) and useful sections, but navigation entries are plain paths like `Home: /` rather than Markdown links. PageSpeed Agentic Browsing reported `llms.txt` does not follow recommendations and "File does not appear to contain any links."
-- Likely root cause: Plain text paths are not parsed as links by the PageSpeed/agentic browsing audit.
-- Status: Confirmed in source; live `llms.txt` fetch was intermittently unavailable from local curl during this audit, so live content should be rechecked after deploy/cache.
+- Evidence: Live `https://toolmaster.cloud/llms.txt` on 2026-07-28 returned `200 OK` as `text/plain` at the root path, but still contains plain paths like `Home: /` rather than Markdown links. PageSpeed Agentic Browsing previously reported `llms.txt` does not follow recommendations and "File does not appear to contain any links." Local `public/llms.txt` and generated `build/llms.txt` now contain 27 absolute Markdown links.
+- Likely root cause: Plain text paths are not parsed as links by the PageSpeed/agentic browsing audit; the live file has not yet received the local source/build fix.
+- Status: Confirmed live and fixed locally. Not committed, published, or deployed in this pass.
 - Affected scope: AI-agent/agentic browsing discoverability, not classic SEO score.
 - Priority: Low-Medium.
-- Recommended isolated fix: Convert `llms.txt` navigation/resources to absolute Markdown links, e.g. `[All Tools](https://toolmaster.cloud/tools/)`, and keep the H1. Validate live `llms.txt` after deployment.
+- Recommended isolated fix: Publish the local `public/llms.txt` change in an isolated commit/deploy, then validate live `https://toolmaster.cloud/llms.txt` returns the updated H1 and absolute Markdown links.
 
 ### D6. Heavy Assets Remain A Performance Risk If Loaded Eagerly
 
@@ -284,6 +312,15 @@ These are existing uncommitted remediation edits from before the audit-only inst
 - Affected scope: Heavy media/PDF/AI tools, mobile and desktop performance if imports become eager.
 - Priority: Medium.
 - Recommended isolated fix: Audit route-level waterfalls before changing. Ensure heavy conversion libraries are not statically imported into shared/home bundles.
+
+### D7. Current Lighthouse Snapshot Points To Performance Work, Not New SEO Blocking
+
+- Evidence: Newer user-provided Lighthouse summary reports SEO 100 and Agentic Browsing 2/2, while desktop Performance is 76 and mobile Performance is 67. Current production build continues to warn about large chunks and includes heavyweight assets such as ffmpeg WASM, ONNX runtime WASM, HEIC conversion, PDF, XLSX, and shared main/vendor chunks.
+- Likely root cause: Performance risk is more likely from render delay, third-party ads/consent scripts, CSS/JS startup cost, non-composited transitions, and heavyweight route assets than from classic indexability blockers.
+- Status: Evidence-backed hypothesis from user report plus build output; no broad performance remediation started in this pass.
+- Affected scope: Homepage and possibly shared app shell, with mobile more sensitive.
+- Priority: Medium-High after current ad/layout and `llms.txt` changes are reviewed.
+- Recommended isolated fix: Run a focused desktop/mobile Lighthouse trace after the current local changes are deployed or previewed in the real hosting environment. Then prioritize first-party startup work, transition cleanup, and route-level lazy-loading validation separately from ad placement changes.
 
 ## Extended Track A: Visibility and Qualified-User Acquisition
 
@@ -533,7 +570,7 @@ Goal: verify that qualified users landing on tool pages can complete core action
 
 ## Ordered Isolated Fix Plan
 
-1. **Ad layout gap phase**: Completed locally, pending review/commit/deploy approval. Inline slots now collapse only after per-slot no-fill/blocked status and display normally when filled. Sidebar slots remain independently eligible; slot 2 still mounts/reserves independently if slot 1 is unfilled. Final commit scope should stage only ad hook/component files plus this audit update.
+1. **Ad layout gap/sidebar phase**: Inline ad collapse has already been published in `8aa0117`. Current local sidebar/mobile expansion is validated but uncommitted/unpublished. Final commit scope should stage only `AdRow.tsx`, `SidebarAd.tsx`, `ToolAdSidebar.tsx`, `ToolLayout.tsx`, `public/llms.txt`, and this audit update if the user wants this combined current pass.
 2. **Runtime internal links phase**: Convert tool/category/related cards from click-only divs to semantic links. Validate rendered anchor counts, keyboard focus, and no nested interactive controls. Stage only card/listing/link files.
 3. **SEO ownership phase**: Make one owner for canonical, descriptions, robots, OG/Twitter, and JSON-LD. Validate live/rendered head counts on homepage, `/tools/`, a category, Text-to-Speech, and a tool with custom metadata.
 4. **Tool registry coverage phase**: Reconcile `App.tsx`, `allTools.ts`, sitemap generation, and generated fallback link lists. Resolve the 11 missing inventory entries and `/tools/images-to-pdf` duplicate intentionally.
@@ -541,11 +578,11 @@ Goal: verify that qualified users landing on tool pages can complete core action
 6. **Deployment/header phase**: Confirm Hostinger-supported header configuration. Add HSTS/COOP/CSP header improvements only after testing AdSense, popups, workers, and WASM.
 7. **Desktop accessibility/performance phase**: Fix `Use Tool` contrast and broad `transition-all` patterns in reusable components. Rerun desktop PageSpeed after the above changes.
 8. **Tool reliability QA phase**: Build a representative smoke matrix by category/dependency type before broad tool fixes. Start with low-dependency tools, then external/API tools, then heavy local-processing tools, then browser capability tools.
-9. **Agentic browsing phase**: Update `llms.txt` to include Markdown links and validate live fetch.
+9. **Agentic browsing phase**: Local `llms.txt` now includes absolute Markdown links and is present in `build/llms.txt`; publish and validate live root `/llms.txt`.
 
 ## User Decisions Required
 
-- Sidebar behavior is now defined at the architectural level: preserve a vertical sequence of independently eligible sidebar slots. A later sidebar slot must not be removed or blocked because an earlier slot is unfilled. A remaining product decision is whether each individual unfilled sidebar slot should fully collapse, remain as a small labeled placeholder, or use another compliant fallback.
+- Sidebar behavior is now defined and implemented locally: preserve a vertical sequence of independently eligible sidebar slots, collapse empty/idle/no-fill wrappers per slot, and let requested/filled slots display normally. A later sidebar slot must not be removed or blocked because an earlier slot is unfilled.
 - Confirm whether to continue from the existing uncommitted ad/link partial edits or restart those phases cleanly from `origin/main`.
 - Confirm access/control for Hostinger headers or deployment configuration before header remediation.
 - Check AdSense account review/policy center after the fresh review completes; repository checks cannot reveal account-side rejection reasons.
@@ -557,10 +594,10 @@ Goal: verify that qualified users landing on tool pages can complete core action
 
 - Site is currently reachable to normal and crawler user agents from audit checks.
 - AdSense publisher ID and `ads.txt` alignment are correct.
-- Live ads are loading as requests/frames in some slots but are unfilled. Homepage inline ad rows created confirmed blank gaps on live/current deployed code; the local worktree now validates a status-aware fix that collapses unfilled inline rows.
+- Live ads are loading as requests/frames in some slots but are unfilled. Homepage inline ad rows previously created confirmed blank gaps on live/current deployed code; `8aa0117` published the inline-collapse fix. The current local worktree further validates adaptive desktop sidebar slots and a single mobile inline tool-page placement.
 - Local generated build has improved fallback/internal link coverage, but runtime React still exposes too few crawlable anchors.
 - Duplicate metadata remains live.
-- Desktop PageSpeed issues are actionable but should be handled after isolated ad/layout and SEO-link phases.
+- Desktop/mobile Lighthouse performance issues are actionable but should be handled after isolated ad/layout and `llms.txt` phases are reviewed.
 
 ## Implementation Log - Ad/Layout Remediation
 
@@ -575,6 +612,25 @@ Goal: verify that qualified users landing on tool pages can complete core action
 - Mobile verification: At `390x844`, homepage inline unfilled slots collapsed to `0px`. On `/tools/text-to-speech?fakeAdStatus=unfilled`, sidebar containers measured `0px` because their responsive columns are hidden on mobile, so they did not create mobile gaps.
 - Affected files: `src/hooks/useAdSenseUnit.ts`, `src/components/AdRow.tsx`, `src/components/AdSpace.tsx`, `src/components/LazyAdSpace.tsx`, `src/components/FixedSizeAd.tsx`, `src/components/InFeedAd.tsx`, `src/components/SidebarAd.tsx`, and this audit document.
 - Risk/interaction: The local test strips the external AdSense script only in a temporary local preview and injects fake statuses to exercise the same status observer path; repository files were not modified for the test harness. Live fill/account behavior remains account-side and cannot be guaranteed. This phase is not committed or deployed yet.
+
+### 2026-07-28 Phase 2: Adaptive Tool-Page Sidebar and Mobile Ad Rules
+
+- Scope: Current tool-page ad layout only, plus the `llms.txt` source/build file. No broad performance, metadata, content, Search Console, or tool-functionality changes were made.
+- Change: `ToolLayout` now measures the center content column and passes its height to both desktop sidebars. `ToolAdSidebar` renders a bounded sequence of 2-6 independent slots per side, distributes them down long rails, and preserves separate left/right side slot pools. `SidebarAd` collapses idle, unfilled, and blocked wrappers per slot while keeping requested, filled, and `unfill-optimized` states display-eligible. `AdRow` now supports an explicit `allowOnToolRoutes` opt-in; `ToolLayout` uses it for one mobile-only horizontal inline ad after the tool widget.
+- Desktop validation: `npm run build` passed after the changes. In a local production-build browser check at `1440x1000`, `/tools/text-to-speech/` rendered 4 slots per side with `justify-content: space-between`, no mobile inline slot mounted on desktop, and empty/no-fill sidebar slots collapsed to `0-1px`. `/tools/backlink-checker/` rendered 6 slots per side with the rail height around `3186px`, `justify-content: space-between`, and unfilled/idle slots collapsed to `0-1px` rather than visible blank boxes.
+- Mobile validation: At `390x844`, `/tools/text-to-speech/` had both sidebar `<aside>` elements at `display:none`, all sidebar slot boxes measured `0x0`, no horizontal overflow was present, and the only mobile inline ad slot was inside the main content column, outside sidebars, collapsed to `0px` after local blocked/no-fill status.
+- Policy/evidence basis: Google AdSense guidance supports multiple ad units on long pages but emphasizes balance, user experience, and policy-compliant placement. The current implementation keeps later slots independently eligible and avoids collapsing a whole sidebar stack because one earlier slot is empty.
+- Affected files: `src/components/AdRow.tsx`, `src/components/SidebarAd.tsx`, `src/components/ToolAdSidebar.tsx`, `src/components/ToolLayout.tsx`, `public/llms.txt`, and this audit document.
+- Risk/interaction: The current local test could not verify real AdSense fill behavior, which is account/network dependent. Repeated use of the same existing ad unit IDs per side should be reviewed against the publisher's preferred AdSense unit strategy after deployment; the code preserves independent instances and does not guarantee fill, revenue, or approval.
+
+## Implementation Log - Agentic Browsing / `llms.txt`
+
+### 2026-07-28 Phase 1: Root `llms.txt` Links
+
+- Evidence before: Live `https://toolmaster.cloud/llms.txt` returned `200 OK` as `text/plain` at the root path, but the live body used plain text paths such as `Home: /` and `All Tools: /tools`; PageSpeed/Agentic Browsing can therefore report that the file appears to contain no links.
+- Change: `public/llms.txt` now keeps a concise H1 and summary, then lists primary pages, categories, representative tools, policy pages, sitemap, robots.txt, and ads.txt using absolute Markdown links.
+- Verification: `npm run build` passed and generated `build/llms.txt` with 27 `https://toolmaster.cloud` Markdown links. Because no deploy/push occurred in this pass, live `/llms.txt` still shows the old plain-path file until the local change is published.
+- Risk/interaction: This is a static root text file change only. It does not affect React runtime behavior, sitemap generation, or AdSense account status.
 
 ## Implementation Log - SEO/Crawlability Remediation
 

@@ -1,30 +1,47 @@
 # ToolMaster Pro
 
-> 100+ Free Online Tools for Professionals, Developers, and Students. No signup required, privacy-first, and browser-based.
+> ToolMaster Pro provides free browser-based tools for text, PDF, image, video, developer, SEO, marketing, calculator, generator, and business workflows. Most tools run in the user's browser without signup.
 
-## Core Categories
+ToolMaster Pro is organized around practical utility pages. Use the links below for canonical navigation, policies, and representative high-value tools.
 
-- AI & Content: Blog writers, rephrasers, hashtag generators.
-- Image Tools: Background remover, compressors, resizers, editors.
-- PDF Tools: Merger, splitter, compressor, text extractor.
-- Developer Tools: JSON formatter, Base64, UUID, SQL formatters.
-- SEO & Marketing: Meta tag generators, keyword density, sitemap tools.
-- Calculators: BMI, Currency, Loan, Percentage, TDEE.
-- Text Tools: Word counter, Case converter, Diff checker.
-- Media: Video trimmer, GIF maker, Video to GIF.
+## Primary Pages
 
-## Privacy & Security
+- [Home](https://toolmaster.cloud/): Overview of the ToolMaster Pro online tool collection.
+- [All Tools](https://toolmaster.cloud/tools/): Browse the full tool directory.
+- [Blog Guides](https://toolmaster.cloud/blog/): Tutorials and workflow guides.
+- [About](https://toolmaster.cloud/about/): Site background and tool philosophy.
+- [Contact](https://toolmaster.cloud/contact/): Contact page for support, feedback, and requests.
 
-Every tool runs locally in the user's browser using technologies like WASM, ffmpeg.wasm, and Transformers.js. Data is never uploaded to a server, ensuring 100% privacy and lightning-fast speed.
+## Tool Categories
 
-## Navigation
+- [AI & Content Tools](https://toolmaster.cloud/category/ai-content/): AI writing, rephrasing, captions, and content helpers.
+- [Image Tools](https://toolmaster.cloud/category/image-tools/): Browser-based image conversion, compression, editing, and OCR tools.
+- [Developer Tools](https://toolmaster.cloud/category/developer-tools/): Formatters, validators, encoders, minifiers, and API utilities.
+- [PDF Tools](https://toolmaster.cloud/category/pdf-tools/): PDF merge, split, compress, convert, and extract tools.
+- [SEO & Marketing Tools](https://toolmaster.cloud/category/seo-marketing/): Metadata, sitemap, keyword, and content-analysis tools.
+- [Calculators](https://toolmaster.cloud/category/calculators/): Finance, health, time, and unit calculators.
+- [Text Tools](https://toolmaster.cloud/category/text-tools/): Word counting, conversion, sorting, diffing, and text cleanup tools.
+- [Video Tools](https://toolmaster.cloud/category/video-tools/): Video trimming, compression, conversion, and GIF tools.
 
-- Home: /
-- All Tools: /tools
-- Categories: /category/[category-slug]
-- Blog: /blog
+## Representative Tools
 
-## Contact
+- [Word Counter](https://toolmaster.cloud/tools/premium-plus-word-counter/): Count words, characters, reading time, and text statistics.
+- [JSON Formatter](https://toolmaster.cloud/tools/json-formatter/): Format, validate, and minify JSON.
+- [Text to Speech](https://toolmaster.cloud/tools/text-to-speech/): Convert text to speech using browser and system voices.
+- [Background Remover](https://toolmaster.cloud/tools/background-remover/): Remove image backgrounds in the browser.
+- [PDF Merger](https://toolmaster.cloud/tools/pdf-merger/): Merge PDF files locally in the browser.
+- [QR Code Generator](https://toolmaster.cloud/tools/qr-code-generator/): Generate QR codes for links, text, and contact data.
 
-- About: /about
-- Contact: /contact
+## Policies
+
+- [Privacy Policy](https://toolmaster.cloud/privacy-policy/): Privacy and data-handling information.
+- [Terms of Service](https://toolmaster.cloud/terms-of-service/): Terms for using the site.
+- [Cookie Policy](https://toolmaster.cloud/cookie-policy/): Cookie and consent information.
+- [Disclaimer](https://toolmaster.cloud/disclaimer/): Scope and limitations of tools and information.
+- [DMCA Policy](https://toolmaster.cloud/dmca/): Copyright and takedown information.
+
+## Discovery Files
+
+- [Sitemap](https://toolmaster.cloud/sitemap.xml): Canonical URL list for crawl discovery.
+- [Robots.txt](https://toolmaster.cloud/robots.txt): Crawler access rules.
+- [Ads.txt](https://toolmaster.cloud/ads.txt): Authorized digital seller declaration.

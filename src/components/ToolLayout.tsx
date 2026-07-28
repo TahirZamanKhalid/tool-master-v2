@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link, useLocation } from "react-router-dom";
@@ -9,6 +9,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { ShareButtons } from "@/components/ShareButtons";
 import { ToolFAQ, getToolFAQSchema } from "@/components/ToolFAQ";
 import { ToolAdSidebar } from "@/components/ToolAdSidebar";
+import { AdRow } from "@/components/AdRow";
 import { AdWatchModal } from "@/components/AdWatchModal";
 import { blogPosts } from "@/data/blogPosts";
 import { toCanonicalUrl } from "@/utils/seo";
@@ -48,6 +49,51 @@ export const ToolLayout = ({
 }: ToolLayoutProps) => {
   const location = useLocation();
   const [adModalOpen, setAdModalOpen] = useState(false);
+  const contentColumnRef = useRef<HTMLDivElement>(null);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [renderMobileInlineAd, setRenderMobileInlineAd] = useState(false);
+
+  useEffect(() => {
+    const contentColumn = contentColumnRef.current;
+    if (!contentColumn || typeof window === "undefined") return;
+
+    const updateContentHeight = () => {
+      setContentHeight(Math.ceil(contentColumn.getBoundingClientRect().height));
+    };
+
+    updateContentHeight();
+
+    if (!("ResizeObserver" in window)) {
+      window.addEventListener("resize", updateContentHeight);
+      return () => window.removeEventListener("resize", updateContentHeight);
+    }
+
+    const observer = new ResizeObserver(updateContentHeight);
+    observer.observe(contentColumn);
+    window.addEventListener("resize", updateContentHeight);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateContentHeight);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const query = window.matchMedia("(max-width: 1023px)");
+    const updateMobileAdState = () => setRenderMobileInlineAd(query.matches);
+
+    updateMobileAdState();
+
+    if (query.addEventListener) {
+      query.addEventListener("change", updateMobileAdState);
+      return () => query.removeEventListener("change", updateMobileAdState);
+    }
+
+    query.addListener(updateMobileAdState);
+    return () => query.removeListener(updateMobileAdState);
+  }, []);
 
   /* ── SEO ── */
   const titleLower = title.toLowerCase();
@@ -237,10 +283,10 @@ export const ToolLayout = ({
           <div className="flex gap-4">
 
             {/* Left sidebar ad */}
-            <ToolAdSidebar side="left" />
+            <ToolAdSidebar side="left" contentHeight={contentHeight} />
 
             {/* ── Centre column ── */}
-            <div className="min-w-0 flex-1 space-y-5">
+            <div ref={contentColumnRef} className="min-w-0 flex-1 space-y-5">
 
               {/* Tool widget */}
               <div className="w-full overflow-hidden rounded-2xl border border-border/60 bg-card shadow-card">
@@ -248,6 +294,17 @@ export const ToolLayout = ({
                   {children}
                 </div>
               </div>
+
+              {renderMobileInlineAd && (
+                <div className="lg:hidden">
+                  <AdRow
+                    slot="1575962277"
+                    format="horizontal"
+                    minHeight={90}
+                    allowOnToolRoutes
+                  />
+                </div>
+              )}
 
               {/* How to use */}
               {instructions && (
@@ -355,7 +412,7 @@ export const ToolLayout = ({
             {/* end centre column */}
 
             {/* Right sidebar ad */}
-            <ToolAdSidebar side="right" />
+            <ToolAdSidebar side="right" contentHeight={contentHeight} />
 
           </div>
           {/* end 3-col flex */}

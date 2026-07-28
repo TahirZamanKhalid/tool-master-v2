@@ -13,6 +13,7 @@ export interface AdRowProps {
   format?: "auto" | "autorelaxed" | "fluid" | "horizontal" | "rectangle" | "vertical";
   isMultiplex?: boolean;
   minHeight?: number;
+  allowOnToolRoutes?: boolean;
 }
 
 const MULTIPLEX_SLOTS = {
@@ -32,11 +33,13 @@ export const AdRow = ({
   format = "auto",
   isMultiplex = false,
   minHeight,
+  allowOnToolRoutes = false,
 }: AdRowProps) => {
   const adRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [slotStatus, setSlotStatus] = useState<AdSenseSlotStatus>("idle");
   const inlineAdsAllowed = useInlineAdsAllowed();
+  const adAllowed = inlineAdsAllowed || allowOnToolRoutes;
 
   const slotId = slot || MULTIPLEX_SLOTS["multiplex-1"];
   const isMultiplexAd = isMultiplex || Object.values(MULTIPLEX_SLOTS).includes(slotId);
@@ -54,14 +57,14 @@ export const AdRow = ({
   useAdSenseUnit({
     adRef,
     containerRef,
-    enabled: inlineAdsAllowed,
+    enabled: adAllowed,
     lazy,
     minWidth: 10,
     rootMargin: "300px",
     onStatusChange: setSlotStatus,
   });
 
-  if (!inlineAdsAllowed) return null;
+  if (!adAllowed) return null;
 
   return (
     <div
