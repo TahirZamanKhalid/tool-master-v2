@@ -1,4 +1,4 @@
-﻿// pages/BackgroundRemover.tsx
+// pages/BackgroundRemover.tsx
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom"; // or next/link
 import { Button } from "@/components/ui/button";
@@ -815,7 +815,7 @@ const BackgroundRemover = () => {
               </div>
             </div>
             <div className="text-center text-gray-500 text-xs sm:text-sm py-4 border-t">
-              <p>(c) {new Date().getFullYear()} ToolMaster Cloud. All rights reserved.</p>
+              <p>© {new Date().getFullYear()} ToolMasterPro. All rights reserved.</p>
               <p className="mt-1">Free online tools for everyone. No signup required.</p>
             </div>
           </footer>

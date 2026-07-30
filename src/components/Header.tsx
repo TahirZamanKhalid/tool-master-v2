@@ -65,7 +65,7 @@ export const Header = () => {
             <span className="text-[18px] font-black tracking-tight text-foreground">
               ToolMaster<span className="text-primary">Pro</span>
             </span>
-            <span className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">150+ Free Tools</span>
+            <span className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">160+ Free Tools</span>
           </div>
         </Link>
 

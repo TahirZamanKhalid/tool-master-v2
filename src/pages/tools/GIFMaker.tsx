@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -679,7 +679,7 @@ const GIFMaker = () => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animated GIF - ToolMaster.cloud</title>
+  <title>Animated GIF - ToolMasterPro</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -839,7 +839,7 @@ const GIFMaker = () => {
 <body>
   <div class="container">
     <h1>🎬 Your Animated Creation</h1>
-    <p class="subtitle">Created with ToolMaster.cloud GIF Maker</p>
+    <p class="subtitle">Created with ToolMasterPro GIF Maker</p>
     
     <div class="canvas-wrapper">
       <canvas id="canvas" width="${width}" height="${height}"></canvas>
@@ -896,7 +896,7 @@ const GIFMaker = () => {
     </div>
     
     <div class="watermark">
-      Made with ❤️ using <a href="https://toolmaster.cloud" target="_blank">ToolMaster.cloud</a>
+      Made with ❤️ using <a href="https://toolmaster.cloud" target="_blank">ToolMasterPro</a>
     </div>
   </div>
 
@@ -1713,7 +1713,7 @@ const GIFMaker = () => {
           downloadAnimation();
         }}
         title="Watch ad to download your animation"
-        description="Support ToolMaster.cloud by watching this short ad to download your creation."
+        description="Support ToolMasterPro by watching this short ad to download your creation."
       />
     </>
   );

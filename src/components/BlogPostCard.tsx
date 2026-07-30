@@ -33,7 +33,8 @@ export const BlogPostCard = ({ post }: BlogPostCardProps) => {
                 <Calendar className="h-3 w-3" />
                 {new Date(post.date).toLocaleDateString('en-US', {
                   month: 'short',
-                  day: 'numeric'
+                  day: 'numeric',
+                  year: 'numeric'
                 })}
               </span>
               <span className="flex items-center gap-1">

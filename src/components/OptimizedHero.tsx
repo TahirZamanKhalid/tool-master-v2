@@ -81,7 +81,7 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
           <div className="flex justify-center animate-fade-in-down">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-semibold backdrop-blur-sm">
               <Sparkles className="h-4 w-4" />
-              150+ Free Professional Tools — No Sign-up Required
+              160+ Free Professional Tools — No Sign-up Required
             </div>
           </div>
 
@@ -108,7 +108,7 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
                 <Input
                   aria-label="Search tools"
-                  placeholder="Search 150+ tools… try 'PDF', 'QR', 'calculator'"
+                  placeholder="Search 160+ tools… try 'PDF', 'QR', 'calculator'"
                   className="h-12 pl-12 pr-4 bg-transparent border-0 ring-0 focus-visible:ring-0 text-sm font-medium placeholder:text-muted-foreground/60"
                   value={localSearch}
                   onChange={(e) => setLocalSearch(e.target.value)}
@@ -136,7 +136,7 @@ export const OptimizedHero = memo(({ searchQuery = "", onSearch }: HeroProps) =>
           <div className="flex flex-wrap justify-center gap-3 pt-2 animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
             <StatBadge icon={Zap} label="Instant & Free" />
             <StatBadge icon={Shield} label="Privacy First — Runs in Browser" />
-            <StatBadge icon={Sparkles} label="150+ Tools & Growing" />
+            <StatBadge icon={Sparkles} label="160+ Tools & Growing" />
           </div>
 
         </div>

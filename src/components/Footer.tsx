@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail, Shield, Zap, ArrowRight, Twitter, Linkedin, Github } from "lucide-react";
+import { Mail, Shield, Zap, ArrowRight, Twitter, Linkedin } from "lucide-react";
 
 export const Footer = () => {
   const year = new Date().getFullYear();
@@ -18,6 +18,7 @@ export const Footer = () => {
     { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/contact" },
     { label: "All Tools", href: "/tools" },
+    { label: "Sitemap", href: "/sitemap.xml", external: true },
   ];
 
   const legalLinks = [
@@ -43,7 +44,7 @@ export const Footer = () => {
               </div>
               <div className="leading-none">
                 <span className="font-black text-lg text-foreground">ToolMaster<span className="text-primary">Pro</span></span>
-                <p className="text-[11px] text-muted-foreground font-medium mt-0.5">150+ Free Online Tools</p>
+                <p className="text-[11px] text-muted-foreground font-medium mt-0.5">160+ Free Online Tools</p>
               </div>
             </div>
 
@@ -108,7 +109,7 @@ export const Footer = () => {
               ))}
               <li>
                 <Link to="/tools" className="text-sm text-primary font-semibold hover:underline">
-                  View All 150+ Tools →
+                  View All 160+ Tools →
                 </Link>
               </li>
             </ul>
@@ -120,12 +121,23 @@ export const Footer = () => {
             <ul className="space-y-2.5">
               {companyLinks.map((link) => (
                 <li key={link.href}>
-                  <Link
-                    to={link.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {link.label}
-                  </Link>
+                  {link.external ? (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link
+                      to={link.href}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

@@ -882,7 +882,7 @@ const DiceRoller = () => {
               </div>
             </div>
             <div className="text-center text-gray-500 text-xs sm:text-sm py-4 border-t">
-              <p>© {new Date().getFullYear()} ToolMaster Cloud. All rights reserved.</p>
+              <p>© {new Date().getFullYear()} ToolMasterPro. All rights reserved.</p>
             </div>
           </footer>
         </div>
