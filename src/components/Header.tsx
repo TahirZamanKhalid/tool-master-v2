@@ -1,19 +1,16 @@
-import { Menu, Wrench, Sun, Moon, Search, Zap } from "lucide-react";
+import { Menu, Wrench, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { lazy, Suspense, useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { applyTheme, getInitialTheme, saveThemePreference, type AppTheme } from "@/utils/theme";
 
 const MobileMenuSheet = lazy(() => import("@/components/MobileMenuSheet"));
 
 export const Header = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [theme, setTheme] = useState<AppTheme>(() => getInitialTheme());
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
 
   useEffect(() => {
     applyTheme(theme);
@@ -24,28 +21,6 @@ export const Header = () => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  // Close search on Escape
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSearchOpen(false);
-      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-        e.preventDefault();
-        setSearchOpen((v) => !v);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchValue.trim()) {
-      navigate(`/?q=${encodeURIComponent(searchValue.trim())}`);
-      setSearchValue("");
-      setSearchOpen(false);
-    }
-  };
 
   const toggleTheme = () => {
     setTheme((current) => {
@@ -66,13 +41,13 @@ export const Header = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+      className={`sticky top-0 z-50 w-full transition-colors duration-300 ${
         scrolled
           ? "border-b border-border/60 bg-background/95 backdrop-blur-xl shadow-sm"
           : "bg-background/80 backdrop-blur-md"
       }`}
     >
-      <div className="container flex h-16 items-center justify-between px-4 max-w-7xl mx-auto gap-4">
+      <div className="container flex h-16 items-center justify-between px-4 max-w-7xl mx-auto">
 
         {/* Logo */}
         <Link
@@ -95,7 +70,7 @@ export const Header = () => {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
+        <nav className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => (
             <Link
               key={link.path}
@@ -114,44 +89,8 @@ export const Header = () => {
           ))}
         </nav>
 
-        {/* Search bar (desktop inline) */}
-        <div className="hidden lg:flex flex-1 max-w-xs">
-          {searchOpen ? (
-            <form onSubmit={handleSearchSubmit} className="w-full animate-fade-in-down">
-              <div className="flex items-center gap-2 h-9 px-3 rounded-xl bg-muted/60 border border-border/60 focus-within:border-primary/50 transition-colors">
-                <Search className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                <input
-                  autoFocus
-                  value={searchValue}
-                  onChange={(e) => setSearchValue(e.target.value)}
-                  placeholder="Search 150+ tools…"
-                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/60 outline-none"
-                />
-                <kbd className="text-[10px] text-muted-foreground/50 font-mono">ESC</kbd>
-              </div>
-            </form>
-          ) : (
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="w-full flex items-center gap-2 h-9 px-3 rounded-xl bg-muted/40 border border-border/40 hover:border-primary/30 hover:bg-muted/60 transition-all text-sm text-muted-foreground/70 group"
-              aria-label="Search tools"
-            >
-              <Search className="h-3.5 w-3.5 shrink-0" />
-              <span className="flex-1 text-left">Search tools…</span>
-              <kbd className="hidden xl:inline-block text-[10px] px-1.5 py-0.5 rounded bg-border/60 text-muted-foreground font-mono">⌘K</kbd>
-            </button>
-          )}
-        </div>
-
         {/* Right Side Actions */}
         <div className="flex items-center gap-2">
-
-          {/* Live badge */}
-          <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-xs font-bold">
-            <Zap className="h-3 w-3" />
-            150+ Free
-          </div>
-
           {/* Theme Toggle */}
           <Button
             variant="ghost"
