@@ -224,10 +224,11 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <ScrollToTop />
-          <CookieConsent />
-          <Suspense fallback={<LoadingFallback />}>
+        <div className="app-shell">
+          <BrowserRouter>
+            <ScrollToTop />
+            <CookieConsent />
+            <Suspense fallback={<LoadingFallback />}>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
@@ -412,8 +413,9 @@ const App = () => {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
-          </Suspense>
-        </BrowserRouter>
+            </Suspense>
+          </BrowserRouter>
+        </div>
       </TooltipProvider>
     </HelmetProvider>
   );

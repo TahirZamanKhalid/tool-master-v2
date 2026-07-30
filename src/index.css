@@ -92,6 +92,16 @@ html, body {
   scroll-behavior: smooth;
 }
 
+#root,
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-shell {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 * {
   box-sizing: border-box;
 }
