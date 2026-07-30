@@ -13,7 +13,7 @@ import { useState, useEffect, useMemo } from "react";
 import { allTools } from "@/data/allTools";
 import { faqData } from "@/data/faqData";
 import { toCanonicalUrl } from "@/utils/seo";
-import { ArrowRight, CheckCircle, Zap, Shield, Globe, Star } from "lucide-react";
+import { ArrowRight, CheckCircle, Zap, Shield, Globe, ImageIcon, FileText as FileTextIcon, Code2, QrCode as QrCodeIcon, Lock, Scissors, Sparkles as SparklesIcon, Calculator as CalcIcon, AlignLeft } from "lucide-react";
 import {
   Sparkles, Image, FileText, Calculator, QrCode, Video,
   TrendingUp, Code, Shield as ShieldIcon, Dices, ArrowRightLeft,
@@ -60,7 +60,19 @@ const stats = [
   { value: "150+", label: "Free Tools", icon: Zap },
   { value: "1M+", label: "Monthly Users", icon: Globe },
   { value: "10M+", label: "Files Processed", icon: CheckCircle },
-  { value: "4.9★", label: "User Rating", icon: Star },
+];
+
+const popularTools = [
+  { name: "Background Remover", path: "/tools/background-remover", icon: ImageIcon, gradient: "from-pink-500 to-rose-600", category: "Image" },
+  { name: "PDF Merger", path: "/tools/pdf-merger", icon: FileTextIcon, gradient: "from-orange-500 to-red-600", category: "PDF" },
+  { name: "Image Compressor", path: "/tools/advanced-image-compressor", icon: ImageIcon, gradient: "from-blue-500 to-indigo-600", category: "Image" },
+  { name: "QR Code Generator", path: "/tools/qr-code-generator", icon: QrCodeIcon, gradient: "from-emerald-500 to-teal-600", category: "QR" },
+  { name: "JSON Formatter", path: "/tools/json-formatter", icon: Code2, gradient: "from-green-500 to-emerald-600", category: "Dev" },
+  { name: "Password Generator", path: "/tools/password-generator", icon: Lock, gradient: "from-red-500 to-orange-600", category: "Security" },
+  { name: "AI Essay Writer", path: "/tools/essay-writer", icon: SparklesIcon, gradient: "from-purple-500 to-indigo-600", category: "AI" },
+  { name: "Video Trimmer", path: "/tools/video-trimmer", icon: Scissors, gradient: "from-violet-500 to-purple-600", category: "Video" },
+  { name: "Word Counter", path: "/tools/premium-plus-word-counter", icon: AlignLeft, gradient: "from-cyan-500 to-blue-600", category: "Text" },
+  { name: "BMI Calculator", path: "/tools/bmi-calculator", icon: CalcIcon, gradient: "from-teal-500 to-cyan-600", category: "Calc" },
 ];
 
 const whyUs = [
@@ -225,7 +237,7 @@ const Index = () => {
         {/* Stats Bar */}
         <div className="border-y border-border/40 bg-muted/20">
           <div className="container max-w-5xl mx-auto px-4 py-5">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div className="grid grid-cols-3 gap-4 text-center">
               {stats.map(({ value, label, icon: Icon }) => (
                 <div key={label} className="flex flex-col items-center gap-1">
                   <div className="flex items-center gap-1.5">
@@ -278,79 +290,95 @@ const Index = () => {
 
         {!searchQuery && !selectedCategory && <HowItWorks />}
 
-        {/* Popular / Search Results Section */}
-        <section id="tools-section" className="py-12 px-4">
-          <div className="container max-w-7xl mx-auto">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-black text-foreground">
-                  {searchQuery || selectedCategory ? "Search Results" : "Most Popular Tools"}
-                </h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {searchQuery || selectedCategory
-                    ? `${filteredTools.length} tool${filteredTools.length !== 1 ? "s" : ""} found — all free, no signup`
-                    : "Trusted by developers, designers & students worldwide"}
-                </p>
-              </div>
-              {!searchQuery && !selectedCategory && (
+        {/* Popular Tools — shown only when no search/filter active */}
+        {!searchQuery && !selectedCategory && (
+          <section className="py-12 px-4">
+            <div className="container max-w-7xl mx-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-black text-foreground">🔥 Most Popular Tools</h2>
+                  <p className="text-sm text-muted-foreground mt-1">Trusted by developers, designers &amp; students worldwide</p>
+                </div>
                 <Link
                   to="/tools"
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary/90 transition-all shadow-md shadow-primary/20 shrink-0"
                 >
                   View All Tools <ArrowRight className="h-4 w-4" />
                 </Link>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {popularTools.map(({ name, path, icon: Icon, gradient, category }, index) => (
+                  <Link
+                    key={path}
+                    to={path}
+                    className="group relative flex flex-col items-start gap-3 p-4 rounded-2xl bg-card border border-border/60 hover:border-primary/40 hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 animate-fade-in-up overflow-hidden"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
+                    {/* subtle gradient bg on hover */}
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.04] transition-opacity duration-300 bg-gradient-to-br from-primary to-accent rounded-2xl" />
+                    <div className={`h-9 w-9 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-sm shrink-0`}>
+                      <Icon className="h-4.5 w-4.5 text-white" style={{ width: '1.125rem', height: '1.125rem' }} />
+                    </div>
+                    <div className="space-y-1 min-w-0">
+                      <p className="text-sm font-bold text-foreground leading-snug group-hover:text-primary transition-colors line-clamp-2">{name}</p>
+                      <span className="inline-block text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground">{category}</span>
+                    </div>
+                    <ArrowRight className="absolute bottom-3 right-3 h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary/70 group-hover:translate-x-0.5 transition-all duration-200" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Search Results Section */}
+        {(searchQuery || selectedCategory) && (
+          <section id="tools-section" className="py-12 px-4">
+            <div className="container max-w-7xl mx-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-black text-foreground">Search Results</h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {filteredTools.length} tool{filteredTools.length !== 1 ? "s" : ""} found — all free, no signup
+                  </p>
+                </div>
+              </div>
+              {selectedCategory && (
+                <div className="mb-6 flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    Showing: <span className="font-semibold text-foreground">{selectedCategory}</span>
+                  </span>
+                  <button onClick={() => handleCategoryFilter("")} className="text-sm text-primary hover:underline font-medium">Clear</button>
+                </div>
+              )}
+              {filteredTools.length > 0 ? (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {filteredTools.map((tool, index) => {
+                    const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
+                    return (
+                      <div key={tool.path} className="contents">
+                        <div className="animate-fade-in-up" style={{ animationDelay: `${index * 0.04}s` }}>
+                          <ToolCard {...tool} />
+                        </div>
+                        {showAdAfter && (
+                          <div className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
+                            <AdRow slot="2127993591" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-16 bg-card rounded-2xl border border-border/60">
+                  <p className="text-xl font-bold text-foreground mb-2">No tools found</p>
+                  <p className="text-muted-foreground mb-4">Try a different search term</p>
+                  <button onClick={() => { handleSearch(""); handleCategoryFilter(""); }} className="text-primary hover:underline font-medium">Clear all filters</button>
+                </div>
               )}
             </div>
-
-            {selectedCategory && (
-              <div className="mb-6 flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  Showing: <span className="font-semibold text-foreground">{selectedCategory}</span>
-                </span>
-                <button
-                  onClick={() => handleCategoryFilter("")}
-                  className="text-sm text-primary hover:underline font-medium"
-                >
-                  Clear
-                </button>
-              </div>
-            )}
-
-            {filteredTools.length > 0 ? (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {filteredTools.map((tool, index) => {
-                  const showAdAfter = (index + 1) % 8 === 0 && index < filteredTools.length - 1;
-                  return (
-                    <div key={tool.path} className="contents">
-                      <div
-                        className="animate-fade-in-up"
-                        style={{ animationDelay: `${index * 0.04}s` }}
-                      >
-                        <ToolCard {...tool} />
-                      </div>
-                      {showAdAfter && (
-                        <div className="col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4">
-                          <AdRow slot="2127993591" />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-16 bg-card rounded-2xl border border-border/60">
-                <p className="text-xl font-bold text-foreground mb-2">No tools found</p>
-                <p className="text-muted-foreground mb-4">Try a different search term</p>
-                <button
-                  onClick={() => { handleSearch(""); handleCategoryFilter(""); }}
-                  className="text-primary hover:underline font-medium"
-                >
-                  Clear all filters
-                </button>
-              </div>
-            )}
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Ad Banner */}
         <div className="container max-w-5xl mx-auto px-4 mb-8">
