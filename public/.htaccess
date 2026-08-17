@@ -29,6 +29,13 @@
   RewriteRule ^tools/random-number/?$ /tools/premium-plus-random-number-generator/ [R=301,L]
   RewriteRule ^tools/stopwatch/?$ /tools/premium-plus-multi-stopwatch/ [R=301,L]
   RewriteRule ^blog/remove-background-image-free-ai-guide/?$ /blog/ [R=301,L]
+
+  # Force trailing slash on all non-file URLs
+  # This prevents 404s when Apache matches pre-rendered directories without slash
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_URI} !(\.[a-zA-Z0-9]{1,5})$
+  RewriteCond %{REQUEST_URI} !(.*)/$
+  RewriteRule ^(.*)$ /$1/ [R=301,L]
 </IfModule>
 
 # ─── Security Headers ──────────────────────────────────────────────────────────
