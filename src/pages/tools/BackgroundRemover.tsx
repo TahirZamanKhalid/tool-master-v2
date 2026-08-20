@@ -1,6 +1,7 @@
 // pages/BackgroundRemover.tsx
-import { useState, useRef } from "react";
-import { Link } from "react-router-dom"; // or next/link
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { Helmet } from "react-helmet";
+import { Link, Link as RouterLink } from "react-router-dom"; // or next/link
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -698,7 +699,25 @@ const BackgroundRemover = () => {
             </aside>
           </div>
 
-          {/* Footer with Internal Links */}
+          {/* Related Articles & Guides — internal link for SEO */}
+          <section className="mt-12 mb-8 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Related Articles & Guides</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <RouterLink
+                to="/blog/free-ai-background-remover"
+                className="p-4 border border-gray-200 dark:border-gray-800 rounded-lg bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow no-underline block"
+              >
+                <span className="text-blue-600 dark:text-blue-400 font-semibold hover:underline text-lg block">
+                  Free AI Background Remover
+                </span>
+                <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm">
+                  Remove backgrounds from images automatically using AI. Best free online background remover tool.
+                </p>
+              </RouterLink>
+            </div>
+          </section>
+
+          {/* Footer - Only visible within the tool view */}
           <footer className="border-t mt-12 pt-8">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 mb-8">
               <div>

@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { Link as RouterLink } from "react-router-dom";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -496,6 +497,24 @@ const JPGToPNG = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Related Articles & Guides — internal link for SEO */}
+      <section className="mt-12 mb-8 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-2xl font-bold mb-4 text-foreground">Related Articles & Guides</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <RouterLink
+            to="/blog/convert-jpg-to-png-transparent"
+            className="p-4 border border-border/60 rounded-lg bg-card/80 shadow-sm hover:shadow-card-hover transition-shadow no-underline block"
+          >
+            <span className="text-primary font-semibold hover:underline text-lg block">
+              How to Convert JPG to PNG Online (And Why You Should)
+            </span>
+            <p className="text-muted-foreground mt-2 text-sm">
+              Discover the best free way to convert standard JPG photos into high-quality PNG images for graphic design, logos, and digital art.
+            </p>
+          </RouterLink>
+        </div>
+      </section>
     </ToolLayout>
   );
 };

@@ -1,4 +1,5 @@
-﻿import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
+import { Link as RouterLink } from "react-router-dom";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -1139,6 +1140,24 @@ const PhotoCollageMaker = () => {
           </CardContent>
         </Card>
       </ToolLayout>
+
+      {/* Related Articles & Guides — internal link for SEO */}
+      <section className="mt-12 mb-8 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-2xl font-bold mb-4 text-foreground">Related Articles & Guides</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <RouterLink
+            to="/blog/free-online-photo-collage-maker"
+            className="p-4 border border-border/60 rounded-lg bg-card/80 shadow-sm hover:shadow-card-hover transition-shadow no-underline block"
+          >
+            <span className="text-primary font-semibold hover:underline text-lg block">
+              Best Free Online Photo Collage Maker
+            </span>
+            <p className="text-muted-foreground mt-2 text-sm">
+              Create stunning photo collages with customizable layouts. Best free online collage maker for Instagram and social media.
+            </p>
+          </RouterLink>
+        </div>
+      </section>
 
       <AdWatchModal
         open={showAdModal}

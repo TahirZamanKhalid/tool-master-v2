@@ -1,4 +1,4 @@
-﻿import {
+import {
   useCallback,
   useEffect,
   useMemo,
@@ -8,7 +8,7 @@
   type DragEvent,
 } from "react";
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router-dom";
+import { Link, Link as RouterLink } from "react-router-dom";
 import {
   ChevronRight,
   FileImage,
@@ -429,6 +429,24 @@ const AdvancedImageEditor = () => {
                   <p className="mt-0.5 text-xs text-muted-foreground">{answer}</p>
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* Related Articles & Guides — internal link for SEO */}
+          <section className="mt-12 mb-8 w-full">
+            <h2 className="text-2xl font-bold mb-4 text-foreground">Related Articles & Guides</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <RouterLink
+                to="/blog/advanced-image-editor-free-online-photo-editing"
+                className="p-4 border border-border/60 rounded-lg bg-card/80 shadow-sm hover:shadow-card-hover transition-shadow no-underline block"
+              >
+                <span className="text-primary font-semibold hover:underline text-lg block">
+                  Advanced Image Editor: Free Online Photo Editing
+                </span>
+                <p className="text-muted-foreground mt-2 text-sm">
+                  Edit photos with advanced features like filters, adjustments, and cropper without installing any software.
+                </p>
+              </RouterLink>
             </div>
           </section>
 

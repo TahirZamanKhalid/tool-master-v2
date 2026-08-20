@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { Link as RouterLink } from "react-router-dom";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -109,6 +110,24 @@ const CSSMinifier = () => {
           </>
         )}
       </div>
+
+      {/* Related Articles & Guides — internal link for SEO */}
+      <section className="mt-12 mb-8 w-full max-w-4xl mx-auto">
+        <h2 className="text-2xl font-bold mb-4 text-foreground">Related Articles & Guides</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <RouterLink
+            to="/blog/best-free-online-css-minifier"
+            className="p-4 border border-border/60 rounded-lg bg-card/80 shadow-sm hover:shadow-card-hover transition-shadow no-underline block"
+          >
+            <span className="text-primary font-semibold hover:underline text-lg block">
+              Best Free Online CSS Minifier & Compressor
+            </span>
+            <p className="text-muted-foreground mt-2 text-sm">
+              Compress your CSS instantly to improve website loading speed and Core Web Vitals.
+            </p>
+          </RouterLink>
+        </div>
+      </section>
     </ToolLayout>
   );
 };

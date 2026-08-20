@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link as RouterLink } from "react-router-dom";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -499,6 +500,23 @@ const Base64Encoder = () => {
           <p className="text-muted-foreground leading-relaxed">
             The tool supports both encoding (converting plain text to Base64) and decoding (converting Base64 back to readable text). It handles all standard ASCII and Latin-1 characters, making it suitable for most common developer use cases including HTTP headers, data URIs, email encoding, and more.
           </p>
+          {/* Related Articles & Guides — internal link for SEO */}
+          <section className="mt-12 mb-8 w-full max-w-4xl mx-auto">
+            <h2 className="text-2xl font-bold mb-4 text-foreground">Related Articles & Guides</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <RouterLink
+                to="/blog/free-base64-encoder-decoder"
+                className="p-4 border border-border/60 rounded-lg bg-card/80 shadow-sm hover:shadow-card-hover transition-shadow no-underline block"
+              >
+                <span className="text-primary font-semibold hover:underline text-lg block">
+                  Free Base64 Encoder / Decoder Online
+                </span>
+                <p className="text-muted-foreground mt-2 text-sm">
+                  Securely encode strings to Base64 or decode Base64 back to readable text in your browser.
+                </p>
+              </RouterLink>
+            </div>
+          </section>
         </section>
       </ToolLayout>
     </>
