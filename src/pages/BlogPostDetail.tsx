@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -8,6 +9,8 @@ import { blogPosts } from "@/data/blogPosts";
 import { allTools } from "@/data/allTools";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 
 const BlogPostDetail = () => {
     const { slug } = useParams();
@@ -36,6 +39,13 @@ const BlogPostDetail = () => {
         navigator.clipboard.writeText(window.location.href);
         toast.success("Link copied to clipboard!");
     };
+
+    // Parse markdown content into safe HTML
+    const parsedContent = useMemo(() => {
+        const contentWithoutH1 = post.content.replace(/^#\s+.*$/m, "").trim();
+        const rawHtml = marked.parse(contentWithoutH1) as string;
+        return DOMPurify.sanitize(rawHtml);
+    }, [post.content]);
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
@@ -129,8 +139,8 @@ const BlogPostDetail = () => {
                         </div>
 
                         <div
-                            className="mt-8 text-lg leading-relaxed whitespace-pre-wrap"
-                            dangerouslySetInnerHTML={{ __html: post.content.replace(/^# .*\n/, '') }}
+                            className="mt-8 text-lg leading-relaxed [&_a]:text-primary [&_a]:underline [&_a:hover]:text-primary/80 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-4 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3 [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:my-4 [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:my-4 [&_li]:mb-2 [&_p]:mb-4 [&_strong]:font-bold"
+                            dangerouslySetInnerHTML={{ __html: parsedContent }}
                         />
                     </article>
 

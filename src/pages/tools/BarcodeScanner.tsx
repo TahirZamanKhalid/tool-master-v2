@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { ToolLayout } from "@/components/ToolLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -483,6 +484,24 @@ const BarcodeScanner = () => {
       </div>
 
       <AdSpace size="leaderboard" className="mt-6" />
+
+      {/* Related Articles & Guides — internal link for SEO */}
+      <section className="mt-12 mb-8">
+        <h2 className="text-2xl font-bold mb-4 text-foreground">Related Articles & Guides</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Link
+            to="/blog/free-online-barcode-scanner"
+            className="p-4 border border-border/60 rounded-lg bg-card/80 shadow-sm hover:shadow-card-hover transition-shadow no-underline block"
+          >
+            <span className="text-primary font-semibold hover:underline text-lg block">
+              Free Online Barcode Scanner – Camera & Upload
+            </span>
+            <p className="text-muted-foreground mt-2 text-sm">
+              Decode any barcode from camera or image. Supports EAN-13, UPC-A, CODE128 & more.
+            </p>
+          </Link>
+        </div>
+      </section>
     </ToolLayout>
   );
 };
