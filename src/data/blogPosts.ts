@@ -23,7 +23,7 @@ export const blogPosts: BlogPost[] = [
     date: "2026-08-20",
     category: "QR Tools",
     tags: ["Free online QR code generator", "custom QR codes with logos", "QR code generator with color", "free QR code maker no signup", "browser-based QR utility"],
-    image: "/images/blog/qr-generator-hero.jpg",
+    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=2070&auto=format&fit=crop",
     readTime: "4 min read",
     featured: true,
     content: `
@@ -93,7 +93,7 @@ Stop paying for basic tools and skip the tedious sign-up processes. Create high-
     date: "2026-08-20",
     category: "QR Tools",
     tags: ["free barcode generator", "online barcode maker", "EAN-13 barcode generator", "UPC-A barcode creator", "CODE128 barcode free", "barcode generator no signup"],
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?q=80&w=2032&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
     readTime: "5 min read",
     featured: true,
     content: `
@@ -169,7 +169,7 @@ Skip the expensive software subscriptions and complicated setups. Generate profe
     date: "2026-08-20",
     category: "QR Tools",
     tags: ["free QR code scanner", "online QR reader", "scan QR code from image", "QR code scanner no app", "camera QR scanner free", "browser QR code reader"],
-    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop",
     readTime: "4 min read",
     featured: true,
     content: `
@@ -232,7 +232,7 @@ Stop installing bloated apps for something your browser can do in seconds. Fast,
     date: "2026-08-20",
     category: "QR Tools",
     tags: ["free barcode scanner online", "scan barcode from image", "barcode reader no app", "online barcode decoder", "camera barcode scanner free", "UPC barcode lookup"],
-    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=2070&auto=format&fit=crop",
     readTime: "5 min read",
     featured: true,
     content: `
@@ -307,7 +307,7 @@ Turn any device into a barcode scanner. No hardware, no apps, no subscriptions.
     date: "2026-08-20",
     category: "QR Tools",
     tags: ["WiFi QR code generator", "free WiFi QR code", "share WiFi QR code", "WiFi QR code maker", "guest WiFi QR code", "WPA2 QR code generator"],
-    image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
     readTime: "5 min read",
     featured: true,
     content: `
@@ -401,7 +401,7 @@ Stop spelling out passwords. Let your guests connect in one scan.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["JSON formatter", "online JSON validator", "beautify JSON", "JSON parser free", "developer tools"],
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop",
     readTime: "4 min read",
     featured: true,
     content: `
@@ -461,7 +461,7 @@ Save your eyesight and your sanity.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["Base64 encoder", "Base64 decoder online", "decode Base64 string", "Base64 format", "developer tools"],
-    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop",
     readTime: "3 min read",
     featured: true,
     content: `
@@ -516,7 +516,7 @@ Stop opening terminal windows just to run \`echo "..." | base64\`.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["URL encoder", "URL decoder online", "URL percent encoding", "encode URI component", "developer tools"],
-    image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -571,7 +571,7 @@ Don't let a stray space ruin your GET request.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["HTML encoder", "HTML entity decoder", "encode HTML online", "prevent XSS", "developer tools"],
-    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -626,7 +626,7 @@ Keep your DOM clean and your users safe.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["XML formatter", "beautify XML", "online XML validator", "XML parser", "developer tools"],
-    image: "https://images.unsplash.com/photo-1542831371-32f555c86880?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -681,7 +681,7 @@ Stop squinting at angle brackets. Let our tool do the formatting for you.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["Hash generator", "MD5 hash online", "SHA-256 generator", "cryptographic hash", "developer tools"],
-    image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -736,7 +736,7 @@ Stop relying on unsafe servers for your cryptography.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["UUID generator", "GUID generator online", "generate UUID v4", "unique identifier", "developer tools"],
-    image: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?q=80&w=2088&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -791,7 +791,7 @@ Ensure your database records are truly unique.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["Timestamp converter", "Unix epoch converter", "epoch to date", "date to timestamp", "developer tools"],
-    image: "https://images.unsplash.com/photo-1501139083538-0139583c060f?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -846,7 +846,7 @@ Let the machines do the calculating.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["Regex tester", "regular expression online", "regex debugger", "test regex", "developer tools"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop",
     readTime: "4 min read",
     featured: false,
     content: `
@@ -901,7 +901,7 @@ Get visual confirmation that your pattern works before you push it to production
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["Code beautifier", "format HTML online", "JavaScript formatter", "CSS beautifier", "developer tools"],
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
     readTime: "4 min read",
     featured: true,
     content: `
@@ -956,7 +956,7 @@ Save your eyes and get back to actually coding.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["CSS minifier", "compress CSS online", "CSS optimizer", "improve page speed", "developer tools"],
-    image: "https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1011,7 +1011,7 @@ Every kilobyte matters when it comes to SEO and user experience.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["JavaScript minifier", "compress JS online", "minify JS", "improve JS performance", "developer tools"],
-    image: "https://images.unsplash.com/photo-1555099962-4199c345e5dd?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1066,7 +1066,7 @@ Don't let bloated JavaScript ruin your user experience.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["HTML minifier", "compress HTML online", "HTML optimizer", "improve SEO", "developer tools"],
-    image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1121,7 +1121,7 @@ Stop serving empty space to your users.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["SQL formatter", "beautify SQL online", "SQL format tool", "clean SQL queries", "developer tools"],
-    image: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?q=80&w=2071&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1176,7 +1176,7 @@ Turn your raw database queries into beautiful, readable code.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["YAML formatter", "YAML validator online", "format YAML", "Kubernetes config", "developer tools"],
-    image: "https://images.unsplash.com/photo-1618401479427-c8ef9465fbe1?q=80&w=2043&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1231,7 +1231,7 @@ Stop letting a single space bring down your production builds.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["Markdown to HTML", "MD to HTML converter", "Markdown editor online", "Markdown compiler", "developer tools"],
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1286,7 +1286,7 @@ Focus on your content and let the machines handle the markup.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["JSON to YAML", "convert JSON online", "YAML generator", "DevOps tools", "developer tools"],
-    image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=2072&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1341,7 +1341,7 @@ Let the parser do the heavy lifting.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["JSON minifier", "compress JSON online", "minify JSON", "reduce payload size", "developer tools"],
-    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1396,7 +1396,7 @@ Shrink your data and speed up your APIs.
     date: "2026-08-20",
     category: "Developer Tools",
     tags: ["JSON validator", "check JSON syntax", "validate JSON online", "JSON linter", "developer tools"],
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1451,7 +1451,7 @@ Let our parser find the bugs for you.
     date: "2026-08-20",
     category: "Image Tools",
     tags: ["free online image editor", "photo editor online", "edit photos in browser", "free photoshop alternative", "image tools"],
-    image: "https://images.unsplash.com/photo-1542744094-3a31f272c490?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2070&auto=format&fit=crop",
     readTime: "4 min read",
     featured: false,
     content: `
@@ -1506,7 +1506,7 @@ Your browser is more powerful than you think.
     date: "2026-08-20",
     category: "Image Tools",
     tags: ["free watermark maker", "add watermark to photo", "watermark images online", "protect photos", "image tools"],
-    image: "https://images.unsplash.com/photo-1600132806370-bf17e65e942f?q=80&w=2094&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1561,7 +1561,7 @@ Don't let aggregators steal your credit.
     date: "2026-08-20",
     category: "Image Tools",
     tags: ["free photo collage maker", "online collage generator", "instagram collage maker", "combine photos online", "image tools"],
-    image: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1616,7 +1616,7 @@ Group your photos beautifully in seconds.
     date: "2026-08-20",
     category: "Image Tools",
     tags: ["free GIF maker", "create GIF online", "images to GIF converter", "animated GIF generator", "image tools"],
-    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1671,7 +1671,7 @@ Stop looking for the perfect reaction GIF. Make it yourself.
     date: "2026-08-20",
     category: "Image Tools",
     tags: ["free background remover", "remove background online", "AI image background eraser", "transparent background maker", "image tools"],
-    image: "https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=2064&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1727,7 +1727,7 @@ Let our algorithms do the heavy lifting.
     date: "2026-08-20",
     category: "File Converters",
     tags: ["file converter", "excel to csv", "free online tools"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1772,7 +1772,7 @@ Working with raw text or code? You might also find our **[Code Beautifier](https
     date: "2026-08-20",
     category: "File Converters",
     tags: ["file converter", "csv to excel", "free online tools"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1811,7 +1811,7 @@ If your data extraction journey involves PDFs, you'll love our **[PDF to Images]
     date: "2026-08-20",
     category: "File Converters",
     tags: ["file converter", "png to jpg", "free online tools"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1847,7 +1847,7 @@ Going the other direction? Check out our **[JPG to PNG Converter](https://toolma
     date: "2026-08-20",
     category: "File Converters",
     tags: ["file converter", "jpg to png", "free online tools"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1881,7 +1881,7 @@ Once you have your fresh PNG, what's next?
     date: "2026-08-20",
     category: "File Converters",
     tags: ["file converter", "heic to jpg", "free online tools"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1919,7 +1919,7 @@ Now that your photos are in JPG format, you can do whatever you want with them!
     date: "2026-08-20",
     category: "File Converters",
     tags: ["file converter", "pdf to images", "free online tools"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1955,7 +1955,7 @@ For all your image editing needs after extraction, our **[Advanced Image Editor]
     date: "2026-08-20",
     category: "File Converters",
     tags: ["file converter", "webp to png", "free online tools"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?q=80&w=2069&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `
@@ -1993,7 +1993,7 @@ Once you have your PNG, check out our other free tools:
     date: "2026-08-20",
     category: "File Converters",
     tags: ["file converter", "svg to png", "free online tools"],
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2070&auto=format&fit=crop",
     readTime: "3 min read",
     featured: false,
     content: `

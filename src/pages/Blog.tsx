@@ -7,7 +7,7 @@ import { blogPosts } from "@/data/blogPosts";
 import { BookOpen, Sparkles } from "lucide-react";
 
 const Blog = () => {
-  const featured = blogPosts.filter((p) => p.featured).slice(0, 3);
+  const featured = blogPosts.filter((p) => p.featured).slice(0, 6);
   const others = blogPosts.filter((p) => !featured.find((f) => f.id === p.id));
 
   return (
